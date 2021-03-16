@@ -1,0 +1,15 @@
+.dropzone {
+  &.MuiDropzoneArea-root {
+    min-height: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  &__icon.MuiSvgIcon-root {
+    display: none;
+  }
+  &__text.MuiTypography-h5 {
+    font-size: 14px;
+    font-weight: 400;
+  }
+}

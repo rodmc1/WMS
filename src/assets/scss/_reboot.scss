@@ -1,0 +1,100 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  font-size: $font-size-root;
+}
+
+body {
+  margin: 0;
+  font-family: $font-family-base;
+  // @include font-size($font-size-base);
+  font-weight: $font-weight-base;
+  line-height: $line-height-base;
+  color: $body-color;
+  text-align: $body-text-align;
+  background-color: $body-bg;
+}
+
+[tabindex="-1"]:focus:not(:focus-visible) {
+  outline: 0 !important;
+}
+
+hr {
+  margin: $hr-margin-y 0;
+  color: $hr-color;
+  background-color: currentColor;
+  border: 0;
+  opacity: $hr-opacity;
+}
+
+hr:not([size]) {
+  height: $hr-height;
+}
+
+%heading {
+  margin-top: 0;
+  margin-bottom: $headings-margin-bottom;
+  font-family: $headings-font-family;
+  font-style: $headings-font-style;
+  font-weight: $headings-font-weight;
+  line-height: $headings-line-height;
+  color: $headings-color;
+}
+
+h1 {
+  @extend %heading;
+  font-size: $h1-font-size;
+}
+
+h2 {
+  @extend %heading;
+  font-size: $h2-font-size;
+}
+
+h3 {
+  @extend %heading;
+  font-size: $h3-font-size;
+}
+
+h4 {
+  @extend %heading;
+  font-size: $h4-font-size;
+}
+
+h5 {
+  @extend %heading;
+  font-size: $h5-font-size;
+}
+
+h6 {
+  @extend %heading;
+  font-size: $h6-font-size;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: $paragraph-margin-bottom;
+}
+
+ol,
+ul {
+  padding-left: 2rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+ol ol,
+ul ul,
+ol ul,
+ul ol {
+  margin-bottom: 0;
+}
+
+label {
+  display: inline-block;
+  margin-bottom: $label-margin-bottom;
+}

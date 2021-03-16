@@ -1,0 +1,33 @@
+@import 'assets/scss/variable';
+
+.paper {
+  padding: 22px;
+  margin-bottom: 16px;
+
+  &__divider {
+    margin: 22px -22px;
+    border-bottom: 1px solid $light-gray;
+  }
+
+  &__heading.MuiTypography-root {
+    margin-bottom: 32px;
+  }
+
+  &__section {
+    margin-bottom: 48px;
+  }
+
+  &__label {
+    color: $gray;
+    margin-bottom: 0;
+  }
+
+  &__text {
+    font-size: 14px;
+    margin: 0;
+  }
+
+  &__map {
+    margin: 32px 0 48px;
+  }
+}

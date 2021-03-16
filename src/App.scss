@@ -1,0 +1,137 @@
+@import 'assets/scss/variable';
+@import 'assets/scss/reboot';
+@import 'assets/scss/fonts';
+@import 'assets/scss/utilities';
+@import 'assets/scss/button';
+@import 'assets/scss/paper';
+
+body {
+  background-color: $body-bg;
+  color: $body-color;
+  font-family: $font-family-sans-serif;
+}
+
+.drawer {
+  position: fixed;
+
+  width: 360px;
+  max-width: 100%;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.14);
+  position: fixed;
+  top: 66px;
+  left: 0;
+  bottom: 0;
+  white-space: nowrap;
+  background-color: #FFF;
+
+  &__button {
+    background-color: #F2F2F2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 33px;
+    font-size: 14px;
+    border-top: 1px solid #BDBDBD;
+    cursor: pointer;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+  }
+
+  &.drawer--collapsed {
+    & .main-nav__group-label {
+        display: none;
+    }
+    & .main-nav__group {
+      border-bottom: none;
+      padding-bottom: 0;
+      li {
+        a {
+          padding: 12px 0;
+        }
+      }
+      svg {
+        margin-right: 0;
+        flex: 1;
+      }
+      span {
+        display: none;
+      }
+    }
+    & .drawer__button {
+      span {
+        display: none;
+      }
+    }
+    .main-nav__group--collapsed {
+      & .main-nav__group-list {
+        display: block;
+        opacity: 1;
+        max-height: inherit !important;
+      }
+    }
+  }
+}
+
+.drawer + main {
+  .container {
+    transition: max-width .5s ease-in-out;
+    margin: auto;
+    @media (min-width: 1200px) {
+      max-width: 1140px;
+    }
+    @media (min-width: 1400px) {
+      max-width: 1239px;
+    }
+    @media (min-width: 1900px) {
+      max-width: 1718px;
+    }
+    @media (min-width: 2000px) {
+      max-width: 95%;
+    }
+  }
+  .home .container {
+    @media (min-width: 1200px) {
+      max-width: 1140px;
+    }
+    @media (min-width: 1600px) {
+      max-width: 1454px;
+    }
+    @media (min-width: 1900px) {
+      max-width: 1454px;
+    }
+  }
+}
+
+.drawer:not(.drawer--collapsed) + main {
+  .container {
+    @media (min-width: 1200px) {
+      max-width: 960px;
+    }
+    @media (min-width: 1400px) {
+      max-width: 966px;
+    }
+    @media (min-width: 1900px) {
+      max-width: 1446px;
+    }
+    @media (min-width: 2000px) {
+      max-width: 95%;
+    }
+  }
+  
+  .home .container {
+    @media (min-width: 1200px) {
+      max-width: 960px;
+    }
+    @media (min-width: 1600px) {
+      max-width: 1140px;
+    }
+    @media (min-width: 1900px) {
+      max-width: 1454px;
+    }
+  }
+} 
+
+main {
+  padding-top: 65px;
+}

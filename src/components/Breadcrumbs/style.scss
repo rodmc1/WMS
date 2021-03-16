@@ -1,0 +1,17 @@
+@import 'assets/scss/variable';
+
+.breadcrumbs {
+  &__link {
+    color: $gray;
+    text-decoration: none;
+  }
+
+  &__list-item:last-child &__link {
+    color: $black;
+  }
+}
+
+// Mui Override
+nav.breadcrumbs {
+  margin: 27px 0;
+}

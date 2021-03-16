@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="268.481" height="211.644" viewBox="0 0 268.481 211.644">
+  <defs>
+    <path id="path-4" fill-rule="evenodd" d="M66.48091107 51.64447842h135c9.38255541 0 17 7.61744458 17 17v102c0 9.38255541-7.61744459 17-17 17h-135c-9.38255542 0-17-7.61744459-17-17v-102c0-9.38255542 7.61744458-17 17-17z"/>
+    <mask id="mask-5" x="0" y="0" maskContentUnits="userSpaceOnUse" maskUnits="userSpaceOnUse">
+      <rect width="268.481" height="211.644" x="0" y="0" fill="black"/>
+      <use fill="white" xlink:href="#path-4"/>
+    </mask>
+    <ellipse id="ellipse-14" cx="205.981" cy="59.144" rx="41.5" ry="41.5"/>
+    <mask id="mask-15" x="0" y="0" maskContentUnits="userSpaceOnUse" maskUnits="userSpaceOnUse">
+      <rect width="268.481" height="211.644" x="0" y="0" fill="black"/>
+      <use fill="white" xlink:href="#ellipse-14"/>
+    </mask>
+    <rect id="rect-16" width="41" height="41" x="185.481" y="38.644"/>
+    <mask id="mask-17" maskContentUnits="userSpaceOnUse" maskUnits="userSpaceOnUse">
+      <rect width="268.481" height="211.644" x="0" y="0" fill="black"/>
+      <use fill="white" xlink:href="#rect-16"/>
+    </mask>
+  </defs>
+  <g>
+    <ellipse cx="134.981" cy="188.144" fill="rgb(191,229,225)" rx="133.5" ry="23.5"/>
+    <path fill="rgb(255,255,255)" fill-rule="evenodd" d="M56.48091107 87.64447842h155v83c0 5.51915024-4.48084976 10-10 10h-135c-5.51915025 0-10-4.48084976-10-10v-83z"/>
+    <path fill="rgb(242,250,249)" fill-rule="evenodd" d="M182.98091107 87.64447842s8 78-35 93h63.5v-93h-28.5z"/>
+    <use fill-opacity="0" stroke="rgb(0,150,136)" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="14" mask="url(#mask-5)" xlink:href="#path-4"/>
+    <path fill="rgb(191,229,225)" fill-rule="evenodd" d="M66.48091107 58.64447842h135c5.51915024 0 10 4.48084975 10 10v16h-155v-16c0-5.51915025 4.48084975-10 10-10z"/>
+    <ellipse cx="109.481" cy="119.644" fill="rgb(0,150,136)" rx="6" ry="6"/>
+    <ellipse cx="158.481" cy="119.644" fill="rgb(0,150,136)" rx="6" ry="6"/>
+    <rect width="7" height="7" x="69.481" y="66.644" fill="rgb(127,202,195)"/>
+    <rect width="7" height="7" x="83.481" y="66.644" fill="rgb(127,202,195)"/>
+    <rect width="7" height="7" x="96.481" y="66.644" fill="rgb(127,202,195)"/>
+    <path fill="none" stroke="rgb(0,150,136)" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="7" d="M51.48091107 84.14447842h163"/>
+    <path fill="none" stroke="rgb(0,150,136)" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="7" d="M145.98091107 141.14447842c-13 10-23.5 0-23.5 0"/>
+    <g>
+      <use fill="rgb(255,255,255)" xlink:href="#ellipse-14"/>
+      <use fill-opacity="0" stroke="rgb(0,150,136)" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="14" mask="url(#mask-15)" xlink:href="#ellipse-14"/>
+    </g>
+    <g>
+      <use fill="none" xlink:href="#rect-16"/>
+      <g mask="url(#mask-17)">
+        <path fill="none" d="M185.48091107 38.64447842h41v41h-41v-41z"/>
+        <path fill="rgb(0,150,136)" fill-rule="evenodd" d="M215.6329944 49.49239508c-2.47708333-2.47708333-5.87666667-4.01458333-9.65208333-4.01458333-7.55083334 0-13.64958334 6.11583333-13.64958334 13.66666667 0 7.55083333 6.09875 13.66666666 13.64958334 13.66666666 6.37208333 0 11.685-4.35625 13.20541666-10.25h-3.55333333c-1.40083333 3.98041667-5.19333333 6.83333334-9.65208333 6.83333334-5.65458334 0-10.25-4.59541667-10.25-10.25 0-5.65458334 4.59541666-10.25 10.25-10.25 2.83583333 0 5.36416666 1.17875 7.20916666 3.04083333l-5.50083333 5.50083333h11.95833333V45.47781175l-4.01458333 4.01458333z"/>
+      </g>
+    </g>
+    <path fill="none" stroke="rgb(127,202,195)" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="7" d="M37.3377368 54.1546226c3.53071566-16.01668028 18.00205761-15.1054931 18.00205761-15.1054931"/>
+    <path fill="none" stroke="rgb(127,202,195)" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="7" d="M21.97672286 52.17033386c6.81038053-30.89449788 34.72408273-29.1369133 34.72408273-29.1369133"/>
+  </g>
+</svg>

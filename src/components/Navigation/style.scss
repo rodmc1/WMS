@@ -1,0 +1,126 @@
+@import 'assets/scss/variable';
+
+.main-nav {  
+  max-height: calc(100vh - 130px);
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 12px;               /* width of the entire scrollbar */
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #F1F1F1;        /* color of the tracking area */
+  }  
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #C1C1C1;    /* color of the scroll thumb */
+    border-radius: 20px;       /* roundness of the scroll thumb */
+    border: 3px solid #F1F1F1;  /* creates padding around scroll thumb */
+  }
+
+
+  &__group {
+    border-bottom: 1px solid $light-gray;
+    padding-bottom: 10px;
+    transition: padding .5s ease-in-out;
+
+    &:first-child {
+      padding-bottom: 0;
+      li {
+        a {
+          padding: 20px 33px;
+        }
+      }
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &--collapsed {
+      padding-bottom: 0;
+    }
+
+    &--collapsed & {
+      &-label {
+        padding-bottom: 25px;
+        svg {
+          transform: rotate(-180deg);
+        }
+        span {
+          opacity: 1;
+          max-height: 20px;
+        }
+      }
+      &-list {
+        max-height: 0 !important;
+        opacity: 0;
+      }
+    }
+
+    &-label {
+      cursor: pointer;
+      padding: 25px 33px 20px;
+      transition: padding .5s ease-in-out;
+      p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.172em;
+        position: relative;
+        svg {
+          position: absolute;
+          right: -10px;
+          top: -4px;
+          opacity: 0;
+          transition: transform .5s ease-in-out, opacity .3s ease-in-out;
+        }
+      }
+      span {
+        transition: all .5s ease-in-out;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        margin-top: 5px;
+        display: block;
+        font-size: 14px;
+        color: #828282;
+        opacity: 0;
+        max-height: 0;
+      }
+      &:hover {
+        background-color: #F2F2F2;
+        svg {
+          opacity: 1;
+        }
+      }
+    }
+
+    &-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      transition: all .5s ease-in-out;
+      overflow: hidden;
+      &-item {
+        &-link {
+          display: flex;
+          align-items: center;
+          font-size: 14px;
+          padding: 12px 33px;
+          cursor: pointer;
+          text-decoration: none;
+          color: $black;
+          &--active {
+            color: $emerald;
+          }
+        }
+        svg {
+          margin-right: 28px;
+        }
+        &:hover {
+          background-color: #F2F2F2;
+        }
+      }
+    }
+  }
+}

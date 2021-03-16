@@ -1,0 +1,25 @@
+.authentication {
+  text-align: center;
+  padding: 10px;
+  @media (min-width: 1024px) { 
+    padding: 30px;
+  }
+  &__img {
+    height: 65px;
+    @media (min-width: 1024px) { 
+      height: 165px;
+    }
+  }
+  &__heading.MuiTypography-h5 {
+    margin-bottom: 7px;
+    @media (min-width: 1024px) {
+      font-size: 44px;
+      margin: 20px 0;
+      font-weight: 700;
+    }
+  }
+  &__btn.MuiButtonBase-root {
+    margin-top: 10px;
+  }
+
+}

@@ -1,23 +1,61 @@
-import logo from './logo.svg';
-import './App.css';
+import './App.scss';
+import React from 'react';
+import history from 'config/history';
+import { Router, Switch, Route, Redirect } from 'react-router-dom';
+import { useSpring, animated } from 'react-spring';
+
+import { AuthenticationProvider } from 'context/Authentication';
+import { SnackbarProvider } from 'context/Snackbar';
+import Header from 'components/Header';
+import Navigation from 'components/Navigation';
+import Home from 'pages/Home';
+import WarehouseList from 'pages/WarehouseList';
+import WarehouseOverview from 'pages/WarehouseOverview';
+import WarehouseCreate from 'pages/WarehouseCreate';
+import WarehouseEdit from 'pages/WarehouseEdit';
+import StorageBins from 'pages/StorageBins';
+import SKU from 'pages/SKU';
+import Authentication from 'components/Authentication';
+import Snackbar from 'components/Snackbar';
 
 function App() {
+
+  const [isNavigationCollapsed, setIsNavigationCollapsed] = React.useState(false);
+  const drawerSpring = useSpring({
+    width: isNavigationCollapsed ? 88 : 360
+  });
+  const mainSpring = useSpring({
+    marginLeft: isNavigationCollapsed ? 88 : 360
+  })
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <AuthenticationProvider>
+        <SnackbarProvider>
+          <Authentication />
+          <Router history={history}>
+            <Header/>
+            {/* <Snackbar /> */}
+            <animated.div className={`drawer ${isNavigationCollapsed ? 'drawer--collapsed' : ''}`} style={drawerSpring}>
+              <Navigation isNavigationCollapsed={isNavigationCollapsed} setIsNavigationCollapsed={setIsNavigationCollapsed} />
+            </animated.div>
+            <animated.main style={mainSpring}>
+              <Switch>
+                <Route exact path='/' component={Home} />
+                <Route exact path='/warehouse-list' component={WarehouseList} />
+                <Route exact path='/warehouse-list/overview/:id' component={WarehouseOverview} />
+                <Route exact path='/warehouse-create' component={WarehouseCreate} />
+                <Route exact path='/warehouse-edit/:id' component={WarehouseEdit} />
+                <Route exact path='/storage-bins' component={StorageBins} />
+                <Route exact path='/sku' component={SKU} />
+                <Route>
+                  <Redirect to='/' />
+                </Route>
+              </Switch>
+            </animated.main>
+          </Router>
+        </SnackbarProvider>
+      </AuthenticationProvider>
     </div>
   );
 }
