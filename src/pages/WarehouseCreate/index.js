@@ -62,7 +62,13 @@ function WarehouseCreate(props) {
         }
       ]
     }
-    
+
+    const sampleFiles = {
+      images: data.images[data.images.length - 1],
+      files: data.files[data.files.length - 1],
+    }
+
+    console.log(sampleFiles)
     console.log(sampleCreatedData);
   }
   const handleError = error => {
