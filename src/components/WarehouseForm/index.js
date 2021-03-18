@@ -13,15 +13,15 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import Dropzone from 'components/Dropzone';
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import GoogleMap from 'components/GoogleMap';
-
+import ButtonGroup from '../ButtonGroup'
+import { map } from 'lodash';
 
 function WarehouseForm(props) {
   const cookies = new Cookies();
   const [warehouse, setWarehouse] = React.useState(null);
+  const [selectedAmenities, setSelectedAmenities] = React.useState([]);
 
   // GOOGLE MAP
   const [marker, setMarker] = React.useState(new window.google.maps.Marker({ 
@@ -32,6 +32,30 @@ function WarehouseForm(props) {
     }
   }));
   const googleAutoCompleteCountry = cookies.get('user-location') !== undefined ? cookies.get('user-location').iso.toLowerCase() : 'ph';
+  
+  /*
+   * Get selected Facilities & Amenities
+   * @args FacilitiesAndAmenities data
+   * @args FacilitiesAndAmenities availability
+   * @setter setSelectedAmenities array of objects
+   */ 
+  const handleSelectedFacilities = (data, availability) => {
+    const newArray = [...selectedAmenities];
+    let exist = false;
+
+    selectedAmenities.forEach((selected, index) => {
+      if (selected.id === data.id) exist = true;
+      if (selected.id === data.id && availability !== selected.availability) {
+        newArray[index] = {
+          ...newArray[index],
+          availability
+        };
+        setSelectedAmenities(newArray);
+      }
+    });
+
+    if (!exist) setSelectedAmenities([...selectedAmenities, {...data, availability }]);
+  }
 
   // FORMS
   const { handleSubmit, control, register, formState } = useForm({
@@ -42,19 +66,16 @@ function WarehouseForm(props) {
   const { isDirty, isValid } = formState;
   const [address, setAddress] = React.useState(null);
   const [files, setFiles] = React.useState([]);
-
-  const handleChange = files => {
-    setFiles(files);
-  }
+  const [images, setImages] = React.useState([]);
 
   const handleGeocoder = address => {
-    console.log(address);
     const geocoder = new window.google.maps.Geocoder();
     geocoder.geocode(address.description, (response, status) => {
       if (status === window.google.maps.GeocoderStatus.OK) {
         let marker;
       }
     });
+    setAddress(address);
   }
 
   React.useEffect(() => {
@@ -64,12 +85,26 @@ function WarehouseForm(props) {
   }, [address])
 
   React.useEffect(() => {
-
     props.fetchFacilitiesAndAmenities();
   }, [])
 
+  const __submit = data => {
+    if (isValid) {
+      const newData = {
+        ...data,
+        facilities: selectedAmenities,
+        address,
+        files,
+        images
+      }
+      props.onSubmit(newData);
+    } else {
+      props.onError(data);
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit(props.onSubmit, props.onError)}>
+    <form onSubmit={handleSubmit(__submit, props.onError)}>
       <div className="paper__section">
         <Typography variant="subtitle1" className="paper__heading">General Information</Typography>
         <Grid container spacing={2}>
@@ -301,7 +336,7 @@ function WarehouseForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="text" />
               }
-              name="companyBrokermiddleName"
+              name="companyBrokerMiddleName"
               control={control}
               defaultValue=""
               rules={{ required: true }}
@@ -361,12 +396,12 @@ function WarehouseForm(props) {
             />
           </Grid>
           <Grid item xs={12} md={4}>
-            <label className="paper__label">Miiddle Name</label>
+            <label className="paper__label">Middle Name</label>
             <Controller
               as={
                 <TextField fullWidth variant="outlined" type="text" />
               }
-              name="contactPersonmiddleName"
+              name="contactPersonMiddleName"
               control={control}
               defaultValue=""
               rules={{ required: true }}
@@ -388,7 +423,7 @@ function WarehouseForm(props) {
             <label className="paper__label">Email Address</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" />
+                <TextField fullWidth variant="outlined" type="email" />
               }
               name="contactPersonEmailAddress"
               control={control}
@@ -412,53 +447,28 @@ function WarehouseForm(props) {
       </div>
       
       <div className="paper__section">
-        <Typography variant="subtitle1" className="paper__heading">Family &amp; Amenities</Typography>
+        <Typography variant="subtitle1" className="paper__heading">Facilities &amp; Amenities</Typography>
         <Grid container spacing={2}>
           {
+            !props.facilitiesAndAmenities ? null :
             props.facilitiesAndAmenities.map(f => {
-              console.log(f.Id)
-              return (
-                <Grid item xs={12} md={4} key={f.Id}>
-                  <Controller
-                    as={
-                      <ToggleButtonGroup
-                        exclusive
-                        value="Unavailable"
-                        className="btn-group"
-                      >
-                        <ToggleButton className="btn-group--emerald" value="Available">
-                          Available
-                        </ToggleButton>
-                        <ToggleButton className="btn-group--disabled" value="Unavailable">
-                          Unavailable
-                        </ToggleButton>
-                      </ToggleButtonGroup>
-                    }
-                    name={`facilities-${f.Id}`}
-                    control={control}
-                    defaultValue=""
-                    rules={{ required: true }}
-                  />
-                </Grid>
-              )
+              return <ButtonGroup key={f.Id} data={f} handleSelectedFacilities={handleSelectedFacilities} />
             })
           }
         </Grid>
       </div>
       <div className="paper__section">
-        <Dropzone onChange={handleChange} showPreviews={true} showPreviewsInDropzone={false} />
+        <Dropzone onChange={(files) => setImages([...images, files])} type="image" showPreviews={true} showPreviewsInDropzone={false} text="Drag and drop images here or click" />
         {
-          files.map(f => {
-            console.dir(f);
-            return <img src={f.preview} />
+          images.map(i => {
+            return <img src={i.preview} />
           })
         }
       </div>
       <div className="paper__section">
-        <Dropzone onChange={handleChange} showPreviews={true} showPreviewsInDropzone={false} />
+        <Dropzone onChange={(files) => setFiles([...files, files])}showPreviews={true} showPreviewsInDropzone={false} text="Drag and drop a file here or click" />
         {
           files.map(f => {
-            console.dir(f);
             return <img src={f.preview} />
           })
         }
