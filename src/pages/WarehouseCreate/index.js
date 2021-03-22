@@ -2,12 +2,14 @@ import React from 'react';
 import WarehouseSideBar from 'components/WarehouseSidebar';
 import WarehouseForm from 'components/WarehouseForm';
 import Breadcrumbs from 'components/Breadcrumbs';
+import { uploadWarehouseFiles, createWarehouse } from 'actions/index';
+
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
+import { identity } from 'lodash';
 
 function WarehouseCreate(props) {
-
   const routes = [
     {
       label: 'Warehouse List',
@@ -20,27 +22,25 @@ function WarehouseCreate(props) {
   ];
 
   const handleSubmit = data => {
-    console.log(data);
-
-    const sampleCreatedData = {
+    const warehouse = {
       name: data.warehouseName,
       warehouse_type: data.warehouseType,
       building_type: data.buildingType,
       gps_coordinate: "string",
       address: data.address.description,
       country: data.address.terms[data.address.terms.length - 1].value,
-      year_top: 0,
-      min_lease_terms: 0,
-      psf: 0,
-      floor_area: data.floorArea,
-      covered_area: data.coveredArea,
-      mezzanine_area: data.mezzanineArea,
-      open_area: data.openArea,
-      office_area: data.officeArea,
-      battery_charging_area: data.batteryChargingArea,
-      loading_unloading_bays: data.loadingUnloadingBays,
+      year_top: parseInt(0),
+      min_lease_terms: parseInt(0),
+      psf: Number(0),
+      floor_area: Number(data.floorArea),
+      covered_area: Number(data.coveredArea),
+      mezzanine_area: Number(data.mezzanineArea),
+      open_area: Number(data.openArea),
+      office_area: Number(data.officeArea),
+      battery_charging_area: Number(data.batteryChargingArea),
+      loading_unloading_bays: Number(data.loadingUnloadingBays),
       remarks: data.remarks,
-      facilities_amenities: data.facilities.map(f => f.availability ? f.description : null).filter(Boolean),
+      facilities_amenities: data.facilities_amenities,
       nearby_station: data.nearbyStation,
       warehouse_status: data.warehouseStatus,
       users_details: [
@@ -50,7 +50,9 @@ function WarehouseCreate(props) {
           middle_name: data.companyBrokerMiddleName,
           mobile_number: data.companyBrokerMobileNumber,
           email_address: data.companyBrokerEmailAddress,
-          role: 'Company Broker'
+          role: 'Broker',
+          password: 'default',
+          username: data.companyBrokerEmailAddress
         },
         {
           last_name: data.contactPersonLastName,
@@ -58,19 +60,20 @@ function WarehouseCreate(props) {
           middle_name: data.contactPersonMiddleName,
           mobile_number: data.contactPersonMobileNumber,
           email_address: data.contactPersonEmailAddress,
-          role: 'Contact Person'
+          role: 'Contact Person',
+          password: 'default',
+          username: data.contactPersonEmailAddress
         }
       ]
     }
-
-    const sampleFiles = {
-      images: data.images[data.images.length - 1],
-      files: data.files[data.files.length - 1],
-    }
-
-    console.log(sampleFiles)
-    console.log(sampleCreatedData);
+    
+    createWarehouse(warehouse).then(response => {
+      const id = response.data;
+      if (data.images.length > 0) uploadWarehouseFiles(id, data.images[data.images.length - 1]);
+      if (data.files.length > 0) uploadWarehouseFiles(id, data.files[data.files.length - 1]);
+    });
   }
+
   const handleError = error => {
     console.log(error)
   }

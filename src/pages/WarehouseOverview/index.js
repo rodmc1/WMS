@@ -146,7 +146,7 @@ function WarehouseOverview(props) {
   }
 
   React.useEffect(() => {
-    if(props.facilities_and_amenities.length) {
+    if (props.facilities_and_amenities.length) {
       setFacilitiesAndAmenities(props.facilities_and_amenities);
     } else {
       props.fetchFacilitiesAndAmenities();
@@ -158,16 +158,23 @@ function WarehouseOverview(props) {
     if (id) {
       props.fetchWarehouseById(id);
     }
-  }, []);
-  
-  React.useEffect(() => {
+    
     if (props.warehouse) {
-      setRoutes(r => [...r, {
+      setRoutes(routes => [...routes, {
         label: props.warehouse.warehouse_client,
         path: `/warehouse-list/overview/${props.warehouse.warehouse_id}`
       }]);
     }
-  }, [props.warehouse])
+  }, []);
+  
+  // React.useEffect(() => {
+  //   if (props.warehouse) {
+  //     setRoutes(routes => [...routes, {
+  //       label: props.warehouse.warehouse_client,
+  //       path: `/warehouse-list/overview/${props.warehouse.warehouse_id}`
+  //     }]);
+  //   }
+  // },[])
 
   return (
     <div className="container">
@@ -188,6 +195,7 @@ function WarehouseOverview(props) {
 }
 
 const mapStateToProps = (state, ownProps) => {
+  console.log(state);
   return { 
     warehouse: state.warehouses.data[ownProps.match.params.id],
     facilities_and_amenities: state.picklist.facilities_and_amenities
