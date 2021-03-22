@@ -4,8 +4,10 @@ import { connect } from 'react-redux';
 import history from 'config/history';
 import Cookies from 'universal-cookie';
 import { Controller, useForm } from 'react-hook-form';
-import { fetchFacilitiesAndAmenities } from 'actions/picklist';
+import { fetchFacilitiesAndAmenities, fetchBuildingTypes } from 'actions/picklist';
+import { getWarehouseDetails } from './warehouseDetails';
 
+import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
@@ -17,11 +19,13 @@ import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import GoogleMap from 'components/GoogleMap';
 import ButtonGroup from '../ButtonGroup'
 import { map } from 'lodash';
+import { CollectionsBookmark, DataUsage, LiveTv } from '@material-ui/icons';
 
 function WarehouseForm(props) {
   const cookies = new Cookies();
   const [warehouse, setWarehouse] = React.useState(null);
   const [selectedAmenities, setSelectedAmenities] = React.useState([]);
+  const [hasChanged, setHasChanged] = React.useState(false);
 
   // GOOGLE MAP
   const [marker, setMarker] = React.useState(new window.google.maps.Marker({ 
@@ -31,34 +35,28 @@ function WarehouseForm(props) {
       anchor: new window.google.maps.Point(12, 27)
     }
   }));
+  
   const googleAutoCompleteCountry = cookies.get('user-location') !== undefined ? cookies.get('user-location').iso.toLowerCase() : 'ph';
   
   /*
    * Get selected Facilities & Amenities
    * @args FacilitiesAndAmenities data
    * @args FacilitiesAndAmenities availability
-   * @setter setSelectedAmenities array of objects
+   * @setter setSelectedAmenities array of string
    */ 
   const handleSelectedFacilities = (data, availability) => {
-    const newArray = [...selectedAmenities];
-    let exist = false;
-
-    selectedAmenities.forEach((selected, index) => {
-      if (selected.id === data.id) exist = true;
-      if (selected.id === data.id && availability !== selected.availability) {
-        newArray[index] = {
-          ...newArray[index],
-          availability
-        };
-        setSelectedAmenities(newArray);
-      }
-    });
-
-    if (!exist) setSelectedAmenities([...selectedAmenities, {...data, availability }]);
+    if (!selectedAmenities.includes(data) && availability) {
+      setSelectedAmenities([...selectedAmenities, data]); 
+      setHasChanged(true);
+    }
+    if (selectedAmenities.includes(data) && !availability) {
+      setSelectedAmenities(selectedAmenities.filter(facility => facility !== data));
+      setHasChanged(true);
+    }
   }
 
   // FORMS
-  const { handleSubmit, control, register, formState } = useForm({
+  const { handleSubmit, control, register, formState, setValue } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
@@ -85,14 +83,26 @@ function WarehouseForm(props) {
   }, [address])
 
   React.useEffect(() => {
+    if (props.warehouse) {
+      const editWarehouseValues = getWarehouseDetails(props.warehouse);
+      setAddress("325 Gregorio Araneta Avenue, Quezon City, Metro Manila, Philippines");
+      editWarehouseValues.forEach(w => {
+        setValue(w[0], w[1]);
+      });
+      setSelectedAmenities(...selectedAmenities, props.warehouse.facilities_amenities);
+    }
+  }, [props.warehouse]);
+
+  React.useEffect(() => {
+    props.fetchBuildingTypes();
     props.fetchFacilitiesAndAmenities();
-  }, [])
+  }, []);
 
   const __submit = data => {
     if (isValid) {
       const newData = {
         ...data,
-        facilities: selectedAmenities,
+        facilities_amenities: selectedAmenities,
         address,
         files,
         images
@@ -112,7 +122,11 @@ function WarehouseForm(props) {
             <label className="paper__label">Warehouse Name</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="text" />
+                <TextField fullWidth variant="outlined" type="text" 
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">Warehouse Name</InputAdornment>,
+                  }}
+                />
               }
               name="warehouseName"
               control={control}
@@ -153,10 +167,13 @@ function WarehouseForm(props) {
                   variant="outlined"
                   fullWidth
                   displayEmpty={true}
-                >
-                  <MenuItem value="Duplex">Duplex</MenuItem>
-                  <MenuItem value="Stand Alone">Stand Alone</MenuItem>
-                  <MenuItem value="Stockyard">Stockyard</MenuItem>
+                > 
+                  {
+                    !props.building_types ? null :
+                    props.building_types.map(type => {
+                      return <MenuItem value={type.Description}>{type.Description}</MenuItem>
+                    })
+                  }
                 </Select>
               }
             />
@@ -452,7 +469,7 @@ function WarehouseForm(props) {
           {
             !props.facilitiesAndAmenities ? null :
             props.facilitiesAndAmenities.map(f => {
-              return <ButtonGroup key={f.Id} data={f} handleSelectedFacilities={handleSelectedFacilities} />
+              return <ButtonGroup key={f.Id} data={f} handleSelectedFacilities={handleSelectedFacilities} warehouseFacilitiesAndAmenities={props.warehouse} />
             })
           }
         </Grid>
@@ -473,7 +490,7 @@ function WarehouseForm(props) {
           })
         }
       </div>
-      { isDirty && 
+      { (isDirty || hasChanged) &&
         <div className="form__actions-container">
           <div className="form__actions">
             <p>Save this warehouse?</p>
@@ -485,14 +502,14 @@ function WarehouseForm(props) {
         </div>
       }
     </form>
-  
   )
 };
 
 const mapStateToProps = state => {
   return {
-    facilitiesAndAmenities: state.picklist.facilities_and_amenities
+    facilitiesAndAmenities: state.picklist.facilities_and_amenities,
+    building_types: state.picklist.building_types
   }
 }
 
-export default connect(mapStateToProps, { fetchFacilitiesAndAmenities })(WarehouseForm);
+export default connect(mapStateToProps, { fetchFacilitiesAndAmenities, fetchBuildingTypes })(WarehouseForm);
