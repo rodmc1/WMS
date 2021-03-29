@@ -8,24 +8,15 @@ import Button from '@material-ui/core/Button';
 
 function ButtonGroup(props) {
   const [color, setColor] = useState({available: 'white', notavailable: '#828282'});
-  const {data, handleSelectedFacilities} = props;
-  const [existingFacilitiesAndAmenities, setExistingFacilitiesAndAmenities] = useState([]);
-  console.log(props);
-
-  const newData = {
-    id: data.Id,
-    description: data.Description
-  }
+  const { data, handleSelectedFacilities } = props;
 
   React.useEffect(() => {
     if (props.warehouseFacilitiesAndAmenities) {
-      setExistingFacilitiesAndAmenities(props.warehouseFacilitiesAndAmenities.facilities_amenities);
       if (props.warehouseFacilitiesAndAmenities.facilities_amenities.includes(data.Description)) {
         setColor({available: '#009688', notavailable: '#FAFAFA'});
       }
     }
-  },[props.warehouseFacilitiesAndAmenities]);
-
+  }, [props.warehouseFacilitiesAndAmenities]);
   
   /*  
    * Switch color via color state
@@ -33,7 +24,7 @@ function ButtonGroup(props) {
    * @CB Handle selected Facilities and Amenities
    */ 
   const onButtonClick = (status) => {
-    handleSelectedFacilities(newData.description, status);
+    handleSelectedFacilities(data.Description, status);
     setColor({available: '#009688', notavailable: '#FAFAFA'});
     if (!status) {
       setColor({available: '#FAFAFA', notavailable: '#828282'});

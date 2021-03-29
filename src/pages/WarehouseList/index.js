@@ -5,15 +5,27 @@ import { fetchWarehouses } from 'actions/index';
 import { Button } from '@material-ui/core'
 import Breadcrumbs from 'components/Breadcrumbs';
 import Table from 'components/Table';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 function WarehouseList(props) {
-
+  const [open, setOpen] = React.useState(false);
   const routes = [
     {
       label: 'Warehouse List',
       path: '/warehouse-list'
     }
   ];
+
+  React.useEffect(() => {
+    if (props.location.success) {
+      setOpen(true);
+    }
+  },[]);
 
   const config = {
     rowsPerPage: 10,
@@ -80,6 +92,9 @@ function WarehouseList(props) {
         onPaginate={handlePagination}
         onRowClick={handleRowClick}
       />
+      <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+        <Alert severity="success">{props.location.success}</Alert>
+      </Snackbar>
     </div>
   )
 }

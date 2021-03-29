@@ -1,11 +1,13 @@
 export const getWarehouseDetails = (props) => {
-  console.log(props);
   let warehouseDetails = [
     ['warehouseName', props.warehouse_client],
     ['warehouseType', props.warehouse_type],
     ['nearbyStation', props.nearby_station],
     ['buildingType', props.building_type],
     ['warehouseStatus', props.warehouse_status],
+    ['yearOfTop', props.year_top],
+    ['minLeaseTerms', props.min_lease_terms],
+    ['psf', props.psf],
     ['floorArea', props.floor_area],
     ['coveredArea', props.covered_area],
     ['mezzanineArea', props.mezzanine_area],

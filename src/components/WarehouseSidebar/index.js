@@ -9,18 +9,24 @@ function WarehouseSideBar(props) {
   return (
     <Paper elevation={0} variant="outlined">
       <List>
-        <ListItem button onClick={() => history.push(`/warehouse-list/overview/${props.id}`)}>
+        <ListItem button disabled={props.createMode}  onClick={() => history.push(`/warehouse-list/overview/${props.id}`)}>
           <ListItemText primary="Warehouse Overview" />
         </ListItem>
-        <ListItem button onClick={() => history.push(`/warehouse-edit/${props.id}`)}>
+        <ListItem button disabled={props.createMode} onClick={() => history.push(`/warehouse-edit/${props.id}`)}>
           <ListItemText primary="Warehouse Information" />
         </ListItem>
-        <ListItem button onClick={() => console.log('Members')}>
+        <ListItem button disabled={props.createMode} onClick={() => console.log('Members')}>
           <ListItemText primary="Members" />
         </ListItem>
-        <ListItem button onClick={() => console.log('Audit Log')}>
+        <ListItem button disabled={props.createMode} onClick={() => console.log('Audit Log')}>
           <ListItemText primary="Audit Log" />
         </ListItem>
+        {
+          props.editMode &&
+          <ListItem button onClick={() => props.handleClickOpen()}>
+            <ListItemText primary="Delete Warehouse" style={{color: 'red'}} />
+          </ListItem>
+        }
       </List>
     </Paper>
   )

@@ -10,7 +10,6 @@ import Breadcrumbs from 'components/Breadcrumbs';
 import WarehouseSideBar from 'components/WarehouseSidebar';
 
 function WarehouseOverview(props) {
-
   const [routes, setRoutes] = React.useState([
     {
       label: 'Warehouse List',
@@ -19,7 +18,6 @@ function WarehouseOverview(props) {
   ]);
 
   const [facilitiesAndAmenities, setFacilitiesAndAmenities] = React.useState([]);
-
   const renderInformation = () => {
     if (props.warehouse) {
       return (
@@ -128,7 +126,7 @@ function WarehouseOverview(props) {
             <Grid container spacing={2}>
               {facilitiesAndAmenities.map(f => {
                 let status = 'Unavailable';
-                if (props.warehouse.facilities_amenities.includes(f)) {
+                if (props.warehouse.facilities_amenities.includes(f.Description)) {
                   status = 'Available';
                 }
                 return (
@@ -167,15 +165,6 @@ function WarehouseOverview(props) {
     }
   }, []);
   
-  // React.useEffect(() => {
-  //   if (props.warehouse) {
-  //     setRoutes(routes => [...routes, {
-  //       label: props.warehouse.warehouse_client,
-  //       path: `/warehouse-list/overview/${props.warehouse.warehouse_id}`
-  //     }]);
-  //   }
-  // },[])
-
   return (
     <div className="container">
       <Breadcrumbs routes={routes} />

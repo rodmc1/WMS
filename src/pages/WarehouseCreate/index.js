@@ -2,7 +2,8 @@ import React from 'react';
 import WarehouseSideBar from 'components/WarehouseSidebar';
 import WarehouseForm from 'components/WarehouseForm';
 import Breadcrumbs from 'components/Breadcrumbs';
-import { uploadWarehouseFiles, createWarehouse } from 'actions/index';
+import { uploadWarehouseFilesById, createWarehouse } from 'actions/index';
+import history from 'config/history';
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography';
@@ -10,6 +11,7 @@ import Paper from '@material-ui/core/Paper';
 import { identity } from 'lodash';
 
 function WarehouseCreate(props) {
+  const [created, setCreated] = React.useState(false);
   const routes = [
     {
       label: 'Warehouse List',
@@ -26,12 +28,12 @@ function WarehouseCreate(props) {
       name: data.warehouseName,
       warehouse_type: data.warehouseType,
       building_type: data.buildingType,
-      gps_coordinate: "string",
+      gps_coordinate: data.gpsCoordinates,
       address: data.address.description,
-      country: data.address.terms[data.address.terms.length - 1].value,
-      year_top: parseInt(0),
-      min_lease_terms: parseInt(0),
-      psf: Number(0),
+      country: data.country,
+      year_top: Number(data.yearOfTop),
+      min_lease_terms: Number(data.minLeaseTerms),
+      psf: Number(data.psf),
       floor_area: Number(data.floorArea),
       covered_area: Number(data.coveredArea),
       mezzanine_area: Number(data.mezzanineArea),
@@ -40,7 +42,7 @@ function WarehouseCreate(props) {
       battery_charging_area: Number(data.batteryChargingArea),
       loading_unloading_bays: Number(data.loadingUnloadingBays),
       remarks: data.remarks,
-      facilities_amenities: data.facilities_amenities,
+      facilities_amenities: data.selectedAmenities,
       nearby_station: data.nearbyStation,
       warehouse_status: data.warehouseStatus,
       users_details: [
@@ -68,11 +70,33 @@ function WarehouseCreate(props) {
     }
     
     createWarehouse(warehouse).then(response => {
-      const id = response.data;
-      if (data.images.length > 0) uploadWarehouseFiles(id, data.images[data.images.length - 1]);
-      if (data.files.length > 0) uploadWarehouseFiles(id, data.files[data.files.length - 1]);
+      const warehouseId = response.data;
+      if (data.images[data.images.length - 1].length) {
+        uploadWarehouseFilesById(warehouseId, data.images[data.images.length - 1])
+          .then(res => {
+            if (res.statusText === 'Created') setCreated(true);
+          })
+      } 
+      if (data.docs[data.docs.length - 1].length)  {
+        uploadWarehouseFilesById(warehouseId, data.docs[data.docs.length - 1])
+          .then(res => {
+            if (res.statusText === 'Created') setCreated(true);
+          })
+      }
+    }).catch(err => {
+      console.log(err);
     });
+    
   }
+
+  React.useEffect(() => {
+    if (created) {
+      history.push({
+        pathname: '/warehouse-list',
+        success: 'Successfuly saved'
+      });
+    } 
+  }, [created])
 
   const handleError = error => {
     console.log(error)
@@ -86,7 +110,7 @@ function WarehouseCreate(props) {
         justify="space-evenly"
         alignItems="stretch">
         <Grid item xs={12} md={3}>
-          <WarehouseSideBar id={props.match.params.id} />
+          <WarehouseSideBar id={props.match.params.id} createMode />
         </Grid>
         <Grid item xs={12} md={9}>
           <Paper className="paper" elevation={0} variant="outlined">
