@@ -53,7 +53,8 @@ function Dropzone(props) {
           acceptedFiles={props.type === 'image' ? ['image/*'] : ['application/*']}
           dropzoneText={props.text}
           filesLimit={12}
-          classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
+          previewText=""
+          classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text', zeroMinWidth: 'dropzone__img' }}
         />
       }
 

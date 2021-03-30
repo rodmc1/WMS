@@ -12,4 +12,8 @@
     font-size: 14px;
     font-weight: 400;
   }
+  &__img.MuiGrid-zeroMinWidth {
+    width: auto;
+    height: auto;
+  }
 }

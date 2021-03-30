@@ -86,7 +86,7 @@ function WarehouseForm(props) {
         setGpsCoordinates(`${response[0].geometry.location.lat()},${response[0].geometry.location.lng()}`);
       }
     });
-    setAddress(address);
+    setAddress(address.description ? address.description : address);
     setAddressField(address.description);
     if (address.description) setCountry(address.terms[address.terms.length - 1].value);
   }

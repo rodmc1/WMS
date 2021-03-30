@@ -179,10 +179,8 @@ function WarehouseEdit(props) {
 
   const handleImageUpdate = (data) => {
     let existingImages = [];
-    const imageExtensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp'];
-    const newImages = data.images[data.images.length - 1].map(i => { 
-      return imageExtensions.includes(i.name.split('.').pop().toLowerCase()) && i.name;
-    }); 
+    const imageExtensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp'];
+    const newImages = data.images[data.images.length - 1].map(i => { return  i.name }); 
     
     if (existingWarehouse.warehouse_document_file) {
       existingImages = existingWarehouse.warehouse_document_file.map(i => {
@@ -199,14 +197,19 @@ function WarehouseEdit(props) {
     let imageArr = [];
     data.images[data.images.length - 1].forEach(file => {
       if (!existingImages.includes(file.name)) {
-        imageArr.push(uploadWarehouseFilesById(props.match.params.id, [file]))
+        imageArr.push(file)
       }
     });
 
-    Promise.all(imageArr).then(res => {
+    if (imageArr.length) {
+      uploadWarehouseFilesById(props.match.params.id, imageArr).then(response => {
+        if (response.statusText === 'Created') {
+          setStatus(prevState => { return {...prevState, images: true }});
+        }
+      });
+    } else {
       setStatus(prevState => { return {...prevState, images: true }});
-    });
-  
+    }
   }
 
   const handleDelete = (id) => {
