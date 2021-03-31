@@ -67,29 +67,22 @@ function Dropzone(props) {
   },[props.initialFiles]);
 
   const handlePreviewIcon = (file) => {
-    console.log(file)
+    const string = file.file.name;
+    const length = 40;
+    const fileName = string.length > length ? `${string.substring(0, length - 3)}...` : string;
+    const previewIcon = string.split('.').pop().toLowerCase() === 'pdf' ? pdfIcon : docxIcon;
+
     return (
+      props.type === 'image' ? <img role="presentation" src={file.data} /> :
       <React.Fragment>
-      {
-        props.type === 'image' ? <img role="presentation" src={file.data} /> :
-        <React.Fragment>
-          <div className={classes.root}>
-            <Badge>
-              <img className="doc-img" src={pdfIcon} />
-            </Badge>
-            
-            <Badge>
-              <Typography variant='subtitle2' >{file.file.name} </Typography>
-            </Badge>
-             {/* <Badge color="secondary" variant="dot">
-              <MailIcon />
-            </Badge>
-            <Badge color="secondary" variant="dot">
-              <Typography>Typography</Typography>
-            </Badge> */}
-          </div>
-        </React.Fragment>
-      }
+        <div className={classes.root}>
+          <Badge>
+            <img className="doc-img" src={previewIcon} />
+          </Badge>
+          <Badge>
+            <Typography variant='subtitle2'>{fileName}</Typography>
+          </Badge>
+        </div>
       </React.Fragment>
     )
   }
@@ -105,7 +98,11 @@ function Dropzone(props) {
           acceptedFiles={props.type === 'image' ? ['image/*'] : ['application/*']}
           dropzoneText={props.text}
           filesLimit={12}
-          previewText=""
+          previewText={props.type === 'image' ? '' :
+            <Typography variant="caption" style={{color: '#828282'}}>
+              Uploaded Files
+            </Typography>
+          }
           previewGridProps={{container: { direction: 'row' }}}
           getPreviewIcon={file => handlePreviewIcon(file)}
           classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
@@ -155,17 +152,8 @@ function Dropzone(props) {
             previewGridProps={{container: { spacing: 1, direction: 'row' }}}
             previewChipProps={{classes: { root: classes.previewChip } }}
             previewText="Selected files"
-            // previewText=""
-            // useChipsForPreview
-            // getPreviewIcon={file => {
-            //   console.log(file);
-            //   return <img src={pdfIcon} />
-            // }}
             classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
           />
-          <Typography variant='subtitle2' style={{color: '#009688', cursor: 'pointer', marginLeft: '1%'}} onClick={handleExpandClick} aria-expanded={expanded} >
-            {collapseText}
-          </Typography>
         </React.Fragment>
       }
     </React.Fragment>
