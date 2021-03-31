@@ -22,6 +22,9 @@ function GoogleMap(props) {
     styles: MapStyle
   }
 
+
+  console.log(mapRef)
+
   React.useEffect(() => {
     setGoogleMap(new window.google.maps.Map(mapRef.current, options));
   }, [])

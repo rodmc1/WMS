@@ -195,21 +195,30 @@ function WarehouseEdit(props) {
     }
 
     let imageArr = [];
+    let testupload = [];
     data.images[data.images.length - 1].forEach(file => {
       if (!existingImages.includes(file.name)) {
         imageArr.push(file)
+        testupload.push(uploadWarehouseFilesById(props.match.params.id, [file]))
       }
     });
 
-    if (imageArr.length) {
-      uploadWarehouseFilesById(props.match.params.id, imageArr).then(response => {
-        if (response.statusText === 'Created') {
-          setStatus(prevState => { return {...prevState, images: true }});
-        }
-      });
-    } else {
+    console.log(imageArr)
+
+    // if (imageArr.length) {
+    //   uploadWarehouseFilesById(props.match.params.id, imageArr).then(response => {
+    //     if (response.statusText === 'Created') {
+    //       setStatus(prevState => { return {...prevState, images: true }});
+    //     }
+    //   });
+    // } else {
+    //   setStatus(prevState => { return {...prevState, images: true }});
+    // }
+
+    Promise.all(testupload).then(response => {
+      console.log(response);
       setStatus(prevState => { return {...prevState, images: true }});
-    }
+    })
   }
 
   const handleDelete = (id) => {

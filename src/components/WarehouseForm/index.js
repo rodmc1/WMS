@@ -294,10 +294,7 @@ function WarehouseForm(props) {
             <label className="paper__label">Years of TOP</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
-                }} />
+                <TextField fullWidth variant="outlined" type="number" />
               }
               name="yearOfTop"
               control={control}
@@ -631,6 +628,7 @@ function WarehouseForm(props) {
         </Grid>
       </div>
       <div className="paper__section">
+      <Typography variant="subtitle1" className="paper__heading">Warehouse Photos</Typography>
         <Dropzone 
           initialFiles={warehouse}
           onChange={(files) => {
@@ -642,7 +640,8 @@ function WarehouseForm(props) {
           showPreviewsInDropzone={false} text="Drag and drop images here or click"
         />
       </div>
-      <div className="paper__section">
+      <div className="paper__section documents__dropzone">
+      <Typography variant="subtitle1" className="paper__heading">Documents</Typography>
         <Dropzone 
           initialFiles={warehouse}
           type="files"

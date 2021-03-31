@@ -8,10 +8,18 @@ import history from 'config/history';
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import { identity } from 'lodash';
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 function WarehouseCreate(props) {
   const [created, setCreated] = React.useState(false);
+  const [openSnackBar, setOpenSnackBar] = React.useState(false);
+  const [error, setError] = React.useState([]);
   const routes = [
     {
       label: 'Warehouse List',
@@ -29,7 +37,7 @@ function WarehouseCreate(props) {
       warehouse_type: data.warehouseType,
       building_type: data.buildingType,
       gps_coordinate: data.gpsCoordinates,
-      address: data.address.description,
+      address: data.address,
       country: data.country,
       year_top: Number(data.yearOfTop),
       min_lease_terms: Number(data.minLeaseTerms),
@@ -84,7 +92,11 @@ function WarehouseCreate(props) {
           })
       }
     }).catch(err => {
-      console.log(err);
+      if (err.response === 401) {
+        setError('Session Expired');
+      } else {
+        setError(err.response.data.message);
+      }
     });
     
   }
@@ -96,7 +108,13 @@ function WarehouseCreate(props) {
         success: 'Successfuly saved'
       });
     } 
-  }, [created])
+  }, [created]);
+
+  React.useEffect(() => {
+    if (error.length) {
+      setOpenSnackBar(true);
+    } 
+  }, [error])
 
   const handleError = error => {
     console.log(error)
@@ -119,6 +137,9 @@ function WarehouseCreate(props) {
             <WarehouseForm onSubmit={handleSubmit} onError={handleError} />
           </Paper>
         </Grid>
+        <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
+          <Alert severity="error">{error[error.length]}</Alert>
+        </Snackbar>
       </Grid>
     </div>
   )
