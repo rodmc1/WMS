@@ -10,7 +10,12 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import { identity } from 'lodash';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -19,7 +24,8 @@ function Alert(props) {
 function WarehouseCreate(props) {
   const [created, setCreated] = React.useState(false);
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
-  const [error, setError] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
+  const [alertConfig, setAlertConfig] = React.useState({});
   const routes = [
     {
       label: 'Warehouse List',
@@ -32,6 +38,9 @@ function WarehouseCreate(props) {
   ];
 
   const handleSubmit = data => {
+    setAlertConfig({ severity: 'info', message: 'Creating warehouse...' });
+    setOpenSnackBar(true);
+
     const warehouse = {
       name: data.warehouseName,
       warehouse_type: data.warehouseType,
@@ -77,28 +86,65 @@ function WarehouseCreate(props) {
       ]
     }
     
-    createWarehouse(warehouse).then(response => {
-      const warehouseId = response.data;
-      if (data.images[data.images.length - 1].length) {
-        uploadWarehouseFilesById(warehouseId, data.images[data.images.length - 1])
-          .then(res => {
-            if (res.statusText === 'Created') setCreated(true);
-          })
-      } 
-      if (data.docs[data.docs.length - 1].length)  {
-        uploadWarehouseFilesById(warehouseId, data.docs[data.docs.length - 1])
-          .then(res => {
-            if (res.statusText === 'Created') setCreated(true);
-          })
-      }
-    }).catch(err => {
-      if (err.response === 401) {
-        setError('Session Expired');
-      } else {
-        setError(err.response.data.message);
-      }
-    });
-    
+    createWarehouse(warehouse)
+      .then(response => {
+        const warehouseId = response.data;
+        if (data.images.length) {
+          uploadWarehouseFilesById(warehouseId, data.images[data.images.length - 1])
+            .then(res => {
+              if (res.statusText === 'Created') setCreated(true);
+            })
+        } 
+        if (data.docs.length)  {
+          uploadWarehouseFilesById(warehouseId, data.docs[data.docs.length - 1])
+            .then(res => {
+              if (res.statusText === 'Created') setCreated(true);
+            })
+        }
+
+        if (!data.images.length && !data.docs.length) setCreated(true);
+      })
+      .catch(error => {
+        if (error.response.data.code === 401) {
+          setAlertConfig({ severity: 'error', message: 'Session Expired' });
+        } else {
+          setAlertConfig({ severity: 'error', message: error.response.data.type +': '+ error.response.data.message });
+        }
+      });
+  }
+
+  const handleDialogCancel = () => {
+    setOpen(true);
+  }
+
+  const renderDialogCancel = () => {
+    return (
+      <Dialog
+        open={open}
+        fullWidth="sm"
+        maxWidth="sm"
+        keepMounted
+        m={2}
+        onClose={() => setOpen(false)}
+        aria-labelledby="alert-dialog-slide-title"
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle id="alert-dialog-slide-title">Confirmation</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+            Changes won't be save, continue?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)} variant="outlined">
+            No
+          </Button>
+          <Button onClick={() => window.location.reload()} variant="contained" color="primary">
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
   }
 
   React.useEffect(() => {
@@ -109,12 +155,6 @@ function WarehouseCreate(props) {
       });
     } 
   }, [created]);
-
-  React.useEffect(() => {
-    if (error.length) {
-      setOpenSnackBar(true);
-    } 
-  }, [error])
 
   const handleError = error => {
     console.log(error)
@@ -134,12 +174,13 @@ function WarehouseCreate(props) {
           <Paper className="paper" elevation={0} variant="outlined">
             <Typography variant="subtitle1" className="paper__heading">Creating Warehouse</Typography>
             <div className="paper__divider"></div>
-            <WarehouseForm onSubmit={handleSubmit} onError={handleError} />
+            <WarehouseForm handleDialogCancel={handleDialogCancel} onSubmit={handleSubmit} onError={handleError} />
           </Paper>
         </Grid>
-        <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
-          <Alert severity="error">{error[error.length]}</Alert>
+        <Snackbar open={openSnackBar} autoHideDuration={6000} onClose={() => setOpenSnackBar(false)}>
+          <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
+        {renderDialogCancel()}
       </Grid>
     </div>
   )

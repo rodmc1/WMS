@@ -2,7 +2,6 @@ import React from 'react';
 import MapStyle from 'config/map';
 
 function GoogleMap(props) {
-
   const mapRef = React.createRef();
   const [googleMap, setGoogleMap] = React.useState(null);
   
@@ -21,9 +20,6 @@ function GoogleMap(props) {
     rotateControl: false,
     styles: MapStyle
   }
-
-
-  console.log(mapRef)
 
   React.useEffect(() => {
     setGoogleMap(new window.google.maps.Map(mapRef.current, options));

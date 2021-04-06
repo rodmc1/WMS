@@ -5,7 +5,6 @@ import Collapse from '@material-ui/core/Collapse';
 import Typography from '@material-ui/core/Typography';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Badge from '@material-ui/core/Badge';
-import MailIcon from '@material-ui/icons/Mail';
 
 const useStyles = makeStyles(theme => createStyles({
   previewChip: {
@@ -17,26 +16,25 @@ const useStyles = makeStyles(theme => createStyles({
 function Dropzone(props) {
   const [initialDocs, setInitialDocs] = React.useState([]);
   const [initialImages, setInitialImages] = React.useState([]);
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = React.useState(true)
+  const [showPreviewText, setShowPreviewText] = React.useState(false);
   const classes = useStyles();
   const extractImageUrl = (str) => {
     return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
   }
   
   const collapseText = expanded ? 'Hide Photos' : 'See Photos'
-
   const handleExpandClick = () => {
     setExpanded(!expanded);
-    
-    // console.log(initialImages.match(/warehouse_docs - \/(.*)/)[1]);
   };
   const pdfIcon = '/assets/images/pdfIcon.svg'
   const docxIcon = '/assets/images/docIcon.svg'
-
+        
   React.useEffect(() => {
     if (props.initialFiles) {
+      setExpanded(false);
       if (props.type === 'image' && props.initialFiles.warehouse_document_file !== null)  {
-        const images = props.initialFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
+        let images = props.initialFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
         const allowedExtension = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp'];
         let newArrayImages = initialImages;
 
@@ -47,7 +45,7 @@ function Dropzone(props) {
           }
         });
         
-        setInitialImages(newArrayImages);
+        setInitialImages(() => newArrayImages);
       }
       if (props.type === 'files' && props.initialFiles.warehouse_document_file !== null) {
         const documents = props.initialFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
@@ -64,7 +62,7 @@ function Dropzone(props) {
         setInitialDocs(newArrayDocuments);
       }
     }
-  },[props.initialFiles]);
+  }, [props.initialFiles]);
 
   const handlePreviewIcon = (file) => {
     const string = file.file.name;
@@ -73,7 +71,10 @@ function Dropzone(props) {
     const previewIcon = string.split('.').pop().toLowerCase() === 'pdf' ? pdfIcon : docxIcon;
 
     return (
-      props.type === 'image' ? <img role="presentation" src={file.data} /> :
+      props.type === 'image' ? 
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <img role="presentation" src={file.data} />
+      </Collapse> :
       <React.Fragment>
         <div className={classes.root}>
           <Badge>
@@ -86,54 +87,67 @@ function Dropzone(props) {
       </React.Fragment>
     )
   }
+  
+  const renderDropzone = () => {
+    return (
+      <React.Fragment>
+        <DropzoneArea
+          key={props.type}
+          { ...props }
+          initialFiles={initialImages}
+          onChange={files => props.onChange(files)}
+          acceptedFiles={['image/*']}
+          dropzoneText={props.text}
+          previewText=""
+          filesLimit={12}
+          getPreviewIcon={file => handlePreviewIcon(file)}
+          classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
+        />
+        <Typography
+          variant='subtitle2'
+          style={{color: '#009688', cursor: 'pointer', marginLeft: '1%'}}
+          onClick={handleExpandClick}
+          aria-expanded={expanded}>
+          {collapseText}
+        </Typography>
+      </React.Fragment>
+    )
+  }
 
   return (
     <React.Fragment>
       { 
         initialDocs.length || initialImages.length ? null :
-        <DropzoneArea
-          key={'create'}
-          { ...props }
-          onChange={files => props.onChange(files)}
-          acceptedFiles={props.type === 'image' ? ['image/*'] : ['application/*']}
-          dropzoneText={props.text}
-          filesLimit={12}
-          previewText={props.type === 'image' ? '' :
-            <Typography variant="caption" style={{color: '#828282'}}>
-              Uploaded Files
+        <React.Fragment>
+          <DropzoneArea
+            key={'create'}
+            { ...props }
+            onChange={files => {
+              setShowPreviewText(true);
+              props.onChange(files);
+            }}
+            acceptedFiles={props.type === 'image' ? ['image/*'] : ['application/*']}
+            dropzoneText={props.text}
+            filesLimit={12}
+            previewText={props.type === 'image' ? '' : 'Uploaded Files'}
+            getPreviewIcon={file => handlePreviewIcon(file)}
+            classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
+          />
+          {
+            (props.type === 'image' && showPreviewText) &&
+            <Typography
+              variant='subtitle2'
+              style={{color: '#009688', cursor: 'pointer', marginLeft: '1%'}}
+              onClick={handleExpandClick}
+              aria-expanded={expanded}>
+                {collapseText}
             </Typography>
           }
-          previewGridProps={{container: { direction: 'row' }}}
-          getPreviewIcon={file => handlePreviewIcon(file)}
-          classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
-        />
+        </React.Fragment>
       }
 
       { 
-        !initialImages.length ? null : 
-        <React.Fragment>
-          <DropzoneArea
-            key={props.type}
-            { ...props }
-            initialFiles={initialImages}
-            onChange={files => props.onChange(files)}
-            acceptedFiles={['image/*']}
-            dropzoneText={props.text}
-            previewText=""
-            filesLimit={12}
-            getPreviewIcon={file => {
-              return (
-                <Collapse in={expanded} timeout="auto" unmountOnExit>
-                  <img role="presentation" src={file.data} />
-                </Collapse>
-              );
-            }}
-            classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
-          />
-          <Typography variant='subtitle2' style={{color: '#009688', cursor: 'pointer', marginLeft: '1%'}} onClick={handleExpandClick} aria-expanded={expanded} >
-            {collapseText}
-          </Typography>
-        </React.Fragment>
+        !initialImages.length ? null : renderDropzone()
       }
 
       { 
@@ -148,9 +162,7 @@ function Dropzone(props) {
             acceptedFiles={['application/*']}
             dropzoneText={props.text}
             filesLimit={12}
-            useChipsForPreview
-            previewGridProps={{container: { spacing: 1, direction: 'row' }}}
-            previewChipProps={{classes: { root: classes.previewChip } }}
+            getPreviewIcon={file => handlePreviewIcon(file)}
             previewText="Selected files"
             classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
           />

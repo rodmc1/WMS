@@ -105,11 +105,11 @@ function WarehouseOverview(props) {
               <Grid container spacing={2}>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Company Broker</label>
-                  <p className="paper__text">{props.warehouse.warehouse_users_details[0].first_name + ' ' + props.warehouse.warehouse_users_details[0].last_name}</p>
+                  <p className="paper__text">{props.warehouse.warehouse_users_details[1].first_name + ' ' + props.warehouse.warehouse_users_details[0].last_name}</p>
                 </Grid>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Contact Borker Number</label>
-                  <p className="paper__text">{props.warehouse.warehouse_users_details[0].first_name + ' ' + props.warehouse.warehouse_users_details[0].last_name}</p>
+                  <p className="paper__text">{props.warehouse.warehouse_users_details[1].first_name + ' ' + props.warehouse.warehouse_users_details[0].last_name}</p>
                 </Grid>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Contact Person</label>

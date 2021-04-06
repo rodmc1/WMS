@@ -1,12 +1,12 @@
 import './style.scss';
 import React from 'react';
 import { connect } from 'react-redux';
-import history from 'config/history';
 import Cookies from 'universal-cookie';
 import { Controller, useForm } from 'react-hook-form';
 import { fetchFacilitiesAndAmenities, fetchBuildingTypes } from 'actions/picklist';
 import { getWarehouseDetails } from './warehouseDetails';
 
+import validator from 'validator';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -20,10 +20,6 @@ import GoogleMap from 'components/GoogleMap';
 import ButtonGroup from 'components/ButtonGroup';
 import FormHelperText from '@material-ui/core/FormHelperText';
 
-import { map } from 'lodash';
-import { CollectionsBookmark, DataUsage, LiveTv, PinDropSharp, SettingsOutlined } from '@material-ui/icons';
-import { responsiveFontSizes } from '@material-ui/core';
-
 function WarehouseForm(props) {
   const cookies = new Cookies();
   const [warehouse, setWarehouse] = React.useState(null);
@@ -33,6 +29,7 @@ function WarehouseForm(props) {
   const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
   const [images, setImages] = React.useState([]);
   const [docs, setDocs] = React.useState([]);
+  const [hasFilesChange, setHasFilesChange] = React.useState(false);
 
   // GOOGLE MAP
   const [marker, setMarker] = React.useState(new window.google.maps.Marker({ 
@@ -75,6 +72,10 @@ function WarehouseForm(props) {
   const [centerMap, setCenterMap] = React.useState(null);
   const [gpsCoordinates, setGpsCoordinates] = React.useState(null);
 
+  /*
+   * Get and Set address
+   * @args address 
+   */ 
   const handleGeocoder = address => {
     const geocodeAddress = address.description ? { address: address.description } : { address: address }
     const geocoder = new window.google.maps.Geocoder();
@@ -125,8 +126,8 @@ function WarehouseForm(props) {
       setHasDefaultValue(true);
       setWarehouse(props.warehouse);
       setAddress(props.warehouse.address);
-      setCountry(props.warehouse.country);
       setAddressField(props.warehouse.address);
+      setCountry(props.warehouse.country);
       getWarehouseDetails(props.warehouse).forEach(w => {
         setValue(w[0], w[1]);
       });
@@ -136,6 +137,20 @@ function WarehouseForm(props) {
       }
     }
   }, [props.warehouse]);
+
+  React.useEffect(() => {
+    if (props.resetWarehouse) {
+      setWarehouse(props.resetWarehouse);
+      setAddress(props.resetWarehouse.address);
+      setAddressField(props.resetWarehouse.address);
+      setCountry(props.resetWarehouse.country);
+      getWarehouseDetails(props.resetWarehouse).forEach(w => {
+        setValue(w[0], w[1]);
+      });
+
+      setSelectedAmenities(props.resetWarehouse.facilities_amenities);
+    }
+  },[props.resetWarehouse]);
 
   React.useEffect(() => {
     props.fetchFacilitiesAndAmenities();
@@ -526,7 +541,10 @@ function WarehouseForm(props) {
               name="companyBrokerEmailAddress"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required", 
+                validate: value => { return !validator.isEmail(value) ? 'Invalid email address' : true }
+              }}
             />
             {errors.companyBrokerEmailAddress && <FormHelperText error>{errors.companyBrokerEmailAddress.message}</FormHelperText>}
           </Grid>
@@ -539,7 +557,10 @@ function WarehouseForm(props) {
               name="companyBrokerMobileNumber"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required", 
+                validate: value => { return !validator.isMobilePhone(value) ? 'Invalid phone number' : true } 
+              }}
             />
             {errors.companyBrokerMobileNumber && <FormHelperText error>{errors.companyBrokerMobileNumber.message}</FormHelperText>}
           </Grid>
@@ -596,7 +617,10 @@ function WarehouseForm(props) {
               name="contactPersonEmailAddress"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required", 
+                validate: value => { return !validator.isEmail(value) ? 'Invalid email address' : true} 
+              }}
             />
             {errors.contactPersonEmailAddress && <FormHelperText error>{errors.contactPersonEmailAddress.message}</FormHelperText>}
           </Grid>
@@ -609,7 +633,10 @@ function WarehouseForm(props) {
               name="contactPersonMobileNumber"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required", 
+                validate: value => { return !validator.isMobilePhone(value) ? 'Invalid phone number' : true } 
+              }}
             />
             {errors.contactPersonMobileNumber && <FormHelperText error>{errors.contactPersonMobileNumber.message}</FormHelperText>}
           </Grid>
@@ -622,7 +649,7 @@ function WarehouseForm(props) {
           {
             !props.facilitiesAndAmenities ? null 
               : props.facilitiesAndAmenities.map(f => {
-                return <ButtonGroup key={f.Id} data={f} handleSelectedFacilities={handleSelectedFacilities} warehouseFacilitiesAndAmenities={props.warehouse} />
+                return <ButtonGroup key={f.Id} data={f} handleSelectedFacilities={handleSelectedFacilities} warehouseFacilitiesAndAmenities={selectedAmenities} />
               })
           }
         </Grid>
@@ -633,7 +660,10 @@ function WarehouseForm(props) {
           initialFiles={warehouse}
           onChange={(files) => {
             setImages([...images, files]);
-            if (images.length) setHasChanged(true);
+            if (images.length) {
+              setHasChanged(true);
+              setHasFilesChange(true);
+            }
           }}
           type="image"
           showPreviews
@@ -647,7 +677,10 @@ function WarehouseForm(props) {
           type="files"
           onChange={(files) => {
             setDocs([...docs, files]);
-            if (docs.length) setHasChanged(true);
+            if (docs.length) {
+              setHasChanged(true);
+              setHasFilesChange(true);
+            }
           }}
           showPreviews
           showPreviewsInDropzone={false}
@@ -659,7 +692,7 @@ function WarehouseForm(props) {
           <div className="form__actions">
             <p>Save this warehouse?</p>
             <div className="form__btn-group">
-              <Button type="button" className="btn btn--invert" style={{ marginRight: 10 }} onClick={() => history.push('/warehouse-list')}>Cancel</Button>
+              <Button type="button" className="btn btn--invert" style={{ marginRight: 10 }} onClick={() => props.handleDialogCancel(hasFilesChange)}>Cancel</Button>
               <Button type="submit" className="btn btn--emerald">Save</Button>
             </div>
           </div>

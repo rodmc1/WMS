@@ -7,13 +7,14 @@ import MuiButtonGroup from '@material-ui/core/ButtonGroup';
 import Button from '@material-ui/core/Button';
 
 function ButtonGroup(props) {
-  const [color, setColor] = useState({available: 'white', notavailable: '#828282'});
-  const { data, handleSelectedFacilities } = props;
+  const [color, setColor] = useState({ available: '#FAFAFA', notavailable: '#828282' });
 
   React.useEffect(() => {
     if (props.warehouseFacilitiesAndAmenities) {
-      if (props.warehouseFacilitiesAndAmenities.facilities_amenities.includes(data.Description)) {
+      if (props.warehouseFacilitiesAndAmenities.includes(props.data.Description)) {
         setColor({available: '#009688', notavailable: '#FAFAFA'});
+      } else {
+        setColor({available: '#FAFAFA', notavailable: '#828282'});
       }
     }
   }, [props.warehouseFacilitiesAndAmenities]);
@@ -24,7 +25,7 @@ function ButtonGroup(props) {
    * @CB Handle selected Facilities and Amenities
    */ 
   const onButtonClick = (status) => {
-    handleSelectedFacilities(data.Description, status);
+    props.handleSelectedFacilities(props.data.Description, status);
     setColor({available: '#009688', notavailable: '#FAFAFA'});
     if (!status) {
       setColor({available: '#FAFAFA', notavailable: '#828282'});
@@ -32,8 +33,8 @@ function ButtonGroup(props) {
   }
 
   return (
-    <Grid item xs={12} md={4} key={data.Id}>
-      <Typography>{data.Description}</Typography>
+    <Grid item xs={12} md={4} key={props.data.Id}>
+      <Typography>{props.data.Description}</Typography>
       <MuiButtonGroup>
         <Button
           style={{backgroundColor: color.available }}

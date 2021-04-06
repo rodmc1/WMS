@@ -5,7 +5,6 @@ import WarehouseSideBar from 'components/WarehouseSidebar';
 import WarehouseForm from 'components/WarehouseForm';
 import Breadcrumbs from 'components/Breadcrumbs';
 import { SnackbarContext } from 'context/Snackbar';
-import { ERROR, SNACKBAR } from 'config/constants';
 import history from 'config/history';
 
 import Grid from '@material-ui/core/Grid'
@@ -27,9 +26,15 @@ function Alert(props) {
 function WarehouseEdit(props) {
   const [snackbarConfig, setSnackbarConfig] = React.useContext(SnackbarContext);
   const [open, setOpen] = React.useState(false);
+  const [openCancel, setOpenCancel] = React.useState(false);
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [edited, setEdited] = React.useState(false);
   const [existingWarehouse, setExistingWarehouse] = React.useState(null);
+  const [resetWarehouse, setResetWarehouse] = React.useState(null);
+  const [alertConfig, setAlertConfig] = React.useState({
+    severity: 'info',
+    message: 'Saving changes...'
+  });
   const [routes, setRoutes] = React.useState([
     {
       label: 'Warehouse List',
@@ -50,6 +55,7 @@ function WarehouseEdit(props) {
   });
 
   const handleSubmit = data => {
+    setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
 
     const warehouse = {
@@ -95,9 +101,13 @@ function WarehouseEdit(props) {
     handleUsersUpdate(data);
 
     //Handle warehouse update
-    updateWarehouseById(props.match.params.id, warehouse).then(response => {
-      if (response.statusText === 'Created') setStatus(prevState => { return {...prevState, warehouse: true }});
-    });
+    updateWarehouseById(props.match.params.id, warehouse)
+      .then(response => {
+        if (response.statusText === 'Created') setStatus(prevState => { return {...prevState, warehouse: true }});
+      })
+      .catch(error => {
+        setAlertConfig({ severity: 'error', message: error.response.data.type +': '+ error.response.data.message });
+      });
   }
 
   const handleUsersUpdate = (data) => {
@@ -127,6 +137,7 @@ function WarehouseEdit(props) {
       if (user.role === 'Contact Person') existingUserContactPerson.data = user;
     });
     
+    existingUserBroker.id = existingUserBroker.data.user_id;
     existingUserBroker.data = {
       last_name: existingUserBroker.data.last_name,
       first_name: existingUserBroker.data.first_name,
@@ -136,6 +147,7 @@ function WarehouseEdit(props) {
       role: 'Broker',
     }
 
+    existingUserContactPerson.id = existingUserContactPerson.data.user_id;
     existingUserContactPerson.data = {
       last_name: existingUserContactPerson.data.last_name,
       first_name: existingUserContactPerson.data.first_name,
@@ -147,11 +159,38 @@ function WarehouseEdit(props) {
 
     const hasBrokerChange = JSON.stringify(existingUserBroker.data) !== JSON.stringify(newBroker);
     const hasContactChange = JSON.stringify(existingUserContactPerson.data) !== JSON.stringify(newContactPerson);
-  
-    if (hasBrokerChange) updateUserById(existingUserBroker.data.user_id, newBroker);
-    if (hasContactChange) updateUserById(existingUserContactPerson.data.user_id, newContactPerson);
-    
-    setStatus(prevState => { return {...prevState, userBroker: true, userContact: true }});
+
+    if (hasBrokerChange) {
+      updateUserById(existingUserBroker.id, newBroker)
+        .then(response => {
+          if (response.status === 201) {
+            setStatus(prevState => { return {...prevState, userBroker: true }});
+          }
+        })
+        .catch(error => {
+          if (error.response.data.type === '23505') {
+            setAlertConfig({ severity: 'error', message: 'Email address already exists' });
+          }
+        })
+    } else {
+      setStatus(prevState => { return {...prevState, userBroker: true }});
+    }
+
+    if (hasContactChange) {
+      updateUserById(existingUserContactPerson.id, newContactPerson)
+        .then(response => {
+          if (response.status === 201) {
+            setStatus(prevState => { return {...prevState, userContact: true }});
+          }
+        })
+        .catch(error => {
+          if (error.response.data.type === '23505') {
+            setAlertConfig({ severity: 'error', message: 'Email address already exists' });
+          }
+        })
+    } else {
+      setStatus(prevState => { return {...prevState, userContact: true }});
+    }
   }
 
   const handleDocumentUpdate = (data) => {
@@ -195,28 +234,13 @@ function WarehouseEdit(props) {
     }
 
     let imageArr = [];
-    let testupload = [];
     data.images[data.images.length - 1].forEach(file => {
       if (!existingImages.includes(file.name)) {
-        imageArr.push(file)
-        testupload.push(uploadWarehouseFilesById(props.match.params.id, [file]))
+        imageArr.push(uploadWarehouseFilesById(props.match.params.id, [file]))
       }
     });
 
-    console.log(imageArr)
-
-    // if (imageArr.length) {
-    //   uploadWarehouseFilesById(props.match.params.id, imageArr).then(response => {
-    //     if (response.statusText === 'Created') {
-    //       setStatus(prevState => { return {...prevState, images: true }});
-    //     }
-    //   });
-    // } else {
-    //   setStatus(prevState => { return {...prevState, images: true }});
-    // }
-
-    Promise.all(testupload).then(response => {
-      console.log(response);
+    Promise.all(imageArr).then(response => {
       setStatus(prevState => { return {...prevState, images: true }});
     })
   }
@@ -275,6 +299,43 @@ function WarehouseEdit(props) {
     setOpen(true);
   };
 
+  const handleDialogCancel = (hasFilesChange) => {
+    setResetWarehouse(() => ({...existingWarehouse}));
+    if (hasFilesChange) {
+      setOpenCancel(true);
+    }
+  }
+
+  const renderDialogCancel = () => {
+    return (
+      <Dialog
+        open={openCancel}
+        fullWidth="sm"
+        maxWidth="sm"
+        keepMounted
+        m={2}
+        onClose={() => setOpenCancel(false)}
+        aria-labelledby="alert-dialog-slide-title"
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle id="alert-dialog-slide-title">Confirmation</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+            Changes on images and documents won't be save, continue?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenCancel(false)} variant="outlined">
+            No
+          </Button>
+          <Button onClick={() => window.location.reload()} variant="contained" color="primary">
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+  
   const renderDeleteDialog = () => {
     return (
       <Dialog
@@ -297,7 +358,7 @@ function WarehouseEdit(props) {
           <Button onClick={() => setOpen(false)} variant="outlined">
             Cancel
           </Button>
-          <Button onClick={() => handleDelete(props.match.params.id)} variant="contained" color="secondary">
+          <Button onClick={() => handleDelete(props.match.params.id)} variant="contained" style={{ backgroundColor: '#EB5757', color: '#E9E9E9' }}>
             Delete
           </Button>
         </DialogActions>
@@ -319,13 +380,14 @@ function WarehouseEdit(props) {
           <Paper className="paper" elevation={0} variant="outlined">
             <Typography variant="subtitle1" className="paper__heading">Edit Warehouse</Typography>
             <div className="paper__divider"></div>
-            <WarehouseForm onSubmit={handleSubmit} onError={handleError} warehouse={props.warehouse} />
+            <WarehouseForm handleDialogCancel={handleDialogCancel} onSubmit={handleSubmit} onError={handleError} warehouse={existingWarehouse} resetWarehouse={resetWarehouse} />
           </Paper>
         </Grid>
-        <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
-          <Alert severity="info">Savings Changes...</Alert>
+        <Snackbar open={openSnackBar} autoHideDuration={6000} onClose={() => setOpenSnackBar(false)}>
+          <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
-        {renderDeleteDialog()}
+        {renderDeleteDialog()} 
+        {renderDialogCancel()}
       </Grid>
     </div>
   )

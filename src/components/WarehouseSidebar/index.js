@@ -1,3 +1,4 @@
+import './style.scss';
 import React from 'react';
 import history from 'config/history';
 import Paper from '@material-ui/core/Paper';
@@ -23,8 +24,8 @@ function WarehouseSideBar(props) {
         </ListItem>
         {
           props.editMode &&
-          <ListItem button onClick={() => props.handleClickOpen()}>
-            <ListItemText primary="Delete Warehouse" style={{color: 'red'}} />
+          <ListItem className="delete_button" button onClick={() => props.handleClickOpen()} >
+            <ListItemText primary="Delete Warehouse" style={{ color: 'red' }} />
           </ListItem>
         }
       </List>
