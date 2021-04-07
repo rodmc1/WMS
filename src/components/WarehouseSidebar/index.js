@@ -10,7 +10,7 @@ function WarehouseSideBar(props) {
   return (
     <Paper elevation={0} variant="outlined">
       <List>
-        <ListItem button disabled={props.createMode}  onClick={() => history.push(`/warehouse-list/overview/${props.id}`)}>
+        <ListItem button disabled={props.createMode} onClick={() => history.push(`/warehouse-list/overview/${props.id}`)}>
           <ListItemText primary="Warehouse Overview" />
         </ListItem>
         <ListItem button disabled={props.createMode} onClick={() => history.push(`/warehouse-edit/${props.id}`)}>

@@ -12,23 +12,18 @@ function ButtonGroup(props) {
   React.useEffect(() => {
     if (props.warehouseFacilitiesAndAmenities) {
       if (props.warehouseFacilitiesAndAmenities.includes(props.data.Description)) {
-        setColor({available: '#009688', notavailable: '#FAFAFA'});
+        setColor({available: '#009688', notavailable: '#FAFAFA', textColorAvailabe: '#E9E9E9', textColorNotAvailabe: '#828282'});
       } else {
-        setColor({available: '#FAFAFA', notavailable: '#828282'});
+        setColor({available: '#FAFAFA', notavailable: '#828282', textColorAvailabe: '#828282', textColorNotAvailabe: '#E9E9E9'});
       }
     }
   }, [props.warehouseFacilitiesAndAmenities]);
   
-  /*  
-   * Switch color via color state
-   * @args Selected Facilities and Amenities 
-   * @CB Handle selected Facilities and Amenities
-   */ 
   const onButtonClick = (status) => {
     props.handleSelectedFacilities(props.data.Description, status);
-    setColor({available: '#009688', notavailable: '#FAFAFA'});
+    setColor({available: '#009688', notavailable: '#FAFAFA', textColorAvailabe: '#E9E9E9', textColorNotAvailabe: '#828282'});
     if (!status) {
-      setColor({available: '#FAFAFA', notavailable: '#828282'});
+      setColor({available: '#FAFAFA', notavailable: '#E9E9E9', textColorAvailabe: '#828282', textColorNotAvailabe: '#E9E9E9'});
     }
   }
 
@@ -37,13 +32,13 @@ function ButtonGroup(props) {
       <Typography>{props.data.Description}</Typography>
       <MuiButtonGroup>
         <Button
-          style={{backgroundColor: color.available }}
+          style={{backgroundColor: color.available, color: color.textColorAvailabe }}
           variant="outlined"
           onClick={() => onButtonClick(true)}>
           Available
         </Button>
         <Button 
-          style={{backgroundColor: color.notavailable }}
+          style={{backgroundColor: color.notavailable, color: color.textColorNotAvailabe }}
           variant="outlined"
           onClick={() => onButtonClick(false)}>
           Not Available

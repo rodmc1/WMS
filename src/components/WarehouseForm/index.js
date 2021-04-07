@@ -73,7 +73,7 @@ function WarehouseForm(props) {
   const [gpsCoordinates, setGpsCoordinates] = React.useState(null);
 
   /*
-   * Get and Set address
+   * Get and Set address field/state
    * @args address 
    */ 
   const handleGeocoder = address => {
@@ -186,6 +186,8 @@ function WarehouseForm(props) {
                 <TextField
                   variant="outlined"
                   type="text"
+                  required
+                  inputProps={{ maxLength: 40 }}
                   fullWidth
                 />
               }
@@ -643,7 +645,7 @@ function WarehouseForm(props) {
         </Grid>
       </div>
       
-      <div className="paper__section">
+      <div className="paper__section facilities__amenities">
         <Typography variant="subtitle1" className="paper__heading">Facilities &amp; Amenities</Typography>
         <Grid container spacing={2}>
           {
