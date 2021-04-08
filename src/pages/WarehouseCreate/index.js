@@ -4,6 +4,10 @@ import WarehouseForm from 'components/WarehouseForm';
 import Breadcrumbs from 'components/Breadcrumbs';
 import { uploadWarehouseFilesById, createWarehouse } from 'actions/index';
 import history from 'config/history';
+import { connect, useDispatch } from 'react-redux';
+import _ from 'lodash';
+import { THROW_ERROR } from 'actions/types';
+import { dispatchError } from 'helper/error';
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography';
@@ -26,6 +30,7 @@ function WarehouseCreate(props) {
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [alertConfig, setAlertConfig] = React.useState({});
+  const dispatch = useDispatch();
   const routes = [
     {
       label: 'Warehouse List',
@@ -40,7 +45,6 @@ function WarehouseCreate(props) {
   const handleSubmit = data => {
     setAlertConfig({ severity: 'info', message: 'Creating warehouse...' });
     setOpenSnackBar(true);
-
     const warehouse = {
       name: data.warehouseName,
       warehouse_type: data.warehouseType,
@@ -105,10 +109,10 @@ function WarehouseCreate(props) {
         if (!data.images.length && !data.docs.length) setCreated(true);
       })
       .catch(error => {
-        if (error.response.data.code === 401) {
-          setAlertConfig({ severity: 'error', message: 'Session Expired' });
+        if (error.response.data.type === '23505') {
+          setAlertConfig({ severity: 'error', message: 'Warehouse name already exists' });
         } else {
-          setAlertConfig({ severity: 'error', message: error.response.data.type +': '+ error.response.data.message });
+          dispatchError(dispatch, THROW_ERROR, error);
         }
       });
   }
@@ -117,12 +121,17 @@ function WarehouseCreate(props) {
     setOpen(true);
   }
 
+  React.useEffect(() => {
+    if (!_.isEmpty(props.error)) {
+      setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+    }
+  }, [props.error]);
+
   const renderDialogCancel = () => {
     return (
       <Dialog
         open={open}
-        fullWidth="sm"
-        maxWidth="sm"
+        fullWidth
         keepMounted
         m={2}
         onClose={() => setOpen(false)}
@@ -139,7 +148,7 @@ function WarehouseCreate(props) {
           <Button onClick={() => setOpen(false)} variant="outlined">
             No
           </Button>
-          <Button onClick={() => window.location.reload()} variant="contained" color="primary">
+          <Button onClick={() => history.push('/warehouse-list')} variant="contained" color="primary">
             Yes
           </Button>
         </DialogActions>
@@ -186,4 +195,10 @@ function WarehouseCreate(props) {
   )
 }
 
-export default WarehouseCreate;
+const mapStateToProps = (state => {
+  return { 
+    error: state.error
+  }
+});
+
+export default connect(mapStateToProps)(WarehouseCreate);

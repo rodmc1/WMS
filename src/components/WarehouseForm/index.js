@@ -30,6 +30,7 @@ function WarehouseForm(props) {
   const [images, setImages] = React.useState([]);
   const [docs, setDocs] = React.useState([]);
   const [hasFilesChange, setHasFilesChange] = React.useState(false);
+  const [errorAddress, setErrorAddress] = React.useState(false);
 
   // GOOGLE MAP
   const [marker, setMarker] = React.useState(new window.google.maps.Marker({ 
@@ -61,7 +62,7 @@ function WarehouseForm(props) {
   }
 
   // FORMS
-  const { handleSubmit, errors, control, formState, setValue } = useForm({
+  const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
@@ -71,6 +72,7 @@ function WarehouseForm(props) {
   const [country, setCountry] = React.useState(null);
   const [centerMap, setCenterMap] = React.useState(null);
   const [gpsCoordinates, setGpsCoordinates] = React.useState(null);
+  
 
   /*
    * Get and Set address field/state
@@ -108,11 +110,11 @@ function WarehouseForm(props) {
           setAddress(response[0].formatted_address);
           setCountry(getAddressLevel(response[0].address_components, 'country').long_name);
           setHasChanged(true);
+          setErrorAddress(false);
         }
       });
     });
   }
-
   React.useEffect(() => {
     address && handleGeocoder(address);
   }, [address]);
@@ -120,6 +122,12 @@ function WarehouseForm(props) {
   React.useEffect(() => {
     marker && handleMarkerDrag(marker);
   }, [marker]);
+
+  React.useEffect(() => {
+    if (props.warehouse) {
+      setHasChanged(isDirty);
+    }
+  }, [isDirty])
 
   React.useEffect(() => {
     if (props.warehouse) {
@@ -140,6 +148,7 @@ function WarehouseForm(props) {
 
   React.useEffect(() => {
     if (props.resetWarehouse) {
+      if (!isDirty) console.log('ha');
       setWarehouse(props.resetWarehouse);
       setAddress(props.resetWarehouse.address);
       setAddressField(props.resetWarehouse.address);
@@ -195,6 +204,7 @@ function WarehouseForm(props) {
               control={control}
               rules={{ required: "This field is required" }}
               defaultValue=""
+              onInput={() => setHasChanged(true)}
             />
             {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>}
           </Grid>
@@ -252,8 +262,8 @@ function WarehouseForm(props) {
                   country: [googleAutoCompleteCountry]
                 }
               }}
-              onSelect={(addressInfo) => {handleGeocoder(addressInfo); setHasChanged(true)}}     
-              placeholder={address}
+              onSelect={(addressInfo) => {handleGeocoder(addressInfo); setHasChanged(true); setErrorAddress(false)}}
+              placeholder=""
               renderInput={props => (
                 <TextField { ...props }
                   required
@@ -262,11 +272,19 @@ function WarehouseForm(props) {
                   onChange={(e) => {
                     const val = e.target.value;
                     setAddressField(val);
+                    if (!val) setErrorAddress(false);
                     props.onChange(e);
                   }}
+                  onBlur={() => {
+                    if ((!gpsCoordinates && !address || addressField.length < 5)) {
+                      setErrorAddress(true);
+                    } 
+                    if (!addressField) setErrorAddress(false);
+                  }} 
                   value={addressField} />
               )}
             />
+            {errorAddress && <FormHelperText error>Invalid Address</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Warehouse Status</label>
@@ -666,6 +684,7 @@ function WarehouseForm(props) {
               setHasChanged(true);
               setHasFilesChange(true);
             }
+            if(!warehouse) setHasChanged(true);
           }}
           type="image"
           showPreviews
@@ -680,21 +699,32 @@ function WarehouseForm(props) {
           onChange={(files) => {
             setDocs([...docs, files]);
             if (docs.length) {
-              setHasChanged(true);
               setHasFilesChange(true);
-            }
+              setHasChanged(true);
+            } 
+            if(!warehouse) setHasChanged(true);
           }}
           showPreviews
           showPreviewsInDropzone={false}
           text="Drag and drop a file here or click"
         />
       </div>
-      { (isDirty || hasChanged) &&
+      { hasChanged &&
         <div className="form__actions-container">
           <div className="form__actions">
             <p>Save this warehouse?</p>
             <div className="form__btn-group">
-              <Button type="button" className="btn btn--invert" style={{ marginRight: 10 }} onClick={() => props.handleDialogCancel(hasFilesChange)}>Cancel</Button>
+              <Button
+                type="button"
+                className="btn btn--invert"
+                style={{ marginRight: 10 }}
+                onClick={() => {
+                  setHasChanged(false);
+                  if (props.warehouse) reset();
+                  props.handleDialogCancel(hasFilesChange);
+                }}>
+                Cancel
+              </Button>
               <Button type="submit" className="btn btn--emerald">Save</Button>
             </div>
           </div>

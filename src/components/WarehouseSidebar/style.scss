@@ -1,7 +1,14 @@
 @import 'assets/scss/variable';
 .delete_button {
   @media (min-width: 1600px) {
-    margin-top: 53.5vh !important;
+    margin-top: -45vh !important;
   }
-  margin-top: 42vh !important;
+  margin-top: -6vh !important;
+}
+
+.audit_log {
+  @media (min-width: 1600px) {
+    margin-bottom: 58vh !important;
+  }
+  margin-bottom: 45vh !important;
 }

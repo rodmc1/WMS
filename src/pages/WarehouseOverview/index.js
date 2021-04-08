@@ -8,8 +8,16 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from 'components/Breadcrumbs';
 import WarehouseSideBar from 'components/WarehouseSidebar';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 function WarehouseOverview(props) {
+  const [open, setOpen] = React.useState(false);
+  const [facilitiesAndAmenities, setFacilitiesAndAmenities] = React.useState([]);
   const [routes, setRoutes] = React.useState([
     {
       label: 'Warehouse List',
@@ -17,7 +25,31 @@ function WarehouseOverview(props) {
     }
   ]);
 
-  const [facilitiesAndAmenities, setFacilitiesAndAmenities] = React.useState([]);
+  React.useEffect(() => {
+    if (props.location.success) {
+      setOpen(true);
+    }
+  },[]);
+
+  const getContactInformation = () => {
+    const broker = { name: null, number: null };
+    const contactPerson = { name: null, number: null };
+    if (props.warehouse) {
+      props.warehouse.warehouse_users_details.forEach(user => {
+        if (user.role === 'Broker') {
+          broker.name = `${user.first_name} ${user.last_name}`;
+          broker.number = user.mobile_number;
+        } 
+        if (user.role === 'Contact Person') {
+          contactPerson.name = `${user.first_name} ${user.last_name}`;
+          contactPerson.number = user.mobile_number;
+        } 
+      });
+    }
+
+    return { broker, contactPerson };
+  }
+  
   const renderInformation = () => {
     if (props.warehouse) {
       return (
@@ -105,19 +137,19 @@ function WarehouseOverview(props) {
               <Grid container spacing={2}>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Company Broker</label>
-                  <p className="paper__text">{props.warehouse.warehouse_users_details[1].first_name + ' ' + props.warehouse.warehouse_users_details[0].last_name}</p>
+                  <p className="paper__text">{getContactInformation().broker.name}</p>
                 </Grid>
                 <Grid item xs={12} md={3}>
-                  <label className="paper__label">Contact Borker Number</label>
-                  <p className="paper__text">{props.warehouse.warehouse_users_details[1].first_name + ' ' + props.warehouse.warehouse_users_details[0].last_name}</p>
+                  <label className="paper__label">Contact Broker Number</label>
+                  <p className="paper__text">{getContactInformation().broker.number}</p>
                 </Grid>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Contact Person</label>
-                  <p className="paper__text">{props.warehouse.warehouse_users_details[0].email_address}</p>                  
+                  <p className="paper__text">{getContactInformation().contactPerson.name}</p>                  
                 </Grid>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Contact Person Number</label>
-                  <p className="paper__text">{props.warehouse.warehouse_users_details[0].mobile_number}</p>                  
+                  <p className="paper__text">{getContactInformation().contactPerson.number}</p>                  
                 </Grid>
               </Grid>
           </Paper>
@@ -156,14 +188,17 @@ function WarehouseOverview(props) {
     if (id) {
       props.fetchWarehouseById(id);
     }
-    
-    if (props.warehouse) {
+  }, []);
+
+  React.useEffect(() => {
+    console.log(routes)
+    if (props.warehouse && routes.length === 1) {
       setRoutes(routes => [...routes, {
         label: props.warehouse.warehouse_client,
-        path: `/warehouse-list/overview/${props.warehouse.warehouse_id}`
+        path: `/warehouse-list/overview/${props.match.params.id}`
       }]);
     }
-  }, []);
+  }, [props.warehouse]);
   
   return (
     <div className="container">
@@ -178,13 +213,15 @@ function WarehouseOverview(props) {
           <Grid item xs={9}>
             {renderInformation()}
           </Grid>
+          <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+            <Alert severity="success">{props.location.success}</Alert>
+          </Snackbar>
       </Grid>
     </div>
   )
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log(state);
   return { 
     warehouse: state.warehouses.data[ownProps.match.params.id],
     facilities_and_amenities: state.picklist.facilities_and_amenities

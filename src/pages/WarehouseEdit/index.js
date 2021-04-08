@@ -1,11 +1,13 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { fetchWarehouseById, deleteWarehouseById, updateUserById, uploadWarehouseFilesById, deleteWarehouseFilesById, updateWarehouseById } from 'actions/index';
+import { connect, useDispatch } from 'react-redux';
+import { fetchWarehouseById, updateUserById, uploadWarehouseFilesById, deleteWarehouseFilesById, updateWarehouseById } from 'actions/index';
 import WarehouseSideBar from 'components/WarehouseSidebar';
 import WarehouseForm from 'components/WarehouseForm';
 import Breadcrumbs from 'components/Breadcrumbs';
-import { SnackbarContext } from 'context/Snackbar';
 import history from 'config/history';
+import _ from 'lodash';
+import { THROW_ERROR } from 'actions/types';
+import { dispatchError } from 'helper/error';
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography';
@@ -24,24 +26,19 @@ function Alert(props) {
 }
 
 function WarehouseEdit(props) {
-  const [snackbarConfig, setSnackbarConfig] = React.useContext(SnackbarContext);
-  const [open, setOpen] = React.useState(false);
   const [openCancel, setOpenCancel] = React.useState(false);
-  const [openSnackBar, setOpenSnackBar] = React.useState(false);
+  const [openSnackBar, setOpenSnackBar] = React.useState(true);
   const [edited, setEdited] = React.useState(false);
   const [existingWarehouse, setExistingWarehouse] = React.useState(null);
   const [resetWarehouse, setResetWarehouse] = React.useState(null);
+  const dispatch = useDispatch();
   const [alertConfig, setAlertConfig] = React.useState({
     severity: 'info',
-    message: 'Saving changes...'
+    message: 'Loading...'
   });
   const [routes, setRoutes] = React.useState([
     {
       label: 'Warehouse List',
-      path: '/warehouse-list'
-    },
-    {
-      label: 'Edit Warehouse',
       path: '/warehouse-list'
     }
   ]);
@@ -106,7 +103,7 @@ function WarehouseEdit(props) {
         if (response.statusText === 'Created') setStatus(prevState => { return {...prevState, warehouse: true }});
       })
       .catch(error => {
-        setAlertConfig({ severity: 'error', message: error.response.data.type +': '+ error.response.data.message });
+        dispatchError(dispatch, THROW_ERROR, error);
       });
   }
 
@@ -169,7 +166,7 @@ function WarehouseEdit(props) {
         })
         .catch(error => {
           if (error.response.data.type === '23505') {
-            setAlertConfig({ severity: 'error', message: 'Email address already exists' });
+            setAlertConfig({ severity: 'error', message: 'Broker email address already exists' });
           }
         })
     } else {
@@ -185,7 +182,7 @@ function WarehouseEdit(props) {
         })
         .catch(error => {
           if (error.response.data.type === '23505') {
-            setAlertConfig({ severity: 'error', message: 'Email address already exists' });
+            setAlertConfig({ severity: 'error', message: 'Contact Person email address already exists' });
           }
         })
     } else {
@@ -245,25 +242,20 @@ function WarehouseEdit(props) {
     })
   }
 
-  const handleDelete = (id) => {
-    deleteWarehouseById(id).then(response => {
-      if (response.status === 204) {
-        history.push({
-          pathname: '/warehouse-list',
-          success: 'Warehouse deleted successfully'
-        });
-      }
-    });
-  }
-
   const handleError = error => {
     console.log(error)
   }
 
   React.useEffect(() => {
+    if (!_.isEmpty(props.error)) {
+      setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+    }
+  }, [props.error]);
+
+  React.useEffect(() => {
     if (edited) {
       history.push({
-        pathname: '/warehouse-list',
+        pathname: `/warehouse-list/overview/${props.match.params.id}`,
         success: 'Changes saved successfully'
       });
     }
@@ -276,13 +268,13 @@ function WarehouseEdit(props) {
   }, [status]);
 
   React.useEffect(() => {
-    if (props.warehouse) {
+    if (props.warehouse && routes.length === 1) {
       setRoutes(routes => [...routes, {
         label: props.warehouse.warehouse_client,
         path: `/warehouse-list/overview/${props.match.params.id}`
       }]);
     }
-  }, []);
+  }, [props.warehouse]);
 
   React.useEffect(() => {
     const id = props.match.params.id;    
@@ -290,14 +282,11 @@ function WarehouseEdit(props) {
   }, []);
 
   React.useEffect(() => {
+    if (props.warehouse) setOpenSnackBar(false);
     if (!existingWarehouse && props.warehouse) {
       setExistingWarehouse(props.warehouse);
     }
   }, [props.warehouse]);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleDialogCancel = (hasFilesChange) => {
     setResetWarehouse(() => ({...existingWarehouse}));
@@ -335,36 +324,6 @@ function WarehouseEdit(props) {
       </Dialog>
     )
   }
-  
-  const renderDeleteDialog = () => {
-    return (
-      <Dialog
-        open={open}
-        fullWidth="sm"
-        maxWidth="sm"
-        keepMounted
-        m={2}
-        onClose={() => setOpen(false)}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
-      >
-        <DialogTitle id="alert-dialog-slide-title">Confirmation</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-slide-description">
-            Are you sure you want to delete this Warehouse?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)} variant="outlined">
-            Cancel
-          </Button>
-          <Button onClick={() => handleDelete(props.match.params.id)} variant="contained" style={{ backgroundColor: '#EB5757', color: '#E9E9E9' }}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    )
-  }
 
   return (
     <div className="container">
@@ -374,10 +333,10 @@ function WarehouseEdit(props) {
         justify="space-evenly"
         alignItems="stretch">
         <Grid item xs={12} md={3}>
-          <WarehouseSideBar id={props.match.params.id} editMode handleClickOpen={handleClickOpen} />
+          <WarehouseSideBar id={props.match.params.id} editMode />
         </Grid>
         <Grid item xs={12} md={9}>
-          <Paper className="paper" elevation={0} variant="outlined">
+          <Paper className="paper" elevation={0} variant="outlined" style={{position:'relative'}}>
             <Typography variant="subtitle1" className="paper__heading">Edit Warehouse</Typography>
             <div className="paper__divider"></div>
             <WarehouseForm handleDialogCancel={handleDialogCancel} onSubmit={handleSubmit} onError={handleError} warehouse={existingWarehouse} resetWarehouse={resetWarehouse} />
@@ -386,7 +345,6 @@ function WarehouseEdit(props) {
         <Snackbar open={openSnackBar} autoHideDuration={6000} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
-        {renderDeleteDialog()} 
         {renderDialogCancel()}
       </Grid>
     </div>
@@ -394,7 +352,8 @@ function WarehouseEdit(props) {
 }
 const mapStateToProps = (state, ownProps) => {
   return { 
-    warehouse: state.warehouses.data[ownProps.match.params.id]
+    warehouse: state.warehouses.data[ownProps.match.params.id],
+    error: state.error
   }
 }
 
