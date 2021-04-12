@@ -252,14 +252,12 @@ function WarehouseEdit(props) {
     }
   }, [props.error]);
 
-  React.useEffect(() => {
-    if (edited) {
-      history.push({
-        pathname: `/warehouse-list/overview/${props.match.params.id}`,
-        success: 'Changes saved successfully'
-      });
-    }
-  }, [edited]);
+  if (edited) {
+    history.push({
+      pathname: `/warehouse-list/overview/${props.match.params.id}`,
+      success: 'Changes saved successfully'
+    });
+  }
 
   React.useEffect(() => {
     if (!Object.values(status).includes(false)) {
@@ -342,7 +340,7 @@ function WarehouseEdit(props) {
             <WarehouseForm handleDialogCancel={handleDialogCancel} onSubmit={handleSubmit} onError={handleError} warehouse={existingWarehouse} resetWarehouse={resetWarehouse} />
           </Paper>
         </Grid>
-        <Snackbar open={openSnackBar} autoHideDuration={6000} onClose={() => setOpenSnackBar(false)}>
+        <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
         {renderDialogCancel()}

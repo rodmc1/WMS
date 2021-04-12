@@ -16,7 +16,7 @@ function Navigation(props) {
       list: [
         {
           label:'Warehouse List',
-          path: '/warehouse-list',
+          path: '/',
           icon: HomeWork
         }
       ]
@@ -52,7 +52,7 @@ function Navigation(props) {
           return (
             <div className={`main-nav__group ${item.collapsed ? "main-nav__group--collapsed" : ""}`} key={index} >
               { item.group &&
-                <div className="main-nav__group-label" onClick={() => toggleNavigationGroup(index)}>
+                <div className="main-nav__group-label" activeClassName="main-nav__group-list-item-link--active" onClick={() => toggleNavigationGroup(index)}>
                   <p>{item.group} <KeyboardArrowUp /></p>
                   <span>{item.list.map((i, index) => {
                     // if (i.permission && !Common.getPermission(i.permission, i.page)) return;

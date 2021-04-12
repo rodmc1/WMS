@@ -125,12 +125,6 @@ function WarehouseForm(props) {
 
   React.useEffect(() => {
     if (props.warehouse) {
-      setHasChanged(isDirty);
-    }
-  }, [isDirty])
-
-  React.useEffect(() => {
-    if (props.warehouse) {
       setHasDefaultValue(true);
       setWarehouse(props.warehouse);
       setAddress(props.warehouse.address);
@@ -276,7 +270,7 @@ function WarehouseForm(props) {
                     props.onChange(e);
                   }}
                   onBlur={() => {
-                    if ((!gpsCoordinates && !address || addressField.length < 5)) {
+                    if ((!gpsCoordinates && !address) || addressField.length < 5) {
                       setErrorAddress(true);
                     } 
                     if (!addressField) setErrorAddress(false);
@@ -684,7 +678,7 @@ function WarehouseForm(props) {
               setHasChanged(true);
               setHasFilesChange(true);
             }
-            if(!warehouse) setHasChanged(true);
+            setHasChanged(true);
           }}
           type="image"
           showPreviews
@@ -702,14 +696,14 @@ function WarehouseForm(props) {
               setHasFilesChange(true);
               setHasChanged(true);
             } 
-            if(!warehouse) setHasChanged(true);
+            setHasChanged(true);
           }}
           showPreviews
           showPreviewsInDropzone={false}
           text="Drag and drop a file here or click"
         />
       </div>
-      { hasChanged &&
+      { (isDirty || hasChanged) &&
         <div className="form__actions-container">
           <div className="form__actions">
             <p>Save this warehouse?</p>

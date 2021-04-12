@@ -16,6 +16,7 @@ function Alert(props) {
 }
 
 function WarehouseOverview(props) {
+  console.log(props)
   const [open, setOpen] = React.useState(false);
   const [facilitiesAndAmenities, setFacilitiesAndAmenities] = React.useState([]);
   const [routes, setRoutes] = React.useState([
@@ -24,6 +25,12 @@ function WarehouseOverview(props) {
       path: '/warehouse-list'
     }
   ]);
+  
+  // React.useEffect(() => {
+  //   if (props.warehouse) {
+  //     window.history.replaceState(null, '', `${props.warehouse.warehouse_client}`);
+  //   }
+  // },[props.warehouse])
 
   React.useEffect(() => {
     if (props.location.success) {
@@ -181,17 +188,16 @@ function WarehouseOverview(props) {
     } else {
       props.fetchFacilitiesAndAmenities();
     }
-  }, [props.facilities_and_amenities])
+  }, [props.facilities_and_amenities]);
 
   React.useEffect(() => {
     const id = props.match.params.id;    
-    if (id) {
+    if (id && !props.warehouse) {
       props.fetchWarehouseById(id);
     }
-  }, []);
+  }, [props.warehouse]);
 
   React.useEffect(() => {
-    console.log(routes)
     if (props.warehouse && routes.length === 1) {
       setRoutes(routes => [...routes, {
         label: props.warehouse.warehouse_client,

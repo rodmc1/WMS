@@ -99,6 +99,7 @@ function Dropzone(props) {
           acceptedFiles={['image/*']}
           dropzoneText={props.text}
           previewText=""
+          showAlerts={false}
           filesLimit={12}
           getPreviewIcon={file => handlePreviewIcon(file)}
           classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
@@ -122,6 +123,7 @@ function Dropzone(props) {
           <DropzoneArea
             key={'create'}
             { ...props }
+            showAlerts={false}
             onChange={files => {
               setShowPreviewText(true);
               props.onChange(files);
@@ -154,6 +156,7 @@ function Dropzone(props) {
         !initialDocs.length ? null : 
         <React.Fragment>
           <DropzoneArea
+            showAlerts={false}
             previewGridClasses={{ root: 'dropzone__list' }}
             key={props.type}
             { ...props }

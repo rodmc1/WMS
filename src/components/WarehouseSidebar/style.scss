@@ -1,14 +1,26 @@
 @import 'assets/scss/variable';
 .delete_button {
   @media (min-width: 1600px) {
-    margin-top: -45vh !important;
+    margin-top: -62vh !important;
+  }
+  .MuiTypography-root {
+    color: #E74C3C !important
   }
   margin-top: -6vh !important;
+} 
+
+.warehouse_edit {
+  @media (min-width: 1600px) {
+    margin-bottom: 72vh !important;
+  }
+  margin-bottom: 62vh !important;
 }
 
-.audit_log {
-  @media (min-width: 1600px) {
-    margin-bottom: 58vh !important;
+.sidebar {
+  .MuiTypography-root {
+    color: #828282;
   }
-  margin-bottom: 45vh !important;
+  .active .MuiTypography-root {
+    color: $emerald;
+  }
 }

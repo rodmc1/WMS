@@ -1,10 +1,12 @@
+import './style.scss';
 import React from 'react';
 import history from 'config/history';
 import { connect } from 'react-redux';
-import { fetchWarehouses } from 'actions/index';
+import { fetchWarehouseByName, fetchWarehouses } from 'actions/index';
 import { Button } from '@material-ui/core'
 import Breadcrumbs from 'components/Breadcrumbs';
 import Table from 'components/Table';
+import { CSVLink, CSVDownload } from "react-csv";
 
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -26,7 +28,10 @@ function Alert(props) {
 function WarehouseList(props) {
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
+  const [query, setQuery] = React.useState(null);
+  const [csvData, setCsvData] = React.useState([]);
   const classes = useStyles();
+  const csvLink = React.useRef();
   const routes = [
     {
       label: 'Warehouse List',
@@ -49,8 +54,12 @@ function WarehouseList(props) {
     ]
   }
 
-  const handleDownloadCSV = () => {
-    console.log('handleDownloadCSV');
+  const getWarehousesData = () => {
+    // 'api' just wraps axios with some setting specific to our app. the important thing here is that we use .then to capture the table response data, update the state, and then once we exit that operation we're going to click on the csv download link using the ref
+    // await api.post('/api/get_transactions_table', { game_id: gameId })
+    //   .then((r) => setCsvData(r.data))
+    //   .catch((e) => console.log(e))
+    csvLink.current.link.click();
   }
 
   const handleCreateWarehouse = () => {
@@ -61,12 +70,8 @@ function WarehouseList(props) {
     console.log('handleSearchOpen');
   }
 
-  const setQuery = () => {
-    console.log('setQuery');
-  }
-
   const handleSubmit = () => {
-    console.log('handleSubmit');
+    props.fetchWarehouseByName(query);
   }
 
   const handlePagination = (page, rowsPerPage) => {
@@ -80,11 +85,24 @@ function WarehouseList(props) {
     history.push(`/warehouse-list/overview/${row.warehouse_id}`);
   }
 
+  const onSelectSearchItem = (id) => {
+    history.push(`/warehouse-list/overview/${id}`);
+  }
+
+  const handleDownloadCSV = () => {
+    console.log('here')
+  }
+
   React.useEffect(() => {
     if (props.warehouses.count) {
       setOpenBackdrop(false);
+      setCsvData([
+        { firstname: "Ahmed", lastname: "Tomi", email: "ah@smthing.co.com" },
+        { firstname: "Raed", lastname: "Labes", email: "rl@smthing.co.com" },
+        { firstname: "Yezzi", lastname: "Min l3b", email: "ymin@cocococo.com" }
+      ])
     }
-  }, [props.warehouses]);
+  }, [props.warehouses.data]);
 
   React.useEffect(() => {
     if (props.location.success) {
@@ -97,7 +115,8 @@ function WarehouseList(props) {
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         <div className="button-group">
-          <Button variant="contained" className="btn btn--emerald" onClick={() => handleDownloadCSV()} disableElevation style={{ marginRight: 10 }}>Download CSV</Button>
+          <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginRight: 10 }} onClick={() => handleDownloadCSV()}>Download CSV</Button>
+          <CSVLink data={csvData} filename={"warehouses.csv"} className="hidden_csv">Download CSV</CSVLink>
           <Button variant="contained" className="btn btn--emerald" onClick={() => handleCreateWarehouse()} disableElevation>Create Warehouse</Button>
         </div>
       </div>
@@ -105,11 +124,13 @@ function WarehouseList(props) {
         config={config}
         data={props.warehouses.data}
         total={props.warehouses.count}
-        onInputChange={setQuery}
+        onInputChange={(e) => setQuery(e)}
         onSubmit={handleSubmit}
         onSearchOpen={handleSearchOpen}
         onPaginate={handlePagination}
         onRowClick={handleRowClick}
+        onSelectSearchItem={onSelectSearchItem}
+        searchedOptions={props.searched}
       />
       <Backdrop className={classes.backdrop} open={openBackdrop} >
         <CircularProgress color="inherit" />
@@ -123,8 +144,9 @@ function WarehouseList(props) {
 
 const mapStateToProps = state => {
   return {
-    warehouses: state.warehouses
+    warehouses: state.warehouses,
+    searched: state.warehouses.search
   }
 }
 
-export default connect(mapStateToProps, { fetchWarehouses })(WarehouseList);
+export default connect(mapStateToProps, { fetchWarehouses, fetchWarehouseByName })(WarehouseList);

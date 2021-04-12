@@ -27,7 +27,6 @@ function WarehouseSideBar(props) {
       }
     });
   }
-
   const renderDeleteDialog = () => {
     return (
       <Dialog
@@ -58,16 +57,13 @@ function WarehouseSideBar(props) {
   }
 
   return (
-    <Paper elevation={0} variant="outlined">
+    <Paper elevation={0} variant="outlined" className="sidebar">
       <List>
-        <ListItem button disabled={props.createMode} onClick={() => history.push(`/warehouse-list/overview/${props.id}`)}>
+        <ListItem button disabled={props.createMode} className={history.location.pathname.match('overview') ? 'active' : ''} onClick={() => history.push(`/warehouse-list/overview/${props.id}`)}>
           <ListItemText primary="Warehouse Overview" />
         </ListItem>
-        <ListItem button disabled={props.createMode} onClick={() => history.push(`/warehouse-edit/${props.id}`)}>
+        <ListItem button disabled={props.createMode} className={history.location.pathname.match('warehouse-edit') ? 'active warehouse_edit' : 'warehouse_edit'}  onClick={() => history.push(`/warehouse-edit/${props.id}`)}>
           <ListItemText primary="Warehouse Information" />
-        </ListItem>
-        <ListItem button disabled={props.createMode} className="audit_log" onClick={() => console.log('Audit Log')}>
-          <ListItemText primary="Audit Log" />
         </ListItem>
         {
           !props.createMode &&

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import inteluck from 'api/inteluck';
-import { FETCH_WAREHOUSES, FETCH_WAREHOUSE, THROW_ERROR } from './types';
+import { FETCH_WAREHOUSES, FETCH_WAREHOUSE, THROW_ERROR, SEARCH_WAREHOUSE } from './types';
 import { dispatchError } from 'helper/error';
 
 export const fetchWarehouses = params => dispatch => {
@@ -25,6 +25,21 @@ export const fetchWarehouseById = id => dispatch => {
       dispatch({
         type: FETCH_WAREHOUSE,
         payload: response.data[0]
+      });
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
+}
+
+export const fetchWarehouseByName = name => dispatch => {
+  inteluck.get(`/v1/wms/Warehouse/`, {
+    params: {
+      filter: name
+    }})
+    .then(response => {
+      dispatch({
+        type: SEARCH_WAREHOUSE,
+        payload: response.data
       });
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);

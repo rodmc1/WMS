@@ -18,7 +18,9 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import LastPageIcon from '@material-ui/icons/LastPage';
+import MenuItem from '@material-ui/core/MenuItem';
 import Search from '@material-ui/icons/Search';
+import ArrowDropUp from '@material-ui/icons/ArrowDropUp';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -114,10 +116,10 @@ const useStyles2 = makeStyles({
   }
 });
 
-export default function CustomPaginationActionsTable({ data, total, config, onInputChange, onSubmit, onSearchOpen, onPaginate, onRowClick }) {
-  
+export default function CustomPaginationActionsTable({ onSelectSearchItem, data, total, config, onInputChange, onSubmit, onPaginate, onRowClick, searchedOptions }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
+  const [searchOpen, setSearchOpen] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
   const keys = config.headers.map(h => h.key);
@@ -143,13 +145,18 @@ export default function CustomPaginationActionsTable({ data, total, config, onIn
   React.useEffect(() => {
     onPaginate(page, rowsPerPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [page, rowsPerPage])
+  }, [page, rowsPerPage]);
+
+  const hadleSearchSubmit = (data) => {
+    setSearchOpen(true);
+    onSubmit(data);
+  }
 
   return (
     <React.Fragment>
       <div className={classes.toolbar}>
         <div className={classes.filter}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(hadleSearchSubmit)} className="search_form">
             <Search 
               id="route-search__submit"
               style={{
@@ -159,20 +166,46 @@ export default function CustomPaginationActionsTable({ data, total, config, onIn
               cursor: 'pointer',
               width: '64px',
               height: '56px',
-              padding: '16px'
+              padding: '16px',
             }} onClick={onSubmit} />
-            <input type="text" className={classes.input} id="route-search__input" name="query" ref={register} autoComplete="off" onChange={(e) => {
+            <input type="text" placeholder="Search" className={classes.input} id="route-search__input" name="query" ref={register} autoComplete="off" onChange={(e) => {
               onInputChange(e.target.value);
             }} />
-            <ArrowDropDown style={{
-                position: 'absolute',
-                right: 0,
-                top: 0,
-                cursor: 'pointer',
-                width: '64px',
-                height: '56px',
-                padding: '16px'
-            }} onClick={onSearchOpen} />
+            {
+              searchOpen ?
+              <ArrowDropUp 
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  cursor: 'pointer',
+                  width: '64px',
+                  height: '56px',
+                  padding: '16px'
+                }}
+                onClick={() => setSearchOpen(!searchOpen)}
+              /> :
+              <ArrowDropDown 
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  cursor: 'pointer',
+                  width: '64px',
+                  height: '56px',
+                  padding: '16px'
+                }}
+                onClick={() => setSearchOpen(!searchOpen)}
+              />
+            }
+            
+            <div className={searchOpen ? 'menu-list' : 'menu-list hidden'}>
+              {
+                searchedOptions && searchedOptions.map(option => {
+                  return <MenuItem key={option.warehouse_id} onClick={() => onSelectSearchItem(option.warehouse_id)}>{option.warehouse_client}</MenuItem>
+                })
+              }
+            </div>
           </form>
         </div>
         <div className={classes.pagination}>
