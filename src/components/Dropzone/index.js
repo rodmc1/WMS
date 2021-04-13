@@ -22,8 +22,7 @@ function Dropzone(props) {
   const extractImageUrl = (str) => {
     return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
   }
-  
-  const collapseText = expanded ? 'Hide Photos' : 'See Photos'
+  const collapseText = expanded ? 'Hide Photos' : 'See Photos';
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
@@ -31,10 +30,10 @@ function Dropzone(props) {
   const docxIcon = '/assets/images/docIcon.svg'
         
   React.useEffect(() => {
-    if (props.initialFiles) {
+    if (props.defaultFiles) {
       setExpanded(false);
-      if (props.type === 'image' && props.initialFiles.warehouse_document_file !== null)  {
-        let images = props.initialFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
+      if (props.type === 'image' && props.defaultFiles.warehouse_document_file !== null)  {
+        let images = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
         const allowedExtension = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp'];
         let newArrayImages = initialImages;
 
@@ -47,9 +46,9 @@ function Dropzone(props) {
         
         setInitialImages(() => newArrayImages);
       }
-      if (props.type === 'files' && props.initialFiles.warehouse_document_file !== null) {
-        const documents = props.initialFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
-        const allowedExtension = ['doc', 'docx', 'pdf', 'txt', 'tex'];
+      if (props.type === 'files' && props.defaultFiles.warehouse_document_file !== null) {
+        const documents = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
+        const allowedExtension = ['doc', 'docx', 'pdf', 'txt', 'tex', 'csv'];
         let newArrayDocuments = initialDocs;
 
         documents.forEach(document => {
@@ -62,7 +61,7 @@ function Dropzone(props) {
         setInitialDocs(newArrayDocuments);
       }
     }
-  }, [props.initialFiles]);
+  }, [props.defaultFiles]);
 
   const handlePreviewIcon = (file) => {
     const string = file.file.name;
@@ -88,18 +87,21 @@ function Dropzone(props) {
     )
   }
   
-  const renderDropzone = () => {
+  const imageDropzone = () => {
     return (
+      !initialImages.length ? null :
       <React.Fragment>
         <DropzoneArea
           key={props.type}
           { ...props }
           initialFiles={initialImages}
           onChange={files => props.onChange(files)}
+          onDelete={props.onDelete}
+          onDrop={props.onDrop}
           acceptedFiles={['image/*']}
           dropzoneText={props.text}
           previewText=""
-          showAlerts={false}
+          showAlerts={['error']}
           filesLimit={12}
           getPreviewIcon={file => handlePreviewIcon(file)}
           classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
@@ -108,9 +110,35 @@ function Dropzone(props) {
           variant='subtitle2'
           style={{color: '#009688', cursor: 'pointer', marginLeft: '1%'}}
           onClick={handleExpandClick}
+          className={(props.imageCount && !props.imageCount.length) ? 'hidden' : ''}
           aria-expanded={expanded}>
-          {collapseText}
+            {collapseText}
         </Typography>
+      </React.Fragment>
+    )
+  }
+
+  const documentDropzone = () => {
+    return (
+      !initialDocs.length ? null :
+      <React.Fragment>
+        <DropzoneArea
+          showAlerts={['error']}
+          className={(props.imageCount && !props.documentCount.length) ? 'hidden' : ''}
+          previewGridClasses={{ root: 'dropzone__list' }}
+          key={props.type}
+          { ...props }
+          onDelete={props.onDelete}
+          initialFiles={initialDocs}
+          onChange={files => props.onChange(files)}
+          acceptedFiles={['application/*']}
+          dropzoneText={props.text}
+          filesLimit={12}
+          onDrop={props.onDrop}
+          getPreviewIcon={file => handlePreviewIcon(file)}
+          previewText="Selected files"
+          classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
+        />
       </React.Fragment>
     )
   }
@@ -123,14 +151,16 @@ function Dropzone(props) {
           <DropzoneArea
             key={'create'}
             { ...props }
-            showAlerts={false}
+            showAlerts={['error']}
             onChange={files => {
               setShowPreviewText(true);
               props.onChange(files);
             }}
+            onDrop={props.onDrop}
             acceptedFiles={props.type === 'image' ? ['image/*'] : ['application/*']}
             dropzoneText={props.text}
             filesLimit={12}
+            onDelete={props.onDelete}
             previewText={props.type === 'image' ? '' : 'Uploaded Files'}
             getPreviewIcon={file => handlePreviewIcon(file)}
             classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
@@ -138,6 +168,7 @@ function Dropzone(props) {
           {
             (props.type === 'image' && showPreviewText) &&
             <Typography
+              className={!props.imageCount.length && 'hidden'}
               variant='subtitle2'
               style={{color: '#009688', cursor: 'pointer', marginLeft: '1%'}}
               onClick={handleExpandClick}
@@ -148,29 +179,8 @@ function Dropzone(props) {
         </React.Fragment>
       }
 
-      { 
-        !initialImages.length ? null : renderDropzone()
-      }
-
-      { 
-        !initialDocs.length ? null : 
-        <React.Fragment>
-          <DropzoneArea
-            showAlerts={false}
-            previewGridClasses={{ root: 'dropzone__list' }}
-            key={props.type}
-            { ...props }
-            initialFiles={initialDocs}
-            onChange={files => props.onChange(files)}
-            acceptedFiles={['application/*']}
-            dropzoneText={props.text}
-            filesLimit={12}
-            getPreviewIcon={file => handlePreviewIcon(file)}
-            previewText="Selected files"
-            classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
-          />
-        </React.Fragment>
-      }
+      { !initialImages.length ? null : imageDropzone() }
+      { !initialDocs.length ? null : documentDropzone() }
     </React.Fragment>
   )
 }

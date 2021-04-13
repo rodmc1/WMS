@@ -1,4 +1,4 @@
-// import './style.scss';
+import './style.scss';
 import React from 'react';
 import { connect } from 'react-redux';
 import { fetchWarehouseById, fetchFacilitiesAndAmenities } from 'actions/index';
@@ -16,27 +16,22 @@ function Alert(props) {
 }
 
 function WarehouseOverview(props) {
-  console.log(props)
   const [open, setOpen] = React.useState(false);
   const [facilitiesAndAmenities, setFacilitiesAndAmenities] = React.useState([]);
+  const [warehouse, setWarehouse] = React.useState(null);
   const [routes, setRoutes] = React.useState([
     {
       label: 'Warehouse List',
       path: '/warehouse-list'
     }
   ]);
-  
-  // React.useEffect(() => {
-  //   if (props.warehouse) {
-  //     window.history.replaceState(null, '', `${props.warehouse.warehouse_client}`);
-  //   }
-  // },[props.warehouse])
 
   React.useEffect(() => {
     if (props.location.success) {
       setOpen(true);
+      props.fetchWarehouseById(props.match.params.id);
     }
-  },[]);
+  }, [props.location.success]);
 
   const getContactInformation = () => {
     const broker = { name: null, number: null };
@@ -58,7 +53,7 @@ function WarehouseOverview(props) {
   }
   
   const renderInformation = () => {
-    if (props.warehouse) {
+    if (warehouse) {
       return (
         <React.Fragment>
           <Paper elevation={0} className="paper" variant="outlined">
@@ -66,37 +61,37 @@ function WarehouseOverview(props) {
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Warehouse Name</label>
-                <p className="paper__text">{props.warehouse.warehouse_client}</p>
+                <p className="paper__text">{warehouse.warehouse_client}</p>
               </Grid>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Warehouse Type</label>
-                <p className="paper__text">{props.warehouse.warehouse_type}</p>
+                <p className="paper__text">{warehouse.warehouse_type}</p>
               </Grid>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Building Type</label>
-                <p className="paper__text">{props.warehouse.building_type}</p>                  
+                <p className="paper__text">{warehouse.building_type}</p>                  
               </Grid>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Status</label>
-                <p className="paper__text">{props.warehouse.remarks}</p>                  
+                <p className="paper__text">{warehouse.remarks}</p>                  
               </Grid>
             </Grid>
             <Grid container spacing={2}>
             <Grid item xs={12} md={3}>
               <label className="paper__label">Address</label>
-              <p className="paper__text">{props.warehouse.address}</p>
+              <p className="paper__text">{warehouse.address}</p>
             </Grid>
             <Grid item xs={12} md={3}>
               <label className="paper__label">Country</label>
-              <p className="paper__text">{props.warehouse.country}</p>
+              <p className="paper__text">{warehouse.country}</p>
             </Grid>
             <Grid item xs={12} md={3}>
               <label className="paper__label">Year of TOP</label>
-              <p className="paper__text">{props.warehouse.year_top}</p>                  
+              <p className="paper__text">{warehouse.year_top}</p>                  
             </Grid>
             <Grid item xs={12} md={3}>
               <label className="paper__label">Min Lease Terms</label>
-              <p className="paper__text">{props.warehouse.min_lease_terms}</p>                  
+              <p className="paper__text">{warehouse.min_lease_terms}</p>                  
             </Grid>
           </Grid>
           </Paper>
@@ -105,37 +100,37 @@ function WarehouseOverview(props) {
               <Grid container spacing={2}>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Floor Area</label>
-                  <p className="paper__text">{props.warehouse.floor_area}</p>
+                  <p className="paper__text">{warehouse.floor_area}</p>
                 </Grid>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Covered Area</label>
-                  <p className="paper__text">{props.warehouse.covered_area}</p>
+                  <p className="paper__text">{warehouse.covered_area}</p>
                 </Grid>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Mezzanine Area</label>
-                  <p className="paper__text">{props.warehouse.mezzanine_area}</p>                  
+                  <p className="paper__text">{warehouse.mezzanine_area}</p>                  
                 </Grid>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Open Area</label>
-                  <p className="paper__text">{props.warehouse.open_area}</p>                  
+                  <p className="paper__text">{warehouse.open_area}</p>                  
                 </Grid>
               </Grid>
               <Grid container spacing={2}>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Office Area</label>
-                  <p className="paper__text">{props.warehouse.office_area}</p>
+                  <p className="paper__text">{warehouse.office_area}</p>
                 </Grid>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Battery Charging Area</label>
-                  <p className="paper__text">{props.warehouse.battery_charging_area}</p>
+                  <p className="paper__text">{warehouse.battery_charging_area}</p>
                 </Grid>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Loading &amp; Unloading Bays</label>
-                  <p className="paper__text">{props.warehouse.loading_unloading_bays}</p>                  
+                  <p className="paper__text">{warehouse.loading_unloading_bays}</p>                  
                 </Grid>
                 <Grid item xs={12} md={3}>
                   <label className="paper__label">Remarks</label>
-                  <p className="paper__text">{props.warehouse.remarks}</p>                  
+                  <p className="paper__text">{warehouse.remarks}</p>                  
                 </Grid>
               </Grid>
           </Paper>
@@ -165,7 +160,7 @@ function WarehouseOverview(props) {
             <Grid container spacing={2}>
               {facilitiesAndAmenities.map(f => {
                 let status = 'Unavailable';
-                if (props.warehouse.facilities_amenities.includes(f.Description)) {
+                if (warehouse.facilities_amenities.includes(f.Description)) {
                   status = 'Available';
                 }
                 return (
@@ -191,9 +186,11 @@ function WarehouseOverview(props) {
   }, [props.facilities_and_amenities]);
 
   React.useEffect(() => {
-    const id = props.match.params.id;    
-    if (id && !props.warehouse) {
+    const id = props.match.params.id;
+    if (!props.warehouse) {
       props.fetchWarehouseById(id);
+    } else {
+      setWarehouse(props.warehouse);
     }
   }, [props.warehouse]);
 

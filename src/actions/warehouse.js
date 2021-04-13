@@ -46,6 +46,10 @@ export const fetchWarehouseByName = name => dispatch => {
     });
 }
 
+export const fetchAllWarehouse = () => {
+  return inteluck.get(`/v1/wms/Warehouse`);
+}
+
 export const createWarehouse = params => {
   return inteluck.post(`/v1/wms/Warehouse`, params);
 }

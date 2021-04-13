@@ -6,6 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { fetchFacilitiesAndAmenities, fetchBuildingTypes } from 'actions/picklist';
 import { getWarehouseDetails } from './warehouseDetails';
 
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import validator from 'validator';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from '@material-ui/core/Typography';
@@ -15,7 +16,6 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import Dropzone from 'components/Dropzone';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import GoogleMap from 'components/GoogleMap';
 import ButtonGroup from 'components/ButtonGroup';
 import FormHelperText from '@material-ui/core/FormHelperText';
@@ -72,7 +72,6 @@ function WarehouseForm(props) {
   const [country, setCountry] = React.useState(null);
   const [centerMap, setCenterMap] = React.useState(null);
   const [gpsCoordinates, setGpsCoordinates] = React.useState(null);
-  
 
   /*
    * Get and Set address field/state
@@ -90,10 +89,9 @@ function WarehouseForm(props) {
       }
     });
     setAddress(address.description ? address.description : address);
-    setAddressField(address.description);
+    if (address.description) setAddressField(address.description);
     if (address.description) setCountry(address.terms[address.terms.length - 1].value);
   }
-
   const handleMarkerDrag = marker => {
     window.google.maps.event.addListener(marker, 'dragend', () => {
       const latlng = {
@@ -115,6 +113,13 @@ function WarehouseForm(props) {
       });
     });
   }
+
+  const handleAddressChange = (e) => {
+    const value = e.target.value;
+    setAddressField(value);
+    if (!value) setErrorAddress(false);
+  }
+
   React.useEffect(() => {
     address && handleGeocoder(address);
   }, [address]);
@@ -142,7 +147,6 @@ function WarehouseForm(props) {
 
   React.useEffect(() => {
     if (props.resetWarehouse) {
-      if (!isDirty) console.log('ha');
       setWarehouse(props.resetWarehouse);
       setAddress(props.resetWarehouse.address);
       setAddressField(props.resetWarehouse.address);
@@ -153,12 +157,34 @@ function WarehouseForm(props) {
 
       setSelectedAmenities(props.resetWarehouse.facilities_amenities);
     }
-  },[props.resetWarehouse]);
+  }, [props.resetWarehouse]);
 
   React.useEffect(() => {
     props.fetchFacilitiesAndAmenities();
     props.fetchBuildingTypes();
   }, []);
+
+  // React.useEffect(() => {
+  //   if (images.length) {
+  //     console.log(images[0]);
+  //   }
+    // if (images[0] && images.length) {
+      // setHasChanged(true)
+    // }
+    
+  //   if (images.length > 2 && warehouse) {
+  //     setHasChanged(true)
+  //   } else if (!warehouse && images.length > 1) {
+  //     setHasChanged(true)
+  //   }
+
+  //   if (docs.length > 2 && warehouse) {
+  //     setHasChanged(true)
+  //   } else if (!warehouse && docs.length > 1) {
+  //     setHasChanged(true)
+  //   }
+
+  // }, [images, docs]);
   
   const __submit = data => {
     if (isValid || hasDefaultValue) {
@@ -209,8 +235,8 @@ function WarehouseForm(props) {
                 <Select
                   variant="outlined"
                   fullWidth
-                  displayEmpty={true}
-                >
+                  defaultValue=""
+                  displayEmpty={true}>
                   <MenuItem value="Heated & Unheated General Warehouse">Heated and unheated general warehouses</MenuItem>
                   <MenuItem value="Refrigerated Warehouse">Refrigerated warehouses</MenuItem>
                   <MenuItem value="Controlled Humidity Warehouse">Controlled humidity (CH) warehouses</MenuItem>
@@ -240,7 +266,7 @@ function WarehouseForm(props) {
                   {
                     !props.building_types ? null :
                     props.building_types.map(type => {
-                      return <MenuItem key={type.Id} value={type.Description}>{type.Description}</MenuItem>
+                      return <MenuItem key={type.Id} value={type.Description || ''}>{type.Description}</MenuItem>
                     })
                   } 
                 </Select>
@@ -264,9 +290,7 @@ function WarehouseForm(props) {
                   fullWidth
                   variant="outlined" type="text"
                   onChange={(e) => {
-                    const val = e.target.value;
-                    setAddressField(val);
-                    if (!val) setErrorAddress(false);
+                    handleAddressChange(e);
                     props.onChange(e);
                   }}
                   onBlur={() => {
@@ -275,7 +299,8 @@ function WarehouseForm(props) {
                     } 
                     if (!addressField) setErrorAddress(false);
                   }} 
-                  value={addressField} />
+                  value={addressField}
+                />
               )}
             />
             {errorAddress && <FormHelperText error>Invalid Address</FormHelperText>}
@@ -668,17 +693,21 @@ function WarehouseForm(props) {
           }
         </Grid>
       </div>
-      <div className="paper__section">
+      <div className="paper__section image__dropzone">
       <Typography variant="subtitle1" className="paper__heading">Warehouse Photos</Typography>
         <Dropzone 
-          initialFiles={warehouse}
+          imageCount={images[images.length - 1]}
+          defaultFiles={warehouse}
+          onDelete={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onDrop={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
           onChange={(files) => {
             setImages([...images, files]);
-            if (images.length) {
-              setHasChanged(true);
-              setHasFilesChange(true);
-            }
-            setHasChanged(true);
           }}
           type="image"
           showPreviews
@@ -687,16 +716,20 @@ function WarehouseForm(props) {
       </div>
       <div className="paper__section documents__dropzone">
       <Typography variant="subtitle1" className="paper__heading">Documents</Typography>
-        <Dropzone 
-          initialFiles={warehouse}
+        <Dropzone
+          documentCount={docs[docs.length - 1]}
+          defaultFiles={warehouse}
           type="files"
-          onChange={(files) => {
-            setDocs([...docs, files]);
-            if (docs.length) {
-              setHasFilesChange(true);
-              setHasChanged(true);
-            } 
+          onDelete={() => {
             setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onDrop={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onChange={(files) => {
+            setDocs([...docs, files])
           }}
           showPreviews
           showPreviewsInDropzone={false}

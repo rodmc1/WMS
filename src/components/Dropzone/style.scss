@@ -19,6 +19,12 @@
   }
 }
 
+.image__dropzone {
+  .hidden {
+    display: none;
+  }
+}
+
 .MuiDropzonePreviewList-root.MuiGrid-spacing-xs-8 {
   margin: 0;
   width: 100%;
@@ -48,6 +54,9 @@
 }
 
 .documents__dropzone {
+  .hidden {
+    display: none;
+  }
   .MuiGrid-root.MuiDropzonePreviewList-imageContainer.MuiGrid-item.MuiGrid-grid-xs-4 {
     max-width: 60%;
     flex-basis: 60%;
@@ -81,10 +90,6 @@
     font-size: 0.8rem;
   }
 }
-
-
-
-
 
 .drawer:not(.drawer--collapsed) + main {
   .MuiDropzonePreviewList-root img {

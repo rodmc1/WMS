@@ -1,17 +1,20 @@
 import './style.scss';
 import React from 'react';
 import history from 'config/history';
-import { connect } from 'react-redux';
-import { fetchWarehouseByName, fetchWarehouses } from 'actions/index';
-import { Button } from '@material-ui/core'
-import Breadcrumbs from 'components/Breadcrumbs';
-import Table from 'components/Table';
-import { CSVLink, CSVDownload } from "react-csv";
+import _ from 'lodash';
+import { connect, useDispatch } from 'react-redux';
+import { fetchWarehouseByName, fetchWarehouses, fetchAllWarehouse, fetchFacilitiesAndAmenities } from 'actions/index';
+import { THROW_ERROR } from 'actions/types';
+import { dispatchError } from 'helper/error';
+import { CSVLink } from "react-csv";
 
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Breadcrumbs from 'components/Breadcrumbs';
+import Table from 'components/Table';
+import { Button } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -28,10 +31,12 @@ function Alert(props) {
 function WarehouseList(props) {
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
-  const [query, setQuery] = React.useState(null);
+  const [query, setQuery] = React.useState('');
   const [csvData, setCsvData] = React.useState([]);
   const classes = useStyles();
+  const dispatch = useDispatch();
   const csvLink = React.useRef();
+  const [searched, setSearched] = React.useState([]);
   const routes = [
     {
       label: 'Warehouse List',
@@ -54,13 +59,28 @@ function WarehouseList(props) {
     ]
   }
 
-  const getWarehousesData = () => {
-    // 'api' just wraps axios with some setting specific to our app. the important thing here is that we use .then to capture the table response data, update the state, and then once we exit that operation we're going to click on the csv download link using the ref
-    // await api.post('/api/get_transactions_table', { game_id: gameId })
-    //   .then((r) => setCsvData(r.data))
-    //   .catch((e) => console.log(e))
-    csvLink.current.link.click();
-  }
+  const csvHeaders = [  
+    { label: "Warehouse Name", key: "warehouseName" },
+    { label: "Address", key: "address" },
+    { label: "GPS Coordinates", key: "gpsCoordinate" },
+    { label: "Country", key: "country" },
+    { label: "Warehouse Type", key: "warehouseType" },
+    { label: "Building Type", key: "buildingType" },
+    { label: "Warehouse Status", key: "warehouseStatus" },
+    { label: "Nearby Station", key: "nearbyStation" },
+    { label: "Year of TOP", key: "yearTop" },
+    { label: "Min lease terms (months)", key: "minLeaseTerms" },
+    { label: "PSF", key: "psf" },
+    { label: "Floor Area (sqm)", key: "floorArea" },
+    { label: "Covered Area (sqm)", key: "coveredArea" },
+    { label: "Mezzanine Area (sqm)", key: "mezzanineArea" },
+    { label: "Open Area (sqm)", key: "openArea" },
+    { label: "Office Area (sqm)", key: "officeArea" },
+    { label: "Battery Charging Area (sqm)", key: "batteryChargingArea" },
+    { label: "Loading and Unloading Bays", key: "loadingAndUnloadingBays" },
+    { label: "Facilities and amenities", key: "facilitiesAndAmenities" },
+    { label: "Remarks", key: "remarks" }
+  ];
 
   const handleCreateWarehouse = () => {
     history.push('/warehouse-create');
@@ -70,9 +90,25 @@ function WarehouseList(props) {
     console.log('handleSearchOpen');
   }
 
-  const handleSubmit = () => {
-    props.fetchWarehouseByName(query);
+  const onInputChange = (e) => {
+    setSearched([]);
+    setQuery(e.target.value);
   }
+
+  const delayedQuery = React.useCallback(_.debounce(() => props.fetchWarehouseByName(query), 500), [query]);
+
+  React.useEffect(() => {
+    if (query.length > 2) {
+      delayedQuery();
+    }
+    return delayedQuery.cancel;
+  }, [query, delayedQuery]);
+
+  React.useEffect(() => {
+    if (props.searched) {
+      setSearched(props.searched);
+    }
+  }, [props.searched]);
 
   const handlePagination = (page, rowsPerPage) => {
     props.fetchWarehouses({
@@ -89,18 +125,43 @@ function WarehouseList(props) {
     history.push(`/warehouse-list/overview/${id}`);
   }
 
-  const handleDownloadCSV = () => {
-    console.log('here')
+  const handleDownloadCSV = async () => {
+    await fetchAllWarehouse().then(response => {
+      const newData = response.data.map(warehouse => {
+        return {
+          warehouseName: warehouse.warehouse_client,
+          address: warehouse.address,
+          gpsCoordinate: warehouse.gps_coordinate,
+          country: warehouse.country,
+          warehouseType: warehouse.warehouse_type,
+          buildingType: warehouse.building_type,
+          warehouseStatus: warehouse.warehouse_status,
+          nearbyStation: warehouse.nearby_station,
+          yearTop: warehouse.year_top,
+          minLeaseTerms: warehouse.min_lease_terms,
+          psf: warehouse.psf,
+          floorArea: warehouse.floor_area,
+          coveredArea: warehouse.covered_area,
+          mezzanineArea: warehouse.mezzanine_area,
+          openArea: warehouse.open_area,
+          officeArea: warehouse.office_area,
+          batteryChargingArea: warehouse.battery_charging_area,
+          loadingAndUnloadingBays: warehouse.loading_unloading_bays,
+          remarks: warehouse.remarks,
+          facilitiesAndAmenities: warehouse.facilities_amenities
+        }
+      });
+      setCsvData(newData);
+    }).catch((error) => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
+
+    csvLink.current.link.click();
   }
 
   React.useEffect(() => {
     if (props.warehouses.count) {
       setOpenBackdrop(false);
-      setCsvData([
-        { firstname: "Ahmed", lastname: "Tomi", email: "ah@smthing.co.com" },
-        { firstname: "Raed", lastname: "Labes", email: "rl@smthing.co.com" },
-        { firstname: "Yezzi", lastname: "Min l3b", email: "ymin@cocococo.com" }
-      ])
     }
   }, [props.warehouses.data]);
 
@@ -115,8 +176,8 @@ function WarehouseList(props) {
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         <div className="button-group">
-          <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginRight: 10 }} onClick={() => handleDownloadCSV()}>Download CSV</Button>
-          <CSVLink data={csvData} filename={"warehouses.csv"} className="hidden_csv">Download CSV</CSVLink>
+          <CSVLink data={csvData} filename="warehouses.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
+          <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginRight: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
           <Button variant="contained" className="btn btn--emerald" onClick={() => handleCreateWarehouse()} disableElevation>Create Warehouse</Button>
         </div>
       </div>
@@ -124,13 +185,13 @@ function WarehouseList(props) {
         config={config}
         data={props.warehouses.data}
         total={props.warehouses.count}
-        onInputChange={(e) => setQuery(e)}
-        onSubmit={handleSubmit}
+        onInputChange={onInputChange}
         onSearchOpen={handleSearchOpen}
         onPaginate={handlePagination}
         onRowClick={handleRowClick}
         onSelectSearchItem={onSelectSearchItem}
-        searchedOptions={props.searched}
+        searchedOptions={searched}
+        query={query}
       />
       <Backdrop className={classes.backdrop} open={openBackdrop} >
         <CircularProgress color="inherit" />

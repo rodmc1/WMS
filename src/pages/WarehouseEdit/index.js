@@ -29,8 +29,8 @@ function WarehouseEdit(props) {
   const [openCancel, setOpenCancel] = React.useState(false);
   const [openSnackBar, setOpenSnackBar] = React.useState(true);
   const [edited, setEdited] = React.useState(false);
-  const [existingWarehouse, setExistingWarehouse] = React.useState(null);
-  const [resetWarehouse, setResetWarehouse] = React.useState(null);
+  const [existingWarehouse, setExistingWarehouse] = React.useState('');
+  const [resetWarehouse, setResetWarehouse] = React.useState('');
   const dispatch = useDispatch();
   const [alertConfig, setAlertConfig] = React.useState({
     severity: 'info',
@@ -297,8 +297,7 @@ function WarehouseEdit(props) {
     return (
       <Dialog
         open={openCancel}
-        fullWidth="sm"
-        maxWidth="sm"
+        fullWidth
         keepMounted
         m={2}
         onClose={() => setOpenCancel(false)}

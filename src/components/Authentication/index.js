@@ -3,7 +3,6 @@ import _ from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
-import history from 'config/history';
 import { SnackbarContext } from 'context/Snackbar';
 import { ERROR, SNACKBAR } from 'config/constants';
 

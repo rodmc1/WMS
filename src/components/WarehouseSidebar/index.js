@@ -62,7 +62,7 @@ function WarehouseSideBar(props) {
         <ListItem button disabled={props.createMode} className={history.location.pathname.match('overview') ? 'active' : ''} onClick={() => history.push(`/warehouse-list/overview/${props.id}`)}>
           <ListItemText primary="Warehouse Overview" />
         </ListItem>
-        <ListItem button disabled={props.createMode} className={history.location.pathname.match('warehouse-edit') ? 'active warehouse_edit' : 'warehouse_edit'}  onClick={() => history.push(`/warehouse-edit/${props.id}`)}>
+        <ListItem button disabled={props.createMode} className={history.location.pathname.match('warehouse-edit') ? 'active warehouse_edit' : 'warehouse_edit'}  onClick={() => history.push(`/warehouse-list/warehouse-edit/${props.id}`)}>
           <ListItemText primary="Warehouse Information" />
         </ListItem>
         {

@@ -41,7 +41,7 @@ function App() {
                 <Route exact path='/' component={WarehouseList} />
                 <Route exact path='/warehouse-list/overview/:id' component={WarehouseOverview} />
                 <Route exact path='/warehouse-create' component={WarehouseCreate} />
-                <Route exact path='/warehouse-edit/:id' component={WarehouseEdit} />
+                <Route exact path='/warehouse-list/warehouse-edit/:id' component={WarehouseEdit} />
                 <Route exact path='/storage-bins' component={StorageBins} />
                 <Route exact path='/sku' component={SKU} />
                 <Route>

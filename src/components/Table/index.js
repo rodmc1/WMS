@@ -116,7 +116,7 @@ const useStyles2 = makeStyles({
   }
 });
 
-export default function CustomPaginationActionsTable({ onSelectSearchItem, data, total, config, onInputChange, onSubmit, onPaginate, onRowClick, searchedOptions }) {
+export default function CustomPaginationActionsTable({ query, onSelectSearchItem, data, total, config, onInputChange, onPaginate, onRowClick, searchedOptions }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [searchOpen, setSearchOpen] = React.useState(false);
@@ -125,7 +125,7 @@ export default function CustomPaginationActionsTable({ onSelectSearchItem, data,
   const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
   
-  const { register, handleSubmit } = useForm();
+  const { register } = useForm();
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -147,16 +147,19 @@ export default function CustomPaginationActionsTable({ onSelectSearchItem, data,
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [page, rowsPerPage]);
 
-  const hadleSearchSubmit = (data) => {
-    setSearchOpen(true);
-    onSubmit(data);
-  }
+  React.useEffect(() => {
+    if (searchedOptions && query.length > 2) {
+      setSearchOpen(true);
+    } else {
+      setSearchOpen(false);
+    }
+  }, [searchedOptions, query]);
 
   return (
     <React.Fragment>
       <div className={classes.toolbar}>
         <div className={classes.filter}>
-          <form onSubmit={handleSubmit(hadleSearchSubmit)} className="search_form">
+          <form className="search_form">
             <Search 
               id="route-search__submit"
               style={{
@@ -167,10 +170,18 @@ export default function CustomPaginationActionsTable({ onSelectSearchItem, data,
               width: '64px',
               height: '56px',
               padding: '16px',
-            }} onClick={onSubmit} />
-            <input type="text" placeholder="Search" className={classes.input} id="route-search__input" name="query" ref={register} autoComplete="off" onChange={(e) => {
-              onInputChange(e.target.value);
-            }} />
+            }}/>
+            <input 
+              type="text" 
+              placeholder="Search" 
+              value={query}
+              className={classes.input} 
+              id="route-search__input" 
+              name="query" 
+              ref={register}
+              autoComplete="off"
+              onChange={onInputChange}
+            />
             {
               searchOpen ?
               <ArrowDropUp 
@@ -201,7 +212,7 @@ export default function CustomPaginationActionsTable({ onSelectSearchItem, data,
             
             <div className={searchOpen ? 'menu-list' : 'menu-list hidden'}>
               {
-                searchedOptions && searchedOptions.map(option => {
+                (searchedOptions && query.length > 2) && searchedOptions.map(option => {
                   return <MenuItem key={option.warehouse_id} onClick={() => onSelectSearchItem(option.warehouse_id)}>{option.warehouse_client}</MenuItem>
                 })
               }
