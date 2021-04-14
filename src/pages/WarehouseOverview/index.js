@@ -25,13 +25,7 @@ function WarehouseOverview(props) {
       path: '/warehouse-list'
     }
   ]);
-
-  React.useEffect(() => {
-    if (props.location.success) {
-      setOpen(true);
-      props.fetchWarehouseById(props.match.params.id);
-    }
-  }, [props.location.success]);
+  const { fetchWarehouseById, fetchFacilitiesAndAmenities } = props;
 
   const getContactInformation = () => {
     const broker = { name: null, number: null };
@@ -51,6 +45,39 @@ function WarehouseOverview(props) {
 
     return { broker, contactPerson };
   }
+
+  React.useEffect(() => {
+    if (props.location.success) {
+      setOpen(true);
+      fetchWarehouseById(props.match.params.id);
+    }
+  }, [props.location.success, props.match.params.id, fetchWarehouseById]);
+
+  React.useEffect(() => {
+    if (props.facilities_and_amenities.length) {
+      setFacilitiesAndAmenities(props.facilities_and_amenities);
+    } else {
+      fetchFacilitiesAndAmenities();
+    }
+  }, [props.facilities_and_amenities, fetchFacilitiesAndAmenities]);
+
+  React.useEffect(() => {
+    const id = props.match.params.id;
+    if (!props.warehouse) {
+      fetchWarehouseById(id);
+    } else {
+      setWarehouse(props.warehouse);
+    }
+  }, [props.warehouse, props.match.params.id, fetchWarehouseById]);
+
+  React.useEffect(() => {
+    if (props.warehouse && routes.length === 1) {
+      setRoutes(routes => [...routes, {
+        label: props.warehouse.warehouse_client,
+        path: `/warehouse-list/overview/${props.match.params.id}`
+      }]);
+    }
+  }, [props.warehouse, props.match.params.id, routes.length]);
   
   const renderInformation = () => {
     if (warehouse) {
@@ -176,32 +203,6 @@ function WarehouseOverview(props) {
       )
     }
   }
-
-  React.useEffect(() => {
-    if (props.facilities_and_amenities.length) {
-      setFacilitiesAndAmenities(props.facilities_and_amenities);
-    } else {
-      props.fetchFacilitiesAndAmenities();
-    }
-  }, [props.facilities_and_amenities]);
-
-  React.useEffect(() => {
-    const id = props.match.params.id;
-    if (!props.warehouse) {
-      props.fetchWarehouseById(id);
-    } else {
-      setWarehouse(props.warehouse);
-    }
-  }, [props.warehouse]);
-
-  React.useEffect(() => {
-    if (props.warehouse && routes.length === 1) {
-      setRoutes(routes => [...routes, {
-        label: props.warehouse.warehouse_client,
-        path: `/warehouse-list/overview/${props.match.params.id}`
-      }]);
-    }
-  }, [props.warehouse]);
   
   return (
     <div className="container">

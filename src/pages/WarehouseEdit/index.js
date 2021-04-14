@@ -43,6 +43,8 @@ function WarehouseEdit(props) {
     }
   ]);
 
+  const { fetchWarehouseById } = props;
+
   const [status, setStatus] = React.useState({
     images: false,
     docs: false,
@@ -252,12 +254,15 @@ function WarehouseEdit(props) {
     }
   }, [props.error]);
 
-  if (edited) {
-    history.push({
-      pathname: `/warehouse-list/overview/${props.match.params.id}`,
-      success: 'Changes saved successfully'
-    });
-  }
+  React.useEffect(() => {
+    if (edited) {
+      history.push({
+        pathname: `/warehouse-list/overview/${props.match.params.id}`,
+        success: 'Changes saved successfully'
+      });
+    }
+  }, [edited, props.match.params.id]);
+  
 
   React.useEffect(() => {
     if (!Object.values(status).includes(false)) {
@@ -276,15 +281,15 @@ function WarehouseEdit(props) {
 
   React.useEffect(() => {
     const id = props.match.params.id;    
-    if (id) props.fetchWarehouseById(id);
-  }, []);
+    if (id) fetchWarehouseById(id);
+  }, [props.match.params.id]);
 
   React.useEffect(() => {
     if (props.warehouse) setOpenSnackBar(false);
     if (!existingWarehouse && props.warehouse) {
       setExistingWarehouse(props.warehouse);
     }
-  }, [props.warehouse]);
+  }, [props.warehouse, existingWarehouse]);
 
   const handleDialogCancel = (hasFilesChange) => {
     setResetWarehouse(() => ({...existingWarehouse}));

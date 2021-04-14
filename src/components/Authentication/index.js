@@ -3,8 +3,6 @@ import _ from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
-import { SnackbarContext } from 'context/Snackbar';
-import { ERROR, SNACKBAR } from 'config/constants';
 
 import { withStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -21,7 +19,6 @@ const DialogContent = withStyles((theme) => ({
 function Authentication(props) {
   const cookie = new Cookies();
   const [open, setOpen] = React.useState(false);
-  const [snackbarConfig, setSnackbarConfig] = React.useContext(SnackbarContext);
 
   const handleLogin = () => {
     switch (process.env.NODE_ENV) {
@@ -30,7 +27,7 @@ function Authentication(props) {
         break;
       case 'staging':
       case 'production':
-        window.location.href = `${process.env.REACT_APP_INTELUCK_ACCOUNT_API_ENDPOINT}/?app=wms`;
+        window.location.href = `${process.env.REACT_APP_INTELUCK_ACCOUNT_API_ENDPOINT}/wms/login`;
         break;
       default:
     }
@@ -49,10 +46,7 @@ function Authentication(props) {
           setOpen(true);
           break;
         default:
-          setSnackbarConfig({
-            type: SNACKBAR.TYPE.ERROR,
-            message: ERROR.DEFAULT_MESSAGE
-          });
+          return;
       }
     }
   }, [props.error])

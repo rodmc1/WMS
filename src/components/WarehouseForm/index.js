@@ -66,7 +66,7 @@ function WarehouseForm(props) {
     shouldFocusError: false,
     mode: 'onChange'
   });
-
+  
   const { isDirty, isValid } = formState;
   const [address, setAddress] = React.useState(null);
   const [country, setCountry] = React.useState(null);
@@ -163,28 +163,6 @@ function WarehouseForm(props) {
     props.fetchFacilitiesAndAmenities();
     props.fetchBuildingTypes();
   }, []);
-
-  // React.useEffect(() => {
-  //   if (images.length) {
-  //     console.log(images[0]);
-  //   }
-    // if (images[0] && images.length) {
-      // setHasChanged(true)
-    // }
-    
-  //   if (images.length > 2 && warehouse) {
-  //     setHasChanged(true)
-  //   } else if (!warehouse && images.length > 1) {
-  //     setHasChanged(true)
-  //   }
-
-  //   if (docs.length > 2 && warehouse) {
-  //     setHasChanged(true)
-  //   } else if (!warehouse && docs.length > 1) {
-  //     setHasChanged(true)
-  //   }
-
-  // }, [images, docs]);
   
   const __submit = data => {
     if (isValid || hasDefaultValue) {

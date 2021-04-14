@@ -159,7 +159,7 @@ export default function CustomPaginationActionsTable({ query, onSelectSearchItem
     <React.Fragment>
       <div className={classes.toolbar}>
         <div className={classes.filter}>
-          <form className="search_form">
+          <form className="search_form" onSubmit={(e) => e.preventDefault()}>
             <Search 
               id="route-search__submit"
               style={{

@@ -3,7 +3,7 @@ import React from 'react';
 import history from 'config/history';
 import _ from 'lodash';
 import { connect, useDispatch } from 'react-redux';
-import { fetchWarehouseByName, fetchWarehouses, fetchAllWarehouse, fetchFacilitiesAndAmenities } from 'actions/index';
+import { fetchWarehouseByName, fetchWarehouses, fetchAllWarehouse } from 'actions/index';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { CSVLink } from "react-csv";
@@ -86,16 +86,12 @@ function WarehouseList(props) {
     history.push('/warehouse-create');
   }
 
-  const handleSearchOpen = () => {
-    console.log('handleSearchOpen');
-  }
-
   const onInputChange = (e) => {
     setSearched([]);
     setQuery(e.target.value);
   }
 
-  const delayedQuery = React.useCallback(_.debounce(() => props.fetchWarehouseByName(query), 500), [query]);
+  const delayedQuery = React.useCallback(_.debounce(() => props.fetchWarehouseByName(query), 300), [query]) // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     if (query.length > 2) {
@@ -163,13 +159,13 @@ function WarehouseList(props) {
     if (props.warehouses.count) {
       setOpenBackdrop(false);
     }
-  }, [props.warehouses.data]);
+  }, [props.warehouses.count]);
 
   React.useEffect(() => {
     if (props.location.success) {
       setOpen(true);
     }
-  },[]);
+  }, [props.location.success]);
 
   return (
     <div className="container">
@@ -186,7 +182,6 @@ function WarehouseList(props) {
         data={props.warehouses.data}
         total={props.warehouses.count}
         onInputChange={onInputChange}
-        onSearchOpen={handleSearchOpen}
         onPaginate={handlePagination}
         onRowClick={handleRowClick}
         onSelectSearchItem={onSelectSearchItem}

@@ -21,12 +21,13 @@ function WarehouseSideBar(props) {
     deleteWarehouseById(props.id).then(response => {
       if (response.status === 204) {
         history.push({
-          pathname: '/warehouse-list',
+          pathname: '/',
           success: 'Warehouse deleted successfully'
         });
       }
     });
   }
+  
   const renderDeleteDialog = () => {
     return (
       <Dialog

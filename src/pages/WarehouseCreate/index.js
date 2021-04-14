@@ -41,6 +41,11 @@ function WarehouseCreate(props) {
       path: '/warehouse-create'
     }
   ];
+  const [status, setStatus] = React.useState({
+    images: false,
+    docs: false,
+    warehouse: false
+  });
 
   const handleSubmit = data => {
     setAlertConfig({ severity: 'info', message: 'Creating warehouse...' });
@@ -93,20 +98,26 @@ function WarehouseCreate(props) {
     createWarehouse(warehouse)
       .then(response => {
         const warehouseId = response.data;
+        setStatus(prevState => { return {...prevState, warehouse: true }});
         if (data.images.length) {
           uploadWarehouseFilesById(warehouseId, data.images[data.images.length - 1])
             .then(res => {
-              if (res.statusText === 'Created') setCreated(true);
+              console.log(res);
+              // if (res.statusText === 'Created') setCreated(true);
+              setStatus(prevState => { return {...prevState, images: true }});
             })
         } 
         if (data.docs.length)  {
           uploadWarehouseFilesById(warehouseId, data.docs[data.docs.length - 1])
             .then(res => {
-              if (res.statusText === 'Created') setCreated(true);
+              // if (res.statusText === 'Created') setCreated(true);
+              setStatus(prevState => { return {...prevState, docs: true }});
             })
         }
 
-        if (!data.images.length && !data.docs.length) setCreated(true);
+        if (!data.images.length && !data.docs.length) {
+          setStatus(prevState => { return {...prevState, images: true, docs: true }});
+        }
       })
       .catch(error => {
         if (error.response.data.type === '23505') {
@@ -120,6 +131,12 @@ function WarehouseCreate(props) {
   const handleDialogCancel = () => {
     setOpen(true);
   }
+
+  React.useEffect(() => {
+    if (!Object.values(status).includes(false)) {
+      setCreated(true);
+    }
+  }, [status]);
 
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
@@ -156,14 +173,12 @@ function WarehouseCreate(props) {
     )
   }
 
-  React.useEffect(() => {
-    if (created) {
-      history.push({
-        pathname: '/warehouse-list',
-        success: 'Successfuly saved'
-      });
-    } 
-  }, [created]);
+  if (created) {
+    history.push({
+      pathname: '/',
+      success: 'Successfuly saved'
+    });
+  }
 
   const handleError = error => {
     console.log(error)
@@ -186,7 +201,7 @@ function WarehouseCreate(props) {
             <WarehouseForm handleDialogCancel={handleDialogCancel} onSubmit={handleSubmit} onError={handleError} />
           </Paper>
         </Grid>
-        <Snackbar open={openSnackBar} autoHideDuration={6000} onClose={() => setOpenSnackBar(false)}>
+        <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
         {renderDialogCancel()}
