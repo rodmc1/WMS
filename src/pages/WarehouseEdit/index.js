@@ -250,7 +250,9 @@ function WarehouseEdit(props) {
 
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
-      setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+      if (!props.error.status === 401) {
+        setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+      }
     }
   }, [props.error]);
 
@@ -277,12 +279,12 @@ function WarehouseEdit(props) {
         path: `/warehouse-list/overview/${props.match.params.id}`
       }]);
     }
-  }, [props.warehouse]);
+  }, [props.warehouse, props.match.params.id, routes.length]);
 
   React.useEffect(() => {
     const id = props.match.params.id;    
     if (id) fetchWarehouseById(id);
-  }, [props.match.params.id]);
+  }, [props.match.params.id, fetchWarehouseById]);
 
   React.useEffect(() => {
     if (props.warehouse) setOpenSnackBar(false);

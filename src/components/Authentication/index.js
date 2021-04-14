@@ -17,7 +17,6 @@ const DialogContent = withStyles((theme) => ({
 }))(MuiDialogContent);
 
 function Authentication(props) {
-  const cookie = new Cookies();
   const [open, setOpen] = React.useState(false);
 
   const handleLogin = () => {
@@ -34,6 +33,7 @@ function Authentication(props) {
   }
   
   React.useEffect(() => {
+    const cookie = new Cookies();
     if(!cookie.get('user-token')){
       setOpen(true);
     }

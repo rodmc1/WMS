@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import './style.scss';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -31,8 +32,10 @@ function WarehouseForm(props) {
   const [docs, setDocs] = React.useState([]);
   const [hasFilesChange, setHasFilesChange] = React.useState(false);
   const [errorAddress, setErrorAddress] = React.useState(false);
+  const { fetchFacilitiesAndAmenities, fetchBuildingTypes } = props;
 
   // GOOGLE MAP
+  // eslint-disable-next-line
   const [marker, setMarker] = React.useState(new window.google.maps.Marker({ 
     draggable: true, 
     icon: {
@@ -122,6 +125,7 @@ function WarehouseForm(props) {
 
   React.useEffect(() => {
     address && handleGeocoder(address);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [address]);
 
   React.useEffect(() => {
@@ -143,6 +147,7 @@ function WarehouseForm(props) {
         setSelectedAmenities(...selectedAmenities, props.warehouse.facilities_amenities);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouse]);
 
   React.useEffect(() => {
@@ -157,12 +162,12 @@ function WarehouseForm(props) {
 
       setSelectedAmenities(props.resetWarehouse.facilities_amenities);
     }
-  }, [props.resetWarehouse]);
+  }, [props.resetWarehouse, setValue]);
 
   React.useEffect(() => {
-    props.fetchFacilitiesAndAmenities();
-    props.fetchBuildingTypes();
-  }, []);
+    fetchFacilitiesAndAmenities();
+    fetchBuildingTypes();
+  }, [fetchFacilitiesAndAmenities, fetchBuildingTypes]);
   
   const __submit = data => {
     if (isValid || hasDefaultValue) {

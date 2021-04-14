@@ -7,23 +7,51 @@ import MuiButtonGroup from '@material-ui/core/ButtonGroup';
 import Button from '@material-ui/core/Button';
 
 function ButtonGroup(props) {
-  const [color, setColor] = useState({ available: '#FAFAFA', notavailable: '#828282' });
+  const btnColor = {
+    white: '#FAFAFA',
+    grey: '#828282',
+    lightgrey: '#E9E9E9',
+    emerald: '#009688'
+  }
+  const [color, setColor] = useState({ available: btnColor.white, notavailable: btnColor.grey });
 
   React.useEffect(() => {
     if (props.warehouseFacilitiesAndAmenities) {
       if (props.warehouseFacilitiesAndAmenities.includes(props.data.Description)) {
-        setColor({available: '#009688', notavailable: '#FAFAFA', textColorAvailabe: '#E9E9E9', textColorNotAvailabe: '#828282'});
+        setColor({ 
+          available: btnColor.emerald,
+          notavailable: btnColor.white,
+          textColorAvailabe: btnColor.lightgrey,
+          textColorNotAvailabe: btnColor.grey
+        });
       } else {
-        setColor({available: '#FAFAFA', notavailable: '#828282', textColorAvailabe: '#828282', textColorNotAvailabe: '#E9E9E9'});
+        setColor({ 
+          available: btnColor.white,
+          notavailable: btnColor.grey,
+          textColorAvailabe: btnColor.grey,
+          textColorNotAvailabe: btnColor.lightgrey });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.warehouseFacilitiesAndAmenities]);
   
   const onButtonClick = (status) => {
     props.handleSelectedFacilities(props.data.Description, status);
-    setColor({available: '#009688', notavailable: '#FAFAFA', textColorAvailabe: '#E9E9E9', textColorNotAvailabe: '#828282'});
+
     if (!status) {
-      setColor({available: '#FAFAFA', notavailable: '#E9E9E9', textColorAvailabe: '#828282', textColorNotAvailabe: '#E9E9E9'});
+      setColor({ 
+        available: btnColor.white,
+        notavailable: btnColor.lightgrey,
+        textColorAvailabe: btnColor.grey,
+        textColorNotAvailabe: btnColor.lightgrey
+      });
+    } else {
+      setColor({ 
+        available: btnColor.emerald,
+        notavailable: btnColor.white,
+        textColorAvailabe: btnColor.lightgrey,
+        textColorNotAvailabe: btnColor.grey
+      });
     }
   }
 

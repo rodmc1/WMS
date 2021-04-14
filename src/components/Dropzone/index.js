@@ -61,6 +61,7 @@ function Dropzone(props) {
         setInitialDocs(newArrayDocuments);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.defaultFiles]);
 
   const handlePreviewIcon = (file) => {
@@ -72,12 +73,12 @@ function Dropzone(props) {
     return (
       props.type === 'image' ? 
       <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <img role="presentation" src={file.data} />
+        <img role="presentation" src={file.data} alt={file.file.name} />
       </Collapse> :
       <React.Fragment>
         <div className={classes.root}>
           <Badge>
-            <img className="doc-img" src={previewIcon} />
+            <img className="doc-img" src={previewIcon} alt={file.file.name} />
           </Badge>
           <Badge>
             <Typography variant='subtitle2'>{fileName}</Typography>
