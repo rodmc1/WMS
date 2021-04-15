@@ -35,6 +35,7 @@ export const fetchWarehouseById = id => dispatch => {
     });
 }
 
+// For Search Warehouse
 export const fetchWarehouseByName = name => dispatch => {
   inteluck.get(`/v1/wms/Warehouse/`, {
     params: {

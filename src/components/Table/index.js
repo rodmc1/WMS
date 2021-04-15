@@ -124,7 +124,6 @@ export default function CustomPaginationActionsTable({ query, onSelectSearchItem
   const headers = config.headers.map(h => h.label);
   const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
-  
   const { register } = useForm();
 
   const handleChangePage = (event, newPage) => {
@@ -213,7 +212,7 @@ export default function CustomPaginationActionsTable({ query, onSelectSearchItem
             <div className={searchOpen ? 'menu-list' : 'menu-list hidden'}>
               {
                 (searchedOptions && query.length > 2) && searchedOptions.map(option => {
-                  return <MenuItem key={option.warehouse_id} onClick={() => onSelectSearchItem(option.warehouse_id)}>{option.warehouse_client}</MenuItem>
+                  return <MenuItem key={option.warehouse_id} onClick={() => onSelectSearchItem(option.warehouse_client)}>{option.warehouse_client}</MenuItem>
                 })
               }
             </div>
