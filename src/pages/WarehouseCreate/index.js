@@ -98,7 +98,7 @@ function WarehouseCreate(props) {
     createWarehouse(warehouse)
       .then(response => {
         const warehouseId = response.data;
-        if (response.statusText === 'Created') setStatus(prevState => { return {...prevState, images: true }});
+        if (response.statusText === 'Created') setStatus(prevState => { return {...prevState, warehouse: true }});
 
         if (data.images.length) {
           uploadWarehouseFilesById(warehouseId, data.images[data.images.length - 1])
