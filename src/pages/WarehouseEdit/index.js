@@ -348,7 +348,7 @@ function WarehouseEdit(props) {
         justify="space-evenly"
         alignItems="stretch">
         <Grid item xs={12} md={3}>
-          <WarehouseSideBar id={props.match.params.id} editMode />
+          <WarehouseSideBar id={props.match.params.id} deleteId={existingWarehouse.warehouse_id} editMode />
         </Grid>
         <Grid item xs={12} md={9}>
           <Paper className="paper" elevation={0} variant="outlined" style={{position:'relative'}}>

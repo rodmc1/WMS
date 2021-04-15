@@ -18,7 +18,7 @@ function WarehouseSideBar(props) {
   const [open, setOpen] = React.useState(false);
 
   const handleDelete = () => {
-    deleteWarehouseById(props.id).then(response => {
+    deleteWarehouseById(props.deleteId).then(response => {
       if (response.status === 204) {
         history.push({
           pathname: '/',

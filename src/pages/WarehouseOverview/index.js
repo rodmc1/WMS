@@ -212,7 +212,7 @@ function WarehouseOverview(props) {
         justify="space-evenly"
         alignItems="stretch">
           <Grid item xs={3}>
-            <WarehouseSideBar id={props.match.params.id} />
+            <WarehouseSideBar id={props.match.params.id} deleteId={warehouse && warehouse.warehouse_id} />
           </Grid>        
           <Grid item xs={9}>
             {renderInformation()}
