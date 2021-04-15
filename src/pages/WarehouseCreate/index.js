@@ -142,7 +142,11 @@ function WarehouseCreate(props) {
 
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
-      setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+      if (props.error.status === 401) {
+        setAlertConfig({ severity: 'error', message: 'Session Expired, please login again..' });
+      } else {
+        setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+      }
     }
   }, [props.error]);
 
