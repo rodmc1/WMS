@@ -3,7 +3,6 @@ export const getWarehouseDetails = (props) => {
     ['warehouseName', props.warehouse_client],
     ['warehouseType', props.warehouse_type],
     ['nearbyStation', props.nearby_station],
-    ['buildingType', props.building_type],
     ['warehouseStatus', props.warehouse_status],
     ['yearOfTop', props.year_top],
     ['minLeaseTerms', props.min_lease_terms],

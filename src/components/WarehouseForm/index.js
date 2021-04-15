@@ -133,6 +133,13 @@ function WarehouseForm(props) {
   }, [marker]);
 
   React.useEffect(() => {
+    if (props.building_types && props.warehouse) {
+      setValue('buildingType', props.warehouse.building_type);
+    }
+  }, [props.building_types, setValue, props.warehouse]);
+
+
+  React.useEffect(() => {
     if (props.warehouse) {
       setHasDefaultValue(true);
       setWarehouse(props.warehouse);
@@ -244,12 +251,13 @@ function WarehouseForm(props) {
                 <Select
                   variant="outlined"
                   fullWidth
+                  defaultValue={null}
                   displayEmpty={true}
                 > 
                   {
                     !props.building_types ? null :
                     props.building_types.map(type => {
-                      return <MenuItem key={type.Id} value={type.Description || ''}>{type.Description}</MenuItem>
+                      return <MenuItem key={type.Id} value={type.Description}>{type.Description}</MenuItem>
                     })
                   } 
                 </Select>

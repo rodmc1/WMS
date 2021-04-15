@@ -16,6 +16,7 @@ function Alert(props) {
 }
 
 function WarehouseOverview(props) {
+  console.log(props)
   const [open, setOpen] = React.useState(false);
   const [facilitiesAndAmenities, setFacilitiesAndAmenities] = React.useState([]);
   const [warehouse, setWarehouse] = React.useState(null);

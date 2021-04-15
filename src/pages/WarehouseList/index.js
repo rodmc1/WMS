@@ -90,8 +90,11 @@ function WarehouseList(props) {
     setSearched([]);
     setQuery(e.target.value);
   }
-
-  const delayedQuery = React.useCallback(_.debounce(() => props.fetchWarehouseByName(query), 300), [query]) // eslint-disable-line react-hooks/exhaustive-deps
+  
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  const delayedQuery = React.useCallback(_.debounce(() => {
+    props.fetchWarehouseByName(query)
+  }, 300), [query]);
 
   React.useEffect(() => {
     if (query.length > 2) {
@@ -113,10 +116,12 @@ function WarehouseList(props) {
     });
   };
 
+  // Redirect to selected warehouse
   const handleRowClick = (row) => {
     history.push(`/warehouse-list/overview/${row.warehouse_id}`);
   }
 
+  // Redirect to selected searched warehouse
   const onSelectSearchItem = (id) => {
     history.push(`/warehouse-list/overview/${id}`);
   }

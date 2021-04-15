@@ -10,7 +10,7 @@ export const fetchWarehouses = params => dispatch => {
       dispatch({
         type: FETCH_WAREHOUSES,
         payload: {
-          data: _.mapKeys(response.data, 'warehouse_id'),
+          data: _.mapKeys(response.data, 'warehouse_client'),
           count: Number(JSON.parse(headers).Count)
         }
       });

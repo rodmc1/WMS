@@ -30,7 +30,8 @@ function Dropzone(props) {
   const docxIcon = '/assets/images/docIcon.svg'
         
   React.useEffect(() => {
-    if (props.defaultFiles) {
+    let isMounted = false;
+    if (props.defaultFiles && isMounted) {
       setExpanded(false);
       if (props.type === 'image' && props.defaultFiles.warehouse_document_file !== null)  {
         let images = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
@@ -61,7 +62,9 @@ function Dropzone(props) {
         setInitialDocs(newArrayDocuments);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
+
+    return () => { isMounted = false }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.defaultFiles]);
 
   const handlePreviewIcon = (file) => {
