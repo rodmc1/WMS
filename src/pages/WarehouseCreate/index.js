@@ -98,20 +98,22 @@ function WarehouseCreate(props) {
     createWarehouse(warehouse)
       .then(response => {
         const warehouseId = response.data;
-        setStatus(prevState => { return {...prevState, warehouse: true }});
+        if (response.statusText === 'Created') setStatus(prevState => { return {...prevState, images: true }});
+
         if (data.images.length) {
           uploadWarehouseFilesById(warehouseId, data.images[data.images.length - 1])
             .then(res => {
-              console.log(res);
-              // if (res.statusText === 'Created') setCreated(true);
-              setStatus(prevState => { return {...prevState, images: true }});
+              if (res.statusText === 'Created') {
+                setStatus(prevState => { return {...prevState, images: true }});
+              }
             })
         } 
         if (data.docs.length)  {
           uploadWarehouseFilesById(warehouseId, data.docs[data.docs.length - 1])
             .then(res => {
-              // if (res.statusText === 'Created') setCreated(true);
-              setStatus(prevState => { return {...prevState, docs: true }});
+              if (res.statusText === 'Created') {
+                setStatus(prevState => { return {...prevState, docs: true }});
+              };
             })
         }
 

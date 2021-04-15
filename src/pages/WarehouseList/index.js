@@ -118,7 +118,7 @@ function WarehouseList(props) {
 
   // Redirect to selected warehouse
   const handleRowClick = (row) => {
-    history.push(`/warehouse-list/overview/${row.warehouse_id}`);
+    history.push(`/warehouse-list/overview/${row.warehouse_client}`);
   }
 
   // Redirect to selected searched warehouse

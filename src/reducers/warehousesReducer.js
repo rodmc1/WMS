@@ -11,7 +11,7 @@ const warehouseReducer = (state = initialState, action) => {
     case FETCH_WAREHOUSES:
       return { ...action.payload };
     case FETCH_WAREHOUSE:
-      return { ...state, data: { ...state.data, [action.payload.warehouse_id]: action.payload }  };
+      return { ...state, data: { ...state.data, [action.payload.warehouse_client]: action.payload }  };
     case SEARCH_WAREHOUSE:
       return { ...state, search: action.payload };
     default:

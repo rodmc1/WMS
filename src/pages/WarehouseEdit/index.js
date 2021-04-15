@@ -31,6 +31,7 @@ function WarehouseEdit(props) {
   const [edited, setEdited] = React.useState(false);
   const [existingWarehouse, setExistingWarehouse] = React.useState('');
   const [resetWarehouse, setResetWarehouse] = React.useState('');
+  const [newWarehouseId, setNewWarehouseId] = React.useState(null);
   const dispatch = useDispatch();
   const [alertConfig, setAlertConfig] = React.useState({
     severity: 'info',
@@ -42,9 +43,7 @@ function WarehouseEdit(props) {
       path: '/warehouse-list'
     }
   ]);
-
   const { fetchWarehouseById } = props;
-
   const [status, setStatus] = React.useState({
     images: false,
     docs: false,
@@ -58,7 +57,7 @@ function WarehouseEdit(props) {
     setOpenSnackBar(true);
 
     const warehouse = {
-      id: props.match.params.id,
+      id: existingWarehouse.warehouse_id,
       name: data.warehouseName,
       warehouse_type: data.warehouseType,
       building_type: data.buildingType,
@@ -100,9 +99,12 @@ function WarehouseEdit(props) {
     handleUsersUpdate(data);
 
     //Handle warehouse update
-    updateWarehouseById(props.match.params.id, warehouse)
+    updateWarehouseById(existingWarehouse.warehouse_id, warehouse)
       .then(response => {
-        if (response.statusText === 'Created') setStatus(prevState => { return {...prevState, warehouse: true }});
+        if (response.statusText === 'Created') {
+          setNewWarehouseId(warehouse.name);
+          setStatus(prevState => { return {...prevState, warehouse: true }});
+        }
       })
       .catch(error => {
         dispatchError(dispatch, THROW_ERROR, error);
@@ -209,7 +211,7 @@ function WarehouseEdit(props) {
 
     data.docs[data.docs.length - 1].forEach(file => {
       if (!existingDocuments.includes(file.name)) {
-        uploadWarehouseFilesById(props.match.params.id, [file]);
+        uploadWarehouseFilesById(existingWarehouse.warehouse_id, [file]);
       }
     });
     setStatus(prevState => { return {...prevState, docs: true }});
@@ -227,7 +229,7 @@ function WarehouseEdit(props) {
 
       existingWarehouse.warehouse_document_file.forEach(file => {
         if (imageExtensions.includes(file.warehouse_filename.split('.').pop().toLowerCase()) && !newImages.includes(file.warehouse_filename)) {
-          deleteWarehouseFilesById(file.warehouse_documents_file_id);
+          deleteWarehouseFilesById(file.warehouse_documents_file_id).then(response => console.log(response));
         }
       });
     }
@@ -235,13 +237,21 @@ function WarehouseEdit(props) {
     let imageArr = [];
     data.images[data.images.length - 1].forEach(file => {
       if (!existingImages.includes(file.name)) {
-        imageArr.push(uploadWarehouseFilesById(props.match.params.id, [file]))
+        imageArr.push(uploadWarehouseFilesById(existingWarehouse.warehouse_id, [file]))
       }
     });
 
-    Promise.all(imageArr).then(response => {
-      setStatus(prevState => { return {...prevState, images: true }});
-    })
+    Promise.all(imageArr)
+      .then(response => {
+        console.log(response)
+        if (response) {
+          setStatus(prevState => { return {...prevState, images: true }});
+        }
+      }).catch(error => {
+        dispatchError(dispatch, THROW_ERROR, error);
+      });
+
+      console.log(status)
   }
 
   const handleError = error => {
@@ -250,27 +260,28 @@ function WarehouseEdit(props) {
 
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
-      if (!props.error.status === 401) {
+      if (props.error.status === 500) {
+        setAlertConfig({ severity: 'error', message: props.error.data.type +': Something went wrong. Try again'});
+      } else if (!props.error.status === 401) {
         setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
       }
     }
   }, [props.error]);
-
-  React.useEffect(() => {
-    if (edited) {
-      history.push({
-        pathname: `/warehouse-list/overview/${props.match.params.id}`,
-        success: 'Changes saved successfully'
-      });
-    }
-  }, [edited, props.match.params.id]);
   
-
   React.useEffect(() => {
     if (!Object.values(status).includes(false)) {
       setEdited(true);
     }
   }, [status]);
+
+  React.useEffect(() => {
+    if (edited && newWarehouseId) {
+      history.push({
+        pathname: `/warehouse-list/overview/${newWarehouseId}`,
+        success: 'Changes saved successfully'
+      });
+    } 
+  }, [edited, newWarehouseId]);
 
   React.useEffect(() => {
     if (props.warehouse && routes.length === 1) {
