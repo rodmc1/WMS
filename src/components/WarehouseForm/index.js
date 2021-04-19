@@ -116,7 +116,7 @@ function WarehouseForm(props) {
       });
     });
   }
-
+  
   const handleAddressChange = (e) => {
     const value = e.target.value;
     setAddressField(value);
@@ -137,7 +137,6 @@ function WarehouseForm(props) {
       setValue('buildingType', props.warehouse.building_type);
     }
   }, [props.building_types, setValue, props.warehouse]);
-
 
   React.useEffect(() => {
     if (props.warehouse) {
@@ -339,12 +338,15 @@ function WarehouseForm(props) {
             <label className="paper__label">Years of TOP</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" />
+                <TextField fullWidth variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} />
               }
               name="yearOfTop"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
             />
             {errors.yearOfTop && <FormHelperText error>{errors.yearOfTop.message}</FormHelperText>}
           </Grid>
@@ -354,13 +356,17 @@ function WarehouseForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
+                  inputProps: { min: 0 },
                   endAdornment: <InputAdornment position="end">Months</InputAdornment>,
                 }} />
               }
               name="minLeaseTerms"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
             />
             {errors.minLeaseTerms && <FormHelperText error>{errors.minLeaseTerms.message}</FormHelperText>}
           </Grid>
@@ -368,12 +374,15 @@ function WarehouseForm(props) {
             <label className="paper__label">PSF</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" />
+                <TextField fullWidth variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} />
               }
               name="psf"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
             />
             {errors.psf && <FormHelperText error>{errors.psf.message}</FormHelperText>}
           </Grid>
@@ -388,13 +397,17 @@ function WarehouseForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
+                  inputProps: { min: 0 },
                   endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                 }} />
               }
               name="floorArea"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
             />
             {errors.floorArea && <FormHelperText error>{errors.floorArea.message}</FormHelperText>}
           </Grid>
@@ -407,13 +420,17 @@ function WarehouseForm(props) {
                   variant="outlined"
                   type="number" 
                   InputProps={{
+                    inputProps: { min: 0 },
                     endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                   }} />
               }
               name="coveredArea"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
             />
             {errors.coveredArea && <FormHelperText error>{errors.coveredArea.message}</FormHelperText>}
           </Grid>
@@ -426,13 +443,17 @@ function WarehouseForm(props) {
                   variant="outlined"
                   type="number"
                   InputProps={{
+                    inputProps: { min: 0 },
                     endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                   }} />
               }
               name="mezzanineArea"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
             />
             {errors.mezzanineArea && <FormHelperText error>{errors.mezzanineArea.message}</FormHelperText>}
           </Grid>
@@ -445,13 +466,17 @@ function WarehouseForm(props) {
                   variant="outlined"
                   type="number"
                   InputProps={{
+                    inputProps: { min: 0 },
                     endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                   }} />
               }
               name="openArea"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
             />
             {errors.openArea && <FormHelperText error>{errors.openArea.message}</FormHelperText>}
           </Grid>
@@ -464,13 +489,17 @@ function WarehouseForm(props) {
                   variant="outlined"
                   type="number"
                   InputProps={{
+                    inputProps: { min: 0 },
                     endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                   }} />
               }
               name="officeArea"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
             />
             {errors.officeArea && <FormHelperText error>{errors.officeArea.message}</FormHelperText>}
           </Grid>
@@ -483,13 +512,17 @@ function WarehouseForm(props) {
                   variant="outlined"
                   type="number"
                   InputProps={{
+                    inputProps: { min: 0 },
                     endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                   }} />
               }
               name="batteryChargingArea"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
             />
             {errors.batteryChargingArea && <FormHelperText error>{errors.batteryChargingArea.message}</FormHelperText>}
           </Grid>
@@ -503,7 +536,10 @@ function WarehouseForm(props) {
             name="loadingUnloadingBays"
             control={control}
             defaultValue=""
-            rules={{ required: "This field is required" }}
+            rules={{ 
+              required: "This field is required",
+              validate: value => { return value < 0 ? 'Invalid value' : true } 
+            }}
           />
           {errors.loadingUnloadingBays && <FormHelperText error>{errors.loadingUnloadingBays.message}</FormHelperText>}
         </Grid>
