@@ -81,27 +81,10 @@ function WarehouseEdit(props) {
       users_details: []
     }
 
-    //Images upload and delete
-    if (data.images.length) {
-      handleImageUpdate(data);
-    } else {
-      setStatus(prevState => { return {...prevState, images: true }});
-    }
-
-    //Documents upload and delete
-    if (data.docs.length) {
-      handleDocumentUpdate(data);
-    } else {
-      setStatus(prevState => { return {...prevState, docs: true }});
-    }
-    
-    //Handle users update
-    handleUsersUpdate(data);
-
     //Handle warehouse update
     updateWarehouseById(existingWarehouse.warehouse_id, warehouse)
       .then(response => {
-        if (response.statusText === 'Created') {
+        if (response.status === 201) {
           setNewWarehouseId(warehouse.name);
           setStatus(prevState => { return {...prevState, warehouse: true }});
         }
@@ -109,6 +92,23 @@ function WarehouseEdit(props) {
       .catch(error => {
         dispatchError(dispatch, THROW_ERROR, error);
       });
+
+    //Images upload and delete
+    if (data.images.length > 1) {
+      handleImageUpdate(data);
+    } else {
+      setStatus(prevState => { return {...prevState, images: true }});
+    }
+
+    //Documents upload and delete
+    if (data.docs.length > 1) {
+      handleDocumentUpdate(data);
+    } else {
+      setStatus(prevState => { return {...prevState, docs: true }});
+    }
+    
+    //Handle users update
+    handleUsersUpdate(data);
   }
 
   const handleUsersUpdate = (data) => {
@@ -229,7 +229,7 @@ function WarehouseEdit(props) {
 
       existingWarehouse.warehouse_document_file.forEach(file => {
         if (imageExtensions.includes(file.warehouse_filename.split('.').pop().toLowerCase()) && !newImages.includes(file.warehouse_filename)) {
-          deleteWarehouseFilesById(file.warehouse_documents_file_id).then(response => console.log(response));
+          deleteWarehouseFilesById(file.warehouse_documents_file_id);
         }
       });
     }
@@ -243,15 +243,12 @@ function WarehouseEdit(props) {
 
     Promise.all(imageArr)
       .then(response => {
-        console.log(response)
         if (response) {
           setStatus(prevState => { return {...prevState, images: true }});
         }
       }).catch(error => {
         dispatchError(dispatch, THROW_ERROR, error);
       });
-
-      console.log(status)
   }
 
   const handleError = error => {

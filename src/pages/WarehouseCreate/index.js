@@ -98,23 +98,34 @@ function WarehouseCreate(props) {
     createWarehouse(warehouse)
       .then(response => {
         const warehouseId = response.data;
-        if (response.statusText === 'Created') setStatus(prevState => { return {...prevState, warehouse: true }});
 
-        if (data.images.length) {
+        if (response.status === 201) setStatus(prevState => { return {...prevState, warehouse: true }});
+        if (data.images.length > 1) {
           uploadWarehouseFilesById(warehouseId, data.images[data.images.length - 1])
             .then(res => {
-              if (res.statusText === 'Created') {
+              if (res.status === 201) {
                 setStatus(prevState => { return {...prevState, images: true }});
-              }
+              };
             })
-        } 
-        if (data.docs.length)  {
+            .catch(error => {
+              dispatchError(dispatch, THROW_ERROR, error);
+            });
+        } else {
+          setStatus(prevState => { return {...prevState, images: true }});
+        }
+
+        if (data.docs.length > 1)  {
           uploadWarehouseFilesById(warehouseId, data.docs[data.docs.length - 1])
             .then(res => {
-              if (res.statusText === 'Created') {
+              if (res.status === 201) {
                 setStatus(prevState => { return {...prevState, docs: true }});
               };
             })
+            .catch(error => {
+              dispatchError(dispatch, THROW_ERROR, error);
+            });
+        } else {
+          setStatus(prevState => { return {...prevState, docs: true }});
         }
 
         if (!data.images.length && !data.docs.length) {
@@ -129,7 +140,7 @@ function WarehouseCreate(props) {
         }
       });
   }
-
+  
   const handleDialogCancel = () => {
     setOpen(true);
   }
