@@ -257,10 +257,15 @@ function WarehouseEdit(props) {
 
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
-      if (props.error.status === 500) {
-        setAlertConfig({ severity: 'error', message: props.error.data.type +': Something went wrong. Try again'});
-      } else if (!props.error.status === 401) {
-        setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+      switch (props.error.status) {
+        case 500:
+          return setAlertConfig({ severity: 'error', message: props.error.data.type +': Something went wrong. Try again'});
+        case !401:
+          return setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+        case 401: 
+          return setOpenSnackBar(false);
+        default:
+          return;
       }
     }
   }, [props.error]);

@@ -83,7 +83,7 @@ function WarehouseList(props) {
   ];
 
   const handleCreateWarehouse = () => {
-    history.push('/warehouse-create');
+    history.push('/warehouse-list/warehouse-create');
   }
 
   const onInputChange = (e) => {
