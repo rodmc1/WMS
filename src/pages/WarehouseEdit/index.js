@@ -90,7 +90,11 @@ function WarehouseEdit(props) {
         }
       })
       .catch(error => {
-        dispatchError(dispatch, THROW_ERROR, error);
+        if (error.response.data.type === '23505') {
+          setAlertConfig({ severity: 'error', message: `Warehouse ${warehouse.name} is already in use` });
+        } else {
+          dispatchError(dispatch, THROW_ERROR, error);
+        }
       });
 
     //Images upload and delete
@@ -171,6 +175,7 @@ function WarehouseEdit(props) {
         .catch(error => {
           if (error.response.data.type === '23505') {
             setAlertConfig({ severity: 'error', message: 'Broker email address already exists' });
+            setAlertConfig({ severity: 'error', message: `${newBroker.email_address} is already in use` });
           }
         })
     } else {
@@ -186,7 +191,7 @@ function WarehouseEdit(props) {
         })
         .catch(error => {
           if (error.response.data.type === '23505') {
-            setAlertConfig({ severity: 'error', message: 'Contact Person email address already exists' });
+            setAlertConfig({ severity: 'error', message: `${newContactPerson.email_address} is already in use` });
           }
         })
     } else {
@@ -219,7 +224,7 @@ function WarehouseEdit(props) {
 
   const handleImageUpdate = (data) => {
     let existingImages = [];
-    const imageExtensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp'];
+    const imageExtensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];
     const newImages = data.images[data.images.length - 1].map(i => { return  i.name }); 
     
     if (existingWarehouse.warehouse_document_file) {
@@ -257,6 +262,7 @@ function WarehouseEdit(props) {
 
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
+      console.log(props.error)
       switch (props.error.status) {
         case 500:
           return setAlertConfig({ severity: 'error', message: props.error.data.type +': Something went wrong. Try again'});

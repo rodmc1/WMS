@@ -29,6 +29,7 @@ function Alert(props) {
 }
 
 function WarehouseList(props) {
+  const [warehouseData, setWarehouseData] = React.useState(null)
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
   const [query, setQuery] = React.useState('');
@@ -37,12 +38,17 @@ function WarehouseList(props) {
   const dispatch = useDispatch();
   const csvLink = React.useRef();
   const [searched, setSearched] = React.useState([]);
+  const [rowCount, setRowCount] = React.useState(10);
   const routes = [
     {
       label: 'Warehouse List',
       path: '/warehouse-list'
     }
   ];
+
+  const handleRowCount = (count) => {
+    console.log(count)
+  };
 
   const config = {
     rowsPerPage: 10,
@@ -94,11 +100,13 @@ function WarehouseList(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const delayedQuery = React.useCallback(_.debounce(() => {
     props.fetchWarehouseByName(query)
-  }, 300), [query]);
+  }, 400), [query]);
 
   React.useEffect(() => {
-    if (query.length > 2) {
+    if (query) {
       delayedQuery();
+    } else if (!query) {
+      setWarehouseData(props.warehouses.data)
     }
     return delayedQuery.cancel;
   }, [query, delayedQuery]);
@@ -108,6 +116,18 @@ function WarehouseList(props) {
       setSearched(props.searched);
     }
   }, [props.searched]);
+
+  React.useEffect(() => {
+    if (searched.length) {
+      setWarehouseData(searched);
+    }
+  }, [searched]);
+
+  React.useEffect(() => {
+    if (props.warehouses.data) {
+      setWarehouseData(props.warehouses.data);
+    }
+  }, [props.warehouses]);
 
   const handlePagination = (page, rowsPerPage) => {
     props.fetchWarehouses({
@@ -184,12 +204,13 @@ function WarehouseList(props) {
       </div>
       <Table
         config={config}
-        data={props.warehouses.data}
+        data={warehouseData}
         total={props.warehouses.count}
         onInputChange={onInputChange}
         onPaginate={handlePagination}
         onRowClick={handleRowClick}
         onSelectSearchItem={onSelectSearchItem}
+        handleRowCount={handleRowCount}
         searchedOptions={searched}
         query={query}
       />

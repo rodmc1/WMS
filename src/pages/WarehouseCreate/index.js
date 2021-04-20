@@ -133,8 +133,11 @@ function WarehouseCreate(props) {
         }
       })
       .catch(error => {
+        const regex = new RegExp('P0001:');
         if (error.response.data.type === '23505') {
-          setAlertConfig({ severity: 'error', message: 'Warehouse name already exists' });
+          setAlertConfig({ severity: 'error', message: `Warehouse ${warehouse.name} is already in use` });
+        } else if (regex.test(error.response.data.message)) {
+          setAlertConfig({ severity: 'error', message: error.response.data.message.replace('P0001: ','') });
         } else {
           dispatchError(dispatch, THROW_ERROR, error);
         }

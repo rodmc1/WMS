@@ -34,7 +34,7 @@ function Dropzone(props) {
       setExpanded(false);
       if (props.type === 'image' && props.defaultFiles.warehouse_document_file !== null)  {
         let images = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
-        const allowedExtension = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp'];
+        const allowedExtension = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];
         let newArrayImages = initialImages;
 
         images.forEach(image => {
