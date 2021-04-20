@@ -29,6 +29,7 @@ function Alert(props) {
 }
 
 function WarehouseList(props) {
+  const [loading, setLoading] = React.useState(false);
   const [warehouseData, setWarehouseData] = React.useState(null)
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
@@ -37,8 +38,10 @@ function WarehouseList(props) {
   const classes = useStyles();
   const dispatch = useDispatch();
   const csvLink = React.useRef();
-  const [searched, setSearched] = React.useState([]);
-  const [rowCount, setRowCount] = React.useState(10);
+  const [searched, setSearched] = React.useState(null);
+  const [rowCount, setRowCount] = React.useState(0);
+  const [page, setPage]= React.useState(10);
+  const [warehouseCount, setWarehouseCount] = React.useState(0);
   const routes = [
     {
       label: 'Warehouse List',
@@ -46,8 +49,9 @@ function WarehouseList(props) {
     }
   ];
 
-  const handleRowCount = (count) => {
-    console.log(count)
+  const handleRowCount = (page, rowsPerPage) => {
+    setRowCount(rowsPerPage);
+    setPage(page);
   };
 
   const config = {
@@ -93,32 +97,52 @@ function WarehouseList(props) {
   }
 
   const onInputChange = (e) => {
-    setSearched([]);
+    setSearched(null);
     setQuery(e.target.value);
   }
   
   // eslint-disable-next-line react-hooks/exhaustive-deps 
-  const delayedQuery = React.useCallback(_.debounce(() => {
-    props.fetchWarehouseByName(query)
-  }, 400), [query]);
+  const delayedQuery = React.useCallback(_.debounce((page, rowCount) => {
+    setLoading(true);
+    props.fetchWarehouseByName({
+      filter: query,
+      count: rowCount,
+      after: page * rowCount
+    })
+  }, 510), [query]);
 
   React.useEffect(() => {
     if (query) {
-      delayedQuery();
+      delayedQuery(page, rowCount);
     } else if (!query) {
-      setWarehouseData(props.warehouses.data)
+      setWarehouseData(props.warehouses.data);
+      setWarehouseCount(props.warehouses.count);
+      setLoading(false);
     }
     return delayedQuery.cancel;
-  }, [query, delayedQuery]);
+  }, [query, delayedQuery, page, rowCount, props.warehouses.count, props.warehouses.data]);
+
+  React.useEffect(() => {
+    if (!query) {
+      setLoading(true);
+      props.fetchWarehouses({
+        count: page || 10,
+        after: page * rowCount
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [query]);
 
   React.useEffect(() => {
     if (props.searched) {
-      setSearched(props.searched);
+      setSearched(props.searched.data);
+      setWarehouseCount(props.searched.count);
     }
   }, [props.searched]);
 
   React.useEffect(() => {
-    if (searched.length) {
+    if (searched) {
+      setLoading(false);
       setWarehouseData(searched);
     }
   }, [searched]);
@@ -130,10 +154,14 @@ function WarehouseList(props) {
   }, [props.warehouses]);
 
   const handlePagination = (page, rowsPerPage) => {
-    props.fetchWarehouses({
-      count: rowsPerPage,
-      after: page * rowsPerPage
-    });
+    if (query) {
+      delayedQuery(page, rowsPerPage);
+    } else {
+      props.fetchWarehouses({
+        count: rowsPerPage,
+        after: page * rowsPerPage
+      });
+    }
   };
 
   // Redirect to selected warehouse
@@ -146,6 +174,7 @@ function WarehouseList(props) {
     history.push(`/warehouse-list/overview/${id}`);
   }
 
+  // Function for CSV Download  
   const handleDownloadCSV = async () => {
     await fetchAllWarehouse().then(response => {
       const newData = response.data.map(warehouse => {
@@ -182,6 +211,7 @@ function WarehouseList(props) {
 
   React.useEffect(() => {
     if (props.warehouses.count) {
+      setWarehouseCount(props.warehouses.count)
       setOpenBackdrop(false);
     }
   }, [props.warehouses.count]);
@@ -199,13 +229,13 @@ function WarehouseList(props) {
         <div className="button-group">
           <CSVLink data={csvData} filename="warehouses.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
           <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginRight: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
-          <Button variant="contained" className="btn btn--emerald" onClick={() => handleCreateWarehouse()} disableElevation>Create Warehouse</Button>
+          <Button variant="contained" className="btn btn--emerald" onClick={handleCreateWarehouse} disableElevation>Create Warehouse</Button>
         </div>
       </div>
       <Table
         config={config}
         data={warehouseData}
-        total={props.warehouses.count}
+        total={warehouseCount}
         onInputChange={onInputChange}
         onPaginate={handlePagination}
         onRowClick={handleRowClick}
@@ -213,6 +243,7 @@ function WarehouseList(props) {
         handleRowCount={handleRowCount}
         searchedOptions={searched}
         query={query}
+        searchLoading={loading}
       />
       <Backdrop className={classes.backdrop} open={openBackdrop} >
         <CircularProgress color="inherit" />

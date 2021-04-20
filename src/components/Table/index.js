@@ -18,9 +18,8 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import LastPageIcon from '@material-ui/icons/LastPage';
-import MenuItem from '@material-ui/core/MenuItem';
 import Search from '@material-ui/icons/Search';
-import ArrowDropUp from '@material-ui/icons/ArrowDropUp';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -116,10 +115,9 @@ const useStyles2 = makeStyles({
   }
 });
 
-export default function CustomPaginationActionsTable({ query, onSelectSearchItem, data, total, config, onInputChange, onPaginate, onRowClick, searchedOptions }) {
+export default function CustomPaginationActionsTable({ searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
-  const [searchOpen, setSearchOpen] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
   const keys = config.headers.map(h => h.key);
@@ -135,6 +133,11 @@ export default function CustomPaginationActionsTable({ query, onSelectSearchItem
     setPage(0);
   };
 
+  const handleInputChange = (event) => {
+    onInputChange(event);
+    setPage(0);
+  }
+
   React.useEffect(() => {
     if (data) {
       setTableData(data);
@@ -142,18 +145,11 @@ export default function CustomPaginationActionsTable({ query, onSelectSearchItem
   }, [data, config.headers, config.rowsPerPage])
 
   React.useEffect(() => {
-    onPaginate(page, rowsPerPage);
+      handleRowCount(page, rowsPerPage);
+      onPaginate(page, rowsPerPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [page, rowsPerPage]);
-
-  React.useEffect(() => {
-    if (searchedOptions && query.length > 2) {
-      setSearchOpen(true);
-    } else {
-      setSearchOpen(false);
-    }
-  }, [searchedOptions, query]);
-
+  
   return (
     <React.Fragment>
       <div className={classes.toolbar}>
@@ -179,43 +175,29 @@ export default function CustomPaginationActionsTable({ query, onSelectSearchItem
               name="query" 
               ref={register}
               autoComplete="off"
-              onChange={onInputChange}
+              onChange={handleInputChange}
             />
-            {
-              searchOpen ?
-              <ArrowDropUp 
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: 0,
-                  cursor: 'pointer',
-                  width: '64px',
-                  height: '56px',
-                  padding: '16px'
-                }}
-                onClick={() => setSearchOpen(!searchOpen)}
-              /> :
-              <ArrowDropDown 
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: 0,
-                  cursor: 'pointer',
-                  width: '64px',
-                  height: '56px',
-                  padding: '16px'
-                }}
-                onClick={() => setSearchOpen(!searchOpen)}
-              />
-            }
-            
-            <div className={searchOpen ? 'menu-list' : 'menu-list hidden'}>
-              {
-                (searchedOptions && query.length > 2) && searchedOptions.map(option => {
-                  return <MenuItem key={option.warehouse_id} onClick={() => onSelectSearchItem(option.warehouse_client)}>{option.warehouse_client}</MenuItem>
-                })
-              }
-            </div>
+            <CircularProgress 
+              style={{
+                display: !searchLoading ? 'none' : '',
+                position: 'absolute',
+                width: '24px',
+                height: '24px',
+                right: 50,
+                top: 15,
+              }}
+            />
+            <ArrowDropDown 
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                cursor: 'pointer',
+                width: '64px',
+                height: '56px',
+                padding: '16px'
+              }}
+            />
           </form>
         </div>
         <div className={classes.pagination}>

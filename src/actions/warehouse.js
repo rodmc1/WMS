@@ -36,16 +36,16 @@ export const fetchWarehouseById = id => dispatch => {
 }
 
 // For Search Warehouse
-export const fetchWarehouseByName = name => dispatch => {
-  inteluck.get(`/v1/wms/Warehouse/`, {
-    params: {
-      filter: name,
-      count: 5
-    }})
+export const fetchWarehouseByName = params => dispatch => {
+  inteluck.get(`/v1/wms/Warehouse/`, { params })
     .then(response => {
+      const headers = response.headers['x-inteluck-data'];
       dispatch({
         type: SEARCH_WAREHOUSE,
-        payload: response.data
+        payload: {
+          data: response.data,
+          count: Number(JSON.parse(headers).Count)
+        }
       });
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);

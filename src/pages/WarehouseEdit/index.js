@@ -91,7 +91,7 @@ function WarehouseEdit(props) {
       })
       .catch(error => {
         if (error.response.data.type === '23505') {
-          setAlertConfig({ severity: 'error', message: `Warehouse ${warehouse.name} is already in use` });
+          setAlertConfig({ severity: 'error', message: `Warehouse name is already in use` });
         } else {
           dispatchError(dispatch, THROW_ERROR, error);
         }
