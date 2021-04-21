@@ -19,6 +19,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Search from '@material-ui/icons/Search';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -114,16 +115,14 @@ const useStyles2 = makeStyles({
   }
 });
 
-export default function CustomPaginationActionsTable({ data, total, config, onInputChange, onSubmit, onSearchOpen, onPaginate, onRowClick }) {
-  
+export default function CustomPaginationActionsTable({ searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
   const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
-  
-  const { register, handleSubmit } = useForm();
+  const { register } = useForm();
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -134,6 +133,11 @@ export default function CustomPaginationActionsTable({ data, total, config, onIn
     setPage(0);
   };
 
+  const handleInputChange = (event) => {
+    onInputChange(event);
+    setPage(0);
+  }
+
   React.useEffect(() => {
     if (data) {
       setTableData(data);
@@ -141,15 +145,16 @@ export default function CustomPaginationActionsTable({ data, total, config, onIn
   }, [data, config.headers, config.rowsPerPage])
 
   React.useEffect(() => {
-    onPaginate(page, rowsPerPage);
+      handleRowCount(page, rowsPerPage);
+      onPaginate(page, rowsPerPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [page, rowsPerPage])
-
+  }, [page, rowsPerPage]);
+  
   return (
     <React.Fragment>
       <div className={classes.toolbar}>
         <div className={classes.filter}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form className="search_form" onSubmit={(e) => e.preventDefault()}>
             <Search 
               id="route-search__submit"
               style={{
@@ -159,12 +164,31 @@ export default function CustomPaginationActionsTable({ data, total, config, onIn
               cursor: 'pointer',
               width: '64px',
               height: '56px',
-              padding: '16px'
-            }} onClick={onSubmit} />
-            <input type="text" className={classes.input} id="route-search__input" name="query" ref={register} autoComplete="off" onChange={(e) => {
-              onInputChange(e.target.value);
-            }} />
-            <ArrowDropDown style={{
+              padding: '16px',
+            }}/>
+            <input 
+              type="text" 
+              placeholder="Search" 
+              value={query}
+              className={classes.input} 
+              id="route-search__input" 
+              name="query" 
+              ref={register}
+              autoComplete="off"
+              onChange={handleInputChange}
+            />
+            <CircularProgress 
+              style={{
+                display: !searchLoading ? 'none' : '',
+                position: 'absolute',
+                width: '24px',
+                height: '24px',
+                right: 50,
+                top: 15,
+              }}
+            />
+            <ArrowDropDown 
+              style={{
                 position: 'absolute',
                 right: 0,
                 top: 0,
@@ -172,7 +196,8 @@ export default function CustomPaginationActionsTable({ data, total, config, onIn
                 width: '64px',
                 height: '56px',
                 padding: '16px'
-            }} onClick={onSearchOpen} />
+              }}
+            />
           </form>
         </div>
         <div className={classes.pagination}>

@@ -1,22 +1,19 @@
 import './style.scss';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Home, Dashboard, PieChart, Assessment, RateReview, Description,
-  Assignment, LocalShipping, HowToReg, Group, GroupAdd, HomeWork,
-  AssignmentTurnedIn, AccountBalanceWallet, Business, SettingsRemote, GpsFixed, NetworkWifi,
-  Opacity, KeyboardArrowUp, ChevronLeft, ChevronRight, AllInbox, LineWeight
-} from '@material-ui/icons';
+import { HomeWork, KeyboardArrowUp, ChevronLeft, ChevronRight, AllInbox, LineWeight } from '@material-ui/icons';
 
 function Navigation(props) {
-
+  const [isHome, setIsHome] = React.useState(false);
+  const location = useLocation();
   const [navigation, setNavigation] = React.useState([
     {
       group: 'Warehouse Management',
       list: [
         {
           label:'Warehouse List',
-          path: '/warehouse-list',
+          path: '/',
           icon: HomeWork
         }
       ]
@@ -45,6 +42,15 @@ function Navigation(props) {
     setNavigation(temp);
   }
 
+  React.useEffect(() => {
+    const pattern = new RegExp('warehouse-list');
+    if (pattern.test(location.pathname)) {
+      setIsHome(false);
+    } else {
+      setIsHome(true);
+    }
+  }, [location]);
+
   const createNavigation = () => {
     return (
       <nav className="main-nav">
@@ -72,12 +78,12 @@ function Navigation(props) {
                       { 
                         props.isNavigationCollapsed ?
                         <Tooltip title={i.label} placement="right" arrow>
-                          <NavLink to={i.path} exact={i.label === 'Admin Home' ? true : false} className="main-nav__group-list-item-link" activeClassName="main-nav__group-list-item-link--active">
+                          <NavLink to={i.path} exact={isHome} className="main-nav__group-list-item-link" activeClassName="main-nav__group-list-item-link--active">
                             {React.createElement(i.icon)}
                           </NavLink>
                         </Tooltip>
                         :
-                        <NavLink to={i.path} exact={i.label === 'Admin Home' ? true : false} className="main-nav__group-list-item-link" activeClassName="main-nav__group-list-item-link--active">
+                        <NavLink to={i.path} exact={isHome} className="main-nav__group-list-item-link" activeClassName="main-nav__group-list-item-link--active">
                           {React.createElement(i.icon)} <span>{i.label}</span>
                         </NavLink>
                       }

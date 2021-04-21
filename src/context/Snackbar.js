@@ -7,6 +7,7 @@ export function SnackbarProvider(props) {
     type: SNACKBAR.TYPE.INFO,
     message: SNACKBAR.DEFAULT_MESSAGE
   });
+  
   return (
     <SnackbarContext.Provider value={[snackbarConfig, setSnackbarConfig]}>
       {props.children}
