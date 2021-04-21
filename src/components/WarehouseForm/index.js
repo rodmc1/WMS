@@ -581,9 +581,7 @@ function WarehouseForm(props) {
               name="companyBrokerMiddleName"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
             />
-            {errors.companyBrokerMiddleName && <FormHelperText error>{errors.companyBrokerMiddleName.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Last Name</label>
@@ -657,9 +655,7 @@ function WarehouseForm(props) {
               name="contactPersonMiddleName"
               control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
             />
-            {errors.contactPersonMiddleName && <FormHelperText error>{errors.contactPersonMiddleName.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Last Name</label>
