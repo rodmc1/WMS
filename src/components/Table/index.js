@@ -1,6 +1,5 @@
 import './style.scss';
 import React from 'react';
-import { useForm } from "react-hook-form";
 
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -20,11 +19,14 @@ import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Search from '@material-ui/icons/Search';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import FormControl from '@material-ui/core/FormControl';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
-    marginLeft: theme.spacing(2.5),
+    marginLeft: theme.spacing(2),
   },
 }));
 
@@ -87,11 +89,7 @@ TablePaginationActions.propTypes = {
 };
 
 const useStyles2 = makeStyles({
-  table: {
-    minWidth: 500,
-  },
   toolbar: {
-    marginTop: '20px',
     display: 'flex',
     padding: '12px 20px',
     background: '#FFF',
@@ -104,15 +102,17 @@ const useStyles2 = makeStyles({
     }
   },
   filter: {
-    flex: 2,
     position: 'relative'
   },
   input: {
     backgroundColor: '#e8e8e8',
     padding: '20px 60px',
-    width: '100%',
+    width: '80%',
     border: 'none'
-  }
+  },
+  noBorder: {
+    border: "none",
+  },
 });
 
 export default function CustomPaginationActionsTable({ searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
@@ -122,7 +122,6 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
   const headers = config.headers.map(h => h.label);
   const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
-  const { register } = useForm();
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -154,51 +153,28 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
     <React.Fragment>
       <div className={classes.toolbar}>
         <div className={classes.filter}>
-          <form className="search_form" onSubmit={(e) => e.preventDefault()}>
-            <Search 
-              id="route-search__submit"
-              style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              cursor: 'pointer',
-              width: '64px',
-              height: '56px',
-              padding: '16px',
-            }}/>
-            <input 
-              type="text" 
-              placeholder="Search" 
+          <FormControl className="search_form">
+            <OutlinedInput
+              style={{backgroundColor: '#E9E9E9'}}
+              variant="standard"
+              placeholder="Search"
               value={query}
-              className={classes.input} 
-              id="route-search__input" 
-              name="query" 
-              ref={register}
               autoComplete="off"
               onChange={handleInputChange}
+              startAdornment={
+                <InputAdornment position="start">
+                  <Search style={{ color: '#828282', marginRight: '10px' }} />
+                </InputAdornment>
+              }
+              endAdornment={
+                <InputAdornment position="end">
+                  <CircularProgress className="search__spinner" style={{display: searchLoading ? '' : 'none'}} />
+                  <ArrowDropDown style={{color: 'black'}} />
+                </InputAdornment>
+              }
+              classes={{notchedOutline:classes.noBorder}}
             />
-            <CircularProgress 
-              style={{
-                display: !searchLoading ? 'none' : '',
-                position: 'absolute',
-                width: '24px',
-                height: '24px',
-                right: 50,
-                top: 15,
-              }}
-            />
-            <ArrowDropDown 
-              style={{
-                position: 'absolute',
-                right: 0,
-                top: 0,
-                cursor: 'pointer',
-                width: '64px',
-                height: '56px',
-                padding: '16px'
-              }}
-            />
-          </form>
+          </FormControl>
         </div>
         <div className={classes.pagination}>
           <TablePagination
@@ -217,34 +193,45 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
             />
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="custom pagination table">  
-          <TableHead>
-            <TableRow>
-              {headers.map((header, index) => (
-                  index !== 0 && 
-                  <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.values(tableData).map((d, i) => {
-              return (
-                <TableRow key={i} onClick={() => onRowClick(d)} className="table__row">
-                  {
-                    keys.map((k, index) => {
-                      return (
-                        index !== 0 &&
-                        <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={index}>{d[k]}</TableCell>
-                      )
-                    })
-                  }
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Paper className={classes.root}>
+        <TableContainer component={Paper}>
+          <Table aria-label="custom pagination table" className="warehouse_table">  
+            <TableHead>
+              <TableRow>
+                {headers.map((header, index) => (
+                    index !== 0 && 
+                    <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {Object.values(tableData).map((d, i) => {
+                return (
+                  <TableRow key={i} onClick={() => onRowClick(d)} className="table__row">
+                    {
+                      keys.map((k, index) => {
+                        return (
+                          index !== 0 &&
+                          <TableCell 
+                            style={{
+                              whiteSpace: 'nowrap',
+                              overFlow: 'hidden',
+                              textOverFlow: 'ellipsis'
+                            }} 
+                            align={config.headers[index] ? config.headers[index].align : 'left'}
+                            key={index}>
+                            { d[k].length > 60 ? `${d[k].substring(0, 60 - 3)}...` : d[k] }
+                          </TableCell>
+                        )
+                      })
+                    }
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
     </React.Fragment>
   );
 }

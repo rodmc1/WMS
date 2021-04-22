@@ -23,3 +23,10 @@
     }
   }
 }
+
+//Remove arrows in mobile number input field
+.input_mobile input[type=number]::-webkit-inner-spin-button, 
+.input_mobile input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}

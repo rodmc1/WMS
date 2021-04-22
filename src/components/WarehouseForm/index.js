@@ -4,35 +4,48 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
 import { Controller, useForm } from 'react-hook-form';
-import { fetchFacilitiesAndAmenities, fetchBuildingTypes } from 'actions/picklist';
 import { getWarehouseDetails } from './warehouseDetails';
+import { fetchFacilitiesAndAmenities, fetchBuildingTypes } from 'actions/picklist';
 
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import validator from 'validator';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Button from '@material-ui/core/Button';
 import Dropzone from 'components/Dropzone';
 import GoogleMap from 'components/GoogleMap';
+import Select from '@material-ui/core/Select';
+import Button from '@material-ui/core/Button';
 import ButtonGroup from 'components/ButtonGroup';
+import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 
 function WarehouseForm(props) {
   const cookies = new Cookies();
+  const [docs, setDocs] = React.useState([]);
+  const [images, setImages] = React.useState([]);
+  const [address, setAddress] = React.useState(null);
+  const [country, setCountry] = React.useState(null);
+  const [centerMap, setCenterMap] = React.useState(null);
   const [warehouse, setWarehouse] = React.useState(null);
-  const [selectedAmenities, setSelectedAmenities] = React.useState([]);
   const [hasChanged, setHasChanged] = React.useState(false);
   const [addressField, setAddressField] = React.useState('');
-  const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
-  const [images, setImages] = React.useState([]);
-  const [docs, setDocs] = React.useState([]);
-  const [hasFilesChange, setHasFilesChange] = React.useState(false);
   const [errorAddress, setErrorAddress] = React.useState(false);
+  const [gpsCoordinates, setGpsCoordinates] = React.useState(null);
+  const [hasFilesChange, setHasFilesChange] = React.useState(false);
+  const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
+  const [selectedAmenities, setSelectedAmenities] = React.useState([]);
   const { fetchFacilitiesAndAmenities, fetchBuildingTypes } = props;
+  
+  // Hook Form
+  const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
+    shouldFocusError: false,
+    mode: 'onChange'
+  });
+
+  const { isDirty, isValid } = formState;
+  const googleAutoCompleteCountry = cookies.get('user-location') !== undefined ? cookies.get('user-location').iso.toLowerCase() : 'ph';
 
   // GOOGLE MAP
   // eslint-disable-next-line
@@ -44,8 +57,6 @@ function WarehouseForm(props) {
     },
     title: 'drag me'
   }));
-
-  const googleAutoCompleteCountry = cookies.get('user-location') !== undefined ? cookies.get('user-location').iso.toLowerCase() : 'ph';
   
   /*
    * Get selected Facilities & Amenities
@@ -63,18 +74,6 @@ function WarehouseForm(props) {
       setHasChanged(true);
     }
   }
-
-  // FORMS
-  const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
-    shouldFocusError: false,
-    mode: 'onChange'
-  });
-  
-  const { isDirty, isValid } = formState;
-  const [address, setAddress] = React.useState(null);
-  const [country, setCountry] = React.useState(null);
-  const [centerMap, setCenterMap] = React.useState(null);
-  const [gpsCoordinates, setGpsCoordinates] = React.useState(null);
 
   /*
    * Get and Set address field/state
@@ -95,6 +94,11 @@ function WarehouseForm(props) {
     if (address.description) setAddressField(address.description);
     if (address.description) setCountry(address.terms[address.terms.length - 1].value);
   }
+
+  /*
+   * Get and Set address field/state when user drag the marker
+   * @args marker coordinates 
+   */ 
   const handleMarkerDrag = marker => {
     window.google.maps.event.addListener(marker, 'dragend', () => {
       const latlng = {
@@ -117,27 +121,43 @@ function WarehouseForm(props) {
     });
   }
   
+  /*
+   * Function handler for google auto-complete textfield
+   * @args textfield current value 
+   */ 
   const handleAddressChange = (e) => {
     const value = e.target.value;
     setAddressField(value);
     if (!value) setErrorAddress(false);
   }
 
+  /*
+   * Invoke geocoder handler if address state updates
+   */
   React.useEffect(() => {
     address && handleGeocoder(address);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [address]);
 
+  /*
+   * Invoke marker drag handler if marker state updates
+   */
   React.useEffect(() => {
     marker && handleMarkerDrag(marker);
   }, [marker]);
 
+  /*
+   * Set option values in building types before setting initial value
+   */
   React.useEffect(() => {
     if (props.building_types && props.warehouse) {
       setValue('buildingType', props.warehouse.building_type);
     }
   }, [props.building_types, setValue, props.warehouse]);
 
+  /*
+   * Set initial values if action is Edit Warehouse
+   */
   React.useEffect(() => {
     if (props.warehouse) {
       setHasDefaultValue(true);
@@ -156,6 +176,9 @@ function WarehouseForm(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouse]);
 
+  /*
+   * Reset warehouse form data from the original values
+   */
   React.useEffect(() => {
     if (props.resetWarehouse) {
       setWarehouse(props.resetWarehouse);
@@ -170,11 +193,17 @@ function WarehouseForm(props) {
     }
   }, [props.resetWarehouse, setValue]);
 
+  /*
+   * Get addional picklist data
+   */
   React.useEffect(() => {
     fetchFacilitiesAndAmenities();
     fetchBuildingTypes();
   }, [fetchFacilitiesAndAmenities, fetchBuildingTypes]);
   
+  /*
+   * Submit form data if values are valid
+   */
   const __submit = data => {
     if (isValid || hasDefaultValue) {
       const newData = {
@@ -616,7 +645,7 @@ function WarehouseForm(props) {
             <label className="paper__label">Mobile Number</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" />
+                <TextField fullWidth variant="outlined" type="Number" className="input_mobile" />
               }
               name="companyBrokerMobileNumber"
               control={control}
@@ -690,7 +719,7 @@ function WarehouseForm(props) {
             <label className="paper__label">Mobile Number</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" />
+                <TextField fullWidth variant="outlined" type="number" className="input_mobile" />
               }
               name="contactPersonMobileNumber"
               control={control}
