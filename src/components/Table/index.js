@@ -169,7 +169,6 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
               endAdornment={
                 <InputAdornment position="end">
                   <CircularProgress className="search__spinner" style={{display: searchLoading ? '' : 'none'}} />
-                  <ArrowDropDown style={{color: 'black'}} />
                 </InputAdornment>
               }
               classes={{notchedOutline:classes.noBorder}}
