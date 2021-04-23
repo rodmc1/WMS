@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { fetchWarehouseById, updateUserById, uploadWarehouseFilesById, deleteWarehouseFilesById, updateWarehouseById } from 'actions/index';
-import WarehouseSideBar from 'components/WarehouseSidebar';
-import WarehouseForm from 'components/WarehouseForm';
+import WarehouseSideBar from 'components/WarehouseList/WarehouseSidebar';
+import WarehouseForm from 'components/WarehouseList/WarehouseForm';
 import Breadcrumbs from 'components/Breadcrumbs';
 import history from 'config/history';
 import _ from 'lodash';

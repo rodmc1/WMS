@@ -6,15 +6,22 @@ import Grid from '@material-ui/core/Grid';
 import MuiButtonGroup from '@material-ui/core/ButtonGroup';
 import Button from '@material-ui/core/Button';
 
-function ButtonGroup(props) {
-  const btnColor = {
-    white: '#FAFAFA',
-    grey: '#828282',
-    lightgrey: '#E9E9E9',
-    emerald: '#009688'
-  }
-  const [color, setColor] = useState({ available: btnColor.white, notavailable: btnColor.grey });
+// default colors for buttons, add if needed
+const btnColor = {
+  white: '#FAFAFA',
+  grey: '#828282',
+  lightgrey: '#E9E9E9',
+  emerald: '#009688'
+}
 
+/*
+ * Handles button actions and set colors via status
+ * @args props {data, warehouseFacilitiesAndAmenities, handleSelectedFacilities}
+ */
+function ButtonGroup(props) {
+  const [color, setColor] = useState({ available: btnColor.white, notavailable: btnColor.grey });
+  
+  // Handles button color change whenever a props changes
   React.useEffect(() => {
     if (props.warehouseFacilitiesAndAmenities) {
       if (props.warehouseFacilitiesAndAmenities.includes(props.data.Description)) {
@@ -35,6 +42,11 @@ function ButtonGroup(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.warehouseFacilitiesAndAmenities]);
   
+  /*
+   * Calls handleSelectedFacilities function on button click
+   * Set new colors to buttons based on the status value
+   * @args status (boolean)
+   */
   const onButtonClick = (status) => {
     props.handleSelectedFacilities(props.data.Description, status);
 

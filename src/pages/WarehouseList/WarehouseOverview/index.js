@@ -7,7 +7,7 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from 'components/Breadcrumbs';
-import WarehouseSideBar from 'components/WarehouseSidebar';
+import WarehouseSideBar from 'components/WarehouseList/WarehouseSidebar';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 

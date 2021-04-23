@@ -1,6 +1,6 @@
 import React from 'react';
-import WarehouseSideBar from 'components/WarehouseSidebar';
-import WarehouseForm from 'components/WarehouseForm';
+import WarehouseSideBar from 'components/WarehouseList/WarehouseSidebar';
+import WarehouseForm from 'components/WarehouseList/WarehouseForm';
 import Breadcrumbs from 'components/Breadcrumbs';
 import { uploadWarehouseFilesById, createWarehouse } from 'actions/index';
 import history from 'config/history';
