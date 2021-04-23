@@ -29,7 +29,7 @@ function Alert(props) {
 }
 
 function WarehouseList(props) {
-  const [loading, setLoading] = React.useState(false);
+  const [searchLoading, setSearchLoading] = React.useState(false);
   const [warehouseData, setWarehouseData] = React.useState(null)
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
@@ -49,6 +49,7 @@ function WarehouseList(props) {
     }
   ];
 
+  // Handler for Row and Page Count
   const handleRowCount = (page, rowsPerPage) => {
     setRowCount(rowsPerPage);
     setPage(page);
@@ -69,6 +70,7 @@ function WarehouseList(props) {
     ]
   }
 
+  // CSV Headers
   const csvHeaders = [  
     { label: "Warehouse Name", key: "warehouseName" },
     { label: "Address", key: "address" },
@@ -92,10 +94,12 @@ function WarehouseList(props) {
     { label: "Remarks", key: "remarks" }
   ];
 
+  // Redirect to create warehouse page
   const handleCreateWarehouse = () => {
     history.push('/warehouse-list/warehouse-create');
   }
 
+  // Set query state on input change
   const onInputChange = (e) => {
     setSearched(null);
     setQuery(e.target.value);
@@ -103,7 +107,7 @@ function WarehouseList(props) {
   
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const delayedQuery = React.useCallback(_.debounce((page, rowCount) => {
-    setLoading(true);
+    setSearchLoading(true);
     props.fetchWarehouseByName({
       filter: query,
       count: rowCount,
@@ -111,20 +115,22 @@ function WarehouseList(props) {
     })
   }, 510), [query]);
 
+  // Call delayedQuery function when user search and set new warehouse data
   React.useEffect(() => {
     if (query) {
       delayedQuery(page, rowCount);
     } else if (!query) {
       setWarehouseData(props.warehouses.data);
       setWarehouseCount(props.warehouses.count);
-      setLoading(false);
+      setSearchLoading(false);
     }
     return delayedQuery.cancel;
   }, [query, delayedQuery, page, rowCount, props.warehouses.count, props.warehouses.data]);
 
+  // Fetch new data if search values was erased
   React.useEffect(() => {
     if (!query) {
-      setLoading(true);
+      setSearchLoading(true);
       props.fetchWarehouses({
         count: page || 10,
         after: page * rowCount
@@ -133,6 +139,7 @@ function WarehouseList(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query]);
 
+  // Set searched values and warehouse count after search
   React.useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
@@ -140,19 +147,25 @@ function WarehouseList(props) {
     }
   }, [props.searched]);
 
+  // Set new warehouse data with searched items
   React.useEffect(() => {
     if (searched) {
-      setLoading(false);
+      setSearchLoading(false);
       setWarehouseData(searched);
     }
   }, [searched]);
 
+  // Set warehouses data
   React.useEffect(() => {
     if (props.warehouses.data) {
       setWarehouseData(props.warehouses.data);
     }
   }, [props.warehouses]);
 
+  /*
+   * Function for pagination when searching
+   * @args Page num, rowsPerPage num
+   */
   const handlePagination = (page, rowsPerPage) => {
     if (query) {
       delayedQuery(page, rowsPerPage);
@@ -209,6 +222,7 @@ function WarehouseList(props) {
     csvLink.current.link.click();
   }
 
+  // Set warehouse count and remove spinner when data fetch is done
   React.useEffect(() => {
     if (props.warehouses.count) {
       setWarehouseCount(props.warehouses.count)
@@ -216,6 +230,7 @@ function WarehouseList(props) {
     }
   }, [props.warehouses.count]);
 
+  // Show snackbar alert when new warehouse is created
   React.useEffect(() => {
     if (props.location.success) {
       setOpen(true);
@@ -243,7 +258,7 @@ function WarehouseList(props) {
         handleRowCount={handleRowCount}
         searchedOptions={searched}
         query={query}
-        searchLoading={loading}
+        searchLoading={searchLoading}
       />
       <Backdrop className={classes.backdrop} open={openBackdrop} >
         <CircularProgress color="inherit" />

@@ -15,7 +15,6 @@ import IconButton from '@material-ui/core/IconButton';
 import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Search from '@material-ui/icons/Search';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -30,6 +29,10 @@ const useStyles1 = makeStyles((theme) => ({
   },
 }));
 
+/*
+ * Handler for warehouse list pagination actions
+ * @args pages and functions
+ */
 function TablePaginationActions(props) {
   const classes = useStyles1();
   const theme = useTheme();
@@ -123,26 +126,31 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
   const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
 
+  // Handles page updates
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
+  // Handle single page update
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
+  // Handle Search input
   const handleInputChange = (event) => {
     onInputChange(event);
     setPage(0);
   }
 
+  // Setter for table data
   React.useEffect(() => {
     if (data) {
       setTableData(data);
     }
   }, [data, config.headers, config.rowsPerPage])
 
+  // Set the page number and item count for searched items
   React.useEffect(() => {
       handleRowCount(page, rowsPerPage);
       onPaginate(page, rowsPerPage);
@@ -193,7 +201,7 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
         </div>
       </div>
       <Paper className={classes.root}>
-        <TableContainer component={Paper}>
+        <TableContainer>
           <Table aria-label="custom pagination table" className="warehouse_table">  
             <TableHead>
               <TableRow>
@@ -204,6 +212,21 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
               </TableRow>
             </TableHead>
             <TableBody>
+              {
+                (!tableData.length && Array.isArray(tableData)) && 
+                <TableRow className="table__row">
+                  <TableCell 
+                    colSpan={12}
+                    style={{
+                      whiteSpace: 'nowrap',
+                      overFlow: 'hidden',
+                      textOverFlow: 'ellipsis'
+                    }} 
+                    align="center">
+                      No results found
+                  </TableCell>
+                </TableRow>
+              }
               {Object.values(tableData).map((d, i) => {
                 return (
                   <TableRow key={i} onClick={() => onRowClick(d)} className="table__row">
