@@ -1,5 +1,4 @@
 import React from 'react'
-import history from 'config/history';
 import Dialog from '@material-ui/core/Dialog';
 import Button from '@material-ui/core/Button';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -8,12 +7,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 
 /*
- * @props string {path, diaglogText, dialogTitle, buttonConfirmText, buttonCancelText}
+ * @props string { diaglogText, dialogTitle, buttonConfirmText, buttonCancelText}
  * @props dialogAction invoke props function when user click confirm button
  * Return Dialog modal
  */
 const WarehouseDialog = props => {
-  const { path, diaglogText, dialogTitle, buttonConfirmText, buttonCancelText, dialogAction } = props;
+  const { diaglogText, dialogTitle, buttonConfirmText, buttonCancelText, dialogAction } = props;
   const [open, setOpen] = React.useState(false);
 
   // Open dialog if props openDialog is true

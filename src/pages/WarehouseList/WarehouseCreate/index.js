@@ -1,14 +1,14 @@
 import _ from 'lodash';
 import React from 'react';
 import history from 'config/history';
-import { THROW_ERROR } from 'actions/types';
-import { dispatchError } from 'helper/error';
-import { connect, useDispatch } from 'react-redux';
-
 import Breadcrumbs from 'components/Breadcrumbs';
 import WarehouseDialog from 'components/WarehouseDialog';
 import WarehouseForm from 'components/WarehouseList/WarehouseForm';
 import WarehouseSideBar from 'components/WarehouseList/WarehouseSidebar';
+
+import { THROW_ERROR } from 'actions/types';
+import { dispatchError } from 'helper/error';
+import { connect, useDispatch } from 'react-redux';
 import { uploadWarehouseFilesById, createWarehouse } from 'actions/index';
 
 import Grid from '@material-ui/core/Grid';
@@ -204,7 +204,6 @@ function WarehouseCreate(props) {
         </Snackbar>
         <WarehouseDialog
           openDialog={openDialog.open}
-          path="/warehouse-list"
           diaglogText="Changes won't be save, continue?"
           dialogTitle="Confirmation"
           buttonConfirmText="Yes"

@@ -6,8 +6,8 @@ import { deleteWarehouseById } from 'actions/index';
 import List from '@material-ui/core/List';
 import Paper from '@material-ui/core/Paper';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import WarehouseDialog from 'components/WarehouseDialog';
+import ListItemText from '@material-ui/core/ListItemText';
 
 function WarehouseSideBar(props) {
   const [openDialog, setOpenDialog] = React.useState({ open: false });
@@ -46,14 +46,14 @@ function WarehouseSideBar(props) {
         }
       </List>
       <WarehouseDialog
-          openDialog={openDialog.open}
-          diaglogText="Are you sure you want to delete this Warehouse?"
-          dialogTitle="Confirmation"
-          buttonConfirmText="Delete"
-          buttonCancelText="Cancel"
-          dialogAction={handleDelete}
-          style={{backgroundColor: '#EB5757', color: '#E9E9E9'}}
-        />
+        openDialog={openDialog.open}
+        diaglogText="Are you sure you want to delete this Warehouse?"
+        dialogTitle="Confirmation"
+        buttonConfirmText="Delete"
+        buttonCancelText="Cancel"
+        dialogAction={handleDelete}
+        style={{backgroundColor: '#EB5757', color: '#E9E9E9'}}
+      />
     </Paper>
   )
 }

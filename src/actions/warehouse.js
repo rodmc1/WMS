@@ -3,6 +3,7 @@ import inteluck from 'api/inteluck';
 import { FETCH_WAREHOUSES, FETCH_WAREHOUSE, THROW_ERROR, SEARCH_WAREHOUSE } from './types';
 import { dispatchError } from 'helper/error';
 
+// Fetch warehouse for warehouse list
 export const fetchWarehouses = params => dispatch => {
   inteluck.get('/v1/wms/Warehouse', { params })
     .then(response => {
@@ -19,6 +20,7 @@ export const fetchWarehouses = params => dispatch => {
     }); 
 };
 
+// Fetch single warehouse data
 export const fetchWarehouseById = id => dispatch => {
   inteluck.get(`/v1/wms/Warehouse/`, { 
     params: {
@@ -52,30 +54,37 @@ export const fetchWarehouseByName = params => dispatch => {
     });
 }
 
+// For All warehouse for down CSV
 export const fetchAllWarehouse = () => {
   return inteluck.get(`/v1/wms/Warehouse`);
 }
 
+// Create warehouse
 export const createWarehouse = params => {
   return inteluck.post(`/v1/wms/Warehouse`, params);
 }
 
+// For edit warehouse
 export const updateWarehouseById = (id, params) => {
   return inteluck.patch(`/v1/wms/Warehouse/${id}`, params);
 }
 
+// For User info update
 export const updateUserById = (id, params) => {
   return inteluck.patch(`/v1/wms/Warehouse/Contact-Details/${id}`, params);
 }
 
+// For Delete Warehouse
 export const deleteWarehouseById = id => {
   return inteluck.delete(`/v1/wms/Warehouse/Warehouse-Client/${id}`);
 }
 
+// Warehouse files delete
 export const deleteWarehouseFilesById = id => {
   return inteluck.delete(`/v1/wms/Warehouse/Warehouse-Document-File/${id}`);
 }
 
+// Warehouse files upload
 export const uploadWarehouseFilesById = (id, files) => {
   const formData = new FormData();
   files.map(file => formData.append('Docs', file));

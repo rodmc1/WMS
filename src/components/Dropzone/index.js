@@ -1,9 +1,9 @@
 import './style.scss';
 import React from 'react';
-import { DropzoneArea } from 'material-ui-dropzone';
-import Collapse from '@material-ui/core/Collapse';
-import Typography from '@material-ui/core/Typography';
 import Badge from '@material-ui/core/Badge';
+import Collapse from '@material-ui/core/Collapse';
+import { DropzoneArea } from 'material-ui-dropzone';
+import Typography from '@material-ui/core/Typography';
 
 /*
  * @args str url
@@ -35,10 +35,11 @@ function Dropzone(props) {
     setExpanded(!expanded);
   };
   
+  // Set default collapse state and handle initial files
   React.useEffect(() => {
     if (props.defaultFiles) {
       setExpanded(false);
-      if (props.type === 'image' && props.defaultFiles.warehouse_document_file !== null)  {
+      if (props.type === 'image' && props.defaultFiles.warehouse_document_file !== null) {
         let images = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
         let newArrayImages = initialImages;
 
@@ -65,10 +66,14 @@ function Dropzone(props) {
         setInitialDocs(newArrayDocuments);
       }
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.defaultFiles]);
 
+  /*
+   * Customize Preview icon and label
+   * @args file data
+   * @return image and label with collapse button
+   */
   const handlePreviewIcon = (file) => {
     const string = file.file.name;
     const length = 40;
@@ -89,6 +94,7 @@ function Dropzone(props) {
     )
   }
   
+  // Render image type dropzone area
   const imageDropzone = () => {
     return (
       !initialImages.length ? null :
@@ -120,6 +126,7 @@ function Dropzone(props) {
     )
   }
 
+  // Render document type dropzone area
   const documentDropzone = () => {
     return (
       !initialDocs.length ? null :

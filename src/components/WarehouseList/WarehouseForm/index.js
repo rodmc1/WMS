@@ -138,9 +138,7 @@ function WarehouseForm(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [address]);
 
-  /*
-   * Invoke marker drag handler if marker state updates
-   */
+  // Invoke marker drag handler if marker state updates
   React.useEffect(() => {
     marker && handleMarkerDrag(marker);
   }, [marker]);
