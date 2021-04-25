@@ -26,13 +26,13 @@ function Alert(props) {
 }
 
 function WarehouseEdit(props) {
+  const dispatch = useDispatch();
   const [openCancel, setOpenCancel] = React.useState(false);
   const [openSnackBar, setOpenSnackBar] = React.useState(true);
   const [edited, setEdited] = React.useState(false);
   const [existingWarehouse, setExistingWarehouse] = React.useState('');
   const [resetWarehouse, setResetWarehouse] = React.useState('');
   const [newWarehouseId, setNewWarehouseId] = React.useState(null);
-  const dispatch = useDispatch();
   const [alertConfig, setAlertConfig] = React.useState({
     severity: 'info',
     message: 'Loading...'
@@ -90,8 +90,9 @@ function WarehouseEdit(props) {
         }
       })
       .catch(error => {
-        if (error.response.data.type === '23505') {
-          setAlertConfig({ severity: 'error', message: `Warehouse name is already in use` });
+        const regex = new RegExp('existing');
+        if (error.response.data.code === 500 && regex.test(error.response.data.message) || error.response.data.type === "23505") {
+          setAlertConfig({ severity: 'error', message: `Warehouse name is already in use or deleted` });
         } else {
           dispatchError(dispatch, THROW_ERROR, error);
         }
@@ -174,7 +175,6 @@ function WarehouseEdit(props) {
         })
         .catch(error => {
           if (error.response.data.type === '23505') {
-            setAlertConfig({ severity: 'error', message: 'Broker email address already exists' });
             setAlertConfig({ severity: 'error', message: `${newBroker.email_address} is already in use` });
           }
         })
@@ -262,7 +262,6 @@ function WarehouseEdit(props) {
 
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
-      console.log(props.error)
       switch (props.error.status) {
         case 500:
           return setAlertConfig({ severity: 'error', message: props.error.data.type +': Something went wrong. Try again'});
@@ -285,7 +284,7 @@ function WarehouseEdit(props) {
   React.useEffect(() => {
     if (edited && newWarehouseId) {
       history.push({
-        pathname: `/warehouse-list/overview/${newWarehouseId}`,
+        pathname: `/warehouse-list/${newWarehouseId}/overview`,
         success: 'Changes saved successfully'
       });
     } 
@@ -295,7 +294,7 @@ function WarehouseEdit(props) {
     if (props.warehouse && routes.length === 1) {
       setRoutes(routes => [...routes, {
         label: props.warehouse.warehouse_client,
-        path: `/warehouse-list/overview/${props.match.params.id}`
+        path: `/warehouse-list/${props.match.params.id}/overview`
       }]);
     }
   }, [props.warehouse, props.match.params.id, routes.length]);
@@ -312,7 +311,7 @@ function WarehouseEdit(props) {
     }
   }, [props.warehouse, existingWarehouse]);
 
-  const handleDialogCancel = (hasFilesChange) => {
+  const handleDialog = (hasFilesChange) => {
     setResetWarehouse(() => ({...existingWarehouse}));
     if (hasFilesChange) {
       setOpenCancel(true);
@@ -362,7 +361,7 @@ function WarehouseEdit(props) {
           <Paper className="paper" elevation={0} variant="outlined" style={{position:'relative'}}>
             <Typography variant="subtitle1" className="paper__heading">Edit Warehouse</Typography>
             <div className="paper__divider"></div>
-            <WarehouseForm handleDialogCancel={handleDialogCancel} onSubmit={handleSubmit} onError={handleError} warehouse={existingWarehouse} resetWarehouse={resetWarehouse} />
+            <WarehouseForm handleDialog={handleDialog} onSubmit={handleSubmit} onError={handleError} warehouse={existingWarehouse} resetWarehouse={resetWarehouse} />
           </Paper>
         </Grid>
         <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>

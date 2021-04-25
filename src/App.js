@@ -39,9 +39,9 @@ function App() {
             <animated.main style={mainSpring}>
               <Switch>
                 <Route exact path='/' component={WarehouseList} />
-                <Route exact path='/warehouse-list/overview/:id' component={WarehouseOverview} />
+                <Route exact path='/warehouse-list/:id/overview/' component={WarehouseOverview} />
                 <Route exact path='/warehouse-list/warehouse-create' component={WarehouseCreate} />
-                <Route exact path='/warehouse-list/warehouse-edit/:id' component={WarehouseEdit} />
+                <Route exact path='/warehouse-list/:id/warehouse-edit' component={WarehouseEdit} />
                 <Route exact path='/storage-bins' component={StorageBins} />
                 <Route exact path='/sku' component={SKU} />
                 <Route>

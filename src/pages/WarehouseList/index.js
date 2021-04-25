@@ -179,12 +179,12 @@ function WarehouseList(props) {
 
   // Redirect to selected warehouse
   const handleRowClick = (row) => {
-    history.push(`/warehouse-list/overview/${row.warehouse_client}`);
+    history.push(`/warehouse-list/${row.warehouse_client}/overview`);
   }
 
   // Redirect to selected searched warehouse
   const onSelectSearchItem = (id) => {
-    history.push(`/warehouse-list/overview/${id}`);
+    history.push(`/warehouse-list/${id}/overview`);
   }
 
   // Function for CSV Download  

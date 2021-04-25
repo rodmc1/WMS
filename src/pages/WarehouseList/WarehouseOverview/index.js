@@ -74,7 +74,7 @@ function WarehouseOverview(props) {
     if (props.warehouse && routes.length === 1) {
       setRoutes(routes => [...routes, {
         label: props.warehouse.warehouse_client,
-        path: `/warehouse-list/overview/${props.match.params.id}`
+        path: `/warehouse-list/${props.match.params.id}/overview`
       }]);
     }
   }, [props.warehouse, props.match.params.id, routes.length]);

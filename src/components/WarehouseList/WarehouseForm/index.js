@@ -59,10 +59,9 @@ function WarehouseForm(props) {
   }));
   
   /*
-   * Get selected Facilities & Amenities
+   * Get and set selected Facilities & Amenities
    * @args FacilitiesAndAmenities data
    * @args boolean availability
-   * @setter setSelectedAmenities array of string
    */ 
   const handleSelectedFacilities = (data, availability) => {
     if (!selectedAmenities.includes(data) && availability) {
@@ -800,7 +799,7 @@ function WarehouseForm(props) {
                 onClick={() => {
                   setHasChanged(false);
                   if (props.warehouse) reset();
-                  props.handleDialogCancel(hasFilesChange);
+                  props.handleDialog(hasFilesChange);
                 }}>
                 Cancel
               </Button>
