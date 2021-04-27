@@ -737,7 +737,7 @@ function WarehouseForm(props) {
           {
             !props.facilitiesAndAmenities ? null 
               : props.facilitiesAndAmenities.map(f => {
-                return <ButtonGroup key={f.Id} data={f} handleSelectedFacilities={handleSelectedFacilities} warehouseFacilitiesAndAmenities={selectedAmenities} />
+                return <ButtonGroup key={f.Id} data={f} picklistAction={handleSelectedFacilities} picklist={selectedAmenities} />
               })
           }
         </Grid>

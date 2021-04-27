@@ -10,7 +10,7 @@ import { CSVLink } from "react-csv";
 
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import Backdrop from '@material-ui/core/Backdrop';
+import Spinner from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Table from 'components/Table';
@@ -260,9 +260,9 @@ function WarehouseList(props) {
         query={query}
         searchLoading={searchLoading}
       />
-      <Backdrop className={classes.backdrop} open={openBackdrop} >
+      <Spinner className={classes.backdrop} open={openBackdrop} >
         <CircularProgress color="inherit" />
-      </Backdrop>
+      </Spinner>
       <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
         <Alert severity="success">{props.location.success}</Alert>
       </Snackbar>
