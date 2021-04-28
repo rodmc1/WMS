@@ -400,7 +400,14 @@ function WarehouseForm(props) {
             <label className="paper__label">PSF</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} />
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  type="number"
+                  InputProps={{ 
+                    inputProps: { min: 0, step: .01 }
+                  }}
+                />
               }
               name="psf"
               control={control}
@@ -421,11 +428,16 @@ function WarehouseForm(props) {
             <label className="paper__label">Floor Area</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  inputProps: { min: 0 },
-                  endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
-                }} />
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  type="number" 
+                  step=".01"
+                  InputProps={{
+                    inputProps: { min: 0, step: .01 },
+                    endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
+                  }}
+                />
               }
               name="floorArea"
               control={control}
@@ -444,9 +456,9 @@ function WarehouseForm(props) {
                 <TextField 
                   fullWidth 
                   variant="outlined"
-                  type="number" 
+                  type="number"
                   InputProps={{
-                    inputProps: { min: 0 },
+                    inputProps: { min: 0, step: .01 },
                     endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                   }} />
               }
@@ -469,7 +481,7 @@ function WarehouseForm(props) {
                   variant="outlined"
                   type="number"
                   InputProps={{
-                    inputProps: { min: 0 },
+                    inputProps: { min: 0, step: .01 },
                     endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                   }} />
               }
@@ -492,7 +504,7 @@ function WarehouseForm(props) {
                   variant="outlined"
                   type="number"
                   InputProps={{
-                    inputProps: { min: 0 },
+                    inputProps: { min: 0, step: .01 },
                     endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                   }} />
               }
@@ -515,7 +527,7 @@ function WarehouseForm(props) {
                   variant="outlined"
                   type="number"
                   InputProps={{
-                    inputProps: { min: 0 },
+                    inputProps: { min: 0, step: .01 },
                     endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                   }} />
               }
@@ -538,7 +550,7 @@ function WarehouseForm(props) {
                   variant="outlined"
                   type="number"
                   InputProps={{
-                    inputProps: { min: 0 },
+                    inputProps: { min: 0, step: .01 },
                     endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
                   }} />
               }
@@ -565,6 +577,9 @@ function WarehouseForm(props) {
             rules={{ 
               required: "This field is required",
               validate: value => { return value < 0 ? 'Invalid value' : true } 
+            }}
+            InputProps={{
+              inputProps: { min: 0 }
             }}
           />
           {errors.loadingUnloadingBays && <FormHelperText error>{errors.loadingUnloadingBays.message}</FormHelperText>}

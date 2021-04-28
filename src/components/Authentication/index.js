@@ -26,7 +26,7 @@ function Authentication(props) {
         break;
       case 'staging':
       case 'production':
-        window.location.href = `${process.env.REACT_APP_INTELUCK_ACCOUNT_API_ENDPOINT}/?app=wms`;
+        window.location.href = process.env.REACT_APP_INTELUCK_LOGIN_API_ENDPOINT;
         break;
       default:
     }

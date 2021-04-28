@@ -121,7 +121,7 @@ function WarehouseOverview(props) {
               </Grid>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Min Lease Terms</label>
-                <p className="paper__text">{warehouse.min_lease_terms}</p>                  
+                <p className="paper__text">{warehouse.min_lease_terms} months</p>                  
               </Grid>
             </Grid>
           </Paper>
@@ -130,33 +130,33 @@ function WarehouseOverview(props) {
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Floor Area</label>
-                <p className="paper__text">{warehouse.floor_area}</p>
+                <p className="paper__text">{warehouse.floor_area} Sqm</p>
               </Grid>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Covered Area</label>
-                <p className="paper__text">{warehouse.covered_area}</p>
+                <p className="paper__text">{warehouse.covered_area} Sqm</p>
               </Grid>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Mezzanine Area</label>
-                <p className="paper__text">{warehouse.mezzanine_area}</p>                  
+                <p className="paper__text">{warehouse.mezzanine_area} Sqm</p>                  
               </Grid>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Open Area</label>
-                <p className="paper__text">{warehouse.open_area}</p>                  
+                <p className="paper__text">{warehouse.open_area} Sqm</p>                  
               </Grid>
             </Grid>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Office Area</label>
-                <p className="paper__text">{warehouse.office_area}</p>
+                <p className="paper__text">{warehouse.office_area} Sqm</p>
               </Grid>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Battery Charging Area</label>
-                <p className="paper__text">{warehouse.battery_charging_area}</p>
+                <p className="paper__text">{warehouse.battery_charging_area} Sqm</p>
               </Grid>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Loading &amp; Unloading Bays</label>
-                <p className="paper__text">{warehouse.loading_unloading_bays}</p>                  
+                <p className="paper__text">{warehouse.loading_unloading_bays} bays</p>                  
               </Grid>
               <Grid item xs={12} md={3}>
                 <label className="paper__label">Remarks</label>

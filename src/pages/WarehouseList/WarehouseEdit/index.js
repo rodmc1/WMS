@@ -83,7 +83,7 @@ function WarehouseEdit(props) {
       })
       .catch(error => {
         const regex = new RegExp('existing');
-        if (error.response.data.code === 500 && regex.test(error.response.data.message) || error.response.data.type === "23505") {
+        if ((error.response.data.code === 500 && regex.test(error.response.data.message)) || error.response.data.type === "23505") {
           setAlertConfig({ severity: 'error', message: `Warehouse name is already in use or deleted` });
         } else {
           dispatchError(dispatch, THROW_ERROR, error);

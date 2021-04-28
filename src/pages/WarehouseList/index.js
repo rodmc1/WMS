@@ -33,7 +33,7 @@ function WarehouseList(props) {
   const [warehouseData, setWarehouseData] = React.useState(null)
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
-  const [query, setQuery] = React.useState('');
+  const [query, setQuery] = React.useState(null);
   const [csvData, setCsvData] = React.useState([]);
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -138,6 +138,13 @@ function WarehouseList(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query]);
+
+
+  React.useEffect(() => { 
+    if (JSON.stringify(warehouseData) === '{}') {
+      setOpenBackdrop(false);
+    }
+  }, [warehouseData]);
 
   // Set searched values and warehouse count after search
   React.useEffect(() => {

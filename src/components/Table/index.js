@@ -213,7 +213,7 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
             </TableHead>
             <TableBody>
               {
-                (!tableData.length && Array.isArray(tableData)) && 
+                ((!tableData.length && Array.isArray(tableData)) || JSON.stringify(tableData) === '{}') && 
                 <TableRow className="table__row">
                   <TableCell 
                     colSpan={12}
