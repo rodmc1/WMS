@@ -2,7 +2,7 @@ import React from 'react';
 
 function StorageBins () {
   return (
-    <div>Storage Bins</div>
+    <div></div>
   )
 }
 

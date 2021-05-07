@@ -1,49 +1,60 @@
 import './style.scss';
 import React from 'react';
-import { useForm } from "react-hook-form";
 
 import PropTypes from 'prop-types';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
+import Search from '@material-ui/icons/Search';
+import TableRow from '@material-ui/core/TableRow';
 import TableBody from '@material-ui/core/TableBody';
 import TableHead from '@material-ui/core/TableHead';
 import TableCell from '@material-ui/core/TableCell';
+import IconButton from '@material-ui/core/IconButton';
+import LastPageIcon from '@material-ui/icons/LastPage';
+import FormControl from '@material-ui/core/FormControl';
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import TableContainer from '@material-ui/core/TableContainer';
 import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import IconButton from '@material-ui/core/IconButton';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
-import LastPageIcon from '@material-ui/icons/LastPage';
-import Search from '@material-ui/icons/Search';
+
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
-    marginLeft: theme.spacing(2.5),
+    marginLeft: theme.spacing(2),
   },
 }));
 
+/*
+ * Handler for warehouse list pagination actions
+ * @args pages and functions
+ */
 function TablePaginationActions(props) {
   const classes = useStyles1();
   const theme = useTheme();
   const { count, page, rowsPerPage, onChangePage } = props;
 
+  // Pagination
   const handleFirstPageButtonClick = (event) => {
     onChangePage(event, 0);
   };
 
+  // Pagination
   const handleBackButtonClick = (event) => {
     onChangePage(event, page - 1);
   };
 
+  // Pagination
   const handleNextButtonClick = (event) => {
     onChangePage(event, page + 1);
   };
 
+  // Pagination
   const handleLastPageButtonClick = (event) => {
     onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
@@ -78,6 +89,7 @@ function TablePaginationActions(props) {
   );
 }
 
+// Table pagination prototypes
 TablePaginationActions.propTypes = {
   count: PropTypes.number.isRequired,
   onChangePage: PropTypes.func.isRequired,
@@ -86,11 +98,7 @@ TablePaginationActions.propTypes = {
 };
 
 const useStyles2 = makeStyles({
-  table: {
-    minWidth: 500,
-  },
   toolbar: {
-    marginTop: '20px',
     display: 'flex',
     padding: '12px 20px',
     background: '#FFF',
@@ -103,77 +111,85 @@ const useStyles2 = makeStyles({
     }
   },
   filter: {
-    flex: 2,
     position: 'relative'
   },
   input: {
     backgroundColor: '#e8e8e8',
     padding: '20px 60px',
-    width: '100%',
+    width: '80%',
     border: 'none'
-  }
+  },
+  noBorder: {
+    border: "none",
+  },
 });
 
-export default function CustomPaginationActionsTable({ data, total, config, onInputChange, onSubmit, onSearchOpen, onPaginate, onRowClick }) {
-  
+
+// Component for warehouse table
+export default function CustomPaginationActionsTable({ searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
   const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
-  
-  const { register, handleSubmit } = useForm();
 
+  // Handles page updates
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
+  // Handle single page update
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
+  // Handle Search input
+  const handleInputChange = (event) => {
+    onInputChange(event);
+    setPage(0);
+  }
+
+  // Setter for table data
   React.useEffect(() => {
     if (data) {
       setTableData(data);
     }
   }, [data, config.headers, config.rowsPerPage])
 
+  // Set the page number and item count for searched items
   React.useEffect(() => {
-    onPaginate(page, rowsPerPage);
+      handleRowCount(page, rowsPerPage);
+      onPaginate(page, rowsPerPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [page, rowsPerPage])
-
+  }, [page, rowsPerPage]);
+  
   return (
     <React.Fragment>
       <div className={classes.toolbar}>
         <div className={classes.filter}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Search 
-              id="route-search__submit"
-              style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              cursor: 'pointer',
-              width: '64px',
-              height: '56px',
-              padding: '16px'
-            }} onClick={onSubmit} />
-            <input type="text" className={classes.input} id="route-search__input" name="query" ref={register} autoComplete="off" onChange={(e) => {
-              onInputChange(e.target.value);
-            }} />
-            <ArrowDropDown style={{
-                position: 'absolute',
-                right: 0,
-                top: 0,
-                cursor: 'pointer',
-                width: '64px',
-                height: '56px',
-                padding: '16px'
-            }} onClick={onSearchOpen} />
-          </form>
+          <FormControl className="search_form">
+            <OutlinedInput
+              style={{backgroundColor: '#E9E9E9'}}
+              variant="standard"
+              placeholder="Search"
+              value={query}
+              autoComplete="off"
+              onChange={handleInputChange}
+              startAdornment={
+                <InputAdornment position="start">
+                  <Search style={{ color: '#828282', marginRight: '10px' }} />
+                </InputAdornment>
+              }
+              endAdornment={
+                <InputAdornment position="end">
+                  <CircularProgress className="search__spinner" style={{display: searchLoading ? '' : 'none'}} />
+                </InputAdornment>
+              }
+              classes={{notchedOutline:classes.noBorder}}
+            />
+          </FormControl>
         </div>
         <div className={classes.pagination}>
           <TablePagination
@@ -192,34 +208,60 @@ export default function CustomPaginationActionsTable({ data, total, config, onIn
             />
         </div>
       </div>
-      <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="custom pagination table">  
-          <TableHead>
-            <TableRow>
-              {headers.map((header, index) => (
-                  index !== 0 && 
-                  <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.values(tableData).map((d, i) => {
-              return (
-                <TableRow key={i} onClick={() => onRowClick(d)} className="table__row">
-                  {
-                    keys.map((k, index) => {
-                      return (
-                        index !== 0 &&
-                        <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={index}>{d[k]}</TableCell>
-                      )
-                    })
-                  }
+      <Paper className={classes.root}>
+        <TableContainer>
+          <Table aria-label="custom pagination table" className="warehouse_table">  
+            <TableHead>
+              <TableRow>
+                {headers.map((header, index) => (
+                    index !== 0 && 
+                    <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {
+                ((!tableData.length && Array.isArray(tableData)) || JSON.stringify(tableData) === '{}') && 
+                <TableRow className="table__row">
+                  <TableCell 
+                    colSpan={12}
+                    style={{
+                      whiteSpace: 'nowrap',
+                      overFlow: 'hidden',
+                      textOverFlow: 'ellipsis'
+                    }} 
+                    align="center">
+                      No results found
+                  </TableCell>
                 </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              }
+              {Object.values(tableData).map((d, i) => {
+                return (
+                  <TableRow key={i} onClick={() => onRowClick(d)} className="table__row">
+                    {
+                      keys.map((k, index) => {
+                        return (
+                          index !== 0 &&
+                          <TableCell 
+                            style={{
+                              whiteSpace: 'nowrap',
+                              overFlow: 'hidden',
+                              textOverFlow: 'ellipsis'
+                            }} 
+                            align={config.headers[index] ? config.headers[index].align : 'left'}
+                            key={index}>
+                            { d[k].length > 60 ? `${d[k].substring(0, 60 - 3)}...` : d[k] }
+                          </TableCell>
+                        )
+                      })
+                    }
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
     </React.Fragment>
   );
 }

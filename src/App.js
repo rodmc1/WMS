@@ -8,15 +8,13 @@ import { AuthenticationProvider } from 'context/Authentication';
 import { SnackbarProvider } from 'context/Snackbar';
 import Header from 'components/Header';
 import Navigation from 'components/Navigation';
-import Home from 'pages/Home';
 import WarehouseList from 'pages/WarehouseList';
-import WarehouseOverview from 'pages/WarehouseOverview';
-import WarehouseCreate from 'pages/WarehouseCreate';
-import WarehouseEdit from 'pages/WarehouseEdit';
+import WarehouseOverview from 'pages/WarehouseList/WarehouseOverview';
+import WarehouseCreate from 'pages/WarehouseList/WarehouseCreate';
+import WarehouseEdit from 'pages/WarehouseList/WarehouseEdit';
 import StorageBins from 'pages/StorageBins';
 import SKU from 'pages/SKU';
 import Authentication from 'components/Authentication';
-import Snackbar from 'components/Snackbar';
 
 function App() {
 
@@ -35,17 +33,15 @@ function App() {
           <Authentication />
           <Router history={history}>
             <Header/>
-            {/* <Snackbar /> */}
             <animated.div className={`drawer ${isNavigationCollapsed ? 'drawer--collapsed' : ''}`} style={drawerSpring}>
               <Navigation isNavigationCollapsed={isNavigationCollapsed} setIsNavigationCollapsed={setIsNavigationCollapsed} />
             </animated.div>
             <animated.main style={mainSpring}>
               <Switch>
-                <Route exact path='/' component={Home} />
-                <Route exact path='/warehouse-list' component={WarehouseList} />
-                <Route exact path='/warehouse-list/overview/:id' component={WarehouseOverview} />
-                <Route exact path='/warehouse-create' component={WarehouseCreate} />
-                <Route exact path='/warehouse-edit/:id' component={WarehouseEdit} />
+                <Route exact path='/' component={WarehouseList} />
+                <Route exact path='/warehouse-list/:id/overview/' component={WarehouseOverview} />
+                <Route exact path='/warehouse-list/warehouse-create' component={WarehouseCreate} />
+                <Route exact path='/warehouse-list/:id/warehouse-edit' component={WarehouseEdit} />
                 <Route exact path='/storage-bins' component={StorageBins} />
                 <Route exact path='/sku' component={SKU} />
                 <Route>
