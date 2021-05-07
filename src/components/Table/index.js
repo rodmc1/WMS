@@ -2,25 +2,26 @@ import './style.scss';
 import React from 'react';
 
 import PropTypes from 'prop-types';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
+import Search from '@material-ui/icons/Search';
+import TableRow from '@material-ui/core/TableRow';
 import TableBody from '@material-ui/core/TableBody';
 import TableHead from '@material-ui/core/TableHead';
 import TableCell from '@material-ui/core/TableCell';
+import IconButton from '@material-ui/core/IconButton';
+import LastPageIcon from '@material-ui/icons/LastPage';
+import FormControl from '@material-ui/core/FormControl';
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import TableContainer from '@material-ui/core/TableContainer';
 import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import IconButton from '@material-ui/core/IconButton';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import LastPageIcon from '@material-ui/icons/LastPage';
-import Search from '@material-ui/icons/Search';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import FormControl from '@material-ui/core/FormControl';
-import InputAdornment from '@material-ui/core/InputAdornment';
+
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -38,18 +39,22 @@ function TablePaginationActions(props) {
   const theme = useTheme();
   const { count, page, rowsPerPage, onChangePage } = props;
 
+  // Pagination
   const handleFirstPageButtonClick = (event) => {
     onChangePage(event, 0);
   };
 
+  // Pagination
   const handleBackButtonClick = (event) => {
     onChangePage(event, page - 1);
   };
 
+  // Pagination
   const handleNextButtonClick = (event) => {
     onChangePage(event, page + 1);
   };
 
+  // Pagination
   const handleLastPageButtonClick = (event) => {
     onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
@@ -84,6 +89,7 @@ function TablePaginationActions(props) {
   );
 }
 
+// Table pagination prototypes
 TablePaginationActions.propTypes = {
   count: PropTypes.number.isRequired,
   onChangePage: PropTypes.func.isRequired,
@@ -118,6 +124,8 @@ const useStyles2 = makeStyles({
   },
 });
 
+
+// Component for warehouse table
 export default function CustomPaginationActionsTable({ searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
