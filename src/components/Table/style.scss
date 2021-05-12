@@ -10,7 +10,13 @@
 .warehouse_table {
   width: 1700px !important;
   @media (min-width: 1600px) {
-    width: 1900px !important;
+    min-width: 1900px !important;
+  }
+  @media (min-width: 2300px) {
+    min-width: 2090px !important;
+  }
+  @media (min-width: 2600px) {
+    min-width: 2400px !important;
   }
 }
 
