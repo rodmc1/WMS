@@ -7,6 +7,8 @@ function GoogleMap(props) {
   const options = {
     center: { lat: 14.559523, lng: 121.019534 },
     zoom: 13,
+    maxZoom: 18,
+    minZoom: 7,
     mapTypeControl: false,
     draggable: true,
     scrollwheel: true,

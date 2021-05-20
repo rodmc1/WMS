@@ -1,57 +1,49 @@
-import React from 'react';
-import { connect, useDispatch } from 'react-redux';
-import { fetchWarehouseById, updateUserById, uploadWarehouseFilesById, deleteWarehouseFilesById, updateWarehouseById } from 'actions/index';
-import WarehouseSideBar from 'components/WarehouseSidebar';
-import WarehouseForm from 'components/WarehouseForm';
-import Breadcrumbs from 'components/Breadcrumbs';
-import history from 'config/history';
 import _ from 'lodash';
+import React from 'react';
+import history from 'config/history';
+import Breadcrumbs from 'components/Breadcrumbs';
+import WarehouseDialog from 'components/WarehouseDialog';
+import WarehouseForm from 'components/WarehouseList/WarehouseForm';
+import WarehouseSideBar from 'components/WarehouseList/WarehouseSidebar';
+
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
+import { connect, useDispatch } from 'react-redux';
+import { fetchWarehouseById, updateUserById, uploadWarehouseFilesById, deleteWarehouseFilesById, updateWarehouseById } from 'actions/index';
 
 import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
+import Typography from '@material-ui/core/Typography';
 
+// Alerts
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
+// Functional component for warehouse edit
 function WarehouseEdit(props) {
-  const [openCancel, setOpenCancel] = React.useState(false);
-  const [openSnackBar, setOpenSnackBar] = React.useState(true);
+  const dispatch = useDispatch();
   const [edited, setEdited] = React.useState(false);
-  const [existingWarehouse, setExistingWarehouse] = React.useState('');
+  const [openSnackBar, setOpenSnackBar] = React.useState(true);
   const [resetWarehouse, setResetWarehouse] = React.useState('');
   const [newWarehouseId, setNewWarehouseId] = React.useState(null);
-  const dispatch = useDispatch();
-  const [alertConfig, setAlertConfig] = React.useState({
-    severity: 'info',
-    message: 'Loading...'
-  });
-  const [routes, setRoutes] = React.useState([
-    {
-      label: 'Warehouse List',
-      path: '/warehouse-list'
-    }
-  ]);
-  const { fetchWarehouseById } = props;
+  const [openDialog, setOpenDialog] = React.useState({open: false});
+  const [existingWarehouse, setExistingWarehouse] = React.useState('');
+  const [routes, setRoutes] = React.useState([{label: 'Warehouse List', path: '/warehouse-list'}]);
+  const [alertConfig, setAlertConfig] = React.useState({severity: 'info', message: 'Loading...'});
+
+  // State for api responses
   const [status, setStatus] = React.useState({
-    images: false,
     docs: false,
+    images: false,
+    warehouse: false,
     userBroker: false,
-    userContact: false,
-    warehouse: false
+    userContact: false
   });
 
+  // Submit function for warehouse changes
   const handleSubmit = data => {
     setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
@@ -90,8 +82,9 @@ function WarehouseEdit(props) {
         }
       })
       .catch(error => {
-        if (error.response.data.type === '23505') {
-          setAlertConfig({ severity: 'error', message: `Warehouse name is already in use` });
+        const regex = new RegExp('existing');
+        if ((error.response.data.code === 500 && regex.test(error.response.data.message)) || error.response.data.type === "23505") {
+          setAlertConfig({ severity: 'error', message: `Warehouse name is already in use or deleted` });
         } else {
           dispatchError(dispatch, THROW_ERROR, error);
         }
@@ -115,26 +108,27 @@ function WarehouseEdit(props) {
     handleUsersUpdate(data);
   }
 
+  // Function for user info updates
   const handleUsersUpdate = (data) => {
     let existingUserBroker = { data: null };
     let existingUserContactPerson = { data: null };
 
     const newBroker = {
+      role: 'Broker',
       last_name: data.companyBrokerLastName,
       first_name: data.companyBrokerFirstName,
       middle_name: data.companyBrokerMiddleName,
       mobile_number: data.companyBrokerMobileNumber,
       email_address: data.companyBrokerEmailAddress,
-      role: 'Broker'
     }
 
     const newContactPerson = {
+      role: 'Contact Person',
       last_name: data.contactPersonLastName,
       first_name: data.contactPersonFirstName,
       middle_name: data.contactPersonMiddleName,
       mobile_number: data.contactPersonMobileNumber,
       email_address: data.contactPersonEmailAddress,
-      role: 'Contact Person'
     }
 
     existingWarehouse.warehouse_users_details.forEach(user => {
@@ -166,39 +160,35 @@ function WarehouseEdit(props) {
     const hasContactChange = JSON.stringify(existingUserContactPerson.data) !== JSON.stringify(newContactPerson);
 
     if (hasBrokerChange) {
-      updateUserById(existingUserBroker.id, newBroker)
-        .then(response => {
-          if (response.status === 201) {
-            setStatus(prevState => { return {...prevState, userBroker: true }});
-          }
-        })
-        .catch(error => {
-          if (error.response.data.type === '23505') {
-            setAlertConfig({ severity: 'error', message: 'Broker email address already exists' });
-            setAlertConfig({ severity: 'error', message: `${newBroker.email_address} is already in use` });
-          }
-        })
+      handleUpdateUserById(existingUserBroker.id, newBroker);
     } else {
       setStatus(prevState => { return {...prevState, userBroker: true }});
     }
 
     if (hasContactChange) {
-      updateUserById(existingUserContactPerson.id, newContactPerson)
-        .then(response => {
-          if (response.status === 201) {
-            setStatus(prevState => { return {...prevState, userContact: true }});
-          }
-        })
-        .catch(error => {
-          if (error.response.data.type === '23505') {
-            setAlertConfig({ severity: 'error', message: `${newContactPerson.email_address} is already in use` });
-          }
-        })
+      handleUpdateUserById(existingUserContactPerson.id, newContactPerson);
     } else {
       setStatus(prevState => { return {...prevState, userContact: true }});
     }
   }
 
+  // Invoke PATCH request for new user details
+  const handleUpdateUserById = (id, newUserData) => {
+    updateUserById(id, newUserData)
+      .then(response => {
+        if (response.status === 201) {
+          if (newUserData.role === 'Broker') setStatus(prevState => { return {...prevState, userBroker: true }});
+          if (newUserData.role === 'Contact Person') setStatus(prevState => { return {...prevState, userContact: true }});
+        }
+      })
+      .catch(error => {
+        if (error.response.data.type === '23505') {
+          setAlertConfig({ severity: 'error', message: `${newUserData.email_address} is already in use` });
+        }
+      })
+  }
+
+  // Function for document updates
   const handleDocumentUpdate = (data) => {
     let existingDocuments = [];
     const docExtensions = ['doc', 'docx', 'pdf', 'txt', 'tex'];
@@ -222,6 +212,7 @@ function WarehouseEdit(props) {
     setStatus(prevState => { return {...prevState, docs: true }});
   }
 
+  // Function for image updates
   const handleImageUpdate = (data) => {
     let existingImages = [];
     const imageExtensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];
@@ -260,9 +251,9 @@ function WarehouseEdit(props) {
     console.log(error)
   }
 
+  // Invoke Alert if error exist
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
-      console.log(props.error)
       switch (props.error.status) {
         case 500:
           return setAlertConfig({ severity: 'error', message: props.error.data.type +': Something went wrong. Try again'});
@@ -276,35 +267,41 @@ function WarehouseEdit(props) {
     }
   }, [props.error]);
   
+  // Set edit state to true if all api response is success
   React.useEffect(() => {
     if (!Object.values(status).includes(false)) {
       setEdited(true);
     }
   }, [status]);
 
+  // Set new routes and path based on the selected warehouse
   React.useEffect(() => {
     if (edited && newWarehouseId) {
       history.push({
-        pathname: `/warehouse-list/overview/${newWarehouseId}`,
+        pathname: `/warehouse-list/${newWarehouseId}/overview`,
         success: 'Changes saved successfully'
       });
     } 
   }, [edited, newWarehouseId]);
 
+  // Set new routes and path based on the selected warehouse
   React.useEffect(() => {
     if (props.warehouse && routes.length === 1) {
       setRoutes(routes => [...routes, {
         label: props.warehouse.warehouse_client,
-        path: `/warehouse-list/overview/${props.match.params.id}`
+        path: `/warehouse-list/${props.match.params.id}/overview`
       }]);
     }
   }, [props.warehouse, props.match.params.id, routes.length]);
 
+  // Fetch request for selected warehouse
   React.useEffect(() => {
     const id = props.match.params.id;    
-    if (id) fetchWarehouseById(id);
-  }, [props.match.params.id, fetchWarehouseById]);
+    if (id) props.fetchWarehouseById(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.match.params.id]);
 
+  // Set initial warehouse data
   React.useEffect(() => {
     if (props.warehouse) setOpenSnackBar(false);
     if (!existingWarehouse && props.warehouse) {
@@ -312,40 +309,10 @@ function WarehouseEdit(props) {
     }
   }, [props.warehouse, existingWarehouse]);
 
-  const handleDialogCancel = (hasFilesChange) => {
+  // Show dialog confirmation if user click cancel in warehouse form
+  const handleDialog = (hasFilesChange) => {
     setResetWarehouse(() => ({...existingWarehouse}));
-    if (hasFilesChange) {
-      setOpenCancel(true);
-    }
-  }
-
-  const renderDialogCancel = () => {
-    return (
-      <Dialog
-        open={openCancel}
-        fullWidth
-        keepMounted
-        m={2}
-        onClose={() => setOpenCancel(false)}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
-      >
-        <DialogTitle id="alert-dialog-slide-title">Confirmation</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-slide-description">
-            Changes on images and documents won't be save, continue?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenCancel(false)} variant="outlined">
-            No
-          </Button>
-          <Button onClick={() => window.location.reload()} variant="contained" color="primary">
-            Yes
-          </Button>
-        </DialogActions>
-      </Dialog>
-    )
+    if (hasFilesChange) setOpenDialog(state => ({...state, open: true}));
   }
 
   return (
@@ -362,13 +329,20 @@ function WarehouseEdit(props) {
           <Paper className="paper" elevation={0} variant="outlined" style={{position:'relative'}}>
             <Typography variant="subtitle1" className="paper__heading">Edit Warehouse</Typography>
             <div className="paper__divider"></div>
-            <WarehouseForm handleDialogCancel={handleDialogCancel} onSubmit={handleSubmit} onError={handleError} warehouse={existingWarehouse} resetWarehouse={resetWarehouse} />
+            <WarehouseForm handleDialog={handleDialog} onSubmit={handleSubmit} onError={handleError} warehouse={existingWarehouse} resetWarehouse={resetWarehouse} />
           </Paper>
         </Grid>
         <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
-        {renderDialogCancel()}
+        <WarehouseDialog
+          openDialog={openDialog.open}
+          diaglogText="Changes on images and documents won't be save, continue?"
+          dialogTitle="Confirmation"
+          buttonConfirmText="Yes"
+          buttonCancelText="No"
+          dialogAction={() => window.location.reload()}
+        />
       </Grid>
     </div>
   )

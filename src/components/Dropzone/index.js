@@ -1,45 +1,51 @@
 import './style.scss';
 import React from 'react';
-import { DropzoneArea } from 'material-ui-dropzone';
-import Collapse from '@material-ui/core/Collapse';
-import Typography from '@material-ui/core/Typography';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Badge from '@material-ui/core/Badge';
+import Collapse from '@material-ui/core/Collapse';
+import { DropzoneArea } from 'material-ui-dropzone';
+import Typography from '@material-ui/core/Typography';
 
-const useStyles = makeStyles(theme => createStyles({
-  previewChip: {
-    minWidth: 160,
-    maxWidth: 210
-  },
-}));
+/*
+ * @args str url
+ * @return formatted image src
+ */
+const extractImageUrl = (str) => {
+  return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
+}
 
+/*
+ * Handles dropzone for images and documents
+ * @args props {defaultFiles, type, text, onDelete, onDrop, onChange, imageCount, documentCount}
+ * @return dropzone field
+ */
 function Dropzone(props) {
+  const [expanded, setExpanded] = React.useState(true);
   const [initialDocs, setInitialDocs] = React.useState([]);
   const [initialImages, setInitialImages] = React.useState([]);
-  const [expanded, setExpanded] = React.useState(true)
   const [showPreviewText, setShowPreviewText] = React.useState(false);
-  const classes = useStyles();
-  const extractImageUrl = (str) => {
-    return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
-  }
+  
+  const pdfIcon = '/assets/images/pdfIcon.svg';
+  const docxIcon = '/assets/images/docIcon.svg'  ;
   const collapseText = expanded ? 'Hide Photos' : 'See Photos';
+  const allowedDocuments = ['doc', 'docx', 'pdf', 'txt', 'tex', 'csv'];
+  const allowedImages = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];
+  
+  // Handler for expanding photo list
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
-  const pdfIcon = '/assets/images/pdfIcon.svg'
-  const docxIcon = '/assets/images/docIcon.svg'
-        
+  
+  // Set default collapse state and handle initial files
   React.useEffect(() => {
     if (props.defaultFiles) {
       setExpanded(false);
-      if (props.type === 'image' && props.defaultFiles.warehouse_document_file !== null)  {
+      if (props.type === 'image' && props.defaultFiles.warehouse_document_file !== null) {
         let images = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
-        const allowedExtension = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];
         let newArrayImages = initialImages;
 
         images.forEach(image => {
           const extension = image.split('.').pop().toLowerCase();
-          if (allowedExtension.includes(extension)) {
+          if (allowedImages.includes(extension)) {
             newArrayImages.push(image);
           }
         });
@@ -48,12 +54,11 @@ function Dropzone(props) {
       }
       if (props.type === 'files' && props.defaultFiles.warehouse_document_file !== null) {
         const documents = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
-        const allowedExtension = ['doc', 'docx', 'pdf', 'txt', 'tex', 'csv'];
         let newArrayDocuments = initialDocs;
 
         documents.forEach(document => {
           const extension = document.split('.').pop().toLowerCase();
-          if (allowedExtension.includes(extension)) {
+          if (allowedDocuments.includes(extension)) {
             newArrayDocuments.push(document);
           }
         });
@@ -61,10 +66,14 @@ function Dropzone(props) {
         setInitialDocs(newArrayDocuments);
       }
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.defaultFiles]);
 
+  /*
+   * Customize Preview icon and label
+   * @args file data
+   * @return image and label with collapse button
+   */
   const handlePreviewIcon = (file) => {
     const string = file.file.name;
     const length = 40;
@@ -77,18 +86,15 @@ function Dropzone(props) {
         <img role="presentation" src={file.data} alt={file.file.name} />
       </Collapse> :
       <React.Fragment>
-        <div className={classes.root}>
-          <Badge>
-            <img className="doc-img" src={previewIcon} alt={file.file.name} />
-          </Badge>
-          <Badge>
-            <Typography variant='subtitle2'>{fileName}</Typography>
-          </Badge>
+        <div>
+          <Badge><img className="doc-img" src={previewIcon} alt={file.file.name} /></Badge>
+          <Badge><Typography variant='subtitle2'>{fileName}</Typography></Badge>
         </div>
       </React.Fragment>
     )
   }
   
+  // Render image type dropzone area
   const imageDropzone = () => {
     return (
       !initialImages.length ? null :
@@ -120,6 +126,7 @@ function Dropzone(props) {
     )
   }
 
+  // Render document type dropzone area
   const documentDropzone = () => {
     return (
       !initialDocs.length ? null :

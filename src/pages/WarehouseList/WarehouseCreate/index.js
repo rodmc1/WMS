@@ -1,55 +1,50 @@
-import React from 'react';
-import WarehouseSideBar from 'components/WarehouseSidebar';
-import WarehouseForm from 'components/WarehouseForm';
-import Breadcrumbs from 'components/Breadcrumbs';
-import { uploadWarehouseFilesById, createWarehouse } from 'actions/index';
-import history from 'config/history';
-import { connect, useDispatch } from 'react-redux';
 import _ from 'lodash';
+import React from 'react';
+import history from 'config/history';
+import Breadcrumbs from 'components/Breadcrumbs';
+import WarehouseDialog from 'components/WarehouseDialog';
+import WarehouseForm from 'components/WarehouseList/WarehouseForm';
+import WarehouseSideBar from 'components/WarehouseList/WarehouseSidebar';
+
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
+import { connect, useDispatch } from 'react-redux';
+import { uploadWarehouseFilesById, createWarehouse } from 'actions/index';
 
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
+import Snackbar from '@material-ui/core/Snackbar';
+import Typography from '@material-ui/core/Typography';
 
+// Alerts
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
+// Functional component for creation warehouse
 function WarehouseCreate(props) {
-  const [created, setCreated] = React.useState(false);
-  const [openSnackBar, setOpenSnackBar] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
-  const [alertConfig, setAlertConfig] = React.useState({});
   const dispatch = useDispatch();
-  const routes = [
-    {
-      label: 'Warehouse List',
-      path: '/warehouse-list'
-    },
-    {
-      label: 'Creating Warehouse',
-      path: '/warehouse-create'
-    }
-  ];
-  const [status, setStatus] = React.useState({
-    images: false,
-    docs: false,
-    warehouse: false
-  });
+  const [openDialog, setOpenDialog] = React.useState({ open: false });
+  const [created, setCreated] = React.useState(false);
+  const [alertConfig, setAlertConfig] = React.useState({});
+  const [openSnackBar, setOpenSnackBar] = React.useState(false);
+  const [status, setStatus] = React.useState({ images: false, docs: false, warehouse: false });
 
+  // Breadcrumbs routes
+  const routes = [
+    { label: 'Warehouse List', path: '/warehouse-list' },
+    { label: 'Creating Warehouse', path: '/warehouse-list/warehouse-create' }
+  ];
+
+  /*
+   * Submit function for creating warehouse
+   * @args warehouse data
+   */
   const handleSubmit = data => {
     setAlertConfig({ severity: 'info', message: 'Creating warehouse...' });
     setOpenSnackBar(true);
+
     const warehouse = {
       name: data.warehouseName,
       warehouse_type: data.warehouseType,
@@ -95,41 +90,23 @@ function WarehouseCreate(props) {
       ]
     }
     
+    // Invoke action for create warehouse 
     createWarehouse(warehouse)
       .then(response => {
         const warehouseId = response.data;
-
         if (response.status === 201) setStatus(prevState => { return {...prevState, warehouse: true }});
+        if (!data.images.length && !data.docs.length) setStatus(prevState => { return {...prevState, images: true, docs: true }});
+
         if (data.images.length > 1) {
-          uploadWarehouseFilesById(warehouseId, data.images[data.images.length - 1])
-            .then(res => {
-              if (res.status === 201) {
-                setStatus(prevState => { return {...prevState, images: true }});
-              };
-            })
-            .catch(error => {
-              dispatchError(dispatch, THROW_ERROR, error);
-            });
+          handleImageUpload(warehouseId, data);
         } else {
           setStatus(prevState => { return {...prevState, images: true }});
         }
 
         if (data.docs.length > 1)  {
-          uploadWarehouseFilesById(warehouseId, data.docs[data.docs.length - 1])
-            .then(res => {
-              if (res.status === 201) {
-                setStatus(prevState => { return {...prevState, docs: true }});
-              };
-            })
-            .catch(error => {
-              dispatchError(dispatch, THROW_ERROR, error);
-            });
+          handleWarehouseFilesUpload(warehouseId, data)
         } else {
           setStatus(prevState => { return {...prevState, docs: true }});
-        }
-
-        if (!data.images.length && !data.docs.length) {
-          setStatus(prevState => { return {...prevState, images: true, docs: true }});
         }
       })
       .catch(error => {
@@ -144,16 +121,45 @@ function WarehouseCreate(props) {
       });
   }
   
-  const handleDialogCancel = () => {
-    setOpen(true);
+  // Show dialog confirmation if user click cancel in warehouse form
+  const handleDialog = () => {
+    setOpenDialog(state => ({...state, open: true}));
   }
 
+  // Function for image upload
+  const handleImageUpload = (warehouseId, data) => {
+    uploadWarehouseFilesById(warehouseId, data.images[data.images.length - 1])
+      .then(res => {
+        if (res.status === 201) {
+          setStatus(prevState => { return {...prevState, images: true }});
+        };
+      })
+      .catch(error => {
+        dispatchError(dispatch, THROW_ERROR, error);
+      });
+  }
+
+  // Function for files upload
+  const handleWarehouseFilesUpload = (warehouseId, data) => {
+    uploadWarehouseFilesById(warehouseId, data.docs[data.docs.length - 1])
+      .then(res => {
+        if (res.status === 201) {
+          setStatus(prevState => { return {...prevState, docs: true }});
+        };
+      })
+      .catch(error => {
+        dispatchError(dispatch, THROW_ERROR, error);
+      });
+  }
+
+  // Set created status to true if all api response is success
   React.useEffect(() => {
     if (!Object.values(status).includes(false)) {
       setCreated(true);
     }
   }, [status]);
 
+  // Set created status to true if all api response is success
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
       if (props.error.status === 401) {
@@ -164,35 +170,7 @@ function WarehouseCreate(props) {
     }
   }, [props.error]);
 
-  const renderDialogCancel = () => {
-    return (
-      <Dialog
-        open={open}
-        fullWidth
-        keepMounted
-        m={2}
-        onClose={() => setOpen(false)}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
-      >
-        <DialogTitle id="alert-dialog-slide-title">Confirmation</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-slide-description">
-            Changes won't be save, continue?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)} variant="outlined">
-            No
-          </Button>
-          <Button onClick={() => history.push('/warehouse-list')} variant="contained" color="primary">
-            Yes
-          </Button>
-        </DialogActions>
-      </Dialog>
-    )
-  }
-
+  // Redirect to warehouse list with success message
   if (created) {
     history.push({
       pathname: '/',
@@ -218,13 +196,20 @@ function WarehouseCreate(props) {
           <Paper className="paper" elevation={0} variant="outlined">
             <Typography variant="subtitle1" className="paper__heading">Creating Warehouse</Typography>
             <div className="paper__divider"></div>
-            <WarehouseForm handleDialogCancel={handleDialogCancel} onSubmit={handleSubmit} onError={handleError} />
+            <WarehouseForm handleDialog={handleDialog} onSubmit={handleSubmit} onError={handleError} />
           </Paper>
         </Grid>
         <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
-        {renderDialogCancel()}
+        <WarehouseDialog
+          openDialog={openDialog.open}
+          diaglogText="Changes won't be save, continue?"
+          dialogTitle="Confirmation"
+          buttonConfirmText="Yes"
+          buttonCancelText="No"
+          dialogAction={() => history.push('/')}
+        />
       </Grid>
     </div>
   )
