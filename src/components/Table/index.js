@@ -124,9 +124,7 @@ const useStyles2 = makeStyles({
   },
 });
 
-
-// Component for warehouse table
-export default function CustomPaginationActionsTable({ searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
+export default function Table_({ filterSize, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
@@ -168,7 +166,7 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
   return (
     <React.Fragment>
       <div className={classes.toolbar}>
-        <div className={classes.filter}>
+        <div className={classes.filter} style={{ flex: filterSize ? filterSize : 2 }}>
           <FormControl className="search_form">
             <OutlinedInput
               style={{backgroundColor: '#E9E9E9'}}
@@ -250,7 +248,8 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
                             }} 
                             align={config.headers[index] ? config.headers[index].align : 'left'}
                             key={index}>
-                            { d[k].length > 60 ? `${d[k].substring(0, 60 - 3)}...` : d[k] }
+                            {/* { d[k].length > 60 ? `${d[k].substring(0, 60 - 3)}...` : d[k] } */}
+                            { d[k] }
                           </TableCell>
                         )
                       })

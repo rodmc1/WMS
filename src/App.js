@@ -12,8 +12,10 @@ import WarehouseList from 'pages/WarehouseList';
 import WarehouseOverview from 'pages/WarehouseList/WarehouseOverview';
 import WarehouseCreate from 'pages/WarehouseList/WarehouseCreate';
 import WarehouseEdit from 'pages/WarehouseList/WarehouseEdit';
-import StorageBins from 'pages/StorageBins';
-import SKU from 'pages/SKU';
+import WarehouseMasterData from 'pages/WarehouseMasterData';
+import WarehouseMasterDataOverview from 'pages/WarehouseMasterData/Overview';
+import WarehouseMasterDataSKU from 'pages/WarehouseMasterData/SKU';
+import WarehouseMasterDataSKUDetail from 'pages/WarehouseMasterData/SKU/Detail';
 import Authentication from 'components/Authentication';
 
 function App() {
@@ -42,8 +44,11 @@ function App() {
                 <Route exact path='/warehouse-list/:id/overview/' component={WarehouseOverview} />
                 <Route exact path='/warehouse-list/warehouse-create' component={WarehouseCreate} />
                 <Route exact path='/warehouse-list/:id/warehouse-edit' component={WarehouseEdit} />
-                <Route exact path='/storage-bins' component={StorageBins} />
-                <Route exact path='/sku' component={SKU} />
+
+                <Route exact path='/warehouse-master-data' component={WarehouseMasterData} />
+                <Route exact path='/warehouse-master-data/:id/overview' component={WarehouseMasterDataOverview} />
+                <Route exact path='/warehouse-master-data/:id/sku' component={WarehouseMasterDataSKU} />
+                <Route exact path='/warehouse-master-data/:id/sku/:item_id' component={WarehouseMasterDataSKUDetail} />
                 <Route>
                   <Redirect to='/' />
                 </Route>
