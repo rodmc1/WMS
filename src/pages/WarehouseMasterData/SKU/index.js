@@ -10,8 +10,25 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Snackbar from '@material-ui/core/Snackbar';
+import Spinner from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
+}));
 
 function WarehouseMasterDataSKU (props) {
+  const classes = useStyles();
+  const [openBackdrop, setOpenBackdrop] = React.useState(true);
+  const [query, setQuery] = React.useState('');
+  const [rowCount, setRowCount] = React.useState(0);
+  const [page, setPage]= React.useState(10);
+  const [SKUData, setSKUData] = React.useState(null);
+  const [SKUCount, setSKUCount] = React.useState(0);
 
   const routes = [
     {
@@ -33,12 +50,6 @@ function WarehouseMasterDataSKU (props) {
       { label: 'Max Quantity', key: 'max_qty' }
     ]
   }
-
-  const [query, setQuery] = React.useState('');
-  const [rowCount, setRowCount] = React.useState(0);
-  const [page, setPage]= React.useState(10);
-  const [SKUData, setSKUData] = React.useState(null);
-  const [SKUCount, setSKUCount] = React.useState(0);
 
   const handleRowCount = (page, rowsPerPage) => {
     setRowCount(rowsPerPage);
@@ -62,14 +73,19 @@ function WarehouseMasterDataSKU (props) {
   }
   
   React.useEffect(() => {
-    // setLoading(true);
     props.fetchWarehouseSKUs({
       count: page || 10,
       after: page * rowCount
     });
-    setSKUData(props.sku.data);
-    setSKUCount(props.sku.count);
-  }, [props.sku]);
+  }, []);
+
+  React.useEffect(() => {
+    if (props.sku.count) {
+      setSKUData(props.sku.data);
+      setSKUCount(props.sku.count);
+      setOpenBackdrop(false);
+    }
+  }, [props.sku])
 
   return (
     <div className="container">
@@ -85,6 +101,7 @@ function WarehouseMasterDataSKU (props) {
           <Paper className="paper" elevation={0} variant="outlined">
             <Typography variant="subtitle1" className="paper__heading">SKU</Typography>
             <div className="paper__divider"></div>
+            {/* IF THERE IS EXISTING SKU */}
             <Table 
               filterSize={1}
               config={config}
@@ -94,12 +111,14 @@ function WarehouseMasterDataSKU (props) {
               onPaginate={handlePagination}
               onRowClick={handleRowClick}
             />
+            {/* ELSE SHOW CREATE SKU IMAGE */}
+            
           </Paper>
         </Grid>
-        {/* <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
-          <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
-        </Snackbar>
-        {renderDialogCancel()} */}
+        <Spinner className={classes.backdrop} open={openBackdrop} >
+          <CircularProgress color="inherit" />
+        </Spinner>
+        {/* {renderDialogCancel()} */}
       </Grid>
     </div>
   )

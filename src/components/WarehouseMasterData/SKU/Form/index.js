@@ -1,23 +1,34 @@
 import React from 'react';
 
 import { Controller, useForm } from 'react-hook-form';
+import Dropzone from 'components/Dropzone';
+import ButtonGroup from 'components/_ButtonGroup';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Button from '@material-ui/core/Button';
+import Radio from '@material-ui/core/Radio';
 
-function WarehouseMasterDataSKUForm() {
+function WarehouseMasterDataSKUForm(props) {
 
-  const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
+  const { register, handleSubmit, errors, control, formState, setValue, reset } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
+  const { isDirty, isValid } = formState;
+  const [hasChanged, setHasChanged] = React.useState(false);
+  const [hasFilesChange, setHasFilesChange] = React.useState(false);
+  const [images, setImages] = React.useState([]);
+
+  const __submit = data => {
+    console.log(data);
+  }
 
   return (
-    // <form onSubmit={handleSubmit(__submit)}>
-    <form>
+    <form onSubmit={handleSubmit(__submit)}>
       <div className="paper__section">
         <Typography variant="subtitle1" className="paper__heading">General Information</Typography>
         <Grid container spacing={2}>
@@ -37,7 +48,7 @@ function WarehouseMasterDataSKUForm() {
               control={control}
               rules={{ required: "This field is required" }}
               defaultValue=""
-              // onInput={() => setHasChanged(true)}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
@@ -81,7 +92,7 @@ function WarehouseMasterDataSKUForm() {
               control={control}
               rules={{ required: "This field is required" }}
               defaultValue=""
-              // onInput={() => setHasChanged(true)}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
@@ -101,7 +112,7 @@ function WarehouseMasterDataSKUForm() {
               control={control}
               rules={{ required: "This field is required" }}
               defaultValue=""
-              // onInput={() => setHasChanged(true)}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
@@ -124,6 +135,7 @@ function WarehouseMasterDataSKUForm() {
                 required: "This field is required",
                 validate: value => { return value < 0 ? 'Invalid value' : true } 
               }}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
@@ -144,6 +156,7 @@ function WarehouseMasterDataSKUForm() {
                 required: "This field is required",
                 validate: value => { return value < 0 ? 'Invalid value' : true } 
               }}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
@@ -164,6 +177,7 @@ function WarehouseMasterDataSKUForm() {
                 required: "This field is required",
                 validate: value => { return value < 0 ? 'Invalid value' : true } 
               }}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
@@ -186,6 +200,7 @@ function WarehouseMasterDataSKUForm() {
                 required: "This field is required",
                 validate: value => { return value < 0 ? 'Invalid value' : true } 
               }}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
@@ -206,6 +221,7 @@ function WarehouseMasterDataSKUForm() {
                 required: "This field is required",
                 validate: value => { return value < 0 ? 'Invalid value' : true } 
               }}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
@@ -226,7 +242,7 @@ function WarehouseMasterDataSKUForm() {
                 required: "This field is required",
                 validate: value => { return value < 0 ? 'Invalid value' : true } 
               }}
-              // onInput={() => setHasChanged(true)}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
@@ -247,13 +263,14 @@ function WarehouseMasterDataSKUForm() {
                 required: "This field is required",
                 validate: value => { return value < 0 ? 'Invalid value' : true } 
               }}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
         </Grid>
         <Grid container spacing={2}>
           <Grid item xs={12} md={4}>
-          <label className="paper__label">Storage Type</label>
+            <label className="paper__label">Storage Type</label>
             <Controller
               as={
                 <Select
@@ -274,6 +291,53 @@ function WarehouseMasterDataSKUForm() {
             />
             {/* {errors.warehouseType && <FormHelperText error>{errors.warehouseType.message}</FormHelperText>} */}
           </Grid>
+          <Grid item xs={12} md={4}>
+            <label className="paper__label">Batch Management</label>
+            {/* <Controller
+              as={
+                <TextField
+                  variant="outlined"
+                  type="text"
+                  required
+                  inputProps={{ maxLength: 40 }}
+                  fullWidth
+                />
+              }
+              name="batchManagement"
+              control={control}
+              rules={{ required: "This field is required" }}
+              defaultValue=""
+              onChange={() => setHasChanged(true)}
+            /> */}
+             <Radio
+              checked={true}
+              onChange={() => setHasChanged(true)}
+              value="d"
+              color="default"
+              name="radio-button-demo"
+              inputProps={{ 'aria-label': 'D' }}
+            />
+              
+              {/* control={control}
+              rules={{ required: "This field is required" }}
+              defaultValue=""
+              onChange={() => setHasChanged(true)} */}
+            
+            {/* {errors.warehouseType && <FormHelperText error>{errors.warehouseType.message}</FormHelperText>} */}
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <label className="paper__label">Expiry Management</label>
+            {/* <Controller
+              as={
+
+              }
+              control={control}
+              name="storageType"
+              defaultValue=""
+              rules={{ required: "This field is required" }}
+            /> */}
+            {/* {errors.warehouseType && <FormHelperText error>{errors.warehouseType.message}</FormHelperText>} */}
+          </Grid>
         </Grid>
         <Grid container spacing={2}>
           <Grid item xs={12} md={12}>
@@ -292,13 +356,57 @@ function WarehouseMasterDataSKUForm() {
               control={control}
               rules={{ required: "This field is required" }}
               defaultValue=""
-              // onInput={() => setHasChanged(true)}
+              onInput={() => setHasChanged(true)}
             />
             {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
         </Grid>
-
       </div>
+      <div className="paper__section">
+        <div className="paper__section image__dropzone">
+          <Typography variant="subtitle1" className="paper__heading">SKU Photos</Typography>
+          <Dropzone 
+            imageCount={images[images.length - 1]}
+            // defaultFiles={warehouse}
+            filesLimit={1}
+            onDelete={() => {
+              setHasChanged(true);
+              setHasFilesChange(true);
+            }}
+            onDrop={() => {
+              setHasChanged(true);
+              setHasFilesChange(true);
+            }}
+            onChange={(files) => {
+              setImages([...images, files]);
+            }}
+            type="image"
+            showPreviews
+            showPreviewsInDropzone={false} text="Drag and drop images here or click"
+          />
+        </div>
+      </div>
+      { (isDirty || hasChanged) &&
+        <div className="form__actions-container">
+          <div className="form__actions">
+            <p>Save this SKU?</p>
+            <div className="form__btn-group">
+              <Button
+                type="button"
+                className="btn btn--invert"
+                style={{ marginRight: 10 }}
+                onClick={() => {
+                  setHasChanged(false);
+                  if (props.warehouse) reset();
+                  props.handleDialog(hasFilesChange);
+                }}>
+                Cancel
+              </Button>
+              <Button type="submit" className="btn btn--emerald">Save</Button>
+            </div>
+          </div>
+        </div>
+      }
     </form>
   )
 }

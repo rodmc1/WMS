@@ -44,11 +44,11 @@ function App() {
                 <Route exact path='/warehouse-list/:id/overview/' component={WarehouseOverview} />
                 <Route exact path='/warehouse-list/warehouse-create' component={WarehouseCreate} />
                 <Route exact path='/warehouse-list/:id/warehouse-edit' component={WarehouseEdit} />
-
                 <Route exact path='/warehouse-master-data' component={WarehouseMasterData} />
                 <Route exact path='/warehouse-master-data/:id/overview' component={WarehouseMasterDataOverview} />
                 <Route exact path='/warehouse-master-data/:id/sku' component={WarehouseMasterDataSKU} />
                 <Route exact path='/warehouse-master-data/:id/sku/:item_id' component={WarehouseMasterDataSKUDetail} />
+                {/* <Route exact path='/warehouse-master-data/:id/sku/create' component={SKU_CREATE} /> */}
                 <Route>
                   <Redirect to='/' />
                 </Route>

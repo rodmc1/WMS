@@ -110,7 +110,7 @@ function Dropzone(props) {
           dropzoneText={props.text}
           previewText=""
           showAlerts={['error']}
-          filesLimit={12}
+          filesLimit={props.filesLimit ? props.filesLimit : 12}
           getPreviewIcon={file => handlePreviewIcon(file)}
           classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
         />

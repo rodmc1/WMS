@@ -15,6 +15,8 @@ function WarehouseMasterDataSKUDetail (props) {
     }
   ];
 
+  const [warehouse, setWarehouse] = React.useState([]);
+
   return (
     <div className="container">
       <Breadcrumbs routes={routes} />
@@ -30,7 +32,7 @@ function WarehouseMasterDataSKUDetail (props) {
             <Typography variant="subtitle1" className="paper__heading">SKU</Typography>
             <div className="paper__divider"></div>
             {/* <WarehouseMasterDataForm handleDialogCancel={handleDialogCancel} onSubmit={handleSubmit} onError={handleError} /> */}
-            <WarehouseMasterDataSKUForm />
+            <WarehouseMasterDataSKUForm warehouse={warehouse}/>
           </Paper>
         </Grid>
         {/* <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>

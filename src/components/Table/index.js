@@ -241,10 +241,12 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
                         return (
                           index !== 0 &&
                           <TableCell 
+                            title={d[k]}
                             style={{
-                              whiteSpace: 'nowrap',
-                              overFlow: 'hidden',
-                              textOverFlow: 'ellipsis'
+                              maxWidth: '400px',
+                              overflowX: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
                             }} 
                             align={config.headers[index] ? config.headers[index].align : 'left'}
                             key={index}>

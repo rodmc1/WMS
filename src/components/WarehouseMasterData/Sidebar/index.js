@@ -15,9 +15,6 @@ function WarehouseMasterDataSidebar(props) {
         <ListItem button>
           <ListItemText primary="SKU" onClick={() => history.push(`/warehouse-master-data/${props.id}/sku`)} />
         </ListItem>
-        <ListItem button>
-          <ListItemText primary="Audit Log" />
-        </ListItem>
       </List>
     </Paper>
   )
