@@ -9,11 +9,11 @@ function WarehouseMasterDataSidebar(props) {
   return (
     <Paper elevation={0} variant="outlined" className="sidebar">
       <List>
-        <ListItem button>
-          <ListItemText primary="Warehouse Overview" onClick={() => history.push(`/warehouse-master-data/${props.id}/overview`)} />
+        <ListItem button onClick={() => history.push(`/warehouse-master-data/${props.id}/overview`)} >
+          <ListItemText primary="Warehouse Overview"/>
         </ListItem>
-        <ListItem button>
-          <ListItemText primary="SKU" onClick={() => history.push(`/warehouse-master-data/${props.id}/sku`)} />
+        <ListItem button onClick={() => history.push(`/warehouse-master-data/${props.id}/sku`)} >
+          <ListItemText primary="SKU" />
         </ListItem>
       </List>
     </Paper>

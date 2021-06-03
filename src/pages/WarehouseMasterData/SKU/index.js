@@ -1,8 +1,9 @@
 import React from 'react';
-// import WarehouseMasterDataSKUForm from 'components/WarehouseMasterData/SKU/Form';
-import { connect } from 'react-redux';
+import './style.scss';
+import _ from 'lodash';
+import { fetchSKUByName, fetchWarehouseByName, fetchAllWarehouse, fetchWarehouseSKUs } from 'actions';
+import { connect, useDispatch } from 'react-redux';
 import history from 'config/history';
-import { fetchWarehouseSKUs } from 'actions';
 import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
 import Table from 'components/Table';
 import Breadcrumbs from 'components/Breadcrumbs';
@@ -13,6 +14,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Spinner from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { makeStyles } from '@material-ui/core/styles';
+import { Button } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -23,17 +25,26 @@ const useStyles = makeStyles((theme) => ({
 
 function WarehouseMasterDataSKU (props) {
   const classes = useStyles();
+  const [searchLoading, setSearchLoading] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
   const [query, setQuery] = React.useState('');
   const [rowCount, setRowCount] = React.useState(0);
   const [page, setPage]= React.useState(10);
   const [SKUData, setSKUData] = React.useState(null);
   const [SKUCount, setSKUCount] = React.useState(0);
+  const [searched, setSearched] = React.useState(null);
+  const dispatch = useDispatch();
+
+  console.log(SKUData);
 
   const routes = [
     {
       label: 'Warehouse Master Data',
       path: '/warehouse-master-data'
+    },
+    {
+      label: props.match.params.id,
+      path: `/warehouse-master-data/${props.match.params.id}/overview`
     }
   ];
 
@@ -57,20 +68,69 @@ function WarehouseMasterDataSKU (props) {
   };
 
   const handlePagination = (page, rowsPerPage) => {
-    // if (query) {
-    //   delayedQuery(page, rowsPerPage);
-    // } else {
+    if (query) {
+      delayedQuery(page, rowsPerPage);
+    } else {
       props.fetchWarehouseSKUs({
         count: rowsPerPage,
         after: page * rowsPerPage
       });
-    // }
+    }
   };
 
   // Redirect to selected warehouse
   const handleRowClick = (row) => {
     history.push(`/warehouse-master-data/${props.match.params.id}/sku/${row.item_id}`);
   }
+
+  // Redirect to sku create
+  const handleCreateSKU = () => {
+    history.push(`/warehouse-master-data/${props.match.params.id}/sku/create`);
+  }
+
+  // Set query state on input change
+  const onInputChange = (e) => {
+    setSearched(null);
+    setQuery(e.target.value);
+  }
+  
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  const delayedQuery = React.useCallback(_.debounce((page, rowCount) => {
+    setSearchLoading(true);
+    props.fetchSKUByName({
+      filter: query,
+      count: rowCount,
+      after: page * rowCount
+    })
+  }, 510), [query]);
+
+  // Call delayedQuery function when user search and set new warehouse data
+  React.useEffect(() => {
+    if (query) {
+      delayedQuery(page, rowCount);
+    } else if (!query) {
+      setSKUData(props.sku.data);
+      setSKUCount(props.sku.count);
+      setSearchLoading(false);
+    }
+    return delayedQuery.cancel;
+  }, [query, delayedQuery]);
+
+  // Set searched values and warehouse count after search
+  React.useEffect(() => {
+    if (props.searched) {
+      setSearched(props.searched.data);
+      setSKUCount(props.searched.count);
+    }
+  }, [props.searched]);
+
+  // Set new warehouse data with searched items
+  React.useEffect(() => {
+    if (searched) {
+      setSearchLoading(false);
+      setSKUData(searched);
+    }
+  }, [searched]);
   
   React.useEffect(() => {
     props.fetchWarehouseSKUs({
@@ -88,8 +148,14 @@ function WarehouseMasterDataSKU (props) {
   }, [props.sku])
 
   return (
-    <div className="container">
-      <Breadcrumbs routes={routes} />
+    <div className="container sku">
+      <div className="flex justify-space-between align-center">
+        <Breadcrumbs routes={routes} />
+        <div className="button-group">
+          <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>
+          <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginLeft: 10 }} onClick={() => {}}>Download CSV</Button>
+        </div>
+      </div>
       <Grid container spacing={2}
         direction="row"
         justify="space-evenly"
@@ -99,7 +165,7 @@ function WarehouseMasterDataSKU (props) {
         </Grid>
         <Grid item xs={12} md={9}>
           <Paper className="paper" elevation={0} variant="outlined">
-            <Typography variant="subtitle1" className="paper__heading">SKU</Typography>
+            <Typography variant="subtitle1" className="paper__heading">SKU's</Typography>
             <div className="paper__divider"></div>
             {/* IF THERE IS EXISTING SKU */}
             <Table 
@@ -110,6 +176,9 @@ function WarehouseMasterDataSKU (props) {
               handleRowCount={handleRowCount}
               onPaginate={handlePagination}
               onRowClick={handleRowClick}
+              onInputChange={onInputChange}
+              query={query}
+              searchLoading={searchLoading}
             />
             {/* ELSE SHOW CREATE SKU IMAGE */}
             
@@ -126,8 +195,9 @@ function WarehouseMasterDataSKU (props) {
 
 const mapStateToProps = state => {
   return {
-    sku: state.sku
+    sku: state.sku,
+    searched: state.sku.search
   }
 }
 
-export default connect(mapStateToProps, { fetchWarehouseSKUs })(WarehouseMasterDataSKU);
+export default connect(mapStateToProps, { fetchWarehouseSKUs, fetchSKUByName })(WarehouseMasterDataSKU);

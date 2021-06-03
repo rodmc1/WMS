@@ -12,12 +12,24 @@ function WarehouseMasterDataOverview (props) {
 
   const [warehouse, setWarehouse] = React.useState(null);
 
+  // const routes = [
+  //   {
+  //     label: 'Warehouse Master Data',
+  //     path: '/warehouse-master-data'
+  //   }
+  // ];
+
   const routes = [
     {
       label: 'Warehouse Master Data',
       path: '/warehouse-master-data'
+    },
+    {
+      label: props.match.params.id,
+      path: `/warehouse-master-data/${props.match.params.id}/overview`
     }
   ];
+
 
   React.useEffect(() => {
     const id = props.match.params.id;

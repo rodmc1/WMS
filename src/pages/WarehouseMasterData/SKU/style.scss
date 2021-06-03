@@ -1,0 +1,61 @@
+@import 'assets/scss/button';
+@import 'assets/scss/variable';
+
+.sku {
+  .MuiOutlinedInput-input {
+    padding: 14px !important;
+  }
+  // .search_form {
+  //   @media (min-width: 1500px) {
+  //     .search_form {
+  //       width: 300px !important;
+  //     }
+  //   }
+  // }
+}
+
+.drawer + main {
+  .sku {
+    .search_form {
+      width: 360px;
+    }
+    @media (min-width: 1400px) {
+      .search_form {
+        width: 300px;
+      }
+    }
+    @media (min-width: 1500px) {
+      .search_form {
+        width: 360px;
+      }
+    }
+    @media (min-width: 1900px) {
+      .search_form {
+        width: 600px;
+      }
+    }
+  }
+}
+
+.drawer:not(.drawer--collapsed) + main {
+  .sku {
+    .search_form {
+      width: 360px;
+    }
+    @media (min-width: 1400px) {
+      .search_form {
+        width: 300px;
+      }
+    }
+    @media (min-width: 1500px) {
+      .search_form {
+        width: 360px;
+      }
+    }
+    @media (min-width: 1900px) {
+      .search_form {
+        width: 600px;
+      }
+    }
+  }
+}

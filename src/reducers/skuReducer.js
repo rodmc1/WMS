@@ -1,4 +1,4 @@
-import { FETCH_WAREHOUSE_SKUS, FETCH_WAREHOUSE_SKU } from "actions/types";
+import { FETCH_WAREHOUSE_SKUS, FETCH_WAREHOUSE_SKU, SEARCH_SKU } from "actions/types";
 
 const initialState = {
   count: 0,
@@ -12,8 +12,8 @@ const skuReducer = (state = initialState, action) => {
       return { ...action.payload };
     case FETCH_WAREHOUSE_SKU:
       return { ...state, data: { ...state.data, [action.payload.item_id]: action.payload }};
-    // case SEARCH_SKU:
-    //   return { ...state, search: action.payload };
+    case SEARCH_SKU:
+      return { ...state, search: action.payload };
     default:
       return initialState;
   }

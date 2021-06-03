@@ -166,7 +166,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
   return (
     <React.Fragment>
       <div className={classes.toolbar}>
-        <div className={classes.filter} style={{ flex: filterSize ? filterSize : 2 }}>
+        <div className={classes.filter}>
           <FormControl className="search_form">
             <OutlinedInput
               style={{backgroundColor: '#E9E9E9'}}

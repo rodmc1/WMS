@@ -15,6 +15,7 @@ import WarehouseEdit from 'pages/WarehouseList/WarehouseEdit';
 import WarehouseMasterData from 'pages/WarehouseMasterData';
 import WarehouseMasterDataOverview from 'pages/WarehouseMasterData/Overview';
 import WarehouseMasterDataSKU from 'pages/WarehouseMasterData/SKU';
+import WarehouseMasterDataSKUCreate from 'pages/WarehouseMasterData/SKU/CreateSKU';
 import WarehouseMasterDataSKUDetail from 'pages/WarehouseMasterData/SKU/Detail';
 import Authentication from 'components/Authentication';
 
@@ -47,6 +48,7 @@ function App() {
                 <Route exact path='/warehouse-master-data' component={WarehouseMasterData} />
                 <Route exact path='/warehouse-master-data/:id/overview' component={WarehouseMasterDataOverview} />
                 <Route exact path='/warehouse-master-data/:id/sku' component={WarehouseMasterDataSKU} />
+                <Route exact path='/warehouse-master-data/:id/sku/create' component={WarehouseMasterDataSKUCreate} />
                 <Route exact path='/warehouse-master-data/:id/sku/:item_id' component={WarehouseMasterDataSKUDetail} />
                 {/* <Route exact path='/warehouse-master-data/:id/sku/create' component={SKU_CREATE} /> */}
                 <Route>

@@ -25,6 +25,7 @@ function WarehouseMasterDataSKUForm(props) {
 
   const __submit = data => {
     console.log(data);
+    props.onSubmit(data);
   }
 
   return (
@@ -293,50 +294,11 @@ function WarehouseMasterDataSKUForm(props) {
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Batch Management</label>
-            {/* <Controller
-              as={
-                <TextField
-                  variant="outlined"
-                  type="text"
-                  required
-                  inputProps={{ maxLength: 40 }}
-                  fullWidth
-                />
-              }
-              name="batchManagement"
-              control={control}
-              rules={{ required: "This field is required" }}
-              defaultValue=""
-              onChange={() => setHasChanged(true)}
-            /> */}
-             <Radio
-              checked={true}
-              onChange={() => setHasChanged(true)}
-              value="d"
-              color="default"
-              name="radio-button-demo"
-              inputProps={{ 'aria-label': 'D' }}
-            />
-              
-              {/* control={control}
-              rules={{ required: "This field is required" }}
-              defaultValue=""
-              onChange={() => setHasChanged(true)} */}
-            
-            {/* {errors.warehouseType && <FormHelperText error>{errors.warehouseType.message}</FormHelperText>} */}
+            <ButtonGroup id="batch-management" />
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Expiry Management</label>
-            {/* <Controller
-              as={
-
-              }
-              control={control}
-              name="storageType"
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-            /> */}
-            {/* {errors.warehouseType && <FormHelperText error>{errors.warehouseType.message}</FormHelperText>} */}
+            <ButtonGroup id="expiry-management" />
           </Grid>
         </Grid>
         <Grid container spacing={2}>
