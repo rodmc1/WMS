@@ -21,6 +21,7 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+// import defaultImage from '/assets/images/default-image.png';
 
 
 const useStyles1 = makeStyles((theme) => ({
@@ -149,6 +150,31 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     setPage(0);
   }
 
+  /*
+  * @args str url
+  * @return formatted image src
+  */
+  const extractImageUrl = (str) => {
+    return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
+  }
+
+  // Show default image if image source is broken
+  const handleImageError = (e) => {
+    e.target.src = '/assets/images/default-image.png';
+  }
+
+  const renderPreview = (preview) => {
+    // console.log(preview);
+    let defaultImage = '';
+    if (Array.isArray(preview)) {
+      console.log(preview);
+      console.log(extractImageUrl(preview[0].item_filepath));
+      defaultImage = extractImageUrl(preview[0].item_filepath);
+      // https://apis.dev.inteluck.com/Warehouse/Docs/warehouse_docs/06042021/warehouse_docs - 06042021231242709.webp
+    }
+    return <img src={defaultImage} onError={handleImageError} style={{width: 50}}/>
+  }
+
   // Setter for table data
   React.useEffect(() => {
     if (data) {
@@ -250,8 +276,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
                             }} 
                             align={config.headers[index] ? config.headers[index].align : 'left'}
                             key={index}>
-                            {/* { d[k].length > 60 ? `${d[k].substring(0, 60 - 3)}...` : d[k] } */}
-                            { d[k] }
+                            { k === 'item_document_file_type' ? renderPreview(d[k]) : d[k] }
                           </TableCell>
                         )
                       })

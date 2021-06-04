@@ -35,8 +35,6 @@ function WarehouseMasterDataSKU (props) {
   const [searched, setSearched] = React.useState(null);
   const dispatch = useDispatch();
 
-  console.log(SKUData);
-
   const routes = [
     {
       label: 'Warehouse Master Data',
@@ -52,7 +50,7 @@ function WarehouseMasterDataSKU (props) {
     rowsPerPage: 10,
     headers: [
       { label: 'ID', key: 'item_id' },
-      { label: 'Preview', key: 'item_id' },
+      { label: 'Preview', key: 'item_document_file_type' },
       { label: 'Product Name', key: 'product_name' },
       { label: 'UOM', key: 'uom_description' },
       { label: 'Code', key: 'item_code' },

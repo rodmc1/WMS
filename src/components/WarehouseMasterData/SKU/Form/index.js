@@ -13,18 +13,26 @@ import Button from '@material-ui/core/Button';
 import Radio from '@material-ui/core/Radio';
 
 function WarehouseMasterDataSKUForm(props) {
+  const [hasChanged, setHasChanged] = React.useState(false);
+  const [hasFilesChange, setHasFilesChange] = React.useState(false);
+  const [images, setImages] = React.useState([]);
+  const [batchManagement, setBatchManagement] = React.useState(true);;
+  const [expiryManagement, setExpiryManagement] = React.useState(true);;
 
   const { register, handleSubmit, errors, control, formState, setValue, reset } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
+
   const { isDirty, isValid } = formState;
-  const [hasChanged, setHasChanged] = React.useState(false);
-  const [hasFilesChange, setHasFilesChange] = React.useState(false);
-  const [images, setImages] = React.useState([]);
+
+  const handleManagement =() => {
+
+  }
 
   const __submit = data => {
-    console.log(data);
+    data.batchManagement = batchManagement;
+    data.expiryManagement = expiryManagement;
     props.onSubmit(data);
   }
 
@@ -171,7 +179,7 @@ function WarehouseMasterDataSKUForm(props) {
                   startAdornment: <InputAdornment position="start">&#8369;</InputAdornment>,
                 }} />
               }
-              name="maxQuantity"
+              name="valuePerUnit"
               control={control}
               defaultValue=""
               rules={{ 
@@ -194,7 +202,7 @@ function WarehouseMasterDataSKUForm(props) {
                   endAdornment: <InputAdornment position="end">cm</InputAdornment>,
                 }} />
               }
-              name="lenght"
+              name="length"
               control={control}
               defaultValue=""
               rules={{ 
@@ -280,9 +288,6 @@ function WarehouseMasterDataSKUForm(props) {
                   defaultValue=""
                   displayEmpty={true}>
                   <MenuItem value="Standard">Standard</MenuItem>
-                  {/* <MenuItem value="Refrigerated Warehouse">Refrigerated warehouses</MenuItem>
-                  <MenuItem value="Controlled Humidity Warehouse">Controlled humidity (CH) warehouses</MenuItem>
-                  <MenuItem value="Stockyard">Stockyard</MenuItem> */}
                 </Select>
               }
               control={control}
@@ -294,11 +299,11 @@ function WarehouseMasterDataSKUForm(props) {
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Batch Management</label>
-            <ButtonGroup id="batch-management" />
+            <ButtonGroup id="batch-management" onButtonClick={handleManagement} />
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Expiry Management</label>
-            <ButtonGroup id="expiry-management" />
+            <ButtonGroup id="expiry-management" onButtonClick={handleManagement} />
           </Grid>
         </Grid>
         <Grid container spacing={2}>

@@ -41,6 +41,7 @@ function Dropzone(props) {
       setExpanded(false);
       if (props.type === 'image' && props.defaultFiles.warehouse_document_file !== null) {
         let images = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
+        console.log(images)
         let newArrayImages = initialImages;
 
         images.forEach(image => {
@@ -75,6 +76,7 @@ function Dropzone(props) {
    * @return image and label with collapse button
    */
   const handlePreviewIcon = (file) => {
+    console.log(file)
     const string = file.file.name;
     const length = 40;
     const fileName = string.length > length ? `${string.substring(0, length - 3)}...` : string;

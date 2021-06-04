@@ -36,7 +36,7 @@ export const fetchSKUByName = params => dispatch => {
     });
 }
 
-export const createWarehouseSKU = params => dispatch => {
+export const createWarehouseSKU = params => {
   return inteluck.post(`/v1/wms/Warehouse/Item`, params);
   // inteluck.get('/v1/wms/Warehouse/Item', { params })
   //   .then(response => {
