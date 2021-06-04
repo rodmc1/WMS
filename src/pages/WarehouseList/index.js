@@ -189,11 +189,6 @@ function WarehouseList(props) {
     history.push(`/warehouse-list/${row.warehouse_client}/overview`);
   }
 
-  // Redirect to selected searched warehouse
-  const onSelectSearchItem = (id) => {
-    history.push(`/warehouse-list/${id}/overview`);
-  }
-
   // Function for CSV Download  
   const handleDownloadCSV = async () => {
     await fetchAllWarehouse().then(response => {
@@ -261,7 +256,6 @@ function WarehouseList(props) {
         onInputChange={onInputChange}
         onPaginate={handlePagination}
         onRowClick={handleRowClick}
-        onSelectSearchItem={onSelectSearchItem}
         handleRowCount={handleRowCount}
         searchedOptions={searched}
         query={query}

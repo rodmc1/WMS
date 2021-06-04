@@ -24,8 +24,7 @@ export const fetchWarehouses = params => dispatch => {
 export const fetchWarehouseById = id => dispatch => {
   inteluck.get(`/v1/wms/Warehouse/`, { 
     params: {
-      filter: id,
-      count: 1
+      client_id: id
     }})
     .then(response => {
       dispatch({

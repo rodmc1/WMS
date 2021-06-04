@@ -2,7 +2,7 @@ import './style.scss';
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
-import { HomeWork, KeyboardArrowUp, ChevronLeft, ChevronRight, AllInbox, LineWeight } from '@material-ui/icons';
+import { HomeWork, KeyboardArrowUp, ChevronLeft, ChevronRight, TableChart } from '@material-ui/icons';
 
 function Navigation(props) {
   const [isHome, setIsHome] = React.useState(false);
@@ -15,21 +15,11 @@ function Navigation(props) {
           label:'Warehouse List',
           path: '/',
           icon: HomeWork
-        }
-      ]
-    },
-    {
-      group: 'Warehouse Master Data',
-      list: [
-        {
-          label:'Storage Bins',
-          path: '/storage-bins',
-          icon: AllInbox
         },
         {
-          label:'SKU',
-          path: '/sku',
-          icon: LineWeight
+          label:'Warehouse Master Data',
+          path: '/warehouse-master-data',
+          icon: TableChart
         }
       ]
     },
