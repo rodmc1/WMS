@@ -2,16 +2,9 @@
 @import 'assets/scss/variable';
 
 .sku {
-  .MuiOutlinedInput-input {
-    padding: 14px !important;
+  .MuiOutlinedInput-input.MuiOutlinedInput-inputAdornedStart {
+    padding: 14px 0px;
   }
-  // .search_form {
-  //   @media (min-width: 1500px) {
-  //     .search_form {
-  //       width: 300px !important;
-  //     }
-  //   }
-  // }
 }
 
 .drawer + main {
@@ -49,7 +42,7 @@
     }
     @media (min-width: 1500px) {
       .search_form {
-        width: 360px;
+        width: 330px;
       }
     }
     @media (min-width: 1900px) {

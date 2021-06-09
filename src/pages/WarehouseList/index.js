@@ -33,7 +33,7 @@ function WarehouseList(props) {
   const [warehouseData, setWarehouseData] = React.useState(null)
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
-  const [query, setQuery] = React.useState(null);
+  const [query, setQuery] = React.useState('');
   const [csvData, setCsvData] = React.useState([]);
   const classes = useStyles();
   const dispatch = useDispatch();

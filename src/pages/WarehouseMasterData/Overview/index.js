@@ -18,6 +18,7 @@ function WarehouseMasterDataOverview (props) {
   //     path: '/warehouse-master-data'
   //   }
   // ];
+  console.log(props.warehouse);
 
   const routes = [
     {
@@ -29,7 +30,7 @@ function WarehouseMasterDataOverview (props) {
       path: `/warehouse-master-data/${props.match.params.id}/overview`
     }
   ];
-
+  console.log(props)
 
   React.useEffect(() => {
     const id = props.match.params.id;

@@ -20,21 +20,16 @@ function Authentication(props) {
   const [open, setOpen] = React.useState(false);
 
   const handleLogin = () => {
-    switch (process.env.NODE_ENV) {
-      case 'development':
-        window.location.href = `${process.env.REACT_APP_INTELUCK_ACCOUNT_API_ENDPOINT}/wms/login`;
-        break;
-      case 'staging':
-      case 'production':
-        window.location.href = process.env.REACT_APP_INTELUCK_LOGIN_API_ENDPOINT;
-        break;
-      default:
+    if (process.env.NODE_ENV === 'development') {
+      window.location.href = `${process.env.REACT_APP_INTELUCK_ACCOUNT_API_ENDPOINT}/wms/login`;
+    } else {
+      window.location.href = process.env.REACT_APP_INTELUCK_LOGIN_API_ENDPOINT;
     }
   }
-  
+
   React.useEffect(() => {
     const cookie = new Cookies();
-    if(!cookie.get('user-token')){
+    if (!cookie.get('user-token')){
       setOpen(true);
     }
   }, [])

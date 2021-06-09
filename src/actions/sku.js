@@ -36,12 +36,55 @@ export const fetchSKUByName = params => dispatch => {
     });
 }
 
+// for Download CSV
+export const fetchAllWarehouseSKUs = params => {
+  return inteluck.get('/v1/wms/Warehouse/Item', { params })
+}
+
+// For SKU List
+// export const fetchSKUByWarehouseId = params => dispatch => {
+//   inteluck.get(`/v1/wms/Warehouse/Item`, { params })
+//     .then(response => {
+//       const headers = response.headers['x-inteluck-data'];
+//       dispatch({
+//         type: SEARCH_SKU,
+//         payload: {
+//           data: response.data,
+//           count: Number(JSON.parse(headers).Count)
+//         }
+//       });
+//     }).catch(error => {
+//       dispatchError(dispatch, THROW_ERROR, error);
+//     });
+// }
+
 export const createWarehouseSKU = params => {
   return inteluck.post(`/v1/wms/Warehouse/Item`, params);
-  // inteluck.get('/v1/wms/Warehouse/Item', { params })
-  //   .then(response => {
-  //     const headers = response.headers['x-inteluck-data'];
-  //   }).catch(error => {
-  //     dispatchError(dispatch, THROW_ERROR, error);
-  //   }); 
+}
+
+// For edit warehouse
+export const updateWarehouseSKU = (id, params) => {
+  return inteluck.patch(`/v1/wms/Warehouse/Item/${id}`, params);
+}
+
+// Warehouse SKU photos delete
+export const deleteSKUPhotosById = id => {
+  return inteluck.delete(`/v1/wms/Warehouse/Item/${id}`);
+}
+
+// SKU files upload
+export const uploadSKUFilesById = (itemId, documentId, files) => {
+  const formData = new FormData();
+  files.map(file => formData.append('Docs', file));
+  
+  return inteluck.post(`/v1/wms/Warehouse/Item-File-Upload`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    params: {
+      item_id: itemId,
+      id: documentId,
+      item_document_type: 'Photos'
+    }
+  });
 }
