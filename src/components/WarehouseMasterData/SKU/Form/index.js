@@ -1,5 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
+import './style.scss';
 import { Controller, useForm } from 'react-hook-form';
 import Dropzone from 'components/Dropzone';
 import ButtonGroup from 'components/_ButtonGroup';
@@ -10,7 +11,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Button from '@material-ui/core/Button';
-import Radio from '@material-ui/core/Radio';
+import FormHelperText from '@material-ui/core/FormHelperText';
 
 function WarehouseMasterDataSKUForm(props) {
   const [hasChanged, setHasChanged] = React.useState(false);
@@ -21,7 +22,7 @@ function WarehouseMasterDataSKUForm(props) {
   const [SKU, setSKU] = React.useState([]);
   const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
 
-  const { register, handleSubmit, errors, control, formState, setValue, reset } = useForm({
+  const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
@@ -35,7 +36,6 @@ function WarehouseMasterDataSKUForm(props) {
   }
 
   const __submit = data => {
-
     data.batchManagement = batchManagement;
     data.expiryManagement = expiryManagement;
     data.images = images;
@@ -86,7 +86,7 @@ function WarehouseMasterDataSKUForm(props) {
   }, [props.building_types, setValue, props.sku]);
 
   return (
-    <form onSubmit={handleSubmit(__submit)}>
+    <form onSubmit={handleSubmit(__submit)} className="sku-form">
       <div className="paper__section">
         <Typography variant="subtitle1" className="paper__heading">General Information</Typography>
         <Grid container spacing={2}>
@@ -97,9 +97,9 @@ function WarehouseMasterDataSKUForm(props) {
                 <TextField
                   variant="outlined"
                   type="text"
-                  required
                   inputProps={{ maxLength: 40 }}
                   fullWidth
+                  required
                 />
               }
               name="productName"
@@ -108,7 +108,7 @@ function WarehouseMasterDataSKUForm(props) {
               defaultValue=""
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
+            {errors.productName && <FormHelperText error>{errors.productName.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={6}>
             <label className="paper__label">UOM</label>
@@ -131,7 +131,7 @@ function WarehouseMasterDataSKUForm(props) {
               defaultValue=""
               rules={{ required: "This field is required" }}
             />
-            {/* {errors.warehouseType && <FormHelperText error>{errors.warehouseType.message}</FormHelperText>} */}
+            {errors.uom && <FormHelperText error>{errors.uom.message}</FormHelperText>}
           </Grid>
         </Grid>
         <Grid container spacing={2}>
@@ -153,7 +153,7 @@ function WarehouseMasterDataSKUForm(props) {
               defaultValue=""
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
+            {errors.code && <FormHelperText error>{errors.code.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={6}>
             <label className="paper__label">External Code</label>
@@ -173,7 +173,7 @@ function WarehouseMasterDataSKUForm(props) {
               defaultValue=""
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
+            {errors.externalCode && <FormHelperText error>{errors.externalCode.message}</FormHelperText>}
           </Grid>
         </Grid>
         <Grid container spacing={2}>
@@ -197,7 +197,7 @@ function WarehouseMasterDataSKUForm(props) {
               }}
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
+            {errors.minQuantity && <FormHelperText error>{errors.minQuantity.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Max Quantity</label>
@@ -219,7 +219,7 @@ function WarehouseMasterDataSKUForm(props) {
               }}
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
+            {errors.maxQuantity && <FormHelperText error>{errors.maxQuantity.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Value Per Unit</label>
@@ -241,7 +241,7 @@ function WarehouseMasterDataSKUForm(props) {
               }}
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
+            {errors.valuePerUnit && <FormHelperText error>{errors.valuePerUnit.message}</FormHelperText>}
           </Grid>
         </Grid>
         <Grid container spacing={2}>
@@ -265,7 +265,7 @@ function WarehouseMasterDataSKUForm(props) {
               }}
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
+            {errors.length && <FormHelperText error>{errors.length.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={3}>
             <label className="paper__label">Width</label>
@@ -287,7 +287,7 @@ function WarehouseMasterDataSKUForm(props) {
               }}
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
+            {errors.width && <FormHelperText error>{errors.width.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={3}>
             <label className="paper__label">Height</label>
@@ -309,7 +309,7 @@ function WarehouseMasterDataSKUForm(props) {
               }}
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
+            {errors.height && <FormHelperText error>{errors.height.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={3}>
             <label className="paper__label">Weight</label>
@@ -331,7 +331,7 @@ function WarehouseMasterDataSKUForm(props) {
               }}
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
+            {errors.weight && <FormHelperText error>{errors.weight.message}</FormHelperText>}
           </Grid>
         </Grid>
         <Grid container spacing={2}>
@@ -353,9 +353,9 @@ function WarehouseMasterDataSKUForm(props) {
               defaultValue=""
               rules={{ required: "This field is required" }}
             />
-            {/* {errors.warehouseType && <FormHelperText error>{errors.warehouseType.message}</FormHelperText>} */}
+            {errors.storageType && <FormHelperText error>{errors.storageType.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={4} className="btn-group">
             <label className="paper__label">Batch Management</label>
             <ButtonGroup id="batch-management" initialStatus={SKU.batch_management} onButtonClick={handleManagement} />
           </Grid>
@@ -381,12 +381,11 @@ function WarehouseMasterDataSKUForm(props) {
               defaultValue=""
               onInput={() => setHasChanged(true)}
             />
-            {/* {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>} */}
           </Grid>
         </Grid>
       </div>
-      <div className="paper__section">
-        <div className="paper__section image__dropzone">
+      <div className="paper__section" style={{marginBottom: images.length ? '100px' : '1px'}}>
+        <div className="paper__section">
           <Typography variant="subtitle1" className="paper__heading">SKU Photos</Typography>
           <Dropzone 
             imageCount={images[images.length - 1]}
@@ -421,7 +420,6 @@ function WarehouseMasterDataSKUForm(props) {
                 style={{ marginRight: 10 }}
                 onClick={() => {
                   setHasChanged(false);
-                  // if (props.sku) reset();
                   props.handleDialog(hasFilesChange);
                 }}>
                 Cancel

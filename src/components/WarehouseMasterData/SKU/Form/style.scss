@@ -1,0 +1,14 @@
+@import 'assets/scss/button';
+@import 'assets/scss/variable';
+
+.sku-form {
+  .MuiOutlinedInput-input {
+    padding: 14px !important;
+  }
+  .MuiButton-label {
+    text-transform: none;
+  }
+  .MuiGrid-container.MuiGrid-spacing-xs-2 {
+    margin-bottom: 2%;
+  }
+}

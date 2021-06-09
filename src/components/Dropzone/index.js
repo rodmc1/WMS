@@ -41,8 +41,9 @@ function Dropzone(props) {
   // Set default collapse state and handle initial files
   React.useEffect(() => {
     if (props.defaultFiles) {
-      setExpanded(false);
       if (props.data !== 'SKU' && props.type === 'image' && props.defaultFiles.warehouse_document_file !== null) {
+        
+        setExpanded(false);
         let images = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
         console.log(images)
         let newArrayImages = initialImages;
@@ -57,6 +58,8 @@ function Dropzone(props) {
         setInitialImages(() => newArrayImages);
       }
       if (props.data !== 'SKU' && props.type === 'files' && props.defaultFiles.warehouse_document_file !== null) {
+        
+        setExpanded(false);
         const documents = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
         let newArrayDocuments = initialDocs;
 

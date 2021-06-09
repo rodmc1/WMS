@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import './style.scss';
 import history from 'config/history';
 import _ from 'lodash';
 import WarehouseMasterDataSKUForm from 'components/WarehouseMasterData/SKU/Form';
