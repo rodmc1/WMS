@@ -21,11 +21,12 @@ function WarehouseMasterDataSKUForm(props) {
   const [expiryManagement, setExpiryManagement] = React.useState(false);
   const [SKU, setSKU] = React.useState([]);
   const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
-
   const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
+
+  const formActionModal = document.querySelector('.form__actions-container');
 
   const { isDirty, isValid } = formState;
 
@@ -34,6 +35,8 @@ function WarehouseMasterDataSKUForm(props) {
     if (id === 'batch-management') setExpiryManagement(status);
     setHasChanged(true);
   }
+
+  console.log(images)
 
   const __submit = data => {
     data.batchManagement = batchManagement;
@@ -384,8 +387,8 @@ function WarehouseMasterDataSKUForm(props) {
           </Grid>
         </Grid>
       </div>
-      <div className="paper__section" style={{marginBottom: images.length ? '100px' : '1px'}}>
-        <div className="paper__section">
+      <div className={images.length && formActionModal ? 'paper__section dropzone-margin' : 'paper__section'}>
+        <div className="paper__section image__dropzone">
           <Typography variant="subtitle1" className="paper__heading">SKU Photos</Typography>
           <Dropzone 
             imageCount={images[images.length - 1]}

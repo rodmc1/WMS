@@ -50,7 +50,6 @@ function App() {
                 <Route exact path='/warehouse-master-data/:id/sku' component={WarehouseMasterDataSKU} />
                 <Route exact path='/warehouse-master-data/:id/sku/create' component={WarehouseMasterDataSKUCreate} />
                 <Route exact path='/warehouse-master-data/:id/sku/:item_id' component={WarehouseMasterDataSKUDetail} />
-                {/* <Route exact path='/warehouse-master-data/:id/sku/create' component={SKU_CREATE} /> */}
                 <Route>
                   <Redirect to='/' />
                 </Route>

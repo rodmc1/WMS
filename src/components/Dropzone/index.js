@@ -74,7 +74,6 @@ function Dropzone(props) {
       }
       if (props.data === 'SKU' && props.type === 'image' && props.defaultFiles.item_document_file_type) {
         let images = props.defaultFiles.item_document_file_type.map(e => extractImageUrl(e.item_filepath));
-        console.log(images)
         let newArrayImages = initialImages;
 
         images.forEach(image => {
@@ -95,7 +94,7 @@ function Dropzone(props) {
    * @args file data
    * @return image and label with collapse button
    */
-  const handlePreviewIcon = (file) => {
+  const handlePreviewIcon = file => {
     const string = file.file.name;
     const length = 40;
     const fileName = string.length > length ? `${string.substring(0, length - 3)}...` : string;
