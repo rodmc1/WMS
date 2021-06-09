@@ -1,5 +1,5 @@
 import React from 'react';
-
+import _ from 'lodash';
 import { Controller, useForm } from 'react-hook-form';
 import Dropzone from 'components/Dropzone';
 import ButtonGroup from 'components/_ButtonGroup';
@@ -16,8 +16,10 @@ function WarehouseMasterDataSKUForm(props) {
   const [hasChanged, setHasChanged] = React.useState(false);
   const [hasFilesChange, setHasFilesChange] = React.useState(false);
   const [images, setImages] = React.useState([]);
-  const [batchManagement, setBatchManagement] = React.useState(true);;
-  const [expiryManagement, setExpiryManagement] = React.useState(true);;
+  const [batchManagement, setBatchManagement] = React.useState(false);;
+  const [expiryManagement, setExpiryManagement] = React.useState(false);
+  const [SKU, setSKU] = React.useState([]);
+  const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
 
   const { register, handleSubmit, errors, control, formState, setValue, reset } = useForm({
     shouldFocusError: false,
@@ -26,15 +28,62 @@ function WarehouseMasterDataSKUForm(props) {
 
   const { isDirty, isValid } = formState;
 
-  const handleManagement =() => {
-
+  const handleManagement = (status, id) => {
+    if (id === 'batch-management') setBatchManagement(status);
+    if (id === 'batch-management') setExpiryManagement(status);
+    setHasChanged(true);
   }
 
   const __submit = data => {
+
     data.batchManagement = batchManagement;
     data.expiryManagement = expiryManagement;
-    props.onSubmit(data);
+    data.images = images;
+    if (_.isEmpty(errors)) {
+      props.onSubmit(data);
+    } else {
+      console.log(errors);
+    } 
   }
+
+  /*
+   * Set initial values if action is Edit Warehouse
+   */
+  React.useEffect(() => {
+    if (props.sku) {
+      let SKUDetails = [
+        ['productName', props.sku.product_name],
+        ['code', props.sku.item_code],
+        ['externalCode', props.sku.external_code],
+        ['minQuantity', props.sku.min_qty],
+        ['maxQuantity', props.sku.max_qty],
+        ['valuePerUnit', props.sku.value_per_unit],
+        ['length', props.sku.length],
+        ['width', props.sku.width],
+        ['height', props.sku.height],
+        ['weight', props.sku.weight],
+        ['storageType', props.sku.storage_type],
+        ['uom', props.sku.uom_description],
+        ['remarks', props.sku.remarks]
+      ];
+      
+      setHasDefaultValue(true);
+      setSKU(props.sku);
+      SKUDetails.forEach(w => {
+        if (w[1]) setValue(w[0], w[1]);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.sku]);
+  console.log(images)
+  /*
+   * Set option values in building types before setting initial value
+   */
+  React.useEffect(() => {
+    if (props.building_types && props.warehouse) {
+      setValue('buildingType', props.warehouse.building_type);
+    }
+  }, [props.building_types, setValue, props.sku]);
 
   return (
     <form onSubmit={handleSubmit(__submit)}>
@@ -68,6 +117,7 @@ function WarehouseMasterDataSKUForm(props) {
                 <Select
                   variant="outlined"
                   fullWidth
+                  required
                   defaultValue=""
                   displayEmpty={true}>
                   <MenuItem value="Roll">Roll</MenuItem>
@@ -133,13 +183,14 @@ function WarehouseMasterDataSKUForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
-                  inputProps: { min: 0 },
+                  inputProps: { min: 0, step: .01 },
                   endAdornment: <InputAdornment position="end">cm</InputAdornment>,
                 }} />
               }
               name="minQuantity"
               control={control}
               defaultValue=""
+              required
               rules={{ 
                 required: "This field is required",
                 validate: value => { return value < 0 ? 'Invalid value' : true } 
@@ -154,13 +205,14 @@ function WarehouseMasterDataSKUForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
-                  inputProps: { min: 0 },
+                  inputProps: { min: 0, step: .01 },
                   endAdornment: <InputAdornment position="end">cm</InputAdornment>,
                 }} />
               }
               name="maxQuantity"
               control={control}
               defaultValue=""
+              required
               rules={{ 
                 required: "This field is required",
                 validate: value => { return value < 0 ? 'Invalid value' : true } 
@@ -175,12 +227,13 @@ function WarehouseMasterDataSKUForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
-                  inputProps: { min: 0 },
+                  inputProps: { min: 0, step: .01 },
                   startAdornment: <InputAdornment position="start">&#8369;</InputAdornment>,
                 }} />
               }
               name="valuePerUnit"
               control={control}
+              required
               defaultValue=""
               rules={{ 
                 required: "This field is required",
@@ -198,12 +251,13 @@ function WarehouseMasterDataSKUForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
-                  inputProps: { min: 0 },
+                  inputProps: { min: 0, step: .01 },
                   endAdornment: <InputAdornment position="end">cm</InputAdornment>,
                 }} />
               }
               name="length"
               control={control}
+              required
               defaultValue=""
               rules={{ 
                 required: "This field is required",
@@ -219,12 +273,13 @@ function WarehouseMasterDataSKUForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
-                  inputProps: { min: 0 },
+                  inputProps: { min: 0, step: .01 },
                   endAdornment: <InputAdornment position="end">cm</InputAdornment>,
                 }} />
               }
               name="width"
               control={control}
+              required
               defaultValue=""
               rules={{ 
                 required: "This field is required",
@@ -240,11 +295,12 @@ function WarehouseMasterDataSKUForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
-                  inputProps: { min: 0 },
+                  inputProps: { min: 0, step: .01 },
                   endAdornment: <InputAdornment position="end">cm</InputAdornment>,
                 }} />
               }
               name="height"
+              required
               control={control}
               defaultValue=""
               rules={{ 
@@ -261,12 +317,13 @@ function WarehouseMasterDataSKUForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
-                  inputProps: { min: 0 },
+                  inputProps: { min: 0, step: .01 },
                   endAdornment: <InputAdornment position="end">kg</InputAdornment>,
                 }} />
               }
               name="weight"
               control={control}
+              required
               defaultValue=""
               rules={{ 
                 required: "This field is required",
@@ -292,6 +349,7 @@ function WarehouseMasterDataSKUForm(props) {
               }
               control={control}
               name="storageType"
+              required
               defaultValue=""
               rules={{ required: "This field is required" }}
             />
@@ -299,11 +357,11 @@ function WarehouseMasterDataSKUForm(props) {
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Batch Management</label>
-            <ButtonGroup id="batch-management" onButtonClick={handleManagement} />
+            <ButtonGroup id="batch-management" initialStatus={SKU.batch_management} onButtonClick={handleManagement} />
           </Grid>
           <Grid item xs={12} md={4}>
             <label className="paper__label">Expiry Management</label>
-            <ButtonGroup id="expiry-management" onButtonClick={handleManagement} />
+            <ButtonGroup id="expiry-management" initialStatus={SKU.expiry_management} onButtonClick={handleManagement} />
           </Grid>
         </Grid>
         <Grid container spacing={2}>
@@ -314,14 +372,12 @@ function WarehouseMasterDataSKUForm(props) {
                 <TextField
                   variant="outlined"
                   type="text"
-                  required
                   inputProps={{ maxLength: 40 }}
                   fullWidth
                 />
               }
               name="remarks"
               control={control}
-              rules={{ required: "This field is required" }}
               defaultValue=""
               onInput={() => setHasChanged(true)}
             />
@@ -334,7 +390,8 @@ function WarehouseMasterDataSKUForm(props) {
           <Typography variant="subtitle1" className="paper__heading">SKU Photos</Typography>
           <Dropzone 
             imageCount={images[images.length - 1]}
-            // defaultFiles={warehouse}
+            defaultFiles={SKU}
+            data="SKU"
             filesLimit={1}
             onDelete={() => {
               setHasChanged(true);
@@ -364,7 +421,7 @@ function WarehouseMasterDataSKUForm(props) {
                 style={{ marginRight: 10 }}
                 onClick={() => {
                   setHasChanged(false);
-                  if (props.warehouse) reset();
+                  // if (props.sku) reset();
                   props.handleDialog(hasFilesChange);
                 }}>
                 Cancel

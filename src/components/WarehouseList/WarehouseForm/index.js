@@ -94,6 +94,9 @@ function WarehouseForm(props) {
     if (address.description) setCountry(address.terms[address.terms.length - 1].value);
   }
 
+
+  console.log(images)
+
   /*
    * Get and Set address field/state when user drag the marker
    * @args marker coordinates 
@@ -774,6 +777,7 @@ function WarehouseForm(props) {
             setImages([...images, files]);
           }}
           type="image"
+          data="Warehouse"
           showPreviews
           showPreviewsInDropzone={false} text="Drag and drop images here or click"
         />
@@ -784,6 +788,7 @@ function WarehouseForm(props) {
           documentCount={docs[docs.length - 1]}
           defaultFiles={warehouse}
           type="files"
+          data="Warehouse"
           onDelete={() => {
             setHasChanged(true);
             setHasFilesChange(true);

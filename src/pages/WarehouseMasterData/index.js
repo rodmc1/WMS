@@ -24,7 +24,7 @@ function WarehouseMasterData(props) {
   const classes = useStyles();
   const [searchLoading, setSearchLoading] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
-  const [query, setQuery] = React.useState(null);
+  const [query, setQuery] = React.useState('');
   const [rowCount, setRowCount] = React.useState(0);
   const [page, setPage]= React.useState(10);
   const [warehouseData, setWarehouseData] = React.useState(null);

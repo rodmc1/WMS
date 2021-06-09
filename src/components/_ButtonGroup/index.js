@@ -19,7 +19,23 @@ const btnColor = {
  * @args props {data, picklist, picklistAction}
  */
 function ButtonGroup(props) {
-  const [color, setColor] = useState({ available: btnColor.white, notavailable: btnColor.grey });
+  const [color, setColor] = useState({ 
+    available: btnColor.white,
+    notavailable: btnColor.grey,
+    textColorAvailabe: btnColor.grey,
+    textColorNotAvailabe: btnColor.lightgrey
+  });
+
+  React.useEffect(() => {
+    if (props.initialStatus) {
+      setColor({ 
+        available: btnColor.emerald,
+        notavailable: btnColor.white,
+        textColorAvailabe: btnColor.lightgrey,
+        textColorNotAvailabe: btnColor.grey
+      });
+    }
+  }, [props.initialStatus])
 
   /*
    * Calls picklistAction function on button click
@@ -28,12 +44,12 @@ function ButtonGroup(props) {
    * @args status (boolean)
    */
   const onButtonClick = status => {
-    // props.picklistAction(props.data.Description, status);
+    props.onButtonClick(status, props.id);
 
     if (!status) {
       setColor({ 
         available: btnColor.white,
-        notavailable: btnColor.lightgrey,
+        notavailable: btnColor.grey,
         textColorAvailabe: btnColor.grey,
         textColorNotAvailabe: btnColor.lightgrey
       });

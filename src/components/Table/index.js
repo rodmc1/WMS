@@ -163,16 +163,11 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     e.target.src = '/assets/images/default-image.png';
   }
 
-  const renderPreview = (preview) => {
-    // console.log(preview);
-    let defaultImage = '';
-    if (Array.isArray(preview)) {
-      console.log(preview);
-      console.log(extractImageUrl(preview[0].item_filepath));
-      defaultImage = extractImageUrl(preview[0].item_filepath);
-      // https://apis.dev.inteluck.com/Warehouse/Docs/warehouse_docs/06042021/warehouse_docs - 06042021231242709.webp
-    }
-    return <img src={defaultImage} onError={handleImageError} style={{width: 50}}/>
+  const renderPreview = preview => {
+    let defaultImage = '/assets/images/default-image.png';
+    if (Array.isArray(preview)) defaultImage = extractImageUrl(preview[0].item_filepath);
+    
+    return <img src={defaultImage} onError={handleImageError} className="table-img-preview" />
   }
 
   // Setter for table data
@@ -203,7 +198,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
               onChange={handleInputChange}
               startAdornment={
                 <InputAdornment position="start">
-                  <Search style={{ color: '#828282', marginRight: '10px' }} />
+                  <Search style={{ color: '#828282' }} />
                 </InputAdornment>
               }
               endAdornment={
