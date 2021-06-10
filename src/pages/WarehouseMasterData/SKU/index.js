@@ -36,6 +36,7 @@ function WarehouseMasterDataSKU (props) {
   const [open, setOpen] = React.useState(false);
   const [searchLoading, setSearchLoading] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
+  const [ready, setReady] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const [rowCount, setRowCount] = React.useState(0);
   const [page, setPage]= React.useState(10);
@@ -44,6 +45,7 @@ function WarehouseMasterDataSKU (props) {
   const [searched, setSearched] = React.useState(null);
   const dispatch = useDispatch();
   const [csvData, setCsvData] = React.useState([]);
+  const [apiStatus, setApiStatus] = React.useState(false);
   const csvLink = React.useRef();
 
   // Routes for breadcrumbs
@@ -57,8 +59,6 @@ function WarehouseMasterDataSKU (props) {
       path: `/warehouse-master-data/${props.match.params.id}/overview`
     }
   ];
-
-  console.log(SKUData)
 
   // Config for table
   const config = {
@@ -80,7 +80,6 @@ function WarehouseMasterDataSKU (props) {
     setRowCount(rowsPerPage);
     setPage(page);
   };
-
 
   // Function for pagination
   const handlePagination = (page, rowsPerPage) => {
@@ -205,20 +204,21 @@ function WarehouseMasterDataSKU (props) {
   }, [searched]);
 
   useEffect(() => {
+    if(ready) setOpenBackdrop(false);
+  }, [ready])
+
+  useEffect(() => {
     if (props.sku.count) {
       setSKUData(props.sku.data);
       setSKUCount(props.sku.count);
     }
-    if (props.sku.data) {
-      setOpenBackdrop(false);
-    }
   }, [props.sku]);
 
-  useEffect(() => {
-    if (Array.isArray(SKUData)) setOpenBackdrop(false);
+  React.useEffect(() => { 
+    if (JSON.stringify(SKUData) === '{}') {
+      setOpenBackdrop(false);
+    }
   }, [SKUData]);
-
-  // if (Array.isArray(SKUData)) setOpenBackdrop(false);
 
   // Show snackbar alert when new warehouse is created
   useEffect(() => {
@@ -226,8 +226,34 @@ function WarehouseMasterDataSKU (props) {
       setOpen(true);
     }
   }, [props.location.success]);
-  
 
+  // Set searched values and warehouse count after search
+  useEffect(() => {
+    props.fetchWarehouseSKUs({
+      warehouse_name: props.match.params.id,
+      count: page || 10,
+      after: page * rowCount
+    });
+  }, []);
+  const renderEmptySKU = () => {
+    setTimeout(function() { 
+      setReady(true);
+    }, 300);
+    
+    return !ready ? <React.Fragment><div style={{height: '67vh'}} /></React.Fragment> :
+      <React.Fragment>
+        <div className="sku-empty-container">
+          <img src="../../assets/images/sku-empty.svg" style={{height: 150}} />
+          <Typography variant="subtitle2">There's no SKU's listed here.</Typography>
+          <Typography variant="subtitle2">Please click the create button to get started.</Typography>
+          <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>
+        </div>
+      </React.Fragment>
+  }
+
+
+  console.log(apiStatus)
+  console.log(SKUData)
   return (
     <div className="container sku">
       <div className="flex justify-space-between align-center">
@@ -250,7 +276,7 @@ function WarehouseMasterDataSKU (props) {
         </Grid>
         <Grid item xs={12} md={9}>
           <Paper className="paper" elevation={0} variant="outlined">
-            {/* { !_.isEmpty(SKUData) &&  */}
+            { _.isEmpty(SKUData) ? renderEmptySKU() :
               <React.Fragment>
                 <Typography variant="subtitle1" className="paper__heading">SKU's</Typography>
                 <div className="paper__divider" />
@@ -267,7 +293,7 @@ function WarehouseMasterDataSKU (props) {
                   searchLoading={searchLoading}
                 />
               </React.Fragment>
-            {/* } */}
+            }
           </Paper>
         </Grid>
         <Spinner className={classes.backdrop} open={openBackdrop} >
