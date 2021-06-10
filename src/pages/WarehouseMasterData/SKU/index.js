@@ -57,6 +57,10 @@ function WarehouseMasterDataSKU (props) {
     {
       label: props.match.params.id,
       path: `/warehouse-master-data/${props.match.params.id}/overview`
+    },
+    {
+      label: 'SKU',
+      path: `/warehouse-master-data/${props.match.params.id}/sku`
     }
   ];
 
