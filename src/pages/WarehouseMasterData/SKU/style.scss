@@ -6,6 +6,27 @@
     padding: 14px 0px;
   }
 }
+.sku-empty-container {
+  height: 52vh;
+  align-items: center;
+  position: relative;
+  text-align: center;
+
+  .MuiTypography-subtitle2 {
+    color: #636363;
+  }
+
+  .btn--emerald {
+    margin-top: 2%;
+  }
+}
+
+.sku-empty-container img {
+  padding-bottom: 2%;
+  display: block;
+  margin: auto auto;
+  margin-top: 15%;
+}
 
 .drawer + main {
   .sku {

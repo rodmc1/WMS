@@ -1,24 +1,25 @@
-import React, { useEffect } from 'react';
 import './style.scss';
 import _ from 'lodash';
-import { fetchSKUByName, fetchWarehouseByName, fetchAllWarehouseSKUs, fetchWarehouseSKUs } from 'actions';
-import { connect, useDispatch } from 'react-redux';
-import history from 'config/history';
-import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
-import Table from 'components/Table';
-import Breadcrumbs from 'components/Breadcrumbs';
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Snackbar from '@material-ui/core/Snackbar';
-import Spinner from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core'
 import { CSVLink } from "react-csv";
+import history from 'config/history';
+import React, { useEffect } from 'react';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
+import { connect, useDispatch } from 'react-redux';
+import { fetchSKUByName, fetchAllWarehouseSKUs, fetchWarehouseSKUs } from 'actions';
+import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
+
+import Table from 'components/Table';
+import Grid from '@material-ui/core/Grid';
+import { Button } from '@material-ui/core';
+import Paper from '@material-ui/core/Paper';
 import MuiAlert from '@material-ui/lab/Alert';
+import Breadcrumbs from 'components/Breadcrumbs';
+import Spinner from '@material-ui/core/Backdrop';
+import Snackbar from '@material-ui/core/Snackbar';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -33,19 +34,20 @@ function Alert(props) {
 
 function WarehouseMasterDataSKU (props) {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
-  const [searchLoading, setSearchLoading] = React.useState(false);
-  const [openBackdrop, setOpenBackdrop] = React.useState(true);
-  const [query, setQuery] = React.useState('');
-  const [rowCount, setRowCount] = React.useState(0);
-  const [page, setPage]= React.useState(10);
-  const [SKUData, setSKUData] = React.useState(null);
-  const [SKUCount, setSKUCount] = React.useState(0);
-  const [searched, setSearched] = React.useState(null);
   const dispatch = useDispatch();
-  const [csvData, setCsvData] = React.useState([]);
   const csvLink = React.useRef();
-
+  const [page, setPage]= React.useState(10);
+  const [query, setQuery] = React.useState('');
+  const [open, setOpen] = React.useState(false);
+  const [ready, setReady] = React.useState(false);
+  const [csvData, setCsvData] = React.useState([]);
+  const [rowCount, setRowCount] = React.useState(0);
+  const [SKUCount, setSKUCount] = React.useState(0);
+  const [SKUData, setSKUData] = React.useState(null);
+  const [searched, setSearched] = React.useState(null);
+  const [openBackdrop, setOpenBackdrop] = React.useState(true);
+  const [searchLoading, setSearchLoading] = React.useState(false);
+  
   // Routes for breadcrumbs
   const routes = [
     {
@@ -55,10 +57,12 @@ function WarehouseMasterDataSKU (props) {
     {
       label: props.match.params.id,
       path: `/warehouse-master-data/${props.match.params.id}/overview`
+    },
+    {
+      label: 'SKU',
+      path: `/warehouse-master-data/${props.match.params.id}/sku`
     }
   ];
-
-  console.log(SKUData)
 
   // Config for table
   const config = {
@@ -80,7 +84,6 @@ function WarehouseMasterDataSKU (props) {
     setRowCount(rowsPerPage);
     setPage(page);
   };
-
 
   // Function for pagination
   const handlePagination = (page, rowsPerPage) => {
@@ -175,7 +178,7 @@ function WarehouseMasterDataSKU (props) {
     { label: "Remarks", key: "remarks" },
   ];
 
-  // Call delayedQuery function when user search and set new warehouse data
+  // Call delayedQuery function when user search and set new sku data
   useEffect(() => {
     if (query) {
       delayedQuery(page, rowCount);
@@ -187,14 +190,13 @@ function WarehouseMasterDataSKU (props) {
     return delayedQuery.cancel;
   }, [query, delayedQuery]);
 
-  // Set searched values and warehouse count after search
+  // Set searched values and sku count after search
   useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
       setSKUCount(props.searched.count);
     }
   }, [props.searched]);
-
 
   // Set new warehouse data with searched items
   useEffect(() => {
@@ -204,21 +206,25 @@ function WarehouseMasterDataSKU (props) {
     }
   }, [searched]);
 
+  // Close Spinner if sku data is empty after 300ms
+  useEffect(() => {
+    if(ready) setOpenBackdrop(false);
+  }, [ready])
+
+  // Set data for sku and count on mount
   useEffect(() => {
     if (props.sku.count) {
       setSKUData(props.sku.data);
       setSKUCount(props.sku.count);
     }
-    if (props.sku.data) {
-      setOpenBackdrop(false);
-    }
   }, [props.sku]);
 
-  useEffect(() => {
-    if (Array.isArray(SKUData)) setOpenBackdrop(false);
+  // Close spinner if api request for SKU is complete
+  useEffect(() => { 
+    if (JSON.stringify(SKUData) === '{}') {
+      setOpenBackdrop(false);
+    }
   }, [SKUData]);
-
-  // if (Array.isArray(SKUData)) setOpenBackdrop(false);
 
   // Show snackbar alert when new warehouse is created
   useEffect(() => {
@@ -226,14 +232,37 @@ function WarehouseMasterDataSKU (props) {
       setOpen(true);
     }
   }, [props.location.success]);
-  
+
+  // Fetch warehouse sku on component mount
+  useEffect(() => {
+    props.fetchWarehouseSKUs({
+      warehouse_name: props.match.params.id,
+      count: page || 10,
+      after: page * rowCount
+    });
+  }, []);
+
+  // Render empty sku container
+  const renderEmptySKU = () => {
+    setTimeout(() => { setReady(true) }, 300);
+    
+    return !ready ? <React.Fragment><div style={{height: '67vh'}} /></React.Fragment> :
+      <React.Fragment>
+        <div className="sku-empty-container">
+          <img src="../../assets/images/sku-empty.svg" style={{height: 150}} />
+          <Typography variant="subtitle2">There's no SKU's listed here.</Typography>
+          <Typography variant="subtitle2">Please click the create button to get started.</Typography>
+          <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>
+        </div>
+      </React.Fragment>
+  }
 
   return (
     <div className="container sku">
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         { 
-          // !_.isEmpty(SKUData) && 
+          !_.isEmpty(SKUData) && 
           <div className="button-group">
             <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>
             <CSVLink data={csvData} filename={`${props.match.params.id}-sku.csv`} headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
@@ -250,7 +279,7 @@ function WarehouseMasterDataSKU (props) {
         </Grid>
         <Grid item xs={12} md={9}>
           <Paper className="paper" elevation={0} variant="outlined">
-            {/* { !_.isEmpty(SKUData) &&  */}
+            { _.isEmpty(SKUData) ? renderEmptySKU() :
               <React.Fragment>
                 <Typography variant="subtitle1" className="paper__heading">SKU's</Typography>
                 <div className="paper__divider" />
@@ -267,7 +296,7 @@ function WarehouseMasterDataSKU (props) {
                   searchLoading={searchLoading}
                 />
               </React.Fragment>
-            {/* } */}
+            }
           </Paper>
         </Grid>
         <Spinner className={classes.backdrop} open={openBackdrop} >
@@ -276,7 +305,6 @@ function WarehouseMasterDataSKU (props) {
         <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
           <Alert severity="success">{props.location.success}</Alert>
         </Snackbar>
-        {/* {renderDialogCancel()} */}
       </Grid>
     </div>
   )

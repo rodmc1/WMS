@@ -1,19 +1,22 @@
-import React, { useEffect } from 'react';
-import history from 'config/history';
 import _ from 'lodash';
-import WarehouseMasterDataSKUForm from 'components/WarehouseMasterData/SKU/Form';
-import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
+import history from 'config/history';
+import React, { useEffect } from 'react';
+
 import WarehouseDialog from 'components/WarehouseDialog';
-import { fetchSKUByName, fetchWarehouseSKUs, updateWarehouseSKU, uploadSKUFilesById, deleteSKUPhotosById } from 'actions';
+import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
+import WarehouseMasterDataSKUForm from 'components/WarehouseMasterData/SKU/Form';
+
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
-import Breadcrumbs from 'components/Breadcrumbs';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
 import { connect, useDispatch } from 'react-redux';
+import { fetchSKUByName, fetchWarehouseSKUs, updateWarehouseSKU, uploadSKUFilesById, deleteSKUPhotosById } from 'actions';
+
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 import MuiAlert from '@material-ui/lab/Alert';
+import Breadcrumbs from 'components/Breadcrumbs';
 import Snackbar from '@material-ui/core/Snackbar';
+import Typography from '@material-ui/core/Typography';
 
 // Alerts
 function Alert(props) {
@@ -21,29 +24,22 @@ function Alert(props) {
 }
 
 function WarehouseMasterDataSKUDetail (props) {
-  const [images, setImages] = React.useState([]);
+  const dispatch = useDispatch();
   const [sku, setSKU] = React.useState('');
   const [edited, setEdited] = React.useState(false);
+  const [existingSKU, setExistingSKU] = React.useState('');
   const [alertConfig, setAlertConfig] = React.useState({});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
-  const [existingSKU, setExistingSKU] = React.useState('');
   const [openDialog, setOpenDialog] = React.useState({ open: false });
-  const dispatch = useDispatch();
-
-  // State for api responses
   const [status, setStatus] = React.useState({ images: false, sku: false });
 
   const routes = [
-    {
-      label: 'Warehouse Master Data',
-      path: '/warehouse-master-data'
-    },
-    {
-      label: props.match.params.id,
-      path: `/warehouse-master-data/${props.match.params.id}/overview`
-    }
+    { label: 'Warehouse Master Data', path: '/warehouse-master-data' },
+    { label: props.match.params.id, path: `/warehouse-master-data/${props.match.params.id}/overview` }
   ];
 
+
+  // Form submit handler
   const onSubmit = data => {
     setAlertConfig({ severity: 'info', message: 'Saving Changes...' });
     setOpenSnackBar(true);
@@ -123,21 +119,6 @@ function WarehouseMasterDataSKUDetail (props) {
         dispatchError(dispatch, THROW_ERROR, error);
       });
   }
-
-  // Function for image upload
-  // const handleImageUpload = data => {
-  //   const documentId = props.location.data.item_document_id || null;
-  //   const itemId = props.match.params.item_id
-  //   uploadSKUFilesById(itemId, documentId, data.images[data.images.length - 1])
-  //     .then(res => {
-  //       if (res.status === 201) {
-  //         setStatus(prevState => { return {...prevState, images: true }});
-  //       };
-  //     })
-  //     .catch(error => {
-  //       dispatchError(dispatch, THROW_ERROR, error);
-  //     });
-  // }
 
   const handleError = error => {
     console.log(error);

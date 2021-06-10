@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import _ from 'lodash';
 import './style.scss';
 import { Controller, useForm } from 'react-hook-form';
@@ -20,12 +20,12 @@ function WarehouseMasterDataSKUForm(props) {
   const [batchManagement, setBatchManagement] = React.useState(false);;
   const [expiryManagement, setExpiryManagement] = React.useState(false);
   const [SKU, setSKU] = React.useState([]);
-  const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
-
   const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
+
+  const formActionModal = document.querySelector('.form__actions-container');
 
   const { isDirty, isValid } = formState;
 
@@ -49,7 +49,7 @@ function WarehouseMasterDataSKUForm(props) {
   /*
    * Set initial values if action is Edit Warehouse
    */
-  React.useEffect(() => {
+  useEffect(() => {
     if (props.sku) {
       let SKUDetails = [
         ['productName', props.sku.product_name],
@@ -67,7 +67,6 @@ function WarehouseMasterDataSKUForm(props) {
         ['remarks', props.sku.remarks]
       ];
       
-      setHasDefaultValue(true);
       setSKU(props.sku);
       SKUDetails.forEach(w => {
         if (w[1]) setValue(w[0], w[1]);
@@ -75,11 +74,11 @@ function WarehouseMasterDataSKUForm(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
-  console.log(images)
+
   /*
    * Set option values in building types before setting initial value
    */
-  React.useEffect(() => {
+  useEffect(() => {
     if (props.building_types && props.warehouse) {
       setValue('buildingType', props.warehouse.building_type);
     }
@@ -384,8 +383,8 @@ function WarehouseMasterDataSKUForm(props) {
           </Grid>
         </Grid>
       </div>
-      <div className="paper__section" style={{marginBottom: images.length ? '100px' : '1px'}}>
-        <div className="paper__section">
+      <div className={images.length && formActionModal ? 'paper__section dropzone-margin' : 'paper__section'}>
+        <div className="paper__section image__dropzone">
           <Typography variant="subtitle1" className="paper__heading">SKU Photos</Typography>
           <Dropzone 
             imageCount={images[images.length - 1]}
