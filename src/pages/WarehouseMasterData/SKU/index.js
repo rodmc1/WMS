@@ -259,7 +259,7 @@ function WarehouseMasterDataSKU (props) {
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         { 
-          // !_.isEmpty(SKUData) && 
+          !_.isEmpty(SKUData) && 
           <div className="button-group">
             <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>
             <CSVLink data={csvData} filename={`${props.match.params.id}-sku.csv`} headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
