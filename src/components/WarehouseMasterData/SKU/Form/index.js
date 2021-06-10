@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import _ from 'lodash';
 import './style.scss';
 import { Controller, useForm } from 'react-hook-form';
@@ -20,7 +20,6 @@ function WarehouseMasterDataSKUForm(props) {
   const [batchManagement, setBatchManagement] = React.useState(false);;
   const [expiryManagement, setExpiryManagement] = React.useState(false);
   const [SKU, setSKU] = React.useState([]);
-  const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
   const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
@@ -36,8 +35,6 @@ function WarehouseMasterDataSKUForm(props) {
     setHasChanged(true);
   }
 
-  console.log(images)
-
   const __submit = data => {
     data.batchManagement = batchManagement;
     data.expiryManagement = expiryManagement;
@@ -52,7 +49,7 @@ function WarehouseMasterDataSKUForm(props) {
   /*
    * Set initial values if action is Edit Warehouse
    */
-  React.useEffect(() => {
+  useEffect(() => {
     if (props.sku) {
       let SKUDetails = [
         ['productName', props.sku.product_name],
@@ -70,7 +67,6 @@ function WarehouseMasterDataSKUForm(props) {
         ['remarks', props.sku.remarks]
       ];
       
-      setHasDefaultValue(true);
       setSKU(props.sku);
       SKUDetails.forEach(w => {
         if (w[1]) setValue(w[0], w[1]);
@@ -78,11 +74,11 @@ function WarehouseMasterDataSKUForm(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
-  console.log(images)
+
   /*
    * Set option values in building types before setting initial value
    */
-  React.useEffect(() => {
+  useEffect(() => {
     if (props.building_types && props.warehouse) {
       setValue('buildingType', props.warehouse.building_type);
     }

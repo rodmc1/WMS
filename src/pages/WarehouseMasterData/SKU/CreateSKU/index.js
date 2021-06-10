@@ -1,21 +1,22 @@
-import React, { useEffect } from 'react';
 import _ from 'lodash';
 import history from 'config/history';
-import WarehouseMasterDataSKUForm from 'components/WarehouseMasterData/SKU/Form';
-import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
+import React, { useEffect } from 'react';
 import WarehouseDialog from 'components/WarehouseDialog';
-import Breadcrumbs from 'components/Breadcrumbs';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import { connect, useDispatch } from 'react-redux';
-import { createWarehouseSKU } from 'actions';
+import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
+import WarehouseMasterDataSKUForm from 'components/WarehouseMasterData/SKU/Form';
+
 import { THROW_ERROR } from 'actions/types';
+import { createWarehouseSKU } from 'actions';
 import { dispatchError } from 'helper/error';
 import { uploadSKUFilesById } from 'actions';
+import { connect, useDispatch } from 'react-redux';
 
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 import MuiAlert from '@material-ui/lab/Alert';
+import Breadcrumbs from 'components/Breadcrumbs';
 import Snackbar from '@material-ui/core/Snackbar';
+import Typography from '@material-ui/core/Typography';
 
 // Alerts
 function Alert(props) {
@@ -23,30 +24,21 @@ function Alert(props) {
 }
 
 function WarehouseMasterDataSKUCreate (props) {
-  const [status, setStatus] = React.useState({ images: false, sku: false });
+  const dispatch = useDispatch();
   const [created, setCreated] = React.useState(false);
   const [alertConfig, setAlertConfig] = React.useState({});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState({ open: false });
-  const dispatch = useDispatch();
+  const [status, setStatus] = React.useState({ images: false, sku: false });
+
   const routes = [
-    {
-      label: 'Warehouse Master Data',
-      path: '/warehouse-master-data'
-    },
-    {
-      label: props.match.params.id,
-      path: `/warehouse-master-data/${props.match.params.id}/overview`
-    },
-    {
-      label: 'Creating SKU',
-      path: `/warehouse-master-data/${props.match.params.id}/sku/create`
-    }
+    { label: 'Warehouse Master Data', path: '/warehouse-master-data' },
+    { label: props.match.params.id, path: `/warehouse-master-data/${props.match.params.id}/overview` },
+    { label: 'Creating SKU', path: `/warehouse-master-data/${props.match.params.id}/sku/create` }
   ];
 
-  console.log(status)
-
-  const onSubmit = (data) => {
+  // Form submit handler
+  const onSubmit = data => {
     setAlertConfig({ severity: 'info', message: 'Creating SKU...' });
     setOpenSnackBar(true);
 
@@ -69,9 +61,9 @@ function WarehouseMasterDataSKUCreate (props) {
       remarks: data.remarks,
       company_id: "2fb2aca3-79c6-45db-8301-6403edb16288"
     }
+
     createWarehouseSKU(SKUData)
       .then(res => {
-        console.log(res.data);
         if (data.images.length > 1) {
           handleImageUpload(res.data.id, data);
         } else {
@@ -114,9 +106,6 @@ function WarehouseMasterDataSKUCreate (props) {
       if (props.error === 'Network Error') {
         setAlertConfig({ severity: 'error', message: 'Network Error...' });
       }
-      // else {
-      //   setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
-      // }
     }
   }, [props.error]);
 

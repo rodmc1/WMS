@@ -1,25 +1,15 @@
-import React from 'react';
-import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
 import { connect } from 'react-redux';
+import React, { useEffect } from 'react';
 import { fetchWarehouseById } from 'actions';
-import Breadcrumbs from 'components/Breadcrumbs';
+import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
+
 import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
-import Snackbar from '@material-ui/core/Snackbar';
+import Breadcrumbs from 'components/Breadcrumbs';
+import Typography from '@material-ui/core/Typography';
 
-function WarehouseMasterDataOverview (props) {
-
+function WarehouseMasterDataOverview(props) {
   const [warehouse, setWarehouse] = React.useState(null);
-
-  // const routes = [
-  //   {
-  //     label: 'Warehouse Master Data',
-  //     path: '/warehouse-master-data'
-  //   }
-  // ];
-  console.log(props.warehouse);
-
   const routes = [
     {
       label: 'Warehouse Master Data',
@@ -30,9 +20,9 @@ function WarehouseMasterDataOverview (props) {
       path: `/warehouse-master-data/${props.match.params.id}/overview`
     }
   ];
-  console.log(props)
 
-  React.useEffect(() => {
+  // Fetch and set warehouse details 
+  useEffect(() => {
     const id = props.match.params.id;
     if (!props.warehouse) {
       props.fetchWarehouseById(id);
@@ -60,10 +50,6 @@ function WarehouseMasterDataOverview (props) {
                 <label className="paper__label">Country</label>
                 <p className="paper__text">{warehouse.country}</p>                  
               </Grid>
-              {/* <Grid item xs={12} md={3}>
-                <label className="paper__label">Clients</label>
-                <p className="paper__text">{warehouse.remarks}</p>                  
-              </Grid> */}
             </Grid>
           </Paper>
         </React.Fragment>
@@ -82,11 +68,8 @@ function WarehouseMasterDataOverview (props) {
           <WarehouseMasterDataSidebar id={props.match.params.id} />
         </Grid>
         <Grid item xs={9}>
-            {renderInformation()}
+          {renderInformation()}
         </Grid>
-        {/* <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}> */}
-          {/* <Alert severity="success">{props.location.success}</Alert> */}
-        {/* </Snackbar> */}
       </Grid>
     </div>
   )

@@ -1,17 +1,19 @@
-import React from 'react';
 import _ from 'lodash';
-import { fetchWarehouses, fetchWarehouseByName, fetchAllWarehouse } from 'actions';
-import { connect, useDispatch } from 'react-redux';
 import history from 'config/history';
-import Breadcrumbs from 'components/Breadcrumbs';
+import React, { useEffect } from 'react';
+
+import { CSVLink } from "react-csv";
+import { THROW_ERROR } from 'actions/types';
+import { dispatchError } from 'helper/error';
+import { connect, useDispatch } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
+import { fetchWarehouses, fetchWarehouseByName, fetchAllWarehouse } from 'actions';
+
 import Table from 'components/Table';
 import Button from '@material-ui/core/Button';
 import Spinner from '@material-ui/core/Backdrop';
+import Breadcrumbs from 'components/Breadcrumbs';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { makeStyles } from '@material-ui/core/styles';
-import { THROW_ERROR } from 'actions/types';
-import { dispatchError } from 'helper/error';
-import { CSVLink } from "react-csv";
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -22,18 +24,21 @@ const useStyles = makeStyles((theme) => ({
 
 function WarehouseMasterData(props) {
   const classes = useStyles();
-  const [searchLoading, setSearchLoading] = React.useState(false);
-  const [openBackdrop, setOpenBackdrop] = React.useState(true);
-  const [query, setQuery] = React.useState('');
-  const [rowCount, setRowCount] = React.useState(0);
-  const [page, setPage]= React.useState(10);
-  const [warehouseData, setWarehouseData] = React.useState(null);
-  const [warehouseCount, setWarehouseCount] = React.useState(0);
-  const [searched, setSearched] = React.useState(null);
-  const [csvData, setCsvData] = React.useState([]);
   const dispatch = useDispatch();
   const csvLink = React.useRef();
+  
+  const [page, setPage]= React.useState(10);
+  const [query, setQuery] = React.useState('');
+  const [csvData, setCsvData] = React.useState([]);
+  const [rowCount, setRowCount] = React.useState(0);
+  const [searched, setSearched] = React.useState(null);
+  const [openBackdrop, setOpenBackdrop] = React.useState(true);
+  const [warehouseCount, setWarehouseCount] = React.useState(0);
+  const [warehouseData, setWarehouseData] = React.useState(null);
+  const [searchLoading, setSearchLoading] = React.useState(false);
+  const routes = [{ label: 'Warehouse Master Data', path: '/warehouse-master-data' }];
 
+  // Table config
   const config = {
     rowsPerPage: 10,
     headers: [
@@ -44,18 +49,13 @@ function WarehouseMasterData(props) {
     ] 
   }
 
-  const routes = [
-    {
-      label: 'Warehouse Master Data',
-      path: '/warehouse-master-data'
-    }
-  ];
-
+  // Function for getting page and row count on table
   const handleRowCount = (page, rowsPerPage) => {
     setRowCount(rowsPerPage);
     setPage(page);
   };
 
+  // Function for pagination and search
   const handlePagination = (page, rowsPerPage) => {
     if (query) {
       delayedQuery(page, rowsPerPage);
@@ -116,7 +116,7 @@ function WarehouseMasterData(props) {
         }
       });
       setCsvData(newData);
-    }).catch((error) => {
+    }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);
     });
 
@@ -148,7 +148,7 @@ function WarehouseMasterData(props) {
   ];
 
   // Call delayedQuery function when user search and set new warehouse data
-  React.useEffect(() => {
+  useEffect(() => {
     if (query) {
       delayedQuery(page, rowCount);
     } else if (!query) {
@@ -161,7 +161,7 @@ function WarehouseMasterData(props) {
 
 
   // Set searched values and warehouse count after search
-  React.useEffect(() => {
+  useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
       setWarehouseCount(props.searched.count);
@@ -169,14 +169,15 @@ function WarehouseMasterData(props) {
   }, [props.searched]);
 
   // Set new warehouse data with searched items
-  React.useEffect(() => {
+  useEffect(() => {
     if (searched) {
       setSearchLoading(false);
       setWarehouseData(searched);
     }
   }, [searched]);
   
-  React.useEffect(() => {
+  // Fetch warehouses on component mount
+  useEffect(() => {
     props.fetchWarehouses({
       count: page || 10,
       after: page * rowCount
@@ -184,14 +185,14 @@ function WarehouseMasterData(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
-  React.useEffect(() => {
+  // Set warehouse data if fetch in warehouses is completed
+  useEffect(() => {
     if (props.warehouses.count) {
       setWarehouseData(props.warehouses.data);
       setWarehouseCount(props.warehouses.count);
       setOpenBackdrop(false);
     }
   }, [props.warehouses]);
-
 
   return (
     <div className="container">
