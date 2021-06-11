@@ -144,10 +144,9 @@ function WarehouseMasterDataSKU (props) {
           width: sku.width,
           height: sku.height,
           weight: sku.weight,
-          width: sku.item_code,
           storageType: sku.storage_type,
-          batchManagement: sku.batch_management,
-          expiryManagement: sku.expiry_management,
+          batchManagement: sku.batch_management ? 'Available' : 'Not Available',
+          expiryManagement: sku.expiry_management ? 'Available' : 'Not Available',
           remarks: sku.remarks,
         }
       });
@@ -279,7 +278,7 @@ function WarehouseMasterDataSKU (props) {
         </Grid>
         <Grid item xs={12} md={9}>
           <Paper className="paper" elevation={0} variant="outlined">
-            { _.isEmpty(SKUData) ? renderEmptySKU() :
+            { _.isEmpty(SKUData) && !props.searched ? renderEmptySKU() :
               <React.Fragment>
                 <Typography variant="subtitle1" className="paper__heading">SKU's</Typography>
                 <div className="paper__divider" />

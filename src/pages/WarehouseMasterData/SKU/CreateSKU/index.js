@@ -59,7 +59,6 @@ function WarehouseMasterDataSKUCreate (props) {
       batch_management: data.batchManagement,
       expiry_management: data.expiryManagement,
       remarks: data.remarks,
-      company_id: "2fb2aca3-79c6-45db-8301-6403edb16288"
     }
 
     createWarehouseSKU(SKUData)
@@ -102,9 +101,12 @@ function WarehouseMasterDataSKUCreate (props) {
     if (!_.isEmpty(props.error)) {
       if (props.error.status === 401) {
         setAlertConfig({ severity: 'error', message: 'Session Expired, please login again..' });
-      }
-      if (props.error === 'Network Error') {
+      } else if (props.error.status === 500) {
+        setAlertConfig({ severity: 'error', message: 'Internal Server Error' });
+      } else if (props.error === 'Network Error') {
         setAlertConfig({ severity: 'error', message: 'Network Error...' });
+      } else {
+        setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
       }
     }
   }, [props.error]);

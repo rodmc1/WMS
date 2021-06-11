@@ -53,6 +53,23 @@ export const fetchWarehouseByName = params => dispatch => {
     });
 }
 
+// For Audit Log
+export const fetchAuditLogByWarehouse = (warehouseId, params) => dispatch => {
+  inteluck.get(`/v1/wms/Warehouse/${warehouseId}/Logs`, { params })
+    .then(response => {
+      const headers = response.headers['x-inteluck-data'];
+      dispatch({
+        type: SEARCH_WAREHOUSE,
+        payload: {
+          data: response.data,
+          count: Number(JSON.parse(headers).Count)
+        }
+      });
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
+}
+
 // For All warehouse for down CSV
 export const fetchAllWarehouse = () => {
   return inteluck.get(`/v1/wms/Warehouse`);

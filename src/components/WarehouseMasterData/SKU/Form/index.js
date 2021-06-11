@@ -31,10 +31,10 @@ function WarehouseMasterDataSKUForm(props) {
 
   const handleManagement = (status, id) => {
     if (id === 'batch-management') setBatchManagement(status);
-    if (id === 'batch-management') setExpiryManagement(status);
+    if (id === 'expiry-management') setExpiryManagement(status);
     setHasChanged(true);
   }
-
+  
   const __submit = data => {
     data.batchManagement = batchManagement;
     data.expiryManagement = expiryManagement;
@@ -182,8 +182,7 @@ function WarehouseMasterDataSKUForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
-                  inputProps: { min: 0, step: .01 },
-                  endAdornment: <InputAdornment position="end">cm</InputAdornment>,
+                  inputProps: { min: 0 }
                 }} />
               }
               name="minQuantity"
@@ -204,8 +203,7 @@ function WarehouseMasterDataSKUForm(props) {
               as={
                 <TextField fullWidth variant="outlined" type="number" 
                 InputProps={{
-                  inputProps: { min: 0, step: .01 },
-                  endAdornment: <InputAdornment position="end">cm</InputAdornment>,
+                  inputProps: { min: 0 },
                 }} />
               }
               name="maxQuantity"
