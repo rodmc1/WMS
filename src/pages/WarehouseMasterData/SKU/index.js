@@ -280,7 +280,7 @@ function WarehouseMasterDataSKU (props) {
           <Paper className="paper" elevation={0} variant="outlined">
             { _.isEmpty(SKUData) && !props.searched ? renderEmptySKU() :
               <React.Fragment>
-                <Typography variant="subtitle1" className="paper__heading">SKU's</Typography>
+                <Typography variant="subtitle1" className="paper__heading">SKU</Typography>
                 <div className="paper__divider" />
                 <Table 
                   filterSize={1}
