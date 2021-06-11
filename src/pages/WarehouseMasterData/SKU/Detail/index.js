@@ -38,7 +38,6 @@ function WarehouseMasterDataSKUDetail (props) {
     { label: props.match.params.id, path: `/warehouse-master-data/${props.match.params.id}/overview` }
   ];
 
-
   // Form submit handler
   const onSubmit = data => {
     setAlertConfig({ severity: 'info', message: 'Saving Changes...' });
@@ -61,11 +60,8 @@ function WarehouseMasterDataSKUDetail (props) {
       batch_management: data.batchManagement,
       expiry_management: data.expiryManagement,
       remarks: data.remarks,
-      company_id: "2fb2aca3-79c6-45db-8301-6403edb16288",
       id: Number(props.match.params.item_id)
     }
-
-    console.log(data);
     
     //Images upload and delete
     if (data.images.length > 1) {
@@ -103,21 +99,18 @@ function WarehouseMasterDataSKUDetail (props) {
       });
     }
 
-    let imageArr = [];
-    data.images[data.images.length - 1].forEach(file => {
-      if (!existingImages.includes(file.name)) {
-        imageArr.push(uploadSKUFilesById(existingSKU.item_id, existingSKU.item_document_id, [file]))
-      }
-    });
-
-    Promise.all(imageArr)
-      .then(response => {
-        if (response) {
-          setStatus(prevState => { return {...prevState, images: true }});
-        }
-      }).catch(error => {
-        dispatchError(dispatch, THROW_ERROR, error);
-      });
+    if (data.images[data.images.length - 1].length) {
+      uploadSKUFilesById(existingSKU.item_id, existingSKU.item_document_id, data.images[data.images.length - 1])
+        .then(response => {
+          if (response) {
+            setStatus(prevState => { return {...prevState, images: true }});
+          }
+        }).catch(error => {
+          dispatchError(dispatch, THROW_ERROR, error);
+        });
+    } else {
+      setStatus(prevState => { return {...prevState, images: true }});
+    }
   }
 
   const handleError = error => {
