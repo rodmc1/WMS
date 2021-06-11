@@ -62,19 +62,21 @@ function WarehouseMasterDataSKUCreate (props) {
       company_id: "2fb2aca3-79c6-45db-8301-6403edb16288"
     }
 
-    createWarehouseSKU(SKUData)
-      .then(res => {
-        if (data.images.length > 1) {
-          handleImageUpload(res.data.id, data);
-        } else {
-          setStatus(prevState => { return {...prevState, images: true }});
-        }
+    console.log(SKUData)
 
-        if (res.status === 201) setStatus(prevState => { return {...prevState, sku: true }});
-      })
-      .catch(error => {
-        dispatchError(dispatch, THROW_ERROR, error);
-      });
+    // createWarehouseSKU(SKUData)
+    //   .then(res => {
+    //     if (data.images.length > 1) {
+    //       handleImageUpload(res.data.id, data);
+    //     } else {
+    //       setStatus(prevState => { return {...prevState, images: true }});
+    //     }
+
+    //     if (res.status === 201) setStatus(prevState => { return {...prevState, sku: true }});
+    //   })
+    //   .catch(error => {
+    //     dispatchError(dispatch, THROW_ERROR, error);
+    //   });
   }
 
   // Function for image upload

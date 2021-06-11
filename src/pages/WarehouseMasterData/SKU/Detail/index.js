@@ -62,7 +62,7 @@ function WarehouseMasterDataSKUDetail (props) {
       expiry_management: data.expiryManagement,
       remarks: data.remarks,
       company_id: "2fb2aca3-79c6-45db-8301-6403edb16288",
-      id: props.match.params.item_id
+      id: Number(props.match.params.item_id)
     }
 
     console.log(data);
