@@ -1,11 +1,11 @@
 import './style.scss';
 import React from 'react';
+import history from 'config/history';
 import { NavLink, useLocation } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
 import { HomeWork, KeyboardArrowUp, ChevronLeft, ChevronRight, TableChart } from '@material-ui/icons';
 
 function Navigation(props) {
-  const [isHome, setIsHome] = React.useState(false);
   const location = useLocation();
   const [navigation, setNavigation] = React.useState([
     {
@@ -25,6 +25,7 @@ function Navigation(props) {
     },
   ]);
   
+  // Function for collapse sidebar
   const toggleNavigationGroup = (index) => {
     if (index === 0) return;
     const temp = [...navigation];
@@ -32,14 +33,19 @@ function Navigation(props) {
     setNavigation(temp);
   }
 
-  React.useEffect(() => {
-    const pattern = new RegExp('warehouse-list');
-    if (pattern.test(location.pathname)) {
-      setIsHome(false);
-    } else {
-      setIsHome(true);
-    }
-  }, [location]);
+  // Function for setting an active class
+  const setActiveClass = i => {
+    const sPath = location.pathname;
+    const sPage = sPath.substring(sPath.lastIndexOf('/') + 1);
+    let className = 'main-nav__group-list-item-link';
+    const activeClassName = `${className} main-nav__group-list-item-link--active`;
+
+    if (!sPage.length && i.path === '/') className = activeClassName;
+    if (history.location.pathname.match(i.path) && i.path !== '/') className = activeClassName;
+    if (history.location.pathname.match('warehouse-list') && i.path === '/') className = activeClassName;
+
+    return className;
+  }
 
   const createNavigation = () => {
     return (
@@ -65,17 +71,11 @@ function Navigation(props) {
                   // if (i.permission && !Common.getPermission(i.permission, i.page)) return;
                   return (
                     <li key={i.label} className="main-nav__group-list-item">
-                      { 
-                        props.isNavigationCollapsed ?
-                        <Tooltip title={i.label} placement="right" arrow>
-                          <NavLink to={i.path} exact={isHome} className="main-nav__group-list-item-link" activeClassName="main-nav__group-list-item-link--active">
-                            {React.createElement(i.icon)}
-                          </NavLink>
-                        </Tooltip>
-                        :
-                        <NavLink to={i.path} exact={isHome} className="main-nav__group-list-item-link" activeClassName="main-nav__group-list-item-link--active">
-                          {React.createElement(i.icon)} <span>{i.label}</span>
-                        </NavLink>
+                      { props.isNavigationCollapsed
+                        ? <Tooltip title={i.label} placement="right" arrow>
+                            <NavLink to={i.path} className={setActiveClass(i)}>{React.createElement(i.icon)}</NavLink>
+                          </Tooltip>
+                        : <NavLink to={i.path} className={setActiveClass(i)}>{React.createElement(i.icon)}<span>{i.label}</span></NavLink>
                       }
                     </li>
                   )
