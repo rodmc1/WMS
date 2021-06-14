@@ -54,7 +54,7 @@ function ButtonGroup(props) {
     if (!status) {
       setColor({ 
         available: btnColor.white,
-        notavailable: btnColor.lightgrey,
+        notavailable: btnColor.grey,
         textColorAvailabe: btnColor.grey,
         textColorNotAvailabe: btnColor.lightgrey
       });
