@@ -342,6 +342,8 @@ function WarehouseMasterDataSKUForm(props) {
                   defaultValue=""
                   displayEmpty={true}>
                   <MenuItem value="Standard">Standard</MenuItem>
+                  <MenuItem value="Temperature Control">Temperature Control</MenuItem>
+                  <MenuItem value="Others">Others</MenuItem>
                 </Select>
               }
               control={control}
