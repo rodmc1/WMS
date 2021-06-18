@@ -17,6 +17,8 @@ import WarehouseMasterDataOverview from 'pages/WarehouseMasterData/Overview';
 import WarehouseMasterDataSKU from 'pages/WarehouseMasterData/SKU';
 import WarehouseMasterDataSKUCreate from 'pages/WarehouseMasterData/SKU/CreateSKU';
 import WarehouseMasterDataSKUDetail from 'pages/WarehouseMasterData/SKU/Detail';
+import DeliveryNotice from 'pages/DeliveryNotice';
+import DeliveryNoticeCreate from 'pages/DeliveryNotice/Create';
 import Authentication from 'components/Authentication';
 
 function App() {
@@ -50,6 +52,8 @@ function App() {
                 <Route exact path='/warehouse-master-data/:id/sku' component={WarehouseMasterDataSKU} />
                 <Route exact path='/warehouse-master-data/:id/sku/create' component={WarehouseMasterDataSKUCreate} />
                 <Route exact path='/warehouse-master-data/:id/sku/:item_id' component={WarehouseMasterDataSKUDetail} />
+                <Route exact path='/delivery-notice/' component={DeliveryNotice} />
+                <Route exact path='/delivery-notice/create' component={DeliveryNoticeCreate} />
                 <Route>
                   <Redirect to='/' />
                 </Route>

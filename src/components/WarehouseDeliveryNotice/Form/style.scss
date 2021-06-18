@@ -1,0 +1,32 @@
+@import 'assets/scss/variable';
+.form {
+  &__actions-container {
+    width: 100%;
+    position: fixed;
+    bottom: 32px;
+    left: 0;
+    z-index: 999;
+  }
+
+  &__actions {
+    width: 50%;
+    max-width: 960px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: $black;
+    margin: auto;
+    padding: 16px 32px;
+    color: $white;
+    p {
+      margin-bottom: 0;
+    }
+  }
+}
+
+//Remove arrows in mobile number input field
+.input_mobile input[type=number]::-webkit-inner-spin-button, 
+.input_mobile input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
