@@ -24,8 +24,7 @@ export const fetchWarehouses = params => dispatch => {
 export const fetchWarehouseById = id => dispatch => {
   inteluck.get(`/v1/wms/Warehouse/`, { 
     params: {
-      filter: id,
-      count: 1
+      filter: id
     }})
     .then(response => {
       dispatch({
@@ -40,6 +39,23 @@ export const fetchWarehouseById = id => dispatch => {
 // For Search Warehouse
 export const fetchWarehouseByName = params => dispatch => {
   inteluck.get(`/v1/wms/Warehouse/`, { params })
+    .then(response => {
+      const headers = response.headers['x-inteluck-data'];
+      dispatch({
+        type: SEARCH_WAREHOUSE,
+        payload: {
+          data: response.data,
+          count: Number(JSON.parse(headers).Count)
+        }
+      });
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
+}
+
+// For Audit Log
+export const fetchAuditLogByWarehouse = (warehouseId, params) => dispatch => {
+  inteluck.get(`/v1/wms/Warehouse/${warehouseId}/Logs`, { params })
     .then(response => {
       const headers = response.headers['x-inteluck-data'];
       dispatch({

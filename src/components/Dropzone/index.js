@@ -26,9 +26,12 @@ function Dropzone(props) {
   
   const pdfIcon = '/assets/images/pdfIcon.svg';
   const docxIcon = '/assets/images/docIcon.svg'  ;
-  const collapseText = expanded ? 'Hide Photos' : 'See Photos';
+  let collapseText = expanded ? 'Hide Photos' : 'See Photos';
   const allowedDocuments = ['doc', 'docx', 'pdf', 'txt', 'tex', 'csv'];
   const allowedImages = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];
+  if (props.data === 'SKU') {
+    collapseText = expanded ? 'Hide Photo' : 'See Photo';
+  }
   
   // Handler for expanding photo list
   const handleExpandClick = () => {
@@ -38,9 +41,11 @@ function Dropzone(props) {
   // Set default collapse state and handle initial files
   React.useEffect(() => {
     if (props.defaultFiles) {
-      setExpanded(false);
-      if (props.type === 'image' && props.defaultFiles.warehouse_document_file !== null) {
+      if (props.data !== 'SKU' && props.type === 'image' && props.defaultFiles.warehouse_document_file !== null) {
+        
+        setExpanded(false);
         let images = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
+        console.log(images)
         let newArrayImages = initialImages;
 
         images.forEach(image => {
@@ -52,7 +57,9 @@ function Dropzone(props) {
         
         setInitialImages(() => newArrayImages);
       }
-      if (props.type === 'files' && props.defaultFiles.warehouse_document_file !== null) {
+      if (props.data !== 'SKU' && props.type === 'files' && props.defaultFiles.warehouse_document_file !== null) {
+        
+        setExpanded(false);
         const documents = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
         let newArrayDocuments = initialDocs;
 
@@ -65,6 +72,19 @@ function Dropzone(props) {
         
         setInitialDocs(newArrayDocuments);
       }
+      if (props.data === 'SKU' && props.type === 'image' && props.defaultFiles.item_document_file_type) {
+        let images = props.defaultFiles.item_document_file_type.map(e => extractImageUrl(e.item_filepath));
+        let newArrayImages = initialImages;
+
+        images.forEach(image => {
+          const extension = image.split('.').pop().toLowerCase();
+          if (allowedImages.includes(extension)) {
+            newArrayImages.push(image);
+          }
+        });
+
+        setInitialImages(() => newArrayImages);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.defaultFiles]);
@@ -74,7 +94,7 @@ function Dropzone(props) {
    * @args file data
    * @return image and label with collapse button
    */
-  const handlePreviewIcon = (file) => {
+  const handlePreviewIcon = file => {
     const string = file.file.name;
     const length = 40;
     const fileName = string.length > length ? `${string.substring(0, length - 3)}...` : string;
@@ -110,7 +130,7 @@ function Dropzone(props) {
           dropzoneText={props.text}
           previewText=""
           showAlerts={['error']}
-          filesLimit={12}
+          filesLimit={props.filesLimit ? props.filesLimit : 12}
           getPreviewIcon={file => handlePreviewIcon(file)}
           classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
         />
@@ -168,7 +188,7 @@ function Dropzone(props) {
             onDrop={props.onDrop}
             acceptedFiles={props.type === 'image' ? ['image/*'] : ['application/*']}
             dropzoneText={props.text}
-            filesLimit={12}
+            filesLimit={props.filesLimit ? props.filesLimit : 12}
             onDelete={props.onDelete}
             previewText={props.type === 'image' ? '' : 'Uploaded Files'}
             getPreviewIcon={file => handlePreviewIcon(file)}

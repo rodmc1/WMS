@@ -19,37 +19,32 @@ const btnColor = {
  * @args props {data, picklist, picklistAction}
  */
 function ButtonGroup(props) {
-  const [color, setColor] = useState({ available: btnColor.white, notavailable: btnColor.grey });
-  
-  // Handles button color change whenever a props changes
+  const [color, setColor] = useState({ 
+    available: btnColor.white,
+    notavailable: btnColor.grey,
+    textColorAvailabe: btnColor.grey,
+    textColorNotAvailabe: btnColor.lightgrey
+  });
+
   React.useEffect(() => {
-    if (props.picklist) {
-      if (props.picklist.includes(props.data.Description)) {
-        setColor({ 
-          available: btnColor.emerald,
-          notavailable: btnColor.white,
-          textColorAvailabe: btnColor.lightgrey,
-          textColorNotAvailabe: btnColor.grey
-        });
-      } else {
-        setColor({ 
-          available: btnColor.white,
-          notavailable: btnColor.grey,
-          textColorAvailabe: btnColor.grey,
-          textColorNotAvailabe: btnColor.lightgrey });
-      }
+    if (props.initialStatus) {
+      setColor({ 
+        available: btnColor.emerald,
+        notavailable: btnColor.white,
+        textColorAvailabe: btnColor.lightgrey,
+        textColorNotAvailabe: btnColor.grey
+      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.picklist]);
-  
+  }, [props.initialStatus])
+
   /*
    * Calls picklistAction function on button click
    * Returns picklist description and status 
    * Set new colors to buttons based on the status value
    * @args status (boolean)
    */
-  const onButtonClick = (status) => {
-    props.picklistAction(props.data.Description, status);
+  const onButtonClick = status => {
+    props.onButtonClick(status, props.id);
 
     if (!status) {
       setColor({ 
@@ -69,8 +64,7 @@ function ButtonGroup(props) {
   }
 
   return (
-    <Grid item xs={12} md={4} key={props.data.Id}>
-      <Typography>{props.data.Description}</Typography>
+    <Grid item xs={12} md={4} key={props.id} className="radio-btn-group">
       <MuiButtonGroup>
         <Button
           style={{ backgroundColor: color.available, color: color.textColorAvailabe }}

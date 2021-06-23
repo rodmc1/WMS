@@ -1,9 +1,9 @@
 import React from 'react';
 
-function StorageBins () {
+function AuditLog () {
   return (
     <div></div>
   )
 }
 
-export default StorageBins;
+export default AuditLog;

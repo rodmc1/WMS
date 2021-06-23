@@ -1,0 +1,17 @@
+@import 'assets/scss/button';
+@import 'assets/scss/variable';
+
+.radio-btn-group {
+  .MuiButtonGroup-root {
+    width: 100%;
+  }
+
+  &.MuiGrid-grid-md-4 button {
+    width: 100%;
+    padding: 11px 10px;
+  }
+
+  &.MuiGrid-grid-md-4 {
+    max-width: 100% !important;
+  }
+}

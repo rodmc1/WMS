@@ -33,7 +33,7 @@ function WarehouseList(props) {
   const [warehouseData, setWarehouseData] = React.useState(null)
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
-  const [query, setQuery] = React.useState(null);
+  const [query, setQuery] = React.useState('');
   const [csvData, setCsvData] = React.useState([]);
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -189,11 +189,6 @@ function WarehouseList(props) {
     history.push(`/warehouse-list/${row.warehouse_client}/overview`);
   }
 
-  // Redirect to selected searched warehouse
-  const onSelectSearchItem = (id) => {
-    history.push(`/warehouse-list/${id}/overview`);
-  }
-
   // Function for CSV Download  
   const handleDownloadCSV = async () => {
     await fetchAllWarehouse().then(response => {
@@ -261,7 +256,6 @@ function WarehouseList(props) {
         onInputChange={onInputChange}
         onPaginate={handlePagination}
         onRowClick={handleRowClick}
-        onSelectSearchItem={onSelectSearchItem}
         handleRowCount={handleRowCount}
         searchedOptions={searched}
         query={query}

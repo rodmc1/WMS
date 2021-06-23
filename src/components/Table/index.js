@@ -21,6 +21,7 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+// import defaultImage from '/assets/images/default-image.png';
 
 
 const useStyles1 = makeStyles((theme) => ({
@@ -124,9 +125,7 @@ const useStyles2 = makeStyles({
   },
 });
 
-
-// Component for warehouse table
-export default function CustomPaginationActionsTable({ searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
+export default function Table_({ filterSize, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
@@ -149,6 +148,26 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
   const handleInputChange = (event) => {
     onInputChange(event);
     setPage(0);
+  }
+
+  /*
+  * @args str url
+  * @return formatted image src
+  */
+  const extractImageUrl = (str) => {
+    return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
+  }
+
+  // Show default image if image source is broken
+  const handleImageError = (e) => {
+    e.target.src = '/assets/images/default-image.png';
+  }
+
+  const renderPreview = preview => {
+    let defaultImage = '/assets/images/default-image.png';
+    if (Array.isArray(preview)) defaultImage = extractImageUrl(preview[0].item_filepath);
+    
+    return <img src={defaultImage} onError={handleImageError} className="table-img-preview" />
   }
 
   // Setter for table data
@@ -179,7 +198,7 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
               onChange={handleInputChange}
               startAdornment={
                 <InputAdornment position="start">
-                  <Search style={{ color: '#828282', marginRight: '10px' }} />
+                  <Search style={{ color: '#828282' }} />
                 </InputAdornment>
               }
               endAdornment={
@@ -243,14 +262,16 @@ export default function CustomPaginationActionsTable({ searchLoading, handleRowC
                         return (
                           index !== 0 &&
                           <TableCell 
+                            title={d[k]}
                             style={{
-                              whiteSpace: 'nowrap',
-                              overFlow: 'hidden',
-                              textOverFlow: 'ellipsis'
+                              maxWidth: '400px',
+                              overflowX: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
                             }} 
                             align={config.headers[index] ? config.headers[index].align : 'left'}
                             key={index}>
-                            { d[k].length > 60 ? `${d[k].substring(0, 60 - 3)}...` : d[k] }
+                            { k === 'item_document_file_type' ? renderPreview(d[k]) : d[k] }
                           </TableCell>
                         )
                       })
