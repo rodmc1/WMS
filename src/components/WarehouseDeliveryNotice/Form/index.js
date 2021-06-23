@@ -1,42 +1,30 @@
 /* eslint-disable react/prop-types */
 import './style.scss';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
 import { Controller, useForm } from 'react-hook-form';
 import { getWarehouseDetails } from './warehouseDetails';
-import { fetchFacilitiesAndAmenities, fetchBuildingTypes } from 'actions/picklist';
+import { fetchTruckTypes, fetchClients } from 'actions/picklist';
+import { fetchWarehouseByName, fetchWarehouses, fetchAllWarehouse } from 'actions/index';
 
 import validator from 'validator';
 import Grid from '@material-ui/core/Grid';
 import Dropzone from 'components/Dropzone';
-import GoogleMap from 'components/GoogleMap';
 import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
-import ButtonGroup from 'components/ButtonGroup';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 
 function WarehouseForm(props) {
-  const cookies = new Cookies();
-  const [docs, setDocs] = React.useState([]);
-  const [images, setImages] = React.useState([]);
-  const [address, setAddress] = React.useState(null);
-  const [country, setCountry] = React.useState(null);
-  const [centerMap, setCenterMap] = React.useState(null);
-  const [warehouse, setWarehouse] = React.useState(null);
+  const [externalDocs, setExternalDocs] = React.useState([]);
+  const [appointmentDocs, setAppointmentDocs] = React.useState([]);
   const [hasChanged, setHasChanged] = React.useState(false);
-  const [addressField, setAddressField] = React.useState('');
-  const [errorAddress, setErrorAddress] = React.useState(false);
-  const [gpsCoordinates, setGpsCoordinates] = React.useState(null);
   const [hasFilesChange, setHasFilesChange] = React.useState(false);
   const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
-  const [selectedAmenities, setSelectedAmenities] = React.useState([]);
-  const { fetchFacilitiesAndAmenities, fetchBuildingTypes } = props;
   
   // Hook Form
   const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
@@ -45,106 +33,6 @@ function WarehouseForm(props) {
   });
 
   const { isDirty, isValid } = formState;
-  const googleAutoCompleteCountry = cookies.get('user-location') !== undefined ? cookies.get('user-location').iso.toLowerCase() : 'ph';
-
-  // GOOGLE MAP
-  // eslint-disable-next-line
-  const [marker, setMarker] = React.useState(new window.google.maps.Marker({ 
-    draggable: true, 
-    icon: {
-      url: '/assets/images/location-marker.svg',
-      anchor: new window.google.maps.Point(12, 27)
-    },
-    title: 'drag me'
-  }));
-  
-  /*
-   * Get and set selected Facilities & Amenities
-   * @args FacilitiesAndAmenities data
-   * @args boolean availability
-   */ 
-  const handleSelectedFacilities = (data, availability) => {
-    if (!selectedAmenities.includes(data) && availability) {
-      setSelectedAmenities([...selectedAmenities, data]); 
-      setHasChanged(true);
-    }
-    if (selectedAmenities.includes(data) && !availability) {
-      setSelectedAmenities(selectedAmenities.filter(facility => facility !== data));
-      setHasChanged(true);
-    }
-  }
-
-  /*
-   * Get and Set address field/state
-   * @args address 
-   */ 
-  const handleGeocoder = address => {
-    const geocodeAddress = address.description ? { address: address.description } : { address: address }
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode(geocodeAddress, (response, status) => {
-      if (status === window.google.maps.GeocoderStatus.OK) {
-        const center = new window.google.maps.LatLng(response[0].geometry.location.lat(), response[0].geometry.location.lng());
-        marker.setPosition(center);
-        setCenterMap(center);
-        setGpsCoordinates(`${response[0].geometry.location.lat()},${response[0].geometry.location.lng()}`);
-      }
-    });
-    setAddress(address.description ? address.description : address);
-    if (address.description) setAddressField(address.description);
-    if (address.description) setCountry(address.terms[address.terms.length - 1].value);
-  }
-
-
-  console.log(images)
-
-  /*
-   * Get and Set address field/state when user drag the marker
-   * @args marker coordinates 
-   */ 
-  const handleMarkerDrag = marker => {
-    window.google.maps.event.addListener(marker, 'dragend', () => {
-      const latlng = {
-        lat: parseFloat(marker.getPosition().lat()),
-        lng: parseFloat(marker.getPosition().lng()),
-      }
-
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode({location: latlng}, (response, status) => {
-        if (status === window.google.maps.GeocoderStatus.OK) {
-          const getAddressLevel = (array, level) => array.filter(a => a.types.includes(level))[0];
-
-          setAddressField(response[0].formatted_address);
-          setAddress(response[0].formatted_address);
-          setCountry(getAddressLevel(response[0].address_components, 'country').long_name);
-          setHasChanged(true);
-          setErrorAddress(false);
-        }
-      });
-    });
-  }
-  
-  /*
-   * Function handler for google auto-complete textfield
-   * @args textfield current value 
-   */ 
-  const handleAddressChange = (e) => {
-    const value = e.target.value;
-    setAddressField(value);
-    if (!value) setErrorAddress(false);
-  }
-
-  /*
-   * Invoke geocoder handler if address state updates
-   */
-  React.useEffect(() => {
-    address && handleGeocoder(address);
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [address]);
-
-  // Invoke marker drag handler if marker state updates
-  React.useEffect(() => {
-    marker && handleMarkerDrag(marker);
-  }, [marker]);
 
   /*
    * Set option values in building types before setting initial value
@@ -155,51 +43,21 @@ function WarehouseForm(props) {
     }
   }, [props.building_types, setValue, props.warehouse]);
 
-  /*
-   * Set initial values if action is Edit Warehouse
-   */
-  React.useEffect(() => {
-    if (props.warehouse) {
-      setHasDefaultValue(true);
-      setWarehouse(props.warehouse);
-      setAddress(props.warehouse.address);
-      setAddressField(props.warehouse.address);
-      setCountry(props.warehouse.country);
-      getWarehouseDetails(props.warehouse).forEach(w => {
-        setValue(w[0], w[1]);
-      });
-
-      if (!selectedAmenities.length) {
-        setSelectedAmenities(...selectedAmenities, props.warehouse.facilities_amenities);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.warehouse]);
-
-  /*
-   * Reset warehouse form data from the original values
-   */
-  React.useEffect(() => {
-    if (props.resetWarehouse) {
-      setWarehouse(props.resetWarehouse);
-      setAddress(props.resetWarehouse.address);
-      setAddressField(props.resetWarehouse.address);
-      setCountry(props.resetWarehouse.country);
-      getWarehouseDetails(props.resetWarehouse).forEach(w => {
-        setValue(w[0], w[1]);
-      });
-
-      setSelectedAmenities(props.resetWarehouse.facilities_amenities);
-    }
-  }, [props.resetWarehouse, setValue]);
 
   /*
    * Get addional picklist data
    */
   React.useEffect(() => {
-    fetchFacilitiesAndAmenities();
-    fetchBuildingTypes();
-  }, [fetchFacilitiesAndAmenities, fetchBuildingTypes]);
+    props.fetchTruckTypes();
+    props.fetchClients();
+  }, []);
+
+  /*
+   * Get addional picklist data
+   */
+  React.useEffect(() => {
+    if (props.clients.length) props.fetchWarehouses();
+  }, [props.clients]);
   
   /*
    * Submit form data if values are valid
@@ -208,12 +66,8 @@ function WarehouseForm(props) {
     if (isValid || hasDefaultValue) {
       const newData = {
         ...data,
-        selectedAmenities,
-        address,
-        country,
-        gpsCoordinates,
-        docs,
-        images
+        externalDocs,
+        appointmentDocs
       }
       props.onSubmit(newData);
     } else {
@@ -221,33 +75,15 @@ function WarehouseForm(props) {
     }
   }
 
+  console.log(props)
+
   return (
     <form onSubmit={handleSubmit(__submit)}>
-      <div className="paper__section">
+      <div className="paper__section delivery-notice-form">
         <Typography variant="subtitle1" className="paper__heading">General Information</Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Warehouse Name</label>
-            <Controller
-              as={
-                <TextField
-                  variant="outlined"
-                  type="text"
-                  required
-                  inputProps={{ maxLength: 40 }}
-                  fullWidth
-                />
-              }
-              name="warehouseName"
-              control={control}
-              rules={{ required: "This field is required" }}
-              defaultValue=""
-              onInput={() => setHasChanged(true)}
-            />
-            {errors.warehouseName && <FormHelperText error>{errors.warehouseName.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Warehouse Type</label>
+          <Grid item xs={12} md={12}>
+            <label className="paper__label">Warehouse Client</label>
             <Controller
               as={
                 <Select
@@ -255,560 +91,418 @@ function WarehouseForm(props) {
                   fullWidth
                   defaultValue=""
                   displayEmpty={true}>
-                  <MenuItem value="Heated & Unheated General Warehouse">Heated and unheated general warehouses</MenuItem>
-                  <MenuItem value="Refrigerated Warehouse">Refrigerated warehouses</MenuItem>
-                  <MenuItem value="Controlled Humidity Warehouse">Controlled humidity (CH) warehouses</MenuItem>
-                  <MenuItem value="Stockyard">Stockyard</MenuItem>
-                </Select>
-              }
-              control={control}
-              name="warehouseType"
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-            />
-            {errors.warehouseType && <FormHelperText error>{errors.warehouseType.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Building Type</label>
-            <Controller
-              control={control}
-              name="buildingType"
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-              as={
-                <Select
-                  variant="outlined"
-                  fullWidth
-                  defaultValue={null}
-                  displayEmpty={true}
-                > 
                   {
-                    !props.building_types ? null :
-                    props.building_types.map(type => {
-                      return <MenuItem key={type.Id} value={type.Description}>{type.Description}</MenuItem>
+                    !props.clients ? null :
+                    props.clients.map(client => {
+                      return <MenuItem key={client.Id} value={client.name}>{client.name}</MenuItem>
                     })
                   } 
                 </Select>
               }
-            />
-            {errors.buildingType && <FormHelperText error>{errors.buildingType.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <label className="paper__label">Address</label>
-            <GooglePlacesAutocomplete 
-              autocompletionRequest={{
-                componentRestrictions: {
-                  country: [googleAutoCompleteCountry]
-                }
-              }}
-              onSelect={(addressInfo) => {handleGeocoder(addressInfo); setHasChanged(true); setErrorAddress(false)}}
-              placeholder=""
-              renderInput={props => (
-                <TextField { ...props }
-                  required
-                  fullWidth
-                  variant="outlined" type="text"
-                  onChange={(e) => {
-                    handleAddressChange(e);
-                    props.onChange(e);
-                  }}
-                  onBlur={() => {
-                    if ((!gpsCoordinates && !address) || addressField.length < 5) {
-                      setErrorAddress(true);
-                    } 
-                    if (!addressField) setErrorAddress(false);
-                  }} 
-                  value={addressField}
-                />
-              )}
-            />
-            {errorAddress && <FormHelperText error>Invalid Address</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Warehouse Status</label>
-            <Controller
               control={control}
-              name="warehouseStatus"
+              name="warehouseClient"
               defaultValue=""
               rules={{ required: "This field is required" }}
+            />
+            {errors.warehouseClient && <FormHelperText error>{errors.warehouseClient.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <label className="paper__label">Warehouse</label>
+            <Controller
               as={
                 <Select
                   variant="outlined"
                   fullWidth
-                  displayEmpty={true}
-                >
-                  <MenuItem value="Listed">Listed</MenuItem>
-                  <MenuItem value="Reserved">Reserved</MenuItem>
-                  <MenuItem value="Locked">Locked</MenuItem>
+                  defaultValue=""
+                  displayEmpty={true}>
+                    <MenuItem key={"test1"} value={"test2"}>{"Test5"}</MenuItem>
+                    <MenuItem key={"test2"} value={"test2"}>{"Test6"}</MenuItem>
+                    <MenuItem key={"test3"} value={"test2"}>{"Test7"}</MenuItem>
+                    <MenuItem key={"test4"} value={"test2"}>{"Test8"}</MenuItem>
+                    <MenuItem key={"test5"} value={"test2"}>{"Test9"}</MenuItem>
+                    <MenuItem key={"test6"} value={"test2"}>{"Test10"}</MenuItem>
+                    <MenuItem key={"test7"} value={"test2"}>{"Test11"}</MenuItem>
+                    <MenuItem key={"test8"} value={"test2"}>{"Test12"}</MenuItem>
+                  {
+                    !props.warehouses ? null :
+                    Object.values(props.warehouses).map(warehouse => {
+                      return <MenuItem key={warehouse.warehouse_id} value={warehouse.warehouse_client}>{warehouse.warehouse_client}</MenuItem>
+                    })
+                  } 
                 </Select>
               }
+              control={control}
+              name="warehouse"
+              defaultValue=""
+              rules={{ required: "This field is required" }}
             />
-            {errors.warehouseStatus && <FormHelperText error>{errors.warehouseStatus.message}</FormHelperText>}
+            {errors.warehouse && <FormHelperText error>{errors.warehouse.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={6} md={6}>
+            <label className="paper__label">Transaction Type</label>
+            <Controller
+              as={
+                <Select
+                  variant="outlined"
+                  fullWidth
+                  defaultValue=""
+                  displayEmpty={true}>
+                  <MenuItem value="Inbound">Inbound</MenuItem>
+                  <MenuItem value="Outbound">Outbound</MenuItem>
+                </Select>
+              }
+              control={control}
+              name="transactionType"
+              defaultValue=""
+              rules={{ required: "This field is required" }}
+            />
+            {errors.transactionType && <FormHelperText error>{errors.transactionType.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={3} md={3}>
+            <label className="paper__label">Booking Date</label>
+            <Controller
+              as={
+                <TextField
+                  variant="outlined"
+                  type="date"
+                  required
+                  fullWidth
+                />
+              }
+              name="bookingDate"
+              control={control}
+              rules={{ required: "This field is required" }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.bookingDate && <FormHelperText error>{errors.bookingDate.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={3} md={3}>
+            <label className="paper__label">Booking Time</label>
+            <Controller
+              as={
+                <TextField
+                  variant="outlined"
+                  type="time"
+                  required
+                  fullWidth
+                />
+              }
+              name="bookingTime"
+              control={control}
+              rules={{ required: "This field is required" }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.bookingTime && <FormHelperText error>{errors.bookingTime.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={3} md={3}>
+            <label className="paper__label">Appointed Date</label>
+            <Controller
+              as={
+                <TextField
+                  variant="outlined"
+                  type="date"
+                  required
+                  fullWidth
+                />
+              }
+              name="appointedDate"
+              control={control}
+              rules={{ required: "This field is required" }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.appointedDate && <FormHelperText error>{errors.appointedDate.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={3} md={3}>
+            <label className="paper__label">Appointed Time</label>
+            <Controller
+              as={
+                <TextField
+                  variant="outlined"
+                  type="time"
+                  required
+                  fullWidth
+                />
+              }
+              name="appointedTime"
+              control={control}
+              rules={{ required: "This field is required" }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.appointedTime && <FormHelperText error>{errors.appointedTime.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={6} md={6}>
+            <label className="paper__label">Delivery Mode</label>
+            <Controller
+              as={
+                <Select
+                  variant="outlined"
+                  fullWidth
+                  defaultValue=""
+                  displayEmpty={true}>
+                  <MenuItem value="Batch">Batch</MenuItem>
+                  <MenuItem value="Single">Single</MenuItem>
+                </Select>
+              }
+              control={control}
+              name="deliveryMode"
+              defaultValue=""
+              rules={{ required: "This field is required" }}
+            />
+            {errors.deliveryMode && <FormHelperText error>{errors.deliveryMode.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={6} md={6}>
+            <label className="paper__label">Type of trucks</label>
+            <Controller
+              as={
+                <Select
+                  variant="outlined"
+                  fullWidth
+                  defaultValue=""
+                  displayEmpty={true}>
+                  {
+                    !props.truck_types ? null :
+                    props.truck_types.map(truck => {
+                      return <MenuItem key={truck.Id} value={truck.Description}>{truck.Description}</MenuItem>
+                    })
+                  } 
+                </Select>
+              }
+              control={control}
+              name="typeOfTrucks"
+              defaultValue=""
+              rules={{ required: "This field is required" }}
+            />
+            {errors.typeOfTrucks && <FormHelperText error>{errors.typeOfTrucks.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={6} md={6}>
+            <label className="paper__label">Quantity of Truck</label>
+            <Controller
+              as={
+                <TextField
+                  variant="outlined"
+                  type="number"
+                  required
+                  InputProps={{ 
+                    inputProps: { min: 0 }
+                  }}
+                  fullWidth
+                />
+              }
+              name="quantityOfTruck"
+              control={control}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.quantityOfTruck && <FormHelperText error>{errors.quantityOfTruck.message}</FormHelperText>}
+          </Grid>
+        </Grid>
+        <Typography variant="subtitle1" className="paper__heading" style={{marginTop: 45}}>External Information</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={12}>
+            <label className="paper__label">Booking Number</label>
+            <Controller
+              as={
+                <TextField
+                  variant="outlined"
+                  type="text"
+                  required
+                  fullWidth
+                />
+              }
+              name="bookingNumber"
+              control={control}
+              rules={{ 
+                required: "This field is required"
+              }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.bookingNumber && <FormHelperText error>{errors.bookingNumber.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={12}>
-            <label className="paper__label">Nearby Station</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="text" />
-              }
-              name="nearbyStation"
-              control={control}
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-            />
-            {errors.nearbyStation && <FormHelperText error>{errors.nearbyStation.message}</FormHelperText>}
-          </Grid>
-        </Grid>
-        <div className="paper__map">
-          <GoogleMap width={'100%'} height={287} markers={[marker]} centerMap={centerMap} />
-        </div>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Years of TOP</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} />
-              }
-              name="yearOfTop"
-              control={control}
-              defaultValue=""
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
-            />
-            {errors.yearOfTop && <FormHelperText error>{errors.yearOfTop.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Min Lease Terms</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  inputProps: { min: 0 },
-                  endAdornment: <InputAdornment position="end">Months</InputAdornment>,
-                }} />
-              }
-              name="minLeaseTerms"
-              control={control}
-              defaultValue=""
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
-            />
-            {errors.minLeaseTerms && <FormHelperText error>{errors.minLeaseTerms.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">PSF</label>
+            <label className="paper__label">External Reference Number</label>
             <Controller
               as={
                 <TextField
-                  fullWidth
                   variant="outlined"
-                  type="number"
-                  InputProps={{ 
-                    inputProps: { min: 0, step: .01 }
-                  }}
+                  type="text"
+                  required
+                  fullWidth
                 />
               }
-              name="psf"
+              name="externalReferenceNumber"
               control={control}
-              defaultValue=""
               rules={{ 
                 required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
               }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
             />
-            {errors.psf && <FormHelperText error>{errors.psf.message}</FormHelperText>}
+            {errors.externalReferenceNumber && <FormHelperText error>{errors.externalReferenceNumber.message}</FormHelperText>}
           </Grid>
-        </Grid>
-      </div>
-      <div className="paper__section">
-        <Typography variant="subtitle1" className="paper__heading">Space Information</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Floor Area</label>
+          <Grid item xs={12} md={12}>
+            <label className="paper__label">Operation Type</label>
             <Controller
               as={
                 <TextField
-                  fullWidth
                   variant="outlined"
-                  type="number" 
-                  step=".01"
-                  InputProps={{
-                    inputProps: { min: 0, step: .01 },
-                    endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
-                  }}
+                  type="text"
+                  required
+                  fullWidth
                 />
               }
-              name="floorArea"
+              name="operationType"
               control={control}
-              defaultValue=""
               rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
+                required: "This field is required"
               }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
             />
-            {errors.floorArea && <FormHelperText error>{errors.floorArea.message}</FormHelperText>}
+            {errors.operationType && <FormHelperText error>{errors.operationType.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Covered Area</label>
+          <Grid item xs={12} md={12}>
+            <label className="paper__label">Project Team</label>
             <Controller
               as={
-                <TextField 
-                  fullWidth 
+                <TextField
                   variant="outlined"
-                  type="number"
-                  InputProps={{
-                    inputProps: { min: 0, step: .01 },
-                    endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
-                  }} />
-              }
-              name="coveredArea"
-              control={control}
-              defaultValue=""
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
-            />
-            {errors.coveredArea && <FormHelperText error>{errors.coveredArea.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Mezzanine Area</label>
-            <Controller
-              as={
-                <TextField 
+                  type="text"
+                  required
                   fullWidth
-                  variant="outlined"
-                  type="number"
-                  InputProps={{
-                    inputProps: { min: 0, step: .01 },
-                    endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
-                  }} />
+                />
               }
-              name="mezzanineArea"
+              name="projectTeam"
               control={control}
-              defaultValue=""
               rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
+                required: "This field is required"
               }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
             />
-            {errors.mezzanineArea && <FormHelperText error>{errors.mezzanineArea.message}</FormHelperText>}
+            {errors.projectTeam && <FormHelperText error>{errors.projectTeam.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Open Area</label>
+          <Grid item xs={12} md={12}>
+            <label className="paper__label">Subcon/Forwarder/Supplier</label>
             <Controller
               as={
-                <TextField 
+                <TextField
+                  variant="outlined"
+                  type="text"
+                  required
                   fullWidth
-                  variant="outlined"
-                  type="number"
-                  InputProps={{
-                    inputProps: { min: 0, step: .01 },
-                    endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
-                  }} />
+                />
               }
-              name="openArea"
+              name="subconForwarderSupplier"
               control={control}
-              defaultValue=""
               rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
+                required: "This field is required"
               }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
             />
-            {errors.openArea && <FormHelperText error>{errors.openArea.message}</FormHelperText>}
+            {errors.subconForwarderSupplier && <FormHelperText error>{errors.subconForwarderSupplier.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Office Area</label>
+          <Grid item xs={12} md={12}>
+            <label className="paper__label">WMS Code</label>
             <Controller
               as={
-                <TextField 
+                <TextField
+                  variant="outlined"
+                  type="text"
+                  required
                   fullWidth
-                  variant="outlined"
-                  type="number"
-                  InputProps={{
-                    inputProps: { min: 0, step: .01 },
-                    endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
-                  }} />
+                />
               }
-              name="officeArea"
+              name="wbsCode"
               control={control}
-              defaultValue=""
               rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
+                required: "This field is required"
               }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
             />
-            {errors.officeArea && <FormHelperText error>{errors.officeArea.message}</FormHelperText>}
+            {errors.wbsCode && <FormHelperText error>{errors.wbsCode.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Battery Charging Area</label>                  
+          <Grid item xs={12} md={12}>
+            <label className="paper__label">CCID/WO/PO</label>
             <Controller
               as={
-                <TextField 
+                <TextField
+                  variant="outlined"
+                  type="text"
+                  required
                   fullWidth
-                  variant="outlined"
-                  type="number"
-                  InputProps={{
-                    inputProps: { min: 0, step: .01 },
-                    endAdornment: <InputAdornment position="end">Sqm</InputAdornment>,
-                  }} />
+                />
               }
-              name="batteryChargingArea"
+              name="ccidWoPo"
               control={control}
-              defaultValue=""
               rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
+                required: "This field is required"
               }}
-            />
-            {errors.batteryChargingArea && <FormHelperText error>{errors.batteryChargingArea.message}</FormHelperText>}
-          </Grid>
-        
-        <Grid item xs={12} md={4}>
-          <label className="paper__label">Loading &amp; Unloading Bays</label>
-          <Controller
-            as={
-              <TextField fullWidth variant="outlined" type="number" />
-            }
-            name="loadingUnloadingBays"
-            control={control}
-            defaultValue=""
-            rules={{ 
-              required: "This field is required",
-              validate: value => { return value < 0 ? 'Invalid value' : true } 
-            }}
-            InputProps={{
-              inputProps: { min: 0 }
-            }}
-          />
-          {errors.loadingUnloadingBays && <FormHelperText error>{errors.loadingUnloadingBays.message}</FormHelperText>}
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <label className="paper__label">Remarks</label>
-          <Controller
-            as={
-              <TextField fullWidth variant="outlined" type="text" />
-            }
-            name="remarks"
-            control={control}
-            defaultValue=""
-          />
-        </Grid>
-      </Grid>
-      </div>
-      <div className="paper__section">
-        <Typography variant="subtitle1" className="paper__heading">Company Broker</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">First Name</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="text" />
-              }
-              name="companyBrokerFirstName"
-              control={control}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              onInput={() => setHasChanged(true)}
             />
-            {errors.companyBrokerFirstName && <FormHelperText error>{errors.companyBrokerFirstName.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Middle Name</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="text" />
-              }
-              name="companyBrokerMiddleName"
-              control={control}
-              defaultValue=""
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Last Name</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="text" />
-              }
-              name="companyBrokerLastName"
-              control={control}
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-            />
-            {errors.companyBrokerLastName && <FormHelperText error>{errors.companyBrokerLastName.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <label className="paper__label">Email Address</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="text" />
-              }
-              name="companyBrokerEmailAddress"
-              control={control}
-              defaultValue=""
-              rules={{ 
-                required: "This field is required", 
-                validate: value => { return !validator.isEmail(value) ? 'Invalid email address' : true }
-              }}
-            />
-            {errors.companyBrokerEmailAddress && <FormHelperText error>{errors.companyBrokerEmailAddress.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <label className="paper__label">Mobile Number</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="Number" className="input_mobile" />
-              }
-              name="companyBrokerMobileNumber"
-              control={control}
-              defaultValue=""
-              rules={{ 
-                required: "This field is required", 
-                validate: value => { return !validator.isMobilePhone(value) ? 'Invalid phone number' : true } 
-              }}
-            />
-            {errors.companyBrokerMobileNumber && <FormHelperText error>{errors.companyBrokerMobileNumber.message}</FormHelperText>}
+            {errors.ccidWoPo && <FormHelperText error>{errors.ccidWoPo.message}</FormHelperText>}
           </Grid>
         </Grid>
-      </div>
-      <div className="paper__section">
-        <Typography variant="subtitle1" className="paper__heading">Contact Person</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">First Name</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="text" />
-              }
-              name="contactPersonFirstName"
-              control={control}
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-            />
-            {errors.contactPersonFirstName && <FormHelperText error>{errors.contactPersonFirstName.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Middle Name</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="text" />
-              }
-              name="contactPersonMiddleName"
-              control={control}
-              defaultValue=""
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Last Name</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="text" />
-              }
-              name="contactPersonLastName"
-              control={control}
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-            />
-            {errors.contactPersonLastName && <FormHelperText error>{errors.contactPersonLastName.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <label className="paper__label">Email Address</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="email" />
-              }
-              name="contactPersonEmailAddress"
-              control={control}
-              defaultValue=""
-              rules={{ 
-                required: "This field is required", 
-                validate: value => { return !validator.isEmail(value) ? 'Invalid email address' : true} 
-              }}
-            />
-            {errors.contactPersonEmailAddress && <FormHelperText error>{errors.contactPersonEmailAddress.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <label className="paper__label">Mobile Number</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="number" className="input_mobile" />
-              }
-              name="contactPersonMobileNumber"
-              control={control}
-              defaultValue=""
-              rules={{ 
-                required: "This field is required", 
-                validate: value => { return !validator.isMobilePhone(value) ? 'Invalid phone number' : true } 
-              }}
-            />
-            {errors.contactPersonMobileNumber && <FormHelperText error>{errors.contactPersonMobileNumber.message}</FormHelperText>}
-          </Grid>
-        </Grid>
-      </div>
-      
-      <div className="paper__section facilities__amenities">
-        <Typography variant="subtitle1" className="paper__heading">Facilities &amp; Amenities</Typography>
-        <Grid container spacing={2}>
-          {
-            !props.facilitiesAndAmenities ? null 
-              : props.facilitiesAndAmenities.map(f => {
-                return <ButtonGroup key={f.Id} data={f} picklistAction={handleSelectedFacilities} picklist={selectedAmenities} />
-              })
-          }
-        </Grid>
-      </div>
-      <div className="paper__section image__dropzone">
-        <Typography variant="subtitle1" className="paper__heading">Warehouse Photos</Typography>
-          <Dropzone 
-            imageCount={images[images.length - 1]}
-            defaultFiles={warehouse}
-            onDelete={() => {
-              setHasChanged(true);
-              setHasFilesChange(true);
-            }}
-            onDrop={() => {
-              setHasChanged(true);
-              setHasFilesChange(true);
-            }}
-            onChange={(files) => {
-              setImages([...images, files]);
-            }}
-            type="image"
-            data="Warehouse"
-            showPreviews
-            showPreviewsInDropzone={false} text="Drag and drop images here or click"
-          />
       </div>
       <div className="paper__section documents__dropzone">
-        <Typography variant="subtitle1" className="paper__heading">Documents</Typography>
-          <Dropzone
-            documentCount={docs[docs.length - 1]}
-            defaultFiles={warehouse}
-            type="files"
-            data="Warehouse"
-            onDelete={() => {
-              setHasChanged(true);
-              setHasFilesChange(true);
-            }}
-            onDrop={() => {
-              setHasChanged(true);
-              setHasFilesChange(true);
-            }}
-            onChange={(files) => {
-              setDocs([...docs, files])
-            }}
-            showPreviews
-            showPreviewsInDropzone={false}
-            text="Drag and drop a file here or click"
-          />
+        <Typography variant="subtitle1" className="paper__heading">External Documents</Typography>
+        <Dropzone
+          documentCount={externalDocs[externalDocs.length - 1]}
+          type="files"
+          data="Delivery Notice"
+          onDelete={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onDrop={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onChange={(files) => {
+            setExternalDocs([...externalDocs, files])
+          }}
+          showPreviews
+          showPreviewsInDropzone={false}
+          text="Drag and drop a file here or click"
+        />
+      </div>
+      <div className="paper__section documents__dropzone">
+        <Typography variant="subtitle1" className="paper__heading">Appointment Confirmation</Typography>
+        <Dropzone
+          documentCount={appointmentDocs[appointmentDocs.length - 1]}
+          type="files"
+          data="Delivery Notice"
+          onDelete={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onDrop={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onChange={(files) => {
+            setAppointmentDocs([...appointmentDocs, files])
+          }}
+          showPreviews
+          showPreviewsInDropzone={false}
+          text="Drag and drop a file here or click"
+        />
       </div>
       { (isDirty || hasChanged) &&
         <div className="form__actions-container">
           <div className="form__actions">
-            <p>Save this warehouse?</p>
+            <p>Save this delivery notice?</p>
             <div className="form__btn-group">
               <Button
                 type="button"
@@ -832,9 +526,10 @@ function WarehouseForm(props) {
 
 const mapStateToProps = state => {
   return {
-    facilitiesAndAmenities: state.picklist.facilities_and_amenities,
-    building_types: state.picklist.building_types,
+    truck_types: state.picklist.truck_types,
+    clients: state.picklist.clients,
+    warehouses: state.warehouses.data,
   }
 }
 
-export default connect(mapStateToProps, { fetchFacilitiesAndAmenities, fetchBuildingTypes })(WarehouseForm);
+export default connect(mapStateToProps, { fetchWarehouses, fetchTruckTypes, fetchClients })(WarehouseForm);

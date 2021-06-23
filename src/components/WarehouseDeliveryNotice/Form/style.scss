@@ -23,6 +23,18 @@
     }
   }
 }
+.delivery-notice-form {
+  .paper__heading {
+    font-size: 1rem;
+  }
+  label {
+    font-size: 0.9rem;
+  }
+}
+
+.MuiMenu-list {
+  max-height: 230px !important;
+}
 
 //Remove arrows in mobile number input field
 .input_mobile input[type=number]::-webkit-inner-spin-button, 

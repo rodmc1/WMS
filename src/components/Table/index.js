@@ -1,6 +1,6 @@
 import './style.scss';
 import React from 'react';
-
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -170,6 +170,20 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     return <img src={defaultImage} onError={handleImageError} className="table-img-preview" />
   }
 
+  const renderTableCell = (data, type) => {
+    let cellData;
+    if (type === 'item_document_file_type') {
+      cellData = renderPreview(data);
+    } else if (type === 'booking_datetime') {
+      cellData = moment(data).format('MM/DD/YYYY h:mm a');
+    } else if (type === 'appointment_datetime') {
+      cellData = moment(data).format('MM/DD/YYYY h:mm a');
+    } else {
+      cellData = data
+    }
+    return cellData;
+  }
+
   // Setter for table data
   React.useEffect(() => {
     if (data) {
@@ -271,7 +285,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
                             }} 
                             align={config.headers[index] ? config.headers[index].align : 'left'}
                             key={index}>
-                            { k === 'item_document_file_type' ? renderPreview(d[k]) : d[k] }
+                              {renderTableCell(d[k], k)}
                           </TableCell>
                         )
                       })

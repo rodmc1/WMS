@@ -37,7 +37,7 @@ function WarehouseCreate(props) {
     { label: 'Creating Warehouse', path: '/warehouse-list/warehouse-create' }
   ];
 
-  /*
+  /**
    * Submit function for creating warehouse
    * @args warehouse data
    */

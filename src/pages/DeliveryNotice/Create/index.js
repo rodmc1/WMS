@@ -9,7 +9,7 @@ import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { uploadWarehouseFilesById, createWarehouse } from 'actions/index';
+import { uploadDeliveryNoticeFilesById, createDeliveryNotice } from 'actions/index';
 
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -22,116 +22,97 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-// Functional component for creation warehouse
-function WarehouseCreate(props) {
+/**
+ * Functional component for creation of delivery notice
+ */
+function DeliveryNoticeCreate(props) {
   const dispatch = useDispatch();
   const [openDialog, setOpenDialog] = React.useState({ open: false });
   const [created, setCreated] = React.useState(false);
   const [alertConfig, setAlertConfig] = React.useState({});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
-  const [status, setStatus] = React.useState({ images: false, docs: false, warehouse: false });
+  const [status, setStatus] = React.useState({ notice: false, appointedDocuments: false, externalDocuments: false });
 
-  // Breadcrumbs routes
+  /**
+   * Breadcrumbs routes
+   */
   const routes = [
-    { label: 'Warehouse List', path: '/warehouse-list' },
-    { label: 'Creating Warehouse', path: '/warehouse-list/warehouse-create' }
+    { label: 'Delivery Notice', path: '/delivery-notice' },
+    { label: 'Creating Delivery Notice', path: '/delivery-notice/create' }
   ];
 
-  /*
-   * Submit function for creating warehouse
-   * @args warehouse data
+  /**
+   * Submit function for creating delivery notice
+   * 
+   * @param {object} data Set of new delivery notice data
    */
   const handleSubmit = data => {
-    setAlertConfig({ severity: 'info', message: 'Creating warehouse...' });
+    setAlertConfig({ severity: 'info', message: 'Creating delivery notice...' });
     setOpenSnackBar(true);
 
-    const warehouse = {
-      name: data.warehouseName,
-      warehouse_type: data.warehouseType,
-      building_type: data.buildingType,
-      gps_coordinate: data.gpsCoordinates,
-      address: data.address,
-      country: data.country,
-      year_top: Number(data.yearOfTop),
-      min_lease_terms: Number(data.minLeaseTerms),
-      psf: Number(data.psf),
-      floor_area: Number(data.floorArea),
-      covered_area: Number(data.coveredArea),
-      mezzanine_area: Number(data.mezzanineArea),
-      open_area: Number(data.openArea),
-      office_area: Number(data.officeArea),
-      battery_charging_area: Number(data.batteryChargingArea),
-      loading_unloading_bays: Number(data.loadingUnloadingBays),
+    const deliveryNotice = {
+      warehouse_name: data.warehouse,
+      warehouse_client: data.warehouseClient,
+      transaction_type: data.transactionType,
+      booking_datetime: new Date(data.bookingDate + " " + data.bookingTime).toLocaleString(),
+      appointment_datetime: new Date(data.appointedDate + " " + data.appointedTime).toLocaleString(),
+      delivery_mode: data.deliveryMode,
+      type_of_trucks: data.typeOfTrucks,
+      qty_of_trucks: Number(data.quantityOfTruck),
+      job_order_number: data.bookingNumber,
+      external_reference_number: data.externalReferenceNumber,
+      operation_type: data.operationType,
+      project_team: data.projectTeam,
+      subcon_forwarder_supplier: data.subconForwarderSupplier,
+      wbs_code: data.wbsCode,
+      ccid_wo_po: data.ccidWoPo,
       remarks: data.remarks,
-      facilities_amenities: data.selectedAmenities,
-      nearby_station: data.nearbyStation,
-      warehouse_status: data.warehouseStatus,
-      users_details: [
-        {
-          last_name: data.companyBrokerLastName,
-          first_name: data.companyBrokerFirstName,
-          middle_name: data.companyBrokerMiddleName,
-          mobile_number: data.companyBrokerMobileNumber,
-          email_address: data.companyBrokerEmailAddress,
-          role: 'Broker',
-          password: 'default',
-          username: data.companyBrokerEmailAddress
-        },
-        {
-          last_name: data.contactPersonLastName,
-          first_name: data.contactPersonFirstName,
-          middle_name: data.contactPersonMiddleName,
-          mobile_number: data.contactPersonMobileNumber,
-          email_address: data.contactPersonEmailAddress,
-          role: 'Contact Person',
-          password: 'default',
-          username: data.contactPersonEmailAddress
-        }
-      ]
     }
-    
-    // Invoke action for create warehouse 
-    createWarehouse(warehouse)
-      .then(response => {
-        const warehouseId = response.data;
-        if (response.status === 201) setStatus(prevState => { return {...prevState, warehouse: true }});
-        if (!data.images.length && !data.docs.length) setStatus(prevState => { return {...prevState, images: true, docs: true }});
 
-        if (data.images.length > 1) {
-          handleImageUpload(warehouseId, data);
+    console.log(deliveryNotice);
+
+    // Invoke action for create delivery notice
+    createDeliveryNotice(deliveryNotice)
+      .then(response => {
+        const id = response.data.id;
+        if (response.status === 201) setStatus(prevState => { return {...prevState, notice: true }});
+
+        if (data.externalDocs.length > 1)  {
+          handleWarehouseFilesUpload(id, data.externalDocs[data.externalDocs.length - 1], 'External Documents')
         } else {
-          setStatus(prevState => { return {...prevState, images: true }});
+          setStatus(prevState => { return {...prevState, externalDocuments: true }});
         }
 
-        if (data.docs.length > 1)  {
-          handleWarehouseFilesUpload(warehouseId, data)
+        if (data.appointmentDocs.length > 1)  {
+          handleWarehouseFilesUpload(id, data.appointmentDocs[data.appointmentDocs.length - 1], 'Appointed Documents')
         } else {
-          setStatus(prevState => { return {...prevState, docs: true }});
+          setStatus(prevState => { return {...prevState, appointedDocuments: true }});
         }
       })
       .catch(error => {
-        const regex = new RegExp('P0001:');
-        if (error.response.data.type === '23505') {
-          setAlertConfig({ severity: 'error', message: `Warehouse name is already in use` });
-        } else if (regex.test(error.response.data.message)) {
-          setAlertConfig({ severity: 'error', message: error.response.data.message.replace('P0001: ','') });
-        } else {
-          dispatchError(dispatch, THROW_ERROR, error);
-        }
+        dispatchError(dispatch, THROW_ERROR, error);
       });
   }
   
-  // Show dialog confirmation if user click cancel in warehouse form
+  /**
+   * Show dialog confirmation if user click cancel in create form
+   */
   const handleDialog = () => {
     setOpenDialog(state => ({...state, open: true}));
   }
 
-  // Function for image upload
-  const handleImageUpload = (warehouseId, data) => {
-    uploadWarehouseFilesById(warehouseId, data.images[data.images.length - 1])
+  /**
+   * Function for files upload
+   * 
+   * @param {int} id ID of newly created delivery notice
+   * @param {array} data Array of files to be uploaded
+   */
+  const handleWarehouseFilesUpload = (id, data, type) => {
+    uploadDeliveryNoticeFilesById(id, data, type)
       .then(res => {
         if (res.status === 201) {
-          setStatus(prevState => { return {...prevState, images: true }});
+          if (type === "External Documents") setStatus(prevState => { return {...prevState, externalDocuments: true }});
+          if (type === "Appointed Documents") setStatus(prevState => { return {...prevState, appointedDocuments: true }});
         };
       })
       .catch(error => {
@@ -139,48 +120,48 @@ function WarehouseCreate(props) {
       });
   }
 
-  // Function for files upload
-  const handleWarehouseFilesUpload = (warehouseId, data) => {
-    uploadWarehouseFilesById(warehouseId, data.docs[data.docs.length - 1])
-      .then(res => {
-        if (res.status === 201) {
-          setStatus(prevState => { return {...prevState, docs: true }});
-        };
-      })
-      .catch(error => {
-        dispatchError(dispatch, THROW_ERROR, error);
-      });
+  /**
+   * Redirect to Delivery notice list with success message
+   */
+   if (created) {
+    history.push({
+      pathname: '/delivery-notice',
+      success: 'Successfuly saved'
+    });
   }
 
-  // Set created status to true if all api response is success
+  /**
+   * Handler api errors
+   */
+  const handleError = () => {
+    if (props.error.status === 401) {
+      setAlertConfig({ severity: 'error', message: 'Session Expired, please login again...' });
+    } else {
+      setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+    }
+  }
+
+  /**
+   * Set created status to true if all api response is success
+   */
   React.useEffect(() => {
     if (!Object.values(status).includes(false)) {
       setCreated(true);
     }
   }, [status]);
 
-  // Set created status to true if all api response is success
+  /**
+   * Handle errors
+   */
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
-      if (props.error.status === 401) {
-        setAlertConfig({ severity: 'error', message: 'Session Expired, please login again..' });
+      if (props.error === 'Network Error') {
+        setAlertConfig({ severity: 'error', message: 'Network Error, please try again...' });
       } else {
-        setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+        handleError();
       }
     }
   }, [props.error]);
-
-  // Redirect to warehouse list with success message
-  if (created) {
-    history.push({
-      pathname: '/',
-      success: 'Successfuly saved'
-    });
-  }
-
-  const handleError = error => {
-    console.log(error)
-  }
 
   return (
     <div className="container">
@@ -195,13 +176,13 @@ function WarehouseCreate(props) {
         <Grid item xs={12} md={9}>
           <Paper className="paper" elevation={0} variant="outlined">
             <Typography variant="subtitle1" className="paper__heading">Creating Delivery Notice</Typography>
-            <div className="paper__divider"></div>
+            <div className="paper__divider" />
             <WarehouseForm handleDialog={handleDialog} onSubmit={handleSubmit} onError={handleError} />
           </Paper>
         </Grid>
-        {/* <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
+        <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
-        </Snackbar> */}
+        </Snackbar>
         {/* <WarehouseDialog
           openDialog={openDialog.open}
           diaglogText="Changes won't be save, continue?"
@@ -215,10 +196,13 @@ function WarehouseCreate(props) {
   )
 }
 
-const mapStateToProps = (state => {
+/**
+ * Redux states to component props
+ */
+const mapStateToProps = state => {
   return { 
     error: state.error
   }
-});
+};
 
-export default connect(mapStateToProps)(WarehouseCreate);
+export default connect(mapStateToProps)(DeliveryNoticeCreate);

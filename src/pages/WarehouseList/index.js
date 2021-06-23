@@ -257,7 +257,6 @@ function WarehouseList(props) {
         onPaginate={handlePagination}
         onRowClick={handleRowClick}
         handleRowCount={handleRowCount}
-        searchedOptions={searched}
         query={query}
         searchLoading={searchLoading}
       />
