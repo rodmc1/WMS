@@ -185,6 +185,12 @@ function WarehouseMasterData(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
+  React.useEffect(() => { 
+    if (JSON.stringify(warehouseData) === '{}') {
+      setOpenBackdrop(false);
+    }
+  }, [warehouseData]);
+
   // Set warehouse data if fetch in warehouses is completed
   useEffect(() => {
     if (props.warehouses.count) {
