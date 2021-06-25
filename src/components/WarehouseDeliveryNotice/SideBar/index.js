@@ -14,15 +14,14 @@ function WarehouseSideBar(props) {
 
   // Function for delete delivery notice
   const handleDelete = () => {
-    console.log('delete id here')
-    // deleteDeliveryNoticeById(props.deleteId).then(response => {
-    //   if (response.status === 204) {
-    //     history.push({
-    //       pathname: '/',
-    //       success: 'Delivery Notice deleted successfully'
-    //     });
-    //   }
-    // });
+    deleteDeliveryNoticeById(props.deleteId).then(response => {
+      if (response.status === 204) {
+        history.push({
+          pathname: '/delivery-notice',
+          success: 'Delivery Notice deleted successfully'
+        });
+      }
+    });
   }
 
   // Show dialog confirmation if user click delete button

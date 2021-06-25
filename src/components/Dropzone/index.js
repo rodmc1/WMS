@@ -25,7 +25,7 @@ function Dropzone(props) {
   const [showPreviewText, setShowPreviewText] = React.useState(false);
   
   const pdfIcon = '/assets/images/pdfIcon.svg';
-  const docxIcon = '/assets/images/docIcon.svg'  ;
+  const docxIcon = '/assets/images/docIcon.svg';
   let collapseText = expanded ? 'Hide Photos' : 'See Photos';
   const allowedDocuments = ['doc', 'docx', 'pdf', 'txt', 'tex', 'csv'];
   const allowedImages = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];

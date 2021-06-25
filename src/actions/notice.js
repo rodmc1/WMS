@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import inteluck from 'api/inteluck';
-import { FETCH_DELIVERY_NOTICES, THROW_ERROR, SEARCH_DELIVERY_NOTICE } from './types';
+import { FETCH_DELIVERY_NOTICES, THROW_ERROR, SEARCH_DELIVERY_NOTICE, FETCH_DELIVERY_NOTICE } from './types';
 import { dispatchError } from 'helper/error';
 
 
@@ -9,6 +9,24 @@ import { dispatchError } from 'helper/error';
  */
 export const fetchAllDeliveryNotice = () => {
   return inteluck.get(`/v1/wms/Warehouse/Delivery_Notice`);
+}
+
+/**
+ * Fetch single delivery notice
+ */
+export const fetchDeliveryNoticeById = id => dispatch => {
+  inteluck.get(`/v1/wms/Warehouse/Delivery_Notice`, { 
+    params: {
+      filter: id
+    }})
+    .then(response => {
+      dispatch({
+        type: FETCH_DELIVERY_NOTICE,
+        payload: response.data[0]
+      });
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
 }
 
 
@@ -21,12 +39,29 @@ export const createDeliveryNotice = params => {
 
 
 /**
+ * Edit Delivery Notice
+ */
+export const updateDeliveryNoticeById = (id, params) => {
+  return inteluck.patch(`/v1/wms/Warehouse/Delivery_Notice/Item/${id}`, params);
+}
+
+
+/**
+ * Delete Delivery Notice Documents
+ */
+export const deleteDeliveryNoticeFilesById = id => {
+  console.log(id);
+  // return inteluck.delete(`/v1/wms/Warehouse/Delivery_Notice-Document-File/${id}`);
+}
+
+
+/**
  * For Delete Delivery Notice
  * 
  * @param {int} id ID of delivery notice
  */
 export const deleteDeliveryNoticeById = id => {
-  return inteluck.delete(`/v1/wms/Warehouse/Warehouse-Client/${id}`);
+  return inteluck.delete(`/v1/wms/Warehouse/Delivery_Notice/${id}`);
 }
 
 

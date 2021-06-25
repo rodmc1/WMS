@@ -21,12 +21,12 @@ function Navigation(props) {
       ]
     },
     {
-      group: 'Warehouse Master Data',
+      group: 'Operation',
       list: [
         {
-          label:'SKU',
+          label:'Warehouse Master Data',
           path: '/warehouse-master-data',
-          icon: LineWeightIcon
+          icon: TableChart
         },
         {
           label:'Delivery Notice',

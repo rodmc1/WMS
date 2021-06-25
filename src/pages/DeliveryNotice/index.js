@@ -3,13 +3,12 @@ import './style.scss';
 import _ from 'lodash';
 import history from 'config/history';
 import React, { useEffect, useState, useRef } from 'react';
-
 import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { fetchWarehouses, fetchDeliveryNotices, fetchAllWarehouse, fetchDeliveryNoticeByName } from 'actions';
+import { fetchWarehouses, fetchDeliveryNotices, fetchAllWarehouse, fetchDeliveryNoticeByName, fetchAllDeliveryNotice } from 'actions';
 
 import Table from 'components/Table';
 import Grid from '@material-ui/core/Grid';
@@ -115,43 +114,36 @@ function DeliveryNotice(props) {
   }, 510), [query]);
 
   // Redirect to create warehouse page
-  const handleCreateWarehouse = () => {
+  const handleCreateDeliveryNotice = () => {
     history.push('/delivery-notice/create');
   }
 
   // Redirect to selected warehouse
   const handleRowClick = row => {
-    console.log(row)
-    // history.push(`/delivery-notice/${row.warehouse_client}/overview`);
+    history.push({
+      pathname: `/delivery-notice/${row.unique_code}/overview`,
+      data: row
+    });
   }
 
   // Function for CSV Download  
   const handleDownloadCSV = async () => {
-    await fetchAllWarehouse().then(response => {
-      const newData = response.data.map(warehouse => {
+    await fetchAllDeliveryNotice().then(response => {
+      const newData = response.data.map(notice => {
         return {
-          warehouseName: warehouse.warehouse_client,
-          address: warehouse.address,
-          gpsCoordinate: warehouse.gps_coordinate,
-          country: warehouse.country,
-          warehouseType: warehouse.warehouse_type,
-          buildingType: warehouse.building_type,
-          warehouseStatus: warehouse.warehouse_status,
-          nearbyStation: warehouse.nearby_station,
-          yearTop: warehouse.year_top,
-          minLeaseTerms: warehouse.min_lease_terms,
-          psf: warehouse.psf,
-          floorArea: warehouse.floor_area,
-          coveredArea: warehouse.covered_area,
-          mezzanineArea: warehouse.mezzanine_area,
-          openArea: warehouse.open_area,
-          officeArea: warehouse.office_area,
-          batteryChargingArea: warehouse.battery_charging_area,
-          loadingAndUnloadingBays: warehouse.loading_unloading_bays,
-          remarks: warehouse.remarks,
-          facilitiesAndAmenities: warehouse.facilities_amenities
+          warehouse_name: notice.warehouse_name,
+          warehouse_client: notice.warehouse_client,
+          transaction_type: notice.transaction_type,
+          unique_code: notice.unique_code,
+          booking_datetime: notice.booking_datetime.toJSON().substring(0,10),
+          appointment_datetime: notice.appointment_datetime.toJSON().substring(0,10),
+          delivery_mode: notice.delivery_mode,
+          asset_type: notice.asset_type,
+          qty_of_trucks: notice.qty_of_trucks,
+          external_reference_number: notice.external_reference_number,
         }
       });
+
       setCsvData(newData);
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);
@@ -162,26 +154,16 @@ function DeliveryNotice(props) {
 
   // CSV Headers
   const csvHeaders = [  
-    { label: "Warehouse Name", key: "warehouseName" },
-    { label: "Address", key: "address" },
-    { label: "GPS Coordinates", key: "gpsCoordinate" },
-    { label: "Country", key: "country" },
-    { label: "Warehouse Type", key: "warehouseType" },
-    { label: "Building Type", key: "buildingType" },
-    { label: "Warehouse Status", key: "warehouseStatus" },
-    { label: "Nearby Station", key: "nearbyStation" },
-    { label: "Year of TOP", key: "yearTop" },
-    { label: "Min lease terms (months)", key: "minLeaseTerms" },
-    { label: "PSF", key: "psf" },
-    { label: "Floor Area (sqm)", key: "floorArea" },
-    { label: "Covered Area (sqm)", key: "coveredArea" },
-    { label: "Mezzanine Area (sqm)", key: "mezzanineArea" },
-    { label: "Open Area (sqm)", key: "openArea" },
-    { label: "Office Area (sqm)", key: "officeArea" },
-    { label: "Battery Charging Area (sqm)", key: "batteryChargingArea" },
-    { label: "Loading and Unloading Bays", key: "loadingAndUnloadingBays" },
-    { label: "Facilities and amenities", key: "facilitiesAndAmenities" },
-    { label: "Remarks", key: "remarks" }
+    { label: "Unique Code", key: "unique_code" },
+    { label: "External Reference No.", key: "external_reference_number" },
+    { label: "Warehouse Client", key: "warehouse_client" },
+    { label: "Warehouse", key: "warehouse_name" },
+    { label: "Transaction Type", key: "transaction_type" },
+    { label: "Booking Date", key: "booking_datetime" },
+    { label: "Appointed Date", key: "appointment_datetime" },
+    { label: "Delivery Mode", key: "delivery_mode" },
+    { label: "Type of Trucks", key: "asset_type" },
+    { label: "Quantity of truck", key: "qty_of_trucks" }
   ];
 
   // Call delayedQuery function when user search and set new warehouse data
@@ -246,12 +228,12 @@ function DeliveryNotice(props) {
   console.log(props.searched)
 
   return (
-    <div className="container">
+    <div className="container delivery-notice-container">
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         <div className="button-group">
           <CSVLink data={csvData} filename="delivery_notice.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
-          <Button variant="contained" className="btn btn--emerald" onClick={handleCreateWarehouse} disableElevation>Create Delivery Notice</Button>
+          <Button variant="contained" className="btn btn--emerald" onClick={handleCreateDeliveryNotice} disableElevation>Create Delivery Notice</Button>
           <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginLeft: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>

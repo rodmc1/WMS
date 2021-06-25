@@ -9,7 +9,7 @@ import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { uploadDeliveryNoticeFilesById, createDeliveryNotice } from 'actions/index';
+import { uploadDeliveryNoticeFilesById, updateDeliveryNoticeById, deleteDeliveryNoticeFilesById, fetchDeliveryNoticeByName } from 'actions/index';
 
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -28,9 +28,10 @@ function Alert(props) {
 function DeliveryNoticeCreate(props) {
   const dispatch = useDispatch();
   const [openDialog, setOpenDialog] = React.useState({ open: false });
-  const [created, setCreated] = React.useState(false);
+  const [edited, setEdited] = React.useState(false);
   const [alertConfig, setAlertConfig] = React.useState({});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
+  const [existingDeliveryNotice, setExistingDeliveryNotice] = React.useState('');
   const [status, setStatus] = React.useState({ notice: false, appointedDocuments: false, externalDocuments: false });
 
   /**
@@ -38,7 +39,7 @@ function DeliveryNoticeCreate(props) {
    */
   const routes = [
     { label: 'Delivery Notice', path: '/delivery-notice' },
-    { label: 'Creating Delivery Notice', path: '/delivery-notice/create' }
+    { label: 'Editing Delivery Notice', path: '/delivery-notice/edit' }
   ];
 
   /**
@@ -47,9 +48,9 @@ function DeliveryNoticeCreate(props) {
    * @param {object} data Set of new delivery notice data
    */
   const handleSubmit = data => {
-    setAlertConfig({ severity: 'info', message: 'Creating delivery notice...' });
+    setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
-
+    const id = 5;
     const deliveryNotice = {
       warehouse_name: data.warehouse,
       warehouse_client: data.warehouseClient,
@@ -69,27 +70,27 @@ function DeliveryNoticeCreate(props) {
       remarks: data.remarks,
     }
 
-    // Invoke action for create delivery notice
-    createDeliveryNotice(deliveryNotice)
+    // Invoke action for update delivery notice
+    updateDeliveryNoticeById(deliveryNotice)
       .then(response => {
-        const id = response.data.id;
         if (response.status === 201) setStatus(prevState => { return {...prevState, notice: true }});
-
-        if (data.externalDocs.length > 1)  {
-          handleWarehouseFilesUpload(id, data.externalDocs[data.externalDocs.length - 1], 'External Document')
-        } else {
-          setStatus(prevState => { return {...prevState, externalDocuments: true }});
-        }
-
-        if (data.appointmentDocs.length > 1)  {
-          handleWarehouseFilesUpload(id, data.appointmentDocs[data.appointmentDocs.length - 1], 'Appointment Confirmation')
-        } else {
-          setStatus(prevState => { return {...prevState, appointedDocuments: true }});
-        }
       })
       .catch(error => {
         dispatchError(dispatch, THROW_ERROR, error);
       });
+
+    //Documents upload and delete
+    if (data.externalDocs.length > 1)  {
+      handleDocumentUpdate(id, data.externalDocs[data.externalDocs.length - 1], 'External Documents')
+    } else {
+      setStatus(prevState => { return {...prevState, externalDocuments: true }});
+    }
+
+    if (data.appointmentDocs.length > 1)  {
+      handleDocumentUpdate(id, data.appointmentDocs[data.appointmentDocs.length - 1], 'Appointed Documents')
+    } else {
+      setStatus(prevState => { return {...prevState, appointedDocuments: true }});
+    }
   }
   
   /**
@@ -100,28 +101,39 @@ function DeliveryNoticeCreate(props) {
   }
 
   /**
-   * Function for files upload
+   * Function for document updates
    * 
    * @param {int} id ID of newly created delivery notice
    * @param {array} data Array of files to be uploaded
    */
-  const handleWarehouseFilesUpload = (id, data, type) => {
-    uploadDeliveryNoticeFilesById(id, data, type)
-      .then(res => {
-        if (res.status === 201) {
-          if (type === "External Document") setStatus(prevState => { return {...prevState, externalDocuments: true }});
-          if (type === "Appointment Confirmation") setStatus(prevState => { return {...prevState, appointedDocuments: true }});
-        };
-      })
-      .catch(error => {
-        dispatchError(dispatch, THROW_ERROR, error);
+  const handleDocumentUpdate = (data) => {
+    let existingDocuments = [];
+    const docExtensions = ['doc', 'docx', 'pdf', 'txt', 'tex'];
+    const newDocs = data.docs[data.docs.length - 1].map(i => { return i.name });
+    
+    if (existingDeliveryNotice.warehouse_document_file) {
+      existingDocuments = existingDeliveryNotice.warehouse_document_file.map(i => { return i.warehouse_filename });
+      
+      existingDeliveryNotice.warehouse_document_file.forEach(file => {
+        if (docExtensions.includes(file.warehouse_filename.split('.').pop().toLowerCase()) && !newDocs.includes(file.warehouse_filename)) {
+          deleteDeliveryNoticeFilesById(file.warehouse_documents_file_id);
+        }
       });
+    }
+
+    data.docs[data.docs.length - 1].forEach(file => {
+      if (!existingDocuments.includes(file.name)) {
+        deleteDeliveryNoticeFilesById(existingDeliveryNotice.warehouse_id, [file]);
+      }
+    });
+    setStatus(prevState => { return {...prevState, docs: true }});
   }
+  
 
   /**
    * Redirect to Delivery notice list with success message
    */
-  if (created) {
+   if (edited) {
     history.push({
       pathname: '/delivery-notice',
       success: 'Successfuly saved'
@@ -144,7 +156,7 @@ function DeliveryNoticeCreate(props) {
    */
   React.useEffect(() => {
     if (!Object.values(status).includes(false)) {
-      setCreated(true);
+      setEdited(true);
     }
   }, [status]);
 
@@ -161,6 +173,25 @@ function DeliveryNoticeCreate(props) {
     }
   }, [props.error]);
 
+  /**
+   * Fetch request for selected delivery notice
+   */
+  React.useEffect(() => {
+    const id = props.match.params.id;    
+    if (id) props.fetchDeliveryNoticeByName(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.match.params.id]);
+
+  /**
+   * Set initial delivery notice data
+   */
+  React.useEffect(() => {
+    if (props.notice) setOpenSnackBar(false);
+    if (!existingDeliveryNotice && props.notice) {
+      setExistingDeliveryNotice(props.notice);
+    }
+  }, [props.notice, existingDeliveryNotice]);
+
   return (
     <div className="container">
       <Breadcrumbs routes={routes} />
@@ -173,7 +204,7 @@ function DeliveryNoticeCreate(props) {
         </Grid>
         <Grid item xs={12} md={9}>
           <Paper className="paper" elevation={0} variant="outlined">
-            <Typography variant="subtitle1" className="paper__heading">Creating Delivery Notice</Typography>
+            <Typography variant="subtitle1" className="paper__heading">Editing Delivery Notice</Typography>
             <div className="paper__divider" />
             <WarehouseForm handleDialog={handleDialog} onSubmit={handleSubmit} onError={handleError} />
           </Paper>
@@ -181,14 +212,14 @@ function DeliveryNoticeCreate(props) {
         <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
-        <WarehouseDialog
+        {/* <WarehouseDialog
           openDialog={openDialog.open}
           diaglogText="Changes won't be save, continue?"
           dialogTitle="Confirmation"
           buttonConfirmText="Yes"
           buttonCancelText="No"
-          dialogAction={() => history.push('/delivery-notice')}
-        />
+          dialogAction={() => history.push('/')}
+        /> */}
       </Grid>
     </div>
   )
@@ -197,10 +228,11 @@ function DeliveryNoticeCreate(props) {
 /**
  * Redux states to component props
  */
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
   return { 
-    error: state.error
+    error: state.error,
+    notice: state.notice.data[ownProps.match.params.id]
   }
 };
 
-export default connect(mapStateToProps)(DeliveryNoticeCreate);
+export default connect(mapStateToProps, { fetchDeliveryNoticeByName })(DeliveryNoticeCreate);

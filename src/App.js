@@ -20,11 +20,10 @@ import WarehouseMasterDataSKUDetail from 'pages/WarehouseMasterData/SKU/Detail';
 import DeliveryNotice from 'pages/DeliveryNotice';
 import DeliveryNoticeCreate from 'pages/DeliveryNotice/Create';
 import DeliveryNoticeOverview from 'pages/DeliveryNotice/Overview';
+import DeliveryNoticeEdit from 'pages/DeliveryNotice/Edit';
 import Authentication from 'components/Authentication';
 
-
 function App() {
-
   const [isNavigationCollapsed, setIsNavigationCollapsed] = React.useState(false);
   const drawerSpring = useSpring({
     width: isNavigationCollapsed ? 88 : 360
@@ -56,10 +55,10 @@ function App() {
                 <Route exact path='/warehouse-master-data/:id/sku/:item_id' component={WarehouseMasterDataSKUDetail} />
                 <Route exact path='/delivery-notice/' component={DeliveryNotice} />
                 <Route exact path='/delivery-notice/create' component={DeliveryNoticeCreate} />
+                <Route exact path='/delivery-notice/edit' component={DeliveryNoticeEdit} />
+                <Route exact path='/delivery-notice/:id/overview' component={DeliveryNoticeOverview} />
                 <Route exact path='/delivery-notice/overview' component={DeliveryNoticeOverview} />
-                <Route>
-                  <Redirect to='/' />
-                </Route>
+                <Route><Redirect to='/' /></Route>
               </Switch>
             </animated.main>
           </Router>
