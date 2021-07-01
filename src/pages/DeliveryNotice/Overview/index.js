@@ -206,7 +206,7 @@ function DeliveryNoticeOverview(props) {
           <Grid item xs={5} >
             <ListItem>
               <LabelIcon />
-              <ListItemText primary="CCID/WO/PO" secondary={deliveryNotice.qty_of_trucks} />
+              <ListItemText primary="CCID/WO/PO" secondary={deliveryNotice.ccid_wo_po} />
             </ListItem>
           </Grid>
         </Grid>
