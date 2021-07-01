@@ -3,7 +3,7 @@ import React from 'react';
 import history from 'config/history';
 import _ from 'lodash';
 import { connect, useDispatch } from 'react-redux';
-import { fetchWarehouseByName, fetchWarehouses, fetchAllWarehouse } from 'actions/index';
+import { fetchWarehouseByName, fetchWarehouses, fetchAllWarehouse } from 'actions';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { CSVLink } from "react-csv";
@@ -257,7 +257,6 @@ function WarehouseList(props) {
         onPaginate={handlePagination}
         onRowClick={handleRowClick}
         handleRowCount={handleRowCount}
-        searchedOptions={searched}
         query={query}
         searchLoading={searchLoading}
       />

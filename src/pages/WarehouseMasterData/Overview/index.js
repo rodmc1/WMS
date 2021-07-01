@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import React, { useEffect } from 'react';
+import history from 'config/history';
 import { fetchWarehouseById } from 'actions';
 import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
 
@@ -20,7 +21,7 @@ function WarehouseMasterDataOverview(props) {
       path: `/warehouse-master-data/${props.match.params.id}/overview`
     }
   ];
-
+  
   // Fetch and set warehouse details 
   useEffect(() => {
     const id = props.match.params.id;

@@ -170,20 +170,6 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     return <img src={defaultImage} onError={handleImageError} className="table-img-preview" />
   }
 
-  const renderTableCell = (data, type) => {
-    let cellData;
-    if (type === 'item_document_file_type') {
-      cellData = renderPreview(data);
-    } else if (type === 'booking_datetime') {
-      cellData = moment(data).format('MM/DD/YYYY h:mm a');
-    } else if (type === 'appointment_datetime') {
-      cellData = moment(data).format('MM/DD/YYYY h:mm a');
-    } else {
-      cellData = data
-    }
-    return cellData;
-  }
-
   // Setter for table data
   React.useEffect(() => {
     if (data) {
@@ -268,28 +254,75 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
                   </TableCell>
                 </TableRow>
               }
-              {Object.values(tableData).map((d, i) => {
+              {Object.values(tableData).map((data, i) => {
                 return (
-                  <TableRow key={i} onClick={() => onRowClick(d)} className="table__row">
-                    {
-                      keys.map((k, index) => {
-                        return (
-                          index !== 0 &&
-                          <TableCell 
-                            title={d[k]}
-                            style={{
-                              maxWidth: '400px',
-                              overflowX: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }} 
-                            align={config.headers[index] ? config.headers[index].align : 'left'}
-                            key={index}>
-                              {renderTableCell(d[k], k)}
-                          </TableCell>
-                        )
-                      })
-                    }
+                  <TableRow key={i} className="table__row">
+                    <TableCell 
+                      style={{
+                        maxWidth: '400px',
+                        overflowX: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }} 
+                      key={i}
+                    >
+                      {data.item_code}
+                    </TableCell>
+                    <TableCell 
+                      style={{
+                        maxWidth: '400px',
+                        overflowX: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }} 
+                      key={i}
+                    >
+                      {data.external_code}
+                    </TableCell>
+                    <TableCell 
+                      style={{
+                        maxWidth: '400px',
+                        overflowX: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }} 
+                      key={i}
+                    >
+                      {data.product_name}
+                    </TableCell>
+                    <TableCell 
+                      style={{
+                        maxWidth: '400px',
+                        overflowX: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }} 
+                      key={i}
+                    >
+                      {data.uom_description}
+                    </TableCell>
+                    <TableCell 
+                      style={{
+                        maxWidth: '400px',
+                        overflowX: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }} 
+                      key={i}
+                    >
+                      {data.expected_qty ? data.expected_qty : 0}
+                    </TableCell>
+                    <TableCell 
+                      style={{
+                        maxWidth: '400px',
+                        overflowX: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }} 
+                      key={i}
+                    >
+                      {data.notes ? data.notes : 'None'}
+                    </TableCell>
                   </TableRow>
                 )
               })}
