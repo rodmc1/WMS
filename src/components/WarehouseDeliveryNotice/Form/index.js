@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
 import './style.scss';
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
 import { Controller, useForm } from 'react-hook-form';
-import { getWarehouseDetails } from './warehouseDetails';
 import { fetchTruckTypes, fetchClients } from 'actions/picklist';
 import { fetchWarehouseByName, fetchWarehouses, fetchAllWarehouse } from 'actions/index';
+import { truckTypes } from 'assets/static/index';
 
 import validator from 'validator';
 import Grid from '@material-ui/core/Grid';
@@ -18,16 +18,29 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import Spinner from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { makeStyles } from '@material-ui/core/styles';
 
-function WarehouseForm(props) {
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
+}));
+
+function DeliveryNoticeForm(props) {
+  const classes = useStyles();
   const [externalDocs, setExternalDocs] = React.useState([]);
   const [appointmentDocs, setAppointmentDocs] = React.useState([]);
   const [hasChanged, setHasChanged] = React.useState(false);
+  const [openBackdrop, setOpenBackdrop] = useState(true);
   const [hasFilesChange, setHasFilesChange] = React.useState(false);
   const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
+  const [deliveryNotice, setDeliveryNotice] = React.useState([]);
   
   // Hook Form
-  const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
+  const { handleSubmit, errors, control, formState, setValue, reset, getValues } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
@@ -35,29 +48,67 @@ function WarehouseForm(props) {
   const { isDirty, isValid } = formState;
 
   /*
-   * Set option values in building types before setting initial value
+   * Set initial values if action is Edit Warehouse
    */
-  React.useEffect(() => {
-    if (props.building_types && props.warehouse) {
-      setValue('buildingType', props.warehouse.building_type);
+  useEffect(() => {
+    if (props.deliveryNotice) {
+      setHasDefaultValue(true);
+      const bookingDatetime = new Date(props.deliveryNotice.booking_datetime);
+      const appointedDatetime = new Date(props.deliveryNotice.appointment_datetime);
+      const bookingDate = bookingDatetime.toISOString().substring(0, 10);
+      const bookingTime = bookingDatetime.toISOString().substring(11,16);
+      const appointedDate = appointedDatetime.toISOString().substring(0, 10);
+      const appointedTime = appointedDatetime.toISOString().substring(11,16);
+      let deliveyNoticeDetails = [
+        ['warehouseClient', props.deliveryNotice.warehouse_client],
+        ['transactionType', props.deliveryNotice.transaction_type],
+        ['bookingDate', bookingDate],
+        ['bookingTime', bookingTime],
+        ['appointedDate', appointedDate],
+        ['appointedTime',appointedTime],
+        ['deliveryMode', props.deliveryNotice.delivery_mode],
+        ['typeOfTrucks', props.deliveryNotice.asset_type],
+        ['quantityOfTruck', props.deliveryNotice.qty_of_trucks],
+        ['bookingNumber', props.deliveryNotice.job_order_number],
+        ['externalReferenceNumber', props.deliveryNotice.external_reference_number],
+        ['operationType', props.deliveryNotice.operation_type],
+        ['projectTeam', props.deliveryNotice.project_team],
+        ['subconForwarderSupplier', props.deliveryNotice.subcon_forwarder_supplier],
+        ['wbsCode', props.deliveryNotice.wbs_code],
+        ['ccidWoPo', props.deliveryNotice.ccid_wo_po]
+      ];
+
+      deliveyNoticeDetails.forEach(w => { if (w[1]) setValue(w[0], w[1]) });
+      if (Array.isArray(deliveryNotice)) setDeliveryNotice(props.deliveryNotice);
     }
-  }, [props.building_types, setValue, props.warehouse]);
-
-
-  /*
-   * Get addional picklist data
-   */
-  React.useEffect(() => {
-    props.fetchTruckTypes();
-    props.fetchClients();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.deliveryNotice]);
 
   /*
    * Get addional picklist data
    */
   React.useEffect(() => {
-    if (props.clients.length) props.fetchWarehouses();
-  }, [props.clients]);
+    if (!props.clients.length) {
+      props.fetchClients();
+    } else if (!props.editMode) {
+      props.fetchWarehouses();
+    }
+
+    if (props.deliveryNotice && props.editMode && props.clients.length)  {
+      setTimeout(() => { props.fetchWarehouses() }, 500);
+    }
+  }, [props.clients, props.deliveryNotice]);
+
+  // Set warehouse count and remove spinner when data fetch is done
+  React.useEffect(() => {
+    if (props.warehouses instanceof Object && props.warehouses.constructor === Object) {
+      setOpenBackdrop(false);
+      
+      if (props.editMode && getValues("warehouse").constructor === String) {
+        setValue('warehouse', props.deliveryNotice.warehouse_name);
+      }
+    }
+  }, [props.warehouses]);
   
   /*
    * Submit form data if values are valid
@@ -70,12 +121,13 @@ function WarehouseForm(props) {
         appointmentDocs
       }
       props.onSubmit(newData);
+      console.log(newData)
     } else {
       props.onError(data);
     }
-  }
 
-  console.log(props)
+    console.log(props.warehouses)
+  }
 
   return (
     <form onSubmit={handleSubmit(__submit)}>
@@ -115,14 +167,6 @@ function WarehouseForm(props) {
                   fullWidth
                   defaultValue=""
                   displayEmpty={true}>
-                    <MenuItem key={"test1"} value={"test2"}>{"Test5"}</MenuItem>
-                    <MenuItem key={"test2"} value={"test2"}>{"Test6"}</MenuItem>
-                    <MenuItem key={"test3"} value={"test2"}>{"Test7"}</MenuItem>
-                    <MenuItem key={"test4"} value={"test2"}>{"Test8"}</MenuItem>
-                    <MenuItem key={"test5"} value={"test2"}>{"Test9"}</MenuItem>
-                    <MenuItem key={"test6"} value={"test2"}>{"Test10"}</MenuItem>
-                    <MenuItem key={"test7"} value={"test2"}>{"Test11"}</MenuItem>
-                    <MenuItem key={"test8"} value={"test2"}>{"Test12"}</MenuItem>
                   {
                     !props.warehouses ? null :
                     Object.values(props.warehouses).map(warehouse => {
@@ -264,8 +308,8 @@ function WarehouseForm(props) {
                   defaultValue=""
                   displayEmpty={true}>
                   {
-                    !props.truck_types ? null :
-                    props.truck_types.map(truck => {
+                    !truckTypes ? null :
+                    truckTypes.map(truck => {
                       return <MenuItem key={truck.Id} value={truck.Description}>{truck.Description}</MenuItem>
                     })
                   } 
@@ -460,7 +504,8 @@ function WarehouseForm(props) {
         <Dropzone
           documentCount={externalDocs[externalDocs.length - 1]}
           type="files"
-          data="Delivery Notice"
+          data="External Document"
+          defaultFiles={deliveryNotice}
           onDelete={() => {
             setHasChanged(true);
             setHasFilesChange(true);
@@ -482,7 +527,8 @@ function WarehouseForm(props) {
         <Dropzone
           documentCount={appointmentDocs[appointmentDocs.length - 1]}
           type="files"
-          data="Delivery Notice"
+          data="Appointment Confirmation"
+          defaultFiles={deliveryNotice}
           onDelete={() => {
             setHasChanged(true);
             setHasFilesChange(true);
@@ -520,16 +566,18 @@ function WarehouseForm(props) {
           </div>
         </div>
       }
+      <Spinner className={classes.backdrop} open={openBackdrop} >
+        <CircularProgress color="inherit" />
+      </Spinner>
     </form>
   )
 };
 
 const mapStateToProps = state => {
   return {
-    truck_types: state.picklist.truck_types,
     clients: state.picklist.clients,
-    warehouses: state.warehouses.data,
+    warehouses: state.warehouses.data
   }
 }
 
-export default connect(mapStateToProps, { fetchWarehouses, fetchTruckTypes, fetchClients })(WarehouseForm);
+export default connect(mapStateToProps, { fetchWarehouses, fetchTruckTypes, fetchClients })(DeliveryNoticeForm);

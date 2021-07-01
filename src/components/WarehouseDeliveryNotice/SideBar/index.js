@@ -29,17 +29,19 @@ function WarehouseSideBar(props) {
     setOpenDialog(state => ({...state, open: true}));
   }
 
+  console.log(props)
+
   return (
     <Paper elevation={0} variant="outlined" className="sidebar delivery-notice-sidebar">
       <List>
-        <ListItem button onClick={() => history.push(`/delivery-notice/overview`)}>
+        <ListItem button disabled={history.location.pathname.match('create')} onClick={() => history.push(`/delivery-notice/${props.id}/overview`)}>
           <ListItemText
             primary="Overview" 
             className={history.location.pathname.match('overview') ? 'active' : 'delivery-notice-overview'}
           />
         </ListItem>
-        <ListItem button >
-          <ListItemText primary="SKU" />
+        <ListItem disabled button onClick={() => history.push(`/delivery-notice/${props.id}/sku`)} >
+          <ListItemText primary="SKU" className={history.location.pathname.match('sku') ? 'active' : 'delivery-notice-overview'} />
         </ListItem>
         {
           !history.location.pathname.match('create') &&

@@ -21,6 +21,7 @@ import DeliveryNotice from 'pages/DeliveryNotice';
 import DeliveryNoticeCreate from 'pages/DeliveryNotice/Create';
 import DeliveryNoticeOverview from 'pages/DeliveryNotice/Overview';
 import DeliveryNoticeEdit from 'pages/DeliveryNotice/Edit';
+import DeliveryNoticeSKU from 'pages/DeliveryNotice/SKU';
 import Authentication from 'components/Authentication';
 
 function App() {
@@ -55,9 +56,9 @@ function App() {
                 <Route exact path='/warehouse-master-data/:id/sku/:item_id' component={WarehouseMasterDataSKUDetail} />
                 <Route exact path='/delivery-notice/' component={DeliveryNotice} />
                 <Route exact path='/delivery-notice/create' component={DeliveryNoticeCreate} />
-                <Route exact path='/delivery-notice/edit' component={DeliveryNoticeEdit} />
                 <Route exact path='/delivery-notice/:id/overview' component={DeliveryNoticeOverview} />
-                <Route exact path='/delivery-notice/overview' component={DeliveryNoticeOverview} />
+                <Route exact path='/delivery-notice/:id/edit' component={DeliveryNoticeEdit} />
+                <Route exact path='/delivery-notice/:id/sku' component={DeliveryNoticeSKU} />
                 <Route><Redirect to='/' /></Route>
               </Switch>
             </animated.main>

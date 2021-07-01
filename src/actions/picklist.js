@@ -42,7 +42,7 @@ export const fetchClients = id => dispatch => {
   inteluck.get(`/v1/Clients`, { 
     params: {
       count: 500,
-      type: 'TRUCKER'
+      type: 'SHIPPER'
     }})
     .then(response => {
       dispatch({

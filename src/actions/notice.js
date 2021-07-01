@@ -29,7 +29,6 @@ export const fetchDeliveryNoticeById = id => dispatch => {
     });
 }
 
-
 /**
  * Create Delivery Notice
  */
@@ -42,7 +41,7 @@ export const createDeliveryNotice = params => {
  * Edit Delivery Notice
  */
 export const updateDeliveryNoticeById = (id, params) => {
-  return inteluck.patch(`/v1/wms/Warehouse/Delivery_Notice/Item/${id}`, params);
+  return inteluck.patch(`/v1/wms/Warehouse/Delivery_Notice/${id}`, params);
 }
 
 
@@ -50,8 +49,7 @@ export const updateDeliveryNoticeById = (id, params) => {
  * Delete Delivery Notice Documents
  */
 export const deleteDeliveryNoticeFilesById = id => {
-  console.log(id);
-  // return inteluck.delete(`/v1/wms/Warehouse/Delivery_Notice-Document-File/${id}`);
+  return inteluck.delete(`/v1/wms/Warehouse/Delivery_Notice-File-Upload/${id}`);
 }
 
 
@@ -108,6 +106,27 @@ export const fetchDeliveryNoticeByName = params => dispatch => {
     });
 }
 
+/**
+ * For fetch single delivery notice by unique code
+ * 
+ * @param {object} params Query data
+ */
+ export const fetchDeliveryNoticeByCode = params => dispatch => {
+  inteluck.get(`/v1/wms/Warehouse/Delivery_Notice`, { params })
+    .then(response => {
+      const headers = response.headers['x-inteluck-data'];
+      dispatch({
+        type: SEARCH_DELIVERY_NOTICE,
+        payload: {
+          data: response.data,
+          count: Number(JSON.parse(headers).Count)
+        }
+      });
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
+}
+
 
 /**
  * Delivery Notice files upload
@@ -116,17 +135,19 @@ export const fetchDeliveryNoticeByName = params => dispatch => {
  * @param {array} files Array of files
  * @param {string} type Type of files
  */
-export const uploadDeliveryNoticeFilesById = (id, files, type) => {
+export const uploadDeliveryNoticeFilesById = (deliveryNoticeId, files, type, folderId) => {
   const formData = new FormData();
   files.map(file => formData.append('Docs', file));
+  const uploadParams = {
+      id: folderId,
+      delivery_notice_id: deliveryNoticeId,
+      delivery_notice_document_type: type
+  }
 
   return inteluck.post(`/v1/wms/Warehouse/Delivery_Notice-File-Upload`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
-    params: {
-      delivery_notice_id: id,
-      delivery_notice_document_type: type
-    }
+    params: uploadParams
   });
 }

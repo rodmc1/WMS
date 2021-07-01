@@ -57,7 +57,7 @@ function Dropzone(props) {
         
         setInitialImages(() => newArrayImages);
       }
-      if (props.data !== 'SKU' && props.type === 'files' && props.defaultFiles.warehouse_document_file !== null) {
+      if (props.data === 'warehouse' && props.type === 'files' && props.defaultFiles.warehouse_document_file !== null) {
         
         setExpanded(false);
         const documents = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
@@ -84,6 +84,50 @@ function Dropzone(props) {
         });
 
         setInitialImages(() => newArrayImages);
+      }
+      if (props.data === 'External Document' && props.type === 'files' && props.defaultFiles.delivery_notice_document_file_type) {
+
+        setExpanded(false);
+        let documents;
+        props.defaultFiles.delivery_notice_document_file_type.forEach(type => { 
+          if (type.description === "External Document" && type.delivery_notice_files !== null) documents = type;
+        });
+
+        if (documents && documents.delivery_notice_files) {
+          documents = documents.delivery_notice_files.map(e => extractImageUrl(e.warehouse_document_path));
+        
+          let newDocumentFiles = initialDocs;
+          documents.forEach(document => {
+            const extension = document.split('.').pop().toLowerCase();
+            if (allowedDocuments.includes(extension)) {
+              newDocumentFiles.push(document);
+            }
+          });
+          
+          setInitialDocs(newDocumentFiles);
+        }
+      }
+      if (props.data === 'Appointment Confirmation' && props.type === 'files' && props.defaultFiles.delivery_notice_document_file_type) {
+
+        setExpanded(false);
+        let documents;
+        props.defaultFiles.delivery_notice_document_file_type.forEach(type => { 
+          if (type.description === "Appointment Confirmation") documents = type;
+        });
+
+        if (documents && documents.delivery_notice_files) {
+          documents = documents.delivery_notice_files.map(e => extractImageUrl(e.warehouse_document_path));
+          
+          let newDocumentFiles = initialDocs;
+          documents.forEach(document => {
+            const extension = document.split('.').pop().toLowerCase();
+            if (allowedDocuments.includes(extension)) {
+              newDocumentFiles.push(document);
+            }
+          });
+          
+          setInitialDocs(newDocumentFiles);
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

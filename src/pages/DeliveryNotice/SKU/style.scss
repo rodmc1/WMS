@@ -1,0 +1,40 @@
+.items-popover {
+  z-index: 999;
+}
+
+.sku-search-items .MuiInputBase-formControl {
+  width: 90%;
+  margin-top: 5%;
+}
+
+.sku-search-items {
+  text-align: center;
+  align-items: center;
+
+}
+
+.items-popover {
+  .MuiOutlinedInput-input {
+    padding: 14px 11px;
+    font-size: 0.875rem;
+  }
+  .MuiPaper-root {
+    max-height: 450px;
+    overflow: auto;
+  }
+  .MuiListItem-root {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+  }
+  hr {
+    margin: 0px 0px;
+  }
+  button.btn {
+    margin: 15px 25px;
+    padding: 6px 8px;
+    float: right;
+  }
+  .MuiListItem-root.Mui-selected, .MuiListItem-root.Mui-selected:hover {
+    background-color: white;
+  }
+}

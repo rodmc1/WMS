@@ -1,3 +1,5 @@
+@import 'assets/scss/variable';
+
 .delivery-notice-overview {
   .paper__heading.MuiTypography-root {
     margin-bottom: 10px !important;
@@ -13,6 +15,10 @@
   }
   .MuiListItemText-root span {
     font-size: 0.9rem !important;
+  }
+  .MuiTypography-body2 {
+    color: $gray;
+    font-size: 0.85rem
   }
   .MuiListItem-root {
     padding-top: 0px;
@@ -30,6 +36,13 @@
   .paper__heading.content-heading {
     font-weight: bold;
     font-size: 0.9rem;
+  }
+  .doc-img {
+    margin-right: 15px;;
+  }
+  .document-preview .MuiTypography-subtitle2 {
+    color: $gray;
+    padding: 15px;
   }
 }
 

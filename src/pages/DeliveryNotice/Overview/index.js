@@ -3,9 +3,10 @@ import './style.scss';
 import _ from 'lodash';
 import history from 'config/history';
 import React, { useEffect, useState } from 'react';
-import { fetchDeliveryNoticeByName } from 'actions';
+import { fetchDeliveryNoticeByName, fetchDeliveryNoticeById } from 'actions';
 import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
 
+import Badge from '@material-ui/core/Badge';
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Grid from '@material-ui/core/Grid'
@@ -33,67 +34,69 @@ function DeliveryNoticeOverview(props) {
       path: '/delivery-notice'
     },
     {
-      label: 'test',
-      path: `/delivery-notice/overview`
+      label: props.match.params.id,
+      path: `/delivery-notice/${props.match.params.id}/overview`
+    },
+    {
+      label: `Overview`,
+      path: `/delivery-notice/${props.match.params.id}/overview`
     }
   ];
 
-  
-  console.log(deliveryNotice)
+  const renderDocuments = (obj) => {
+    console.log(obj)
+    const pdfIcon = '/assets/images/pdfIcon.svg';
+    const preview = obj.delivery_notice_files.map(file => {
+      return (
+        <div className="document-preview">
+          <Badge ><img className="doc-img" src={pdfIcon} alt={file.warehouse_filename} /></Badge>
+          <Badge><Typography variant='subtitle2'>{file.warehouse_filename}</Typography></Badge>
+        </div>
+      )
+    });
 
-  const renderDocuments = (file) => {
-    console.log(file)
-    // const pdfIcon = '/assets/images/pdfIcon.svg';
-    // const string = file.file.name;
-    // const fileName = string.length > length ? `${string.substring(0, length - 3)}...` : string;
-    // <React.Fragment>
-    //   <div>
-    //     <Badge><img className="doc-img" src={pdfIcon} alt={file.file.name} /></Badge>
-    //     <Badge><Typography variant='subtitle2'>{fileName}</Typography></Badge>
-    //   </div>
-    // </React.Fragment>
+    return preview;
   }
 
   /**
    * Redirect to edit delivery notice page
    */
   const handleEditWarehouse = () => {
-    history.push('/delivery-notice/edit');
+    history.push(`/delivery-notice/${props.match.params.id}/edit`);
   }
 
   useEffect(() => {
-     if (history.location.data) {
-       setDeliveryNotice(history.location.data)
-     }
-  }, []);
-
-  useEffect(() => {
     if (deliveryNotice !== null && deliveryNotice.constructor.name === "Object") {
-      let externalDocument;
-      let appointmentConfirmation;
-      deliveryNotice.delivery_notice_document_file_type.map(file => {
-        if (file.description === 'External Document') externalDocument = file;
-        if (file.description === 'Appointment Confirmation') appointmentConfirmation = file;
-      })
-      setExternalDocument(externalDocument);
-      setAppointmentDocument(appointmentConfirmation);
+      if (Array.isArray(deliveryNotice.delivery_notice_document_file_type)) {
+        let externalDocument;
+        let appointmentConfirmation;
+        deliveryNotice.delivery_notice_document_file_type.map(file => {
+          if (file.description === 'External Document' && file.delivery_notice_files !== null) externalDocument = file;
+          if (file.description === 'Appointment Confirmation' && file.delivery_notice_files !== null) appointmentConfirmation = file;
+        })
+        setExternalDocument(externalDocument);
+        setAppointmentDocument(appointmentConfirmation);
+      }
     }
- }, [deliveryNotice]);
-
- console.log(externalDocument);
- console.log(appointmentDocument);
+  }, [deliveryNotice]);
 
   /**
    * Fetch and set delivery notice details 
    */
-  // useEffect(() => {
-  //   const id = props.match.params.id;
-  //   if (!props.notice) {
-  //     props.fetchDeliveryNoticeByName(id);
-  //   } else {
-  //     setDeliveryNotice(props.notice);
-  //   }
-  // }, [props.notice]);
+  useEffect(() => {
+    if (!history.location.data && !props.notice) props.fetchDeliveryNoticeById(props.match.params.id);
+  }, []);
+
+  console.log(history.location.data)
+  console.log(props.notice)
+
+  /**
+   * Fetch and set delivery notice details 
+   */
+   useEffect(() => {
+    if (props.notice) setDeliveryNotice(props.notice);
+    if (history.location.data) setDeliveryNotice(history.location.data);
+  }, [props.notice]);
 
   const renderInformation = () => {
     return (
@@ -128,7 +131,7 @@ function DeliveryNoticeOverview(props) {
           <Grid item xs={5} >
             <ListItem>
               <EventIcon />
-              <ListItemText primary="Booking Date" secondary={deliveryNotice.booking_datetime} />
+              <ListItemText primary="Booking Date" secondary={deliveryNotice.appointment_datetime && deliveryNotice.booking_datetime.slice(0, 10)} />
             </ListItem>
           </Grid>
           <Grid item xs={5} >
@@ -140,7 +143,7 @@ function DeliveryNoticeOverview(props) {
           <Grid item xs={5} >
             <ListItem>
               <EventIcon />
-              <ListItemText primary="Appointed Date" secondary={deliveryNotice.appointment_datetime} />
+              <ListItemText primary="Appointed Date" secondary={deliveryNotice.appointment_datetime && deliveryNotice.appointment_datetime.slice(0, 10)} />
             </ListItem>
           </Grid>
           <Grid item xs={5} >
@@ -202,24 +205,21 @@ function DeliveryNoticeOverview(props) {
           </Grid>
           <Grid item xs={5} >
             <ListItem>
-              <SmsIcon />
-              <ListItemText primary="Remarks" secondary={deliveryNotice.remarks} />
-            </ListItem>
-          </Grid>
-          <Grid item xs={5} >
-            <ListItem>
               <LabelIcon />
               <ListItemText primary="CCID/WO/PO" secondary={deliveryNotice.qty_of_trucks} />
             </ListItem>
           </Grid>
         </Grid>
         <Typography variant="subtitle1" className="paper__heading content-heading mt-3">External Documents</Typography>
-          {externalDocument && renderDocuments(externalDocument)}
+        { externalDocument ? renderDocuments(externalDocument) :<Typography variant="body2" className="mt-1">No document uploaded</Typography> }
         <Typography variant="subtitle1" className="paper__heading content-heading mt-3">Appointment Confirmation</Typography>
+        { appointmentDocument ? renderDocuments(appointmentDocument) : <Typography variant="body2" className="mt-1">No document uploaded</Typography> }
       </Paper>
     )
   }
-  console.log(props.match.params.id)
+  
+console.log(props.notice)
+console.log(deliveryNotice)
   return (
     <div className="container">
       <Breadcrumbs routes={routes} />
@@ -238,10 +238,11 @@ function DeliveryNoticeOverview(props) {
   )
 }
 
+
 const mapStateToProps = (state, ownProps) => {
   return { 
-    notice: state.notice.data[ownProps.match.params.id]
+    notice: state.notice.data[ownProps.match.params.id],
   }
 }
 
-export default connect(mapStateToProps, { fetchDeliveryNoticeByName } )(DeliveryNoticeOverview);
+export default connect(mapStateToProps, { fetchDeliveryNoticeByName, fetchDeliveryNoticeById } )(DeliveryNoticeOverview);

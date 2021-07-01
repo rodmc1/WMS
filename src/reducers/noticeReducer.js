@@ -11,7 +11,7 @@ const noticeReducer = (state = initialState, action) => {
     case FETCH_DELIVERY_NOTICES:
       return { ...action.payload };
     case FETCH_DELIVERY_NOTICE:
-      return { ...state, data: action.payload };
+      return { ...state, data: { ...state.data, [action.payload.unique_code]: action.payload }};
     case SEARCH_DELIVERY_NOTICE:
       return { ...state, search: action.payload };
     default:
