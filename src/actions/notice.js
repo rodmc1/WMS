@@ -36,7 +36,6 @@ export const createDeliveryNotice = params => {
   return inteluck.post(`/v1/wms/Warehouse/Delivery_Notice`, params);
 }
 
-
 /**
  * Edit Delivery Notice
  */

@@ -36,6 +36,12 @@ export const fetchSKUByName = params => dispatch => {
     });
 }
 
+// For SKU Add Items
+export const searchWarehouseSKUByName = params => {
+  // console.log(params)
+  return inteluck.get(`/v1/wms/Warehouse/Item`, { params })
+}
+
 // for Download CSV
 export const fetchAllWarehouseSKUs = params => {
   return inteluck.get('/v1/wms/Warehouse/Item', { params })

@@ -21,8 +21,9 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-// import defaultImage from '/assets/images/default-image.png';
-
+import CheckIcon from '@material-ui/icons/Check';
+import ClearIcon from '@material-ui/icons/Clear';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -233,8 +234,8 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
             <TableHead>
               <TableRow>
                 {headers.map((header, index) => (
-                    index !== 0 && 
-                    <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
+                  index !== 0 && 
+                  <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
@@ -242,86 +243,29 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
               {
                 ((!tableData.length && Array.isArray(tableData)) || JSON.stringify(tableData) === '{}') && 
                 <TableRow className="table__row">
-                  <TableCell 
-                    colSpan={12}
-                    style={{
-                      whiteSpace: 'nowrap',
-                      overFlow: 'hidden',
-                      textOverFlow: 'ellipsis'
-                    }} 
-                    align="center">
-                      No results found
-                  </TableCell>
+                  <TableCell colSpan={12} align="center" className="no-results-row">No results found</TableCell>
                 </TableRow>
               }
               {Object.values(tableData).map((data, i) => {
                 return (
                   <TableRow key={i} className="table__row">
-                    <TableCell 
-                      style={{
-                        maxWidth: '400px',
-                        overflowX: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }} 
-                      key={i}
-                    >
-                      {data.item_code}
-                    </TableCell>
-                    <TableCell 
-                      style={{
-                        maxWidth: '400px',
-                        overflowX: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }} 
-                      key={i}
-                    >
-                      {data.external_code}
-                    </TableCell>
-                    <TableCell 
-                      style={{
-                        maxWidth: '400px',
-                        overflowX: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }} 
-                      key={i}
-                    >
-                      {data.product_name}
-                    </TableCell>
-                    <TableCell 
-                      style={{
-                        maxWidth: '400px',
-                        overflowX: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }} 
-                      key={i}
-                    >
-                      {data.uom_description}
-                    </TableCell>
-                    <TableCell 
-                      style={{
-                        maxWidth: '400px',
-                        overflowX: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }} 
-                      key={i}
-                    >
-                      {data.expected_qty ? data.expected_qty : 0}
-                    </TableCell>
-                    <TableCell 
-                      style={{
-                        maxWidth: '400px',
-                        overflowX: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }} 
-                      key={i}
-                    >
-                      {data.notes ? data.notes : 'None'}
+                    <TableCell key={i}>{renderPreview(data.item_document_file_type)}</TableCell>
+                    <TableCell key={i}>{data.item_code}</TableCell>
+                    <TableCell key={i}>{data.external_code}</TableCell>
+                    <TableCell key={i}>{data.product_name}</TableCell>
+                    <TableCell key={i}>{data.uom_description}</TableCell>
+                    <TableCell key={i}>{data.expected_qty ? data.expected_qty : 0}</TableCell>
+                    <TableCell key={i}>{data.notes ? data.notes : 'None'}</TableCell>
+                    <TableCell key={i}>
+                    <Tooltip title="Save">
+                      <IconButton color="primary" aria-label="save" component="span">
+                        <CheckIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Cancel">
+                      <IconButton color="secondary" aria-label="cancel" component="span">
+                        <ClearIcon />
+                      </IconButton></Tooltip>
                     </TableCell>
                   </TableRow>
                 )
