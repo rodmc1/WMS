@@ -8,7 +8,7 @@ import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { fetchWarehouses, fetchDeliveryNotices, fetchAllWarehouse, fetchDeliveryNoticeByName, fetchAllDeliveryNotice, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
+import { createDeliveryNoticeSKU, fetchDeliveryNotices, fetchAllDeliveryNoticeSKU, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
 import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
 import { Controller, useForm } from 'react-hook-form';
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -52,6 +52,7 @@ const useStyles = makeStyles((theme) => ({
 function DeliveryNoticeSKU(props) {
   const csvLink = useRef();
   const [SKU, setSKU] = useState([]);
+  const [deliveryNoticeSKU, setDeliveryNoticeSKU] = useState([]);
   const anchorRef = React.useRef(null);
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -73,6 +74,9 @@ function DeliveryNoticeSKU(props) {
   const [isChecked, setIsChecked] = React.useState([]);
   const [items, setItems] = useState([]);
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
+  const [alertConfig, setAlertConfig] = React.useState({});
+  const [openSnackBar, setOpenSnackBar] = React.useState(false);
+  const [status, setStatus] = React.useState({ sku: false });
 
   const routes = [
     {
@@ -88,8 +92,6 @@ function DeliveryNoticeSKU(props) {
       path: `/delivery-notice/${props.match.params.id}/sku`
     }
   ];
-
-  console.log(props)
 
   const handleToggle = () => {
     setOpenAddItems((prevOpen) => !prevOpen);
@@ -114,6 +116,13 @@ function DeliveryNoticeSKU(props) {
     } else {
       setItems(oldArray => [...oldArray, item]);
     }
+  }
+
+  // Function for cancel action
+  const handleCancel = (data) => {
+    setIsChecked(isChecked.filter(check => check !== data.item_id));
+    setSelectedSKU(items.filter(sku => sku.item_id !== data.item_id));
+    setItems(items.filter(sku => sku.item_id !== data.item_id));
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -175,9 +184,9 @@ function DeliveryNoticeSKU(props) {
       { label: 'ID', key: 'warehouse_id' },
       { label: 'Preview' },
       { label: 'SKU Code', key: 'item_code' },
+      { label: 'UOM', key: 'warehouse_client' },
       { label: 'External Material Coding', key: 'external_code' },
       { label: 'External Material Description', key: 'external_reference_number' },
-      { label: 'UOM', key: 'warehouse_client' },
       { label: 'Expected Quantity'},
       { label: 'Notes' },
       { label: ' ' },
@@ -229,33 +238,26 @@ function DeliveryNoticeSKU(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const delayedQuery = React.useCallback(_.debounce((page, rowCount) => {
     setSearchLoading(true);
-    props.fetchDeliveryNoticeByName({
+    props.searchDeliveryNoticeSKU({
+      delivery_notice_id: deliveryNoticeData.delivery_notice_id,
       filter: query,
       count: rowCount,
       after: page * rowCount
     })
   }, 510), [query]);
-
-  // Redirect to create warehouse page
-  const handleCreateDeliveryNotice = () => {
-    history.push('/delivery-notice/create');
-  }
+  
 
   // Function for CSV Download  
   const handleDownloadCSV = async () => {
-    await fetchAllDeliveryNotice().then(response => {
-      const newData = response.data.map(notice => {
+    await fetchAllDeliveryNoticeSKU(deliveryNoticeData.delivery_notice_id).then(response => {
+      const newData = response.data.map(data => {
         return {
-          warehouse_name: notice.warehouse_name,
-          warehouse_client: notice.warehouse_client,
-          transaction_type: notice.transaction_type,
-          unique_code: notice.unique_code,
-          booking_datetime: notice.booking_datetime.toJSON().substring(0,10),
-          appointment_datetime: notice.appointment_datetime.toJSON().substring(0,10),
-          delivery_mode: notice.delivery_mode,
-          asset_type: notice.asset_type,
-          qty_of_trucks: notice.qty_of_trucks,
-          external_reference_number: notice.external_reference_number,
+          item_code: data.item_code,
+          external_material_coding: data.external_material_coding,
+          external_material_description: data.external_material_description,
+          uom: data.uom,
+          expected_qty: data.expected_qty,
+          notes: data.notes,
         }
       });
 
@@ -269,19 +271,48 @@ function DeliveryNoticeSKU(props) {
 
   // CSV Headers
   const csvHeaders = [  
-    { label: "Unique Code", key: "unique_code" },
-    { label: "External Reference No.", key: "external_reference_number" },
-    { label: "Warehouse Client", key: "warehouse_client" },
-    { label: "Warehouse", key: "warehouse_name" },
-    { label: "Transaction Type", key: "transaction_type" },
-    { label: "Booking Date", key: "booking_datetime" },
-    { label: "Appointed Date", key: "appointment_datetime" },
-    { label: "Delivery Mode", key: "delivery_mode" },
-    { label: "Type of Trucks", key: "asset_type" },
-    { label: "Quantity of truck", key: "qty_of_trucks" }
+    { label: "SKU Code", key: "item_code" },
+    { label: "External Material Coding", key: "external_material_coding" },
+    { label: "External Material Description", key: "external_material_description" },
+    { label: "UOM", key: "uom" },
+    { label: "Expected Quantity", key: "expected_qty" },
+    { label: "Notes", key: "notes" }
   ];
 
-  // Call delayedQuery function when user search and set new warehouse data
+  /**
+   * Submit function for creating delivery notice
+   * 
+   * @param {object} data Set of new delivery notice data
+   */
+  const handleSubmit = data => {
+    setAlertConfig({ severity: 'info', message: 'Adding SKU...' });
+    setOpenSnackBar(true);
+
+    const SKUData = {
+      delivery_notice_id: Number(deliveryNoticeData.delivery_notice_id),
+      code: data.code,
+      expected_qty: Number(data.expectedQty),
+      external_material_coding: data.externalCode,
+      external_material_description: data.productName,
+      notes: data.notes
+    }
+    
+    //Invoke action for adding delivery notice SKU
+    createDeliveryNoticeSKU(SKUData)
+      .then(response => {
+        if (response.status === 201) {
+          setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+          setIsChecked(isChecked.filter(check => check !== data.id));
+          setSelectedSKU(items.filter(sku => sku.item_id !== data.id));
+          setItems(items.filter(sku => sku.item_id !== data.id));
+        }
+      })
+      .catch(error => {
+        dispatchError(dispatch, THROW_ERROR, error);
+      });
+  }
+
+  // Call delayedQuery function when user search and set new sku data
   React.useEffect(() => {
     if (query) {
       delayedQuery(page, rowCount);
@@ -335,11 +366,9 @@ function DeliveryNoticeSKU(props) {
   React.useEffect(() => {
     if (searched) {
       setSearchLoading(false);
-      setDeliveryNoticeData(searched);
+      setDeliveryNoticeSKU(searched);
     }
   }, [searched]);
-
-  console.log(deliveryNoticeData)
 
   React.useEffect(() => {
     if (props.notice && !SKU.length) {
@@ -355,12 +384,35 @@ function DeliveryNoticeSKU(props) {
         });
       }
     } 
-  }, [props.notice]);
+  }, [props.sku]);
 
+  React.useEffect(() => {
+    if (deliveryNoticeData) {
+      setOpenBackdrop(true)
+      props.fetchDeliveryNoticeSKU(deliveryNoticeData.delivery_notice_id);
+    }
+  }, [deliveryNoticeData]);
+
+  React.useEffect(() => {
+    if (selectedSKU.length) setDeliveryNoticeSKU([]);
+    if (!selectedSKU.length && deliveryNoticeData) {
+      props.fetchDeliveryNoticeSKU(deliveryNoticeData.delivery_notice_id);
+      setOpenBackdrop(true)
+    } 
+  }, [selectedSKU]);
+
+  React.useEffect(() => {
+    if (props.sku) {
+      setDeliveryNoticeSKU(props.sku.data);
+      setOpenBackdrop(false);
+    }
+  }, [props.sku]);
 
   React.useEffect(() => {
     if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name }).then(response => {})
   }, [props.warehouse]);
+
+  console.log(searched)
 
   return (
     <div className="container delivery-notice-container sku">
@@ -397,11 +449,7 @@ function DeliveryNoticeSKU(props) {
                       </InputAdornment>
                     }
                   />
-                  <MenuList
-                    autoFocusItem={openAddItems}
-                    id="menu-list-grow"
-                    onKeyDown={handleListKeyDown}
-                  > 
+                  <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}> 
                     {SKU.map((item) => (
                       <MenuItem key={item.item_id} value={item.product_name} selected={item.item_id === item.item_id} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.item_id))} >
                         <Checkbox checked={isChecked.includes(item.item_id)} />
@@ -418,10 +466,7 @@ function DeliveryNoticeSKU(props) {
           <Button variant="contained" className="btn btn--emerald btn-csv" disableElevation onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
-      <Grid container spacing={2}
-        direction="row"
-        justify="space-evenly"
-        alignItems="stretch">
+      <Grid container spacing={2} direction="row" justify="space-evenly" alignItems="stretch">
         <Grid item xs={12} md={3}>
           <WarehouseSideBar id={props.match.params.id} />
         </Grid>
@@ -429,13 +474,22 @@ function DeliveryNoticeSKU(props) {
           <Table 
             config={config}
             data={selectedSKU}
+            defaultData={deliveryNoticeSKU}
             total={0}
             handleRowCount={handleRowCount}
             onPaginate={handlePagination}
             query={query}
             searchLoading={searchLoading}
             onInputChange={onInputChange}
+            handleCancel={handleCancel}
+            onSubmit={handleSubmit}
           />
+          <Spinner className={classes.backdrop} open={openBackdrop} >
+            <CircularProgress color="inherit" />
+          </Spinner>
+          <Snackbar open={openSnackBar} autoHideDuration={3000} onClose={() => setOpenSnackBar(false)}>
+            <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
+          </Snackbar>
         </Grid>
       </Grid>
     </div>
@@ -445,9 +499,10 @@ function DeliveryNoticeSKU(props) {
 const mapStateToProps = (state, ownProps) => {
   return { 
     error: state.error,
-    searched: state.notice.search,
-    notice: state.notice.data[ownProps.match.params.id]
+    searched: state.notice.searchedSKU,
+    notice: state.notice.data[ownProps.match.params.id],
+    sku: state.notice.sku
   }
 };
 
-export default connect(mapStateToProps, { fetchDeliveryNotices, fetchDeliveryNoticeByName })(DeliveryNoticeSKU);
+export default connect(mapStateToProps, { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU })(DeliveryNoticeSKU);

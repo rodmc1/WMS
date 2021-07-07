@@ -68,14 +68,37 @@
     &.MuiTableCell-head {
       padding: 16px 9px;
     }
-    &.MuiTableCell-body {
-      padding: 10px 9px
-    }
     .MuiIconButton-colorPrimary {
       color: $emerald;
     }
     .MuiIconButton-colorSecondary {
       color: $red;
     }
+  }
+}
+
+.sku-table {
+  &:hover {
+    cursor: auto;
+  }
+  
+  .MuiTableCell-body {
+    padding: 10px 9px
+  }
+  .MuiOutlinedInput-input {
+    padding: 13px 11px;
+    font-size: 0.85rem;
+  }
+  .notes {
+    min-width: 100px !important;
+  }
+  .uom {
+    min-width: 100px;
+  }
+  .product-name {
+    min-width: 200px;
+  }
+  .external-code {
+    min-width: 180px;
   }
 }

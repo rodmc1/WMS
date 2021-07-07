@@ -24,6 +24,9 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
 import Tooltip from '@material-ui/core/Tooltip';
+import { Controller, useForm } from 'react-hook-form';
+import TextField from '@material-ui/core/TextField';
+import FormHelperText from '@material-ui/core/FormHelperText';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -126,13 +129,24 @@ const useStyles2 = makeStyles({
   },
 });
 
-export default function Table_({ filterSize, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
+export default function Table_({ onSubmit, defaultData, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick, handleCancel }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
   const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
+
+  
+  console.log(defaultData);
+  console.log(data);
+
+
+  // Hook Form
+  const { handleSubmit, errors, control, formState, setValue, reset, getValues } = useForm({
+    shouldFocusError: false,
+    mode: 'onChange'
+  });
 
   // Handles page updates
   const handleChangePage = (event, newPage) => {
@@ -171,12 +185,25 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     return <img src={defaultImage} onError={handleImageError} className="table-img-preview" />
   }
 
+  const handleSave = (data, i) => {
+    const values = getValues([`externalCode${i}`, `productName${i}`, `uom${i}`, `expectedQty${i}`, `notes${i}`]);
+    const rowData = {
+      externalCode: values[`externalCode${i}`],
+      productName: values[`productName${i}`],
+      expectedQty: values[`expectedQty${i}`],
+      notes: values[`notes${i}`],
+      code: data.item_code,
+      id: data.item_id
+    }
+
+    onSubmit(rowData);
+  }
+
   // Setter for table data
   React.useEffect(() => {
-    if (data) {
-      setTableData(data);
-    }
-  }, [data, config.headers, config.rowsPerPage])
+    if (defaultData) setTableData(defaultData);
+    if (data.length) setTableData(data);
+  }, [data, defaultData])
 
   // Set the page number and item count for searched items
   React.useEffect(() => {
@@ -248,25 +275,60 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
               }
               {Object.values(tableData).map((data, i) => {
                 return (
-                  <TableRow key={i} className="table__row">
+                  <TableRow key={i} className="table__row sku-table">
                     <TableCell key={i}>{renderPreview(data.item_document_file_type)}</TableCell>
-                    <TableCell key={i}>{data.item_code}</TableCell>
-                    <TableCell key={i}>{data.external_code}</TableCell>
-                    <TableCell key={i}>{data.product_name}</TableCell>
-                    <TableCell key={i}>{data.uom_description}</TableCell>
-                    <TableCell key={i}>{data.expected_qty ? data.expected_qty : 0}</TableCell>
-                    <TableCell key={i}>{data.notes ? data.notes : 'None'}</TableCell>
-                    <TableCell key={i}>
-                    <Tooltip title="Save">
-                      <IconButton color="primary" aria-label="save" component="span">
-                        <CheckIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Cancel">
-                      <IconButton color="secondary" aria-label="cancel" component="span">
-                        <ClearIcon />
-                      </IconButton></Tooltip>
+                    <TableCell key={data.length ? i+data.item_code : i+data.item_code}>{data.item_code}</TableCell>
+                    <TableCell key={data.length ? i+data.uom_description : data.uom}>
+                      {data.length ? data.uom_description : data.uom}
                     </TableCell>
+                    <TableCell key={data.length ? i+data.external_code : i+data.external_material_coding}>
+                      {data.length ? 
+                        <Controller name={`externalCode${i}`} control={control} defaultValue={data.external_code ? data.external_code : ''}
+                          as={<TextField variant="outlined" type="text" className="external-code" required fullWidth/>}
+                        /> :
+                        data.external_material_coding
+                      }
+                      </TableCell>
+                    <TableCell key={data.length ? i+data.product_name : i+data.external_material_description}>
+                      {data.length ? 
+                        <Controller name={`productName${i}`} control={control} defaultValue={data.product_name ? data.product_name : ''}
+                          as={<TextField variant="outlined" type="text" className="product-name" required fullWidth/>}
+                        />:
+                        data.external_material_description
+                      }
+                    </TableCell>
+                    <TableCell key={i+'qty'}>
+                      {data.length ? 
+                        <Controller name={`expectedQty${i}`} control={control} defaultValue={data.expected_qty ? data.expected_qty : 0}
+                          as={<TextField variant="outlined" type="text" className="expected-quantity" required fullWidth/>}
+                        /> :
+                        data.expected_qty
+                      }
+                    </TableCell>
+                    <TableCell key={i + 'notes'}>
+                      {data.length ? 
+                        <Controller name={`notes${i}`} control={control} defaultValue={data.notes ? data.notes : "None"}
+                          as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
+                        /> :
+                        data.notes
+                      }                     
+                    </TableCell>
+                      <TableCell key={i + 'actions'}>
+                        {data.length &&
+                          <>
+                            <Tooltip title="Save">
+                              <IconButton color="primary" aria-label="save" component="span" onClick={() => handleSave(data, i)}>
+                                <CheckIcon />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Cancel">
+                              <IconButton color="secondary" aria-label="cancel" component="span" onClick={() => handleCancel(data)}>
+                                <ClearIcon />
+                              </IconButton>
+                            </Tooltip>
+                          </>
+                        }
+                      </TableCell>
                   </TableRow>
                 )
               })}
