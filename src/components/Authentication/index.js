@@ -20,7 +20,7 @@ function Authentication(props) {
   const [open, setOpen] = React.useState(false);
 
   const handleLogin = () => {
-    document.cookie = "user-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "user-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.inteluck.com";
     if (process.env.NODE_ENV === 'development') {
       window.location.href = `${process.env.REACT_APP_INTELUCK_ACCOUNT_API_ENDPOINT}/wms/login`;
     } else {
