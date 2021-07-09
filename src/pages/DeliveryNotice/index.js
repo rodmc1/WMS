@@ -46,6 +46,7 @@ function DeliveryNotice(props) {
   const [openBackdrop, setOpenBackdrop] = useState(true);
   const [deliveryNoticeCount, setDeliveryNoticeCount] = useState(0);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
+  const [alertConfig, setAlertConfig] = React.useState({});
   const [searchLoading, setSearchLoading] = useState(false);
   const routes = [{ label: 'Delivery Notice', path: '/delivery-notice' }];
 
@@ -166,7 +167,9 @@ function DeliveryNotice(props) {
     { label: "Quantity of truck", key: "qty_of_trucks" }
   ];
 
-  // Call delayedQuery function when user search and set new warehouse data
+  /**
+   * Call delayedQuery function when user search and set new delivery notice data
+   */
   React.useEffect(() => {
     if (query) {
       delayedQuery(page, rowCount);
@@ -187,20 +190,27 @@ function DeliveryNotice(props) {
     }
   }, [props.notice]);
 
-  // Show snackbar alert when new warehouse is created
+  /**
+   * Show snackbar alert when new delivery notice is created
+   */
   React.useEffect(() => {
     if (props.location.success) {
       setOpen(true);
     }
   }, [props.location.success]);
 
+  /**
+   * Remove Spinner if data is done fetching with empty value
+   */
   React.useEffect(() => { 
     if (JSON.stringify(deliveryNoticeData) === '{}') {
       setOpenBackdrop(false);
     }
   }, [deliveryNoticeData]);
 
-  // Set searched values and warehouse count after search
+  /**
+   * Set searched values and delivery notice count after search
+   */
   React.useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
@@ -208,7 +218,9 @@ function DeliveryNotice(props) {
     }
   }, [props.searched]);
 
-  // Set warehouse count and remove spinner when data fetch is done
+  /**
+   * Set delivery notice count and remove spinner when data fetch is done
+   */
   React.useEffect(() => {
     if (props.notice.count) {
       setDeliveryNoticeCount(props.notice.count)
@@ -216,7 +228,9 @@ function DeliveryNotice(props) {
     }
   }, [props.notice.count]);
 
-  // Set new warehouse data with searched items
+  /**
+   * Set new delivery notice data with searched items and remove spinner in textfield
+   */
   React.useEffect(() => {
     if (searched) {
       setSearchLoading(false);
@@ -224,8 +238,33 @@ function DeliveryNotice(props) {
     }
   }, [searched]);
 
-  console.log(searched);
-  console.log(props.searched)
+  /**
+   * Handler api errors
+   */
+   const handleError = () => {
+    if (props.error.status === 401) {
+      setAlertConfig({ severity: 'error', message: 'Session Expired, please login again...' });
+    } else if (props.error.status === 500) {
+      setAlertConfig({ severity: 'error', message: 'Internal Server Error' });
+    } else {
+      setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+    }
+  }
+
+  /**
+   * Handle errors
+   */
+   React.useEffect(() => {
+    if (!_.isEmpty(props.error)) {
+      setOpenBackdrop(false);
+      setOpen(true);
+      if (props.error === 'Network Error') {
+        setAlertConfig({ severity: 'error', message: 'Network Error, please try again...' });
+      } else {
+        handleError();
+      }
+    }
+  }, [props.error]);
 
   return (
     <div className="container delivery-notice-container">
@@ -252,7 +291,10 @@ function DeliveryNotice(props) {
         <CircularProgress color="inherit" />
       </Spinner>
       <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
-        <Alert severity="success">{props.location.success}</Alert>
+        { !_.isEmpty(props.error) 
+          ? <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
+          : <Alert severity="success">{props.location.success}</Alert>
+        }
       </Snackbar>
     </div>
   )

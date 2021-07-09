@@ -16,9 +16,10 @@ import Paper from '@material-ui/core/Paper';
 import MuiAlert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 import Typography from '@material-ui/core/Typography';
-import { CollectionsBookmarkOutlined } from '@material-ui/icons';
 
-// Alerts
+/**
+ * Alert for snackbar
+ */
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
@@ -54,6 +55,7 @@ function DeliveryNoticeCreate(props) {
   const handleSubmit = data => {
     setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
+
     const id = existingDeliveryNotice.delivery_notice_id;
     const deliveryNotice = {
       warehouse_name: data.warehouse,
@@ -73,22 +75,15 @@ function DeliveryNoticeCreate(props) {
       ccid_wo_po: data.ccidWoPo,
       remarks: null,
     }
-
-    console.log(existingDeliveryNotice)
-
+    
     // Invoke action for update delivery notice
     updateDeliveryNoticeById(existingDeliveryNotice.delivery_notice_id, deliveryNotice)
       .then(response => {
         setStatus(prevState => { return {...prevState, notice: true }});
-        // setStatus(prevState => { return {...prevState, externalDocuments: true }});
-        // setStatus(prevState => { return {...prevState, appointedDocuments: true }});
       })
       .catch(error => {
         dispatchError(dispatch, THROW_ERROR, error);
       });
-
-      console.log(data.externalDocs);
-      console.log(data.appointmentDocs)
 
     //Documents upload and delete
     if (data.externalDocs.length > 1)  {
@@ -118,13 +113,12 @@ function DeliveryNoticeCreate(props) {
    * @param {array} data Array of files to be uploaded
    */
   const handleDocumentUpdate = (id, data, type) => {
-    console.log(data)
     let existingDocuments;
     let arrayOfExistingDocuments;
+    const newDocs = data.map(i => { return i.name });
+    
     if (type === 'External Document' && existingExternalDocs !== undefined) existingDocuments = existingExternalDocs.delivery_notice_files;
     if (type === 'Appointment Confirmation' && existingAppointmentDocs !== undefined) existingDocuments = existingAppointmentDocs.delivery_notice_files;
-    
-    const newDocs = data.map(i => { return i.name });
     if (existingDocuments) {
       arrayOfExistingDocuments = existingDocuments.map(file => { return file.warehouse_filename });
       existingDocuments.forEach(file => {
@@ -147,7 +141,6 @@ function DeliveryNoticeCreate(props) {
     setStatus(prevState => { return {...prevState, externalDocuments: true }});
   }
   
-
   /**
    * Redirect to Delivery notice list with success message
    */
@@ -191,8 +184,9 @@ function DeliveryNoticeCreate(props) {
     }
   }, [props.error]);
 
-
-  // Error Alert Configs
+  /**
+   * Configs for Error Alerts
+   */
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {
       if (props.error === 'Network Error') {
@@ -224,6 +218,9 @@ function DeliveryNoticeCreate(props) {
     }
   }, [props.notice, existingDeliveryNotice]);
 
+  /**
+   * Set initial uploaded documents
+   */
   React.useEffect(() => {
     if (existingDeliveryNotice !== null && existingDeliveryNotice.constructor.name === "Object") {
       if (Array.isArray(existingDeliveryNotice.delivery_notice_document_file_type)) {
@@ -238,8 +235,6 @@ function DeliveryNoticeCreate(props) {
       }
     }
   }, [existingDeliveryNotice]);
-
-  console.log(existingDeliveryNotice)
 
   return (
     <div className="container">

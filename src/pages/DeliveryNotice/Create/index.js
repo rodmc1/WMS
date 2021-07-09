@@ -17,7 +17,9 @@ import MuiAlert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 import Typography from '@material-ui/core/Typography';
 
-// Alerts
+/**
+ * Alert for snackbar
+ */
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }

@@ -1,8 +1,7 @@
 /* eslint-disable react/prop-types */
 import './style.scss';
 import _ from 'lodash';
-import history from 'config/history';
-import React, { useEffect, useState, useRef } from 'react';
+import React, {  useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
@@ -10,11 +9,6 @@ import { connect, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { createDeliveryNoticeSKU, fetchDeliveryNotices, fetchAllDeliveryNoticeSKU, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
 import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
-import { Controller, useForm } from 'react-hook-form';
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormControl from '@material-ui/core/FormControl';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-
 import Table from './table';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -24,19 +18,15 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Snackbar from '@material-ui/core/Snackbar';
-import Typography from '@material-ui/core/Typography';
-import WarehouseDialog from 'components/WarehouseDialog';
 import Spinner from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Popper from "@material-ui/core/Popper";
 import MenuItem from "@material-ui/core/MenuItem";
 import MenuList from "@material-ui/core/MenuList";
-import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Grow from "@material-ui/core/Grow";
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
-import SKU from 'pages/WarehouseMasterData/SKU';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -64,7 +54,7 @@ function DeliveryNoticeSKU(props) {
   const [open, setOpen] = React.useState(false);
   const [searched, setSearched] = useState(null);
   const [openBackdrop, setOpenBackdrop] = useState(true);
-  const [skuCount, seSKUCount] = useState(0);
+  const [skuCount, setSKUCount] = useState(0);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchItemsLoading, setSearchItemsLoading] = useState(false);
@@ -76,7 +66,6 @@ function DeliveryNoticeSKU(props) {
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
   const [alertConfig, setAlertConfig] = React.useState({});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
-  const [status, setStatus] = React.useState({ sku: false });
 
   const routes = [
     {
@@ -135,14 +124,7 @@ function DeliveryNoticeSKU(props) {
       setSearchedItem(response.data);
     })
   }, 510), [itemQuery]);
-
-  // Set searched values and warehouse count after search
-  // React.useEffect(() => {
-  //   if (searchedItem) {
-  //     setSearched(searchedItem);
-  //   }
-  // }, [searchedItem]);
-
+  
   // Call delayedQuery function when user search and set new warehouse data
   React.useEffect(() => {
     if (itemQuery) {
@@ -216,10 +198,15 @@ function DeliveryNoticeSKU(props) {
     if (query) {
       delayedQuery(page, rowsPerPage);
     } else {
-      props.fetchDeliveryNotices({
-        count: rowsPerPage,
-        after: page * rowsPerPage
-      });
+      if (deliveryNoticeData) {
+        let params = {
+          delivery_notice_id: deliveryNoticeData.delivery_notice_id,
+          count: rowsPerPage,
+          after: page * rowsPerPage
+        }
+        if (!params.after) params = { delivery_notice_id: deliveryNoticeData.delivery_notice_id }
+        props.fetchDeliveryNoticeSKU(params);
+      }
     }
   };
 
@@ -285,6 +272,7 @@ function DeliveryNoticeSKU(props) {
    * @param {object} data Set of new delivery notice data
    */
   const handleSubmit = data => {
+    setOpenSnackBar(false);
     setAlertConfig({ severity: 'info', message: 'Adding SKU...' });
     setOpenSnackBar(true);
 
@@ -312,13 +300,17 @@ function DeliveryNoticeSKU(props) {
       });
   }
 
+  const handleErrors = (errors) => {
+    setOpenSnackBar(true);
+    setAlertConfig({ severity: 'error', message: 'Invalid SKU Value' });
+  }
+
   // Call delayedQuery function when user search and set new sku data
   React.useEffect(() => {
     if (query) {
       delayedQuery(page, rowCount);
     } else if (!query) {
       setDeliveryNoticeData(props.notice);
-      seSKUCount(props.notice);
       setSearchLoading(false);
     }
     return delayedQuery.cancel;
@@ -350,14 +342,12 @@ function DeliveryNoticeSKU(props) {
   React.useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
-      seSKUCount(props.searched.count);
     }
   }, [props.searched]);
 
   // Set delivery notice count and remove spinner when data fetch is done
   React.useEffect(() => {
     if (props.notice) {
-      seSKUCount(props.notice)
       setOpenBackdrop(false);
     }
   }, [props.notice]);
@@ -383,20 +373,21 @@ function DeliveryNoticeSKU(props) {
           dispatchError(dispatch, THROW_ERROR, error);
         });
       }
-    } 
+    }
+    if (props.sku) setSKUCount(props.sku.count)
   }, [props.sku]);
 
   React.useEffect(() => {
     if (deliveryNoticeData) {
       setOpenBackdrop(true)
-      props.fetchDeliveryNoticeSKU(deliveryNoticeData.delivery_notice_id);
+      props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
     }
   }, [deliveryNoticeData]);
 
   React.useEffect(() => {
     if (selectedSKU.length) setDeliveryNoticeSKU([]);
     if (!selectedSKU.length && deliveryNoticeData) {
-      props.fetchDeliveryNoticeSKU(deliveryNoticeData.delivery_notice_id);
+      props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
       setOpenBackdrop(true)
     } 
   }, [selectedSKU]);
@@ -412,7 +403,32 @@ function DeliveryNoticeSKU(props) {
     if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name }).then(response => {})
   }, [props.warehouse]);
 
-  console.log(searched)
+  /**
+   * Handler api errors
+   */
+   const handleError = () => {
+    if (props.error.status === 401) {
+      setAlertConfig({ severity: 'error', message: 'Session Expired, please login again...' });
+    } else if (props.error.status === 500) {
+      setAlertConfig({ severity: 'error', message: 'Internal Server Error' });
+    } else {
+      setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+    }
+  }
+
+  /**
+   * Handle errors
+   */
+   React.useEffect(() => {
+    if (!_.isEmpty(props.error)) {
+      setOpenSnackBar(true);
+      if (props.error === 'Network Error') {
+        setAlertConfig({ severity: 'error', message: 'Network Error, please try again...' });
+      } else {
+        handleError();
+      }
+    }
+  }, [props.error]);
 
   return (
     <div className="container delivery-notice-container sku">
@@ -468,7 +484,7 @@ function DeliveryNoticeSKU(props) {
       </div>
       <Grid container spacing={2} direction="row" justify="space-evenly" alignItems="stretch">
         <Grid item xs={12} md={3}>
-          <WarehouseSideBar id={props.match.params.id} />
+          <WarehouseSideBar id={props.match.params.id} deleteId={deliveryNoticeData && deliveryNoticeData.delivery_notice_idd} />
         </Grid>
         <Grid item xs={12} md={9}>
           <Table 
@@ -483,6 +499,8 @@ function DeliveryNoticeSKU(props) {
             onInputChange={onInputChange}
             handleCancel={handleCancel}
             onSubmit={handleSubmit}
+            onError={handleErrors}
+            total={skuCount}
           />
           <Spinner className={classes.backdrop} open={openBackdrop} >
             <CircularProgress color="inherit" />
@@ -496,6 +514,9 @@ function DeliveryNoticeSKU(props) {
   )
 }
 
+/**
+ * Redux states to component props
+ */
 const mapStateToProps = (state, ownProps) => {
   return { 
     error: state.error,

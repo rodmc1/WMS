@@ -15,8 +15,6 @@ import Breadcrumbs from 'components/Breadcrumbs';
 import Typography from '@material-ui/core/Typography';
 import EventIcon from "@material-ui/icons/Event";
 import LabelIcon from '@material-ui/icons/Label';
-import PhoneIcon from '@material-ui/icons/Phone';
-import SmsIcon from '@material-ui/icons/Sms';
 import HomeWorkIcon from '@material-ui/icons/HomeWork';
 import PersonIcon from '@material-ui/icons/Person';
 import Button from '@material-ui/core/Button';
@@ -44,11 +42,10 @@ function DeliveryNoticeOverview(props) {
   ];
 
   const renderDocuments = (obj) => {
-    console.log(obj)
     const pdfIcon = '/assets/images/pdfIcon.svg';
     const preview = obj.delivery_notice_files.map(file => {
       return (
-        <div className="document-preview">
+        <div className="document-preview" key={file.warehouse_filename}>
           <Badge ><img className="doc-img" src={pdfIcon} alt={file.warehouse_filename} /></Badge>
           <Badge><Typography variant='subtitle2'>{file.warehouse_filename}</Typography></Badge>
         </div>
@@ -65,6 +62,9 @@ function DeliveryNoticeOverview(props) {
     history.push(`/delivery-notice/${props.match.params.id}/edit`);
   }
 
+  /**
+   * Redirect to edit delivery notice page
+   */
   useEffect(() => {
     if (deliveryNotice !== null && deliveryNotice.constructor.name === "Object") {
       if (Array.isArray(deliveryNotice.delivery_notice_document_file_type)) {
@@ -87,17 +87,17 @@ function DeliveryNoticeOverview(props) {
     if (!history.location.data && !props.notice) props.fetchDeliveryNoticeById(props.match.params.id);
   }, []);
 
-  console.log(history.location.data)
-  console.log(props.notice)
-
   /**
    * Fetch and set delivery notice details 
    */
-   useEffect(() => {
+  useEffect(() => {
     if (props.notice) setDeliveryNotice(props.notice);
     if (history.location.data) setDeliveryNotice(history.location.data);
   }, [props.notice]);
 
+  /**
+   * JXS for delivery notice details
+   */
   const renderInformation = () => {
     return (
       <Paper className="paper delivery-notice-overview" elevation={0} variant="outlined">
@@ -218,8 +218,6 @@ function DeliveryNoticeOverview(props) {
     )
   }
   
-console.log(props.notice)
-console.log(deliveryNotice)
   return (
     <div className="container">
       <Breadcrumbs routes={routes} />
@@ -238,7 +236,9 @@ console.log(deliveryNotice)
   )
 }
 
-
+/**
+ * Redux states to component props
+ */
 const mapStateToProps = (state, ownProps) => {
   return { 
     notice: state.notice.data[ownProps.match.params.id],

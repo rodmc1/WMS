@@ -193,10 +193,8 @@ export const createDeliveryNoticeSKU = params => {
 /**
  * Fetch Delivery Notice SKU
  */
-export const fetchDeliveryNoticeSKU = id => dispatch => {
-  inteluck.get(`/v1/wms/Warehouse/Delivery_Notice/Item`, { 
-      params: { delivery_notice_id: id }
-    })
+export const fetchDeliveryNoticeSKU = params => dispatch => {
+  inteluck.get(`/v1/wms/Warehouse/Delivery_Notice/Item`, { params })
     .then(response => {
       const headers = response.headers['x-inteluck-data'];
       dispatch({

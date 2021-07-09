@@ -38,7 +38,6 @@ export const fetchSKUByName = params => dispatch => {
 
 // For SKU Add Items
 export const searchWarehouseSKUByName = params => {
-  // console.log(params)
   return inteluck.get(`/v1/wms/Warehouse/Item`, { params })
 }
 
@@ -46,23 +45,6 @@ export const searchWarehouseSKUByName = params => {
 export const fetchAllWarehouseSKUs = params => {
   return inteluck.get('/v1/wms/Warehouse/Item', { params })
 }
-
-// For SKU List
-// export const fetchSKUByWarehouseId = params => dispatch => {
-//   inteluck.get(`/v1/wms/Warehouse/Item`, { params })
-//     .then(response => {
-//       const headers = response.headers['x-inteluck-data'];
-//       dispatch({
-//         type: SEARCH_SKU,
-//         payload: {
-//           data: response.data,
-//           count: Number(JSON.parse(headers).Count)
-//         }
-//       });
-//     }).catch(error => {
-//       dispatchError(dispatch, THROW_ERROR, error);
-//     });
-// }
 
 export const createWarehouseSKU = params => {
   return inteluck.post(`/v1/wms/Warehouse/Item`, params);

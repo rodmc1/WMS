@@ -1,6 +1,6 @@
 import './style.scss';
+import _ from 'lodash';
 import React from 'react';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -26,7 +26,6 @@ import ClearIcon from '@material-ui/icons/Clear';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Controller, useForm } from 'react-hook-form';
 import TextField from '@material-ui/core/TextField';
-import FormHelperText from '@material-ui/core/FormHelperText';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -129,7 +128,7 @@ const useStyles2 = makeStyles({
   },
 });
 
-export default function Table_({ onSubmit, defaultData, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick, handleCancel }) {
+export default function Table_({ onSubmit, onError, defaultData, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick, handleCancel }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
@@ -137,13 +136,8 @@ export default function Table_({ onSubmit, defaultData, searchLoading, handleRow
   const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
 
-  
-  console.log(defaultData);
-  console.log(data);
-
-
   // Hook Form
-  const { handleSubmit, errors, control, formState, setValue, reset, getValues } = useForm({
+  const { errors, control, getValues } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
@@ -165,10 +159,10 @@ export default function Table_({ onSubmit, defaultData, searchLoading, handleRow
     setPage(0);
   }
 
-  /*
-  * @args str url
-  * @return formatted image src
-  */
+  /**
+   * @args str url
+   * @return formatted image src
+   */
   const extractImageUrl = (str) => {
     return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
   }
@@ -196,7 +190,11 @@ export default function Table_({ onSubmit, defaultData, searchLoading, handleRow
       id: data.item_id
     }
 
-    onSubmit(rowData);
+    if (_.isEmpty(errors)) {
+      onSubmit(rowData);
+    } else {
+      onError(errors)
+    }
   }
 
   // Setter for table data
@@ -276,14 +274,14 @@ export default function Table_({ onSubmit, defaultData, searchLoading, handleRow
               {Object.values(tableData).map((data, i) => {
                 return (
                   <TableRow key={i} className="table__row sku-table">
-                    <TableCell key={i}>{renderPreview(data.item_document_file_type)}</TableCell>
+                    <TableCell key={i}>{renderPreview(data.item_document_file_type ? data.item_document_file_type : data.item_document_file)}</TableCell>
                     <TableCell key={data.length ? i+data.item_code : i+data.item_code}>{data.item_code}</TableCell>
                     <TableCell key={data.length ? i+data.uom_description : data.uom}>
                       {data.length ? data.uom_description : data.uom}
                     </TableCell>
                     <TableCell key={data.length ? i+data.external_code : i+data.external_material_coding}>
                       {data.length ? 
-                        <Controller name={`externalCode${i}`} control={control} defaultValue={data.external_code ? data.external_code : ''}
+                        <Controller name={`externalCode${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.external_code ? data.external_code : ''}
                           as={<TextField variant="outlined" type="text" className="external-code" required fullWidth/>}
                         /> :
                         data.external_material_coding
@@ -291,7 +289,7 @@ export default function Table_({ onSubmit, defaultData, searchLoading, handleRow
                       </TableCell>
                     <TableCell key={data.length ? i+data.product_name : i+data.external_material_description}>
                       {data.length ? 
-                        <Controller name={`productName${i}`} control={control} defaultValue={data.product_name ? data.product_name : ''}
+                        <Controller name={`productName${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.product_name ? data.product_name : ''}
                           as={<TextField variant="outlined" type="text" className="product-name" required fullWidth/>}
                         />:
                         data.external_material_description
@@ -299,15 +297,23 @@ export default function Table_({ onSubmit, defaultData, searchLoading, handleRow
                     </TableCell>
                     <TableCell key={i+'qty'}>
                       {data.length ? 
-                        <Controller name={`expectedQty${i}`} control={control} defaultValue={data.expected_qty ? data.expected_qty : 0}
-                          as={<TextField variant="outlined" type="text" className="expected-quantity" required fullWidth/>}
+                        <Controller 
+                          name={`expectedQty${i}`}
+                          control={control}
+                          rules={{ 
+                            required: "This field is required",
+                            validate: value => { return value < 0 ? 'Invalid value' : true } 
+                          }}
+                          defaultValue={data.expected_qty ? data.expected_qty : 0}
+                          
+                          as={<TextField variant="outlined" type="number" className="expected-quantity" required fullWidth/>}
                         /> :
                         data.expected_qty
                       }
                     </TableCell>
                     <TableCell key={i + 'notes'}>
                       {data.length ? 
-                        <Controller name={`notes${i}`} control={control} defaultValue={data.notes ? data.notes : "None"}
+                        <Controller name={`notes${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.notes ? data.notes : "None"}
                           as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
                         /> :
                         data.notes

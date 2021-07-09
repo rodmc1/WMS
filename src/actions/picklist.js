@@ -1,5 +1,5 @@
 import inteluck from 'api/inteluck';
-import { FETCH_FACILITIES_AND_AMENITIES, FETCH_BUILDING_TYPES, FETCH_TRUCK_TYPES, THROW_ERROR, FETCH_CLIENTS, FETCH_ACCOUNT_DETAILS } from './types';
+import { FETCH_FACILITIES_AND_AMENITIES, FETCH_BUILDING_TYPES, FETCH_TRUCK_TYPES, THROW_ERROR, FETCH_CLIENTS } from './types';
 import { dispatchError } from 'helper/error';
 
 export const fetchFacilitiesAndAmenities = id => dispatch => {
@@ -56,12 +56,4 @@ export const fetchClients = id => dispatch => {
 
 export const fetchAccountDetails = () => {
   return inteluck.get(`v1/Accounts`);
-    // .then(response => {
-    //   dispatch({
-    //     type: FETCH_ACCOUNT_DETAILS,
-    //     payload: response.data
-    //   });
-    // }).catch(error => {
-    //   dispatchError(dispatch, THROW_ERROR, error)
-    // })
 }

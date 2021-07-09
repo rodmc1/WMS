@@ -167,7 +167,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     let defaultImage = '/assets/images/default-image.png';
     if (Array.isArray(preview)) defaultImage = extractImageUrl(preview[0].item_filepath);
     
-    return <img src={defaultImage} onError={handleImageError} className="table-img-preview" />
+    return <img src={defaultImage} onError={handleImageError} className="table-img-preview" alt="" />
   }
 
   const renderTableCell = (data, type) => {
