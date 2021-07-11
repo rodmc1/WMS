@@ -2,23 +2,19 @@
 import './style.scss';
 import _ from 'lodash';
 import history from 'config/history';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { fetchWarehouses, fetchDeliveryNotices, fetchAllWarehouse, fetchDeliveryNoticeByName, fetchAllDeliveryNotice } from 'actions';
+import { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchAllDeliveryNotice } from 'actions';
 
 import Table from 'components/Table';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import MuiAlert from '@material-ui/lab/Alert';
 import Button from '@material-ui/core/Button';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Snackbar from '@material-ui/core/Snackbar';
-import Typography from '@material-ui/core/Typography';
-import WarehouseDialog from 'components/WarehouseDialog';
 import Spinner from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -179,6 +175,7 @@ function DeliveryNotice(props) {
       setSearchLoading(false);
     }
     return delayedQuery.cancel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query, delayedQuery, page, rowCount, props.notice.count, props.notice.data]);
 
   /**
@@ -188,6 +185,7 @@ function DeliveryNotice(props) {
     if (props.notice.data) {
       setDeliveryNoticeData(props.notice.data);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.notice]);
 
   /**
@@ -197,6 +195,7 @@ function DeliveryNotice(props) {
     if (props.location.success) {
       setOpen(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.location.success]);
 
   /**
@@ -206,6 +205,7 @@ function DeliveryNotice(props) {
     if (JSON.stringify(deliveryNoticeData) === '{}') {
       setOpenBackdrop(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [deliveryNoticeData]);
 
   /**
@@ -216,6 +216,7 @@ function DeliveryNotice(props) {
       setSearched(props.searched.data);
       setDeliveryNoticeCount(props.searched.count);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.searched]);
 
   /**
@@ -236,6 +237,7 @@ function DeliveryNotice(props) {
       setSearchLoading(false);
       setDeliveryNoticeData(searched);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
   /**
@@ -264,6 +266,7 @@ function DeliveryNotice(props) {
         handleError();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.error]);
 
   return (

@@ -119,6 +119,7 @@ function WarehouseMasterDataSKUCreate (props) {
         success: 'Successfuly saved'
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [created])
 
   const handleError = error => {
@@ -144,7 +145,6 @@ function WarehouseMasterDataSKUCreate (props) {
           <Paper className="paper create-sku" elevation={0} variant="outlined">
             <Typography variant="subtitle1" className="paper__heading">Creating SKU</Typography>
             <div className="paper__divider" />
-            {/* <WarehouseMasterDataForm  onSubmit={handleSubmit} onError={handleError} /> */}
             <WarehouseMasterDataSKUForm handleDialog={handleDialog} onSubmit={onSubmit} onError={handleError} />
           </Paper>
         </Grid>
@@ -159,7 +159,6 @@ function WarehouseMasterDataSKUCreate (props) {
           buttonCancelText="No"
           dialogAction={() => history.push(`/warehouse-master-data/${props.match.params.id}/sku`)}
         />
-        {/* {renderDialogCancel()} */}
       </Grid>
     </div>
   )

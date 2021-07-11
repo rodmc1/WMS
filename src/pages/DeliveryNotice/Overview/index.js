@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import './style.scss';
-import _ from 'lodash';
 import history from 'config/history';
 import React, { useEffect, useState } from 'react';
 import { fetchDeliveryNoticeByName, fetchDeliveryNoticeById } from 'actions';
@@ -63,14 +62,14 @@ function DeliveryNoticeOverview(props) {
   }
 
   /**
-   * Redirect to edit delivery notice page
+   * set initial files for documents
    */
   useEffect(() => {
     if (deliveryNotice !== null && deliveryNotice.constructor.name === "Object") {
       if (Array.isArray(deliveryNotice.delivery_notice_document_file_type)) {
         let externalDocument;
         let appointmentConfirmation;
-        deliveryNotice.delivery_notice_document_file_type.map(file => {
+        deliveryNotice.delivery_notice_document_file_type.forEach(file => {
           if (file.description === 'External Document' && file.delivery_notice_files !== null) externalDocument = file;
           if (file.description === 'Appointment Confirmation' && file.delivery_notice_files !== null) appointmentConfirmation = file;
         })
@@ -85,6 +84,7 @@ function DeliveryNoticeOverview(props) {
    */
   useEffect(() => {
     if (!history.location.data && !props.notice) props.fetchDeliveryNoticeById(props.match.params.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
   /**

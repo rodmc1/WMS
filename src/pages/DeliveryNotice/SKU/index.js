@@ -51,13 +51,11 @@ function DeliveryNoticeSKU(props) {
   const [query, setQuery] = useState('');
   const [csvData, setCsvData] = useState([]);
   const [rowCount, setRowCount] = useState(0);
-  const [open, setOpen] = React.useState(false);
   const [searched, setSearched] = useState(null);
   const [openBackdrop, setOpenBackdrop] = useState(true);
   const [skuCount, setSKUCount] = useState(0);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [searchItemsLoading, setSearchItemsLoading] = useState(false);
   const [itemQuery, setItemQuery] = useState('');
   const [searchedItem, setSearchedItem] = useState(null);
   const [selectedSKU, setSelectedSKU] = React.useState([]);
@@ -116,7 +114,6 @@ function DeliveryNoticeSKU(props) {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const handleSearchItems = React.useCallback(_.debounce(() => {
-    setSearchItemsLoading(true);
     searchWarehouseSKUByName({
       warehouse_name: deliveryNoticeData.warehouse_name,
       filter: itemQuery,
@@ -131,15 +128,14 @@ function DeliveryNoticeSKU(props) {
       handleSearchItems()
     } else if (!itemQuery) {
       setSearchedItem(warehouseSKUs)
-      setSearchItemsLoading(false);
     }
     return handleSearchItems.cancel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [itemQuery, handleSearchItems, SKU]);
 
   // Set new warehouse data with searched items
   React.useEffect(() => {
     if (searchedItem) {
-      setSearchItemsLoading(false);
       setSKU(searchedItem);
     }
   }, [searchedItem]);
@@ -233,8 +229,9 @@ function DeliveryNoticeSKU(props) {
     })
   }, 510), [query]);
   
-
-  // Function for CSV Download  
+  /**
+   * Function for CSV Download
+   */ 
   const handleDownloadCSV = async () => {
     await fetchAllDeliveryNoticeSKU(deliveryNoticeData.delivery_notice_id).then(response => {
       const newData = response.data.map(data => {
@@ -300,12 +297,17 @@ function DeliveryNoticeSKU(props) {
       });
   }
 
-  const handleErrors = (errors) => {
+  /**
+   * Invoke alert with error message
+   */
+  const handleErrors = () => {
     setOpenSnackBar(true);
     setAlertConfig({ severity: 'error', message: 'Invalid SKU Value' });
   }
 
-  // Call delayedQuery function when user search and set new sku data
+  /**
+   * Call delayedQuery function when user search and set new sku data
+   */
   React.useEffect(() => {
     if (query) {
       delayedQuery(page, rowCount);
@@ -314,6 +316,7 @@ function DeliveryNoticeSKU(props) {
       setSearchLoading(false);
     }
     return delayedQuery.cancel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query, delayedQuery, page, rowCount]);
 
   /**
@@ -323,14 +326,8 @@ function DeliveryNoticeSKU(props) {
     if (props.notice) {
       setDeliveryNoticeData(props.notice);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.notice]);
-
-  // Show snackbar alert when new warehouse is created
-  React.useEffect(() => {
-    if (props.location.success) {
-      setOpen(true);
-    }
-  }, [props.location.success]);
 
   React.useEffect(() => { 
     if (JSON.stringify(deliveryNoticeData) === '{}') {
@@ -343,6 +340,7 @@ function DeliveryNoticeSKU(props) {
     if (props.searched) {
       setSearched(props.searched.data);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.searched]);
 
   // Set delivery notice count and remove spinner when data fetch is done
@@ -350,6 +348,7 @@ function DeliveryNoticeSKU(props) {
     if (props.notice) {
       setOpenBackdrop(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.notice]);
 
   // Set new warehouse data with searched items
@@ -358,12 +357,12 @@ function DeliveryNoticeSKU(props) {
       setSearchLoading(false);
       setDeliveryNoticeSKU(searched);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
   React.useEffect(() => {
     if (props.notice && !SKU.length) {
       if (!itemQuery) {
-        setSearchItemsLoading(true)
         fetchAllWarehouseSKUs({ warehouse_name: props.notice.warehouse_name })
         .then(response => {
           setSKU(response.data);
@@ -374,7 +373,8 @@ function DeliveryNoticeSKU(props) {
         });
       }
     }
-    if (props.sku) setSKUCount(props.sku.count)
+    if (props.sku) setSKUCount(props.sku.count);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
 
   React.useEffect(() => {
@@ -382,6 +382,7 @@ function DeliveryNoticeSKU(props) {
       setOpenBackdrop(true)
       props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [deliveryNoticeData]);
 
   React.useEffect(() => {
@@ -390,6 +391,7 @@ function DeliveryNoticeSKU(props) {
       props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
       setOpenBackdrop(true)
     } 
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [selectedSKU]);
 
   React.useEffect(() => {
@@ -397,10 +399,12 @@ function DeliveryNoticeSKU(props) {
       setDeliveryNoticeSKU(props.sku.data);
       setOpenBackdrop(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
 
   React.useEffect(() => {
-    if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name }).then(response => {})
+    if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouse]);
 
   /**
@@ -428,6 +432,7 @@ function DeliveryNoticeSKU(props) {
         handleError();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.error]);
 
   return (
@@ -467,7 +472,7 @@ function DeliveryNoticeSKU(props) {
                   />
                   <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}> 
                     {SKU.map((item) => (
-                      <MenuItem key={item.item_id} value={item.product_name} selected={item.item_id === item.item_id} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.item_id))} >
+                      <MenuItem key={item.item_id} value={item.product_name} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.item_id))} >
                         <Checkbox checked={isChecked.includes(item.item_id)} />
                         <ListItemText primary={item.product_name} />
                       </MenuItem>
@@ -484,14 +489,13 @@ function DeliveryNoticeSKU(props) {
       </div>
       <Grid container spacing={2} direction="row" justify="space-evenly" alignItems="stretch">
         <Grid item xs={12} md={3}>
-          <WarehouseSideBar id={props.match.params.id} deleteId={deliveryNoticeData && deliveryNoticeData.delivery_notice_idd} />
+          <WarehouseSideBar id={props.match.params.id} deleteId={deliveryNoticeData && deliveryNoticeData.delivery_notice_id} />
         </Grid>
         <Grid item xs={12} md={9}>
           <Table 
             config={config}
             data={selectedSKU}
             defaultData={deliveryNoticeSKU}
-            total={0}
             handleRowCount={handleRowCount}
             onPaginate={handlePagination}
             query={query}
@@ -500,7 +504,7 @@ function DeliveryNoticeSKU(props) {
             handleCancel={handleCancel}
             onSubmit={handleSubmit}
             onError={handleErrors}
-            total={skuCount}
+            total={skuCount || 0}
           />
           <Spinner className={classes.backdrop} open={openBackdrop} >
             <CircularProgress color="inherit" />

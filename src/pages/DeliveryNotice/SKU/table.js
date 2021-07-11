@@ -133,7 +133,6 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
-  const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
 
   // Hook Form
@@ -176,7 +175,7 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
     let defaultImage = '/assets/images/default-image.png';
     if (Array.isArray(preview)) defaultImage = extractImageUrl(preview[0].item_filepath);
     
-    return <img src={defaultImage} onError={handleImageError} className="table-img-preview" />
+    return <img src={defaultImage} onError={handleImageError} className="table-img-preview" alt="" />
   }
 
   const handleSave = (data, i) => {

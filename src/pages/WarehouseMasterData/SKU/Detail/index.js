@@ -83,14 +83,10 @@ function WarehouseMasterDataSKUDetail (props) {
 
   // Function for image updates
   const handleImageUpdate = (data) => {
-    let existingImages = [];
     const imageExtensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];
     const newImages = data.images[data.images.length - 1].map(i => { return  i.name }); 
     
     if (existingSKU.item_document_file_type) {
-      existingImages = existingSKU.item_document_file_type.map(i => {
-        return imageExtensions.includes(i.item_filename.split('.').pop().toLowerCase()) && i.item_filename;
-      });
 
       existingSKU.item_document_file_type.forEach(file => {
         if (imageExtensions.includes(file.item_filename.split('.').pop().toLowerCase()) && !newImages.includes(file.item_filename)) {
@@ -131,7 +127,8 @@ function WarehouseMasterDataSKUDetail (props) {
         pathname: `/warehouse-master-data/${props.match.params.id}/sku`,
         success: 'Successfuly saved'
       });
-    } 
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [edited]);
 
   // Redirect to SKU list on page refresh
@@ -142,6 +139,7 @@ function WarehouseMasterDataSKUDetail (props) {
     } else {
       window.location.href = `/warehouse-master-data/${props.match.params.id}/sku`
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
   // Error Alert Configs
@@ -153,6 +151,7 @@ function WarehouseMasterDataSKUDetail (props) {
         setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.error]);
 
   // Show dialog confirmation if user click cancel in warehouse form
@@ -174,7 +173,6 @@ function WarehouseMasterDataSKUDetail (props) {
           <Paper className="paper edit-sku" elevation={0} variant="outlined">
             <Typography variant="subtitle1" className="paper__heading">SKU</Typography>
             <div className="paper__divider"></div>
-            {/* <WarehouseMasterDataForm handleDialogCancel={handleDialogCancel} onSubmit={handleSubmit} onError={handleError} /> */}
             <WarehouseMasterDataSKUForm sku={sku} handleDialog={handleDialog} onSubmit={onSubmit} onError={handleError} />
           </Paper>
         </Grid>
@@ -189,7 +187,6 @@ function WarehouseMasterDataSKUDetail (props) {
           buttonCancelText="No"
           dialogAction={() => history.push(`/warehouse-master-data/${props.match.params.id}/sku`)}
         />
-        {/* {renderDialogCancel()} */}
       </Grid>
     </div>
   )

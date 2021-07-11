@@ -148,6 +148,7 @@ function DeliveryNoticeCreate(props) {
     if (!Object.values(status).includes(false)) {
       setCreated(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [status]);
 
   /**
@@ -161,6 +162,7 @@ function DeliveryNoticeCreate(props) {
         handleError();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.error]);
 
   return (

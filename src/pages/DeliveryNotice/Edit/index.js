@@ -182,6 +182,7 @@ function DeliveryNoticeCreate(props) {
         handleError();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.error]);
 
   /**
@@ -216,6 +217,7 @@ function DeliveryNoticeCreate(props) {
     if (!existingDeliveryNotice && props.notice) {
       setExistingDeliveryNotice(props.notice);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.notice, existingDeliveryNotice]);
 
   /**
@@ -226,7 +228,7 @@ function DeliveryNoticeCreate(props) {
       if (Array.isArray(existingDeliveryNotice.delivery_notice_document_file_type)) {
         let externalDocument;
         let appointmentConfirmation;
-        existingDeliveryNotice.delivery_notice_document_file_type.map(file => {
+        existingDeliveryNotice.delivery_notice_document_file_type.forEach(file => {
           if (file.description === 'External Document') externalDocument = file;
           if (file.description === 'Appointment Confirmation') appointmentConfirmation = file;
         })
@@ -234,6 +236,7 @@ function DeliveryNoticeCreate(props) {
         setExistingAppointmentDocs(appointmentConfirmation);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [existingDeliveryNotice]);
 
   return (

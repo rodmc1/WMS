@@ -187,6 +187,7 @@ function WarehouseMasterDataSKU (props) {
       setSearchLoading(false);
     }
     return delayedQuery.cancel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query, delayedQuery]);
 
   // Set searched values and sku count after search
@@ -195,6 +196,7 @@ function WarehouseMasterDataSKU (props) {
       setSearched(props.searched.data);
       setSKUCount(props.searched.count);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.searched]);
 
   // Set new warehouse data with searched items
@@ -203,11 +205,13 @@ function WarehouseMasterDataSKU (props) {
       setSearchLoading(false);
       setSKUData(searched);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
   // Close Spinner if sku data is empty after 300ms
   useEffect(() => {
     if(ready) setOpenBackdrop(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [ready])
 
   // Set data for sku and count on mount
@@ -216,6 +220,7 @@ function WarehouseMasterDataSKU (props) {
       setSKUData(props.sku.data);
       setSKUCount(props.sku.count);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
 
   // Close spinner if api request for SKU is complete
@@ -223,6 +228,7 @@ function WarehouseMasterDataSKU (props) {
     if (JSON.stringify(SKUData) === '{}') {
       setOpenBackdrop(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [SKUData]);
 
   // Show snackbar alert when new warehouse is created
@@ -230,6 +236,7 @@ function WarehouseMasterDataSKU (props) {
     if (props.location.success) {
       setOpen(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.location.success]);
 
   // Fetch warehouse sku on component mount
@@ -239,6 +246,7 @@ function WarehouseMasterDataSKU (props) {
       count: page || 10,
       after: page * rowCount
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
   // Render empty sku container
@@ -248,7 +256,7 @@ function WarehouseMasterDataSKU (props) {
     return !ready ? <React.Fragment><div style={{height: '67vh'}} /></React.Fragment> :
       <React.Fragment>
         <div className="sku-empty-container">
-          <img src="../../assets/images/sku-empty.svg" style={{height: 150}} />
+          <img src="../../assets/images/sku-empty.svg" style={{height: 150}} alt="" />
           <Typography variant="subtitle2">There's no SKU's listed here.</Typography>
           <Typography variant="subtitle2">Please click the create button to get started.</Typography>
           <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>

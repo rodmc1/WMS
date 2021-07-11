@@ -20,14 +20,14 @@ function WarehouseMasterDataSKUForm(props) {
   const [batchManagement, setBatchManagement] = React.useState(false);;
   const [expiryManagement, setExpiryManagement] = React.useState(false);
   const [SKU, setSKU] = React.useState([]);
-  const { handleSubmit, errors, control, formState, setValue, reset } = useForm({
+  const { handleSubmit, errors, control, formState, setValue } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
 
   const formActionModal = document.querySelector('.form__actions-container');
 
-  const { isDirty, isValid } = formState;
+  const { isDirty } = formState;
 
   const handleManagement = (status, id) => {
     if (id === 'batch-management') setBatchManagement(status);
@@ -74,15 +74,6 @@ function WarehouseMasterDataSKUForm(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
-
-  /*
-   * Set option values in building types before setting initial value
-   */
-  useEffect(() => {
-    if (props.building_types && props.warehouse) {
-      setValue('buildingType', props.warehouse.building_type);
-    }
-  }, [props.building_types, setValue, props.sku]);
 
   return (
     <form onSubmit={handleSubmit(__submit)} className="sku-form">

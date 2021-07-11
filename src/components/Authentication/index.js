@@ -36,6 +36,7 @@ function Authentication(props) {
     if (!cookie.get('user-token')){
       setOpen(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
   React.useEffect(() => {
@@ -46,6 +47,7 @@ function Authentication(props) {
         dispatchError(dispatch, THROW_ERROR, error);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
   React.useEffect(() => {

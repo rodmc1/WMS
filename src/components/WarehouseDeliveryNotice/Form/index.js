@@ -94,6 +94,7 @@ function DeliveryNoticeForm(props) {
     if (props.deliveryNotice && props.editMode && props.clients.length)  {
       setTimeout(() => { props.fetchWarehouses() }, 500);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.clients, props.deliveryNotice]);
 
   // Set warehouse count and remove spinner when data fetch is done
@@ -105,6 +106,7 @@ function DeliveryNoticeForm(props) {
         setValue('warehouse', props.deliveryNotice.warehouse_name);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouses]);
   
   /*
@@ -122,8 +124,6 @@ function DeliveryNoticeForm(props) {
     } else {
       props.onError(data);
     }
-
-    console.log(props.warehouses)
   }
 
   return (
