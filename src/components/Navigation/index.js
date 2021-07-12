@@ -3,6 +3,7 @@ import React from 'react';
 import history from 'config/history';
 import { NavLink, useLocation } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
+import EventNoteIcon from '@material-ui/icons/EventNote';
 import { HomeWork, KeyboardArrowUp, ChevronLeft, ChevronRight, TableChart } from '@material-ui/icons';
 
 function Navigation(props) {
@@ -16,10 +17,20 @@ function Navigation(props) {
           path: '/',
           icon: HomeWork
         },
+      ]
+    },
+    {
+      group: 'Operation',
+      list: [
         {
           label:'Warehouse Master Data',
           path: '/warehouse-master-data',
           icon: TableChart
+        },
+        {
+          label:'Delivery Notice',
+          path: '/delivery-notice',
+          icon: EventNoteIcon
         }
       ]
     },

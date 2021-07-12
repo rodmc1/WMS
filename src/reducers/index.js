@@ -3,10 +3,14 @@ import errorReducer from './errorReducer';
 import picklistReducer from './picklistReducer';
 import warehousesReducer from './warehousesReducer';
 import skuReducer from './skuReducer';
+import noticeReducer from './noticeReducer';
+import authReducer from './authReducer';
 
 export default combineReducers({
+  auth: authReducer,
   error: errorReducer,
   warehouses: warehousesReducer,
   picklist: picklistReducer,
-  sku: skuReducer
+  sku: skuReducer,
+  notice: noticeReducer
 });

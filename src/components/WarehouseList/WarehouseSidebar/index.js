@@ -30,7 +30,7 @@ function WarehouseSideBar(props) {
   }
 
   return (
-    <Paper elevation={0} variant="outlined" className="sidebar">
+    <Paper elevation={0} variant="outlined" className="warehouse-sidebar sidebar">
       <List>
         <ListItem button disabled={props.createMode} className={history.location.pathname.match('overview') ? 'active' : ''} onClick={() => history.push(`/warehouse-list/${props.id}/overview`)}>
           <ListItemText primary="Warehouse Overview" />

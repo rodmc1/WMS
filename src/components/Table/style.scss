@@ -13,6 +13,14 @@
   width: 50px;
 }
 
+.MuiTableCell-head {
+  &.MuiTableCell-head {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 .search_form {
   .menu-list {
     position: absolute;

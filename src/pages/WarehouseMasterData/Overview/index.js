@@ -20,7 +20,7 @@ function WarehouseMasterDataOverview(props) {
       path: `/warehouse-master-data/${props.match.params.id}/overview`
     }
   ];
-
+  
   // Fetch and set warehouse details 
   useEffect(() => {
     const id = props.match.params.id;
@@ -29,6 +29,7 @@ function WarehouseMasterDataOverview(props) {
     } else {
       setWarehouse(props.warehouse);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouse]);
 
   const renderInformation = () => {

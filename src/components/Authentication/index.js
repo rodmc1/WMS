@@ -1,14 +1,17 @@
 import './style.scss';
 import _ from 'lodash';
 import React from 'react';
-import { connect } from 'react-redux';
 import Cookies from 'universal-cookie';
+import { THROW_ERROR } from 'actions/types';
+import { dispatchError } from 'helper/error';
+import { connect, useDispatch } from 'react-redux';
 
 import { withStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import Button from '@material-ui/core/Button';
 import MuiDialogContent from '@material-ui/core/DialogContent';
 import Typography from '@material-ui/core/Typography';
+import { fetchAccountDetails } from 'actions';
 
 const DialogContent = withStyles((theme) => ({
   root: {
@@ -17,6 +20,8 @@ const DialogContent = withStyles((theme) => ({
 }))(MuiDialogContent);
 
 function Authentication(props) {
+  const cookie = new Cookies();
+  const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
 
   const handleLogin = () => {
@@ -29,11 +34,22 @@ function Authentication(props) {
   }
 
   React.useEffect(() => {
-    const cookie = new Cookies();
     if (!cookie.get('user-token')){
       setOpen(true);
     }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, []);
+
+  React.useEffect(() => {
+    if (!cookie.get('userData')) {
+      fetchAccountDetails().then(response => {
+        cookie.set('userData', response.data);
+      }).catch(error => {
+        dispatchError(dispatch, THROW_ERROR, error);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, []);
 
   React.useEffect(() => {
     if (!_.isEmpty(props.error)) {

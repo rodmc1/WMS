@@ -762,48 +762,48 @@ function WarehouseForm(props) {
       </div>
       <div className="paper__section image__dropzone">
         <Typography variant="subtitle1" className="paper__heading">Warehouse Photos</Typography>
-          <Dropzone 
-            imageCount={images[images.length - 1]}
-            defaultFiles={warehouse}
-            onDelete={() => {
-              setHasChanged(true);
-              setHasFilesChange(true);
-            }}
-            onDrop={() => {
-              setHasChanged(true);
-              setHasFilesChange(true);
-            }}
-            onChange={(files) => {
-              setImages([...images, files]);
-            }}
-            type="image"
-            data="Warehouse"
-            showPreviews
-            showPreviewsInDropzone={false} text="Drag and drop images here or click"
-          />
+        <Dropzone 
+          imageCount={images[images.length - 1]}
+          defaultFiles={warehouse}
+          onDelete={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onDrop={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onChange={(files) => {
+            setImages([...images, files]);
+          }}
+          type="image"
+          data="Warehouse"
+          showPreviews
+          showPreviewsInDropzone={false} text="Drag and drop images here or click"
+        />
       </div>
       <div className="paper__section documents__dropzone">
         <Typography variant="subtitle1" className="paper__heading">Documents</Typography>
-          <Dropzone
-            documentCount={docs[docs.length - 1]}
-            defaultFiles={warehouse}
-            type="files"
-            data="Warehouse"
-            onDelete={() => {
-              setHasChanged(true);
-              setHasFilesChange(true);
-            }}
-            onDrop={() => {
-              setHasChanged(true);
-              setHasFilesChange(true);
-            }}
-            onChange={(files) => {
-              setDocs([...docs, files])
-            }}
-            showPreviews
-            showPreviewsInDropzone={false}
-            text="Drag and drop a file here or click"
-          />
+        <Dropzone
+          documentCount={docs[docs.length - 1]}
+          defaultFiles={warehouse}
+          type="files"
+          data="Warehouse"
+          onDelete={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onDrop={() => {
+            setHasChanged(true);
+            setHasFilesChange(true);
+          }}
+          onChange={(files) => {
+            setDocs([...docs, files])
+          }}
+          showPreviews
+          showPreviewsInDropzone={false}
+          text="Drag and drop a file here or click"
+        />
       </div>
       { (isDirty || hasChanged) &&
         <div className="form__actions-container">
