@@ -38,9 +38,9 @@ function WarehouseSideBar(props) {
             className={history.location.pathname.match('overview') ? 'active' : 'delivery-notice-overview'}
           />
         </ListItem>
-        <ListItem disabled={history.location.pathname.match('create')} button onClick={() => history.push(`/delivery-notice/${props.id}/sku`)} >
+        {/* <ListItem disabled={history.location.pathname.match('create')} button onClick={() => history.push(`/delivery-notice/${props.id}/sku`)} >
           <ListItemText primary="SKU" className={history.location.pathname.match('sku') ? 'active' : 'delivery-notice-overview'} />
-        </ListItem>
+        </ListItem> */}
         {
           !history.location.pathname.match('create') &&
           <ListItem className="delete_button" button onClick={handleDialog} >
