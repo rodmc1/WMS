@@ -17,7 +17,9 @@ import MuiAlert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 import Typography from '@material-ui/core/Typography';
 
-// Alerts
+/**
+ * Alert for snackbar
+ */
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
@@ -146,6 +148,7 @@ function DeliveryNoticeCreate(props) {
     if (!Object.values(status).includes(false)) {
       setCreated(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [status]);
 
   /**
@@ -159,6 +162,7 @@ function DeliveryNoticeCreate(props) {
         handleError();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.error]);
 
   return (

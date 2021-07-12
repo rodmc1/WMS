@@ -2,23 +2,19 @@
 import './style.scss';
 import _ from 'lodash';
 import history from 'config/history';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { fetchWarehouses, fetchDeliveryNotices, fetchAllWarehouse, fetchDeliveryNoticeByName, fetchAllDeliveryNotice } from 'actions';
+import { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchAllDeliveryNotice } from 'actions';
 
 import Table from 'components/Table';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import MuiAlert from '@material-ui/lab/Alert';
 import Button from '@material-ui/core/Button';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Snackbar from '@material-ui/core/Snackbar';
-import Typography from '@material-ui/core/Typography';
-import WarehouseDialog from 'components/WarehouseDialog';
 import Spinner from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -46,6 +42,7 @@ function DeliveryNotice(props) {
   const [openBackdrop, setOpenBackdrop] = useState(true);
   const [deliveryNoticeCount, setDeliveryNoticeCount] = useState(0);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
+  const [alertConfig, setAlertConfig] = React.useState({});
   const [searchLoading, setSearchLoading] = useState(false);
   const routes = [{ label: 'Delivery Notice', path: '/delivery-notice' }];
 
@@ -166,7 +163,9 @@ function DeliveryNotice(props) {
     { label: "Quantity of truck", key: "qty_of_trucks" }
   ];
 
-  // Call delayedQuery function when user search and set new warehouse data
+  /**
+   * Call delayedQuery function when user search and set new delivery notice data
+   */
   React.useEffect(() => {
     if (query) {
       delayedQuery(page, rowCount);
@@ -176,6 +175,7 @@ function DeliveryNotice(props) {
       setSearchLoading(false);
     }
     return delayedQuery.cancel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query, delayedQuery, page, rowCount, props.notice.count, props.notice.data]);
 
   /**
@@ -185,30 +185,43 @@ function DeliveryNotice(props) {
     if (props.notice.data) {
       setDeliveryNoticeData(props.notice.data);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.notice]);
 
-  // Show snackbar alert when new warehouse is created
+  /**
+   * Show snackbar alert when new delivery notice is created
+   */
   React.useEffect(() => {
     if (props.location.success) {
       setOpen(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.location.success]);
 
+  /**
+   * Remove Spinner if data is done fetching with empty value
+   */
   React.useEffect(() => { 
     if (JSON.stringify(deliveryNoticeData) === '{}') {
       setOpenBackdrop(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [deliveryNoticeData]);
 
-  // Set searched values and warehouse count after search
+  /**
+   * Set searched values and delivery notice count after search
+   */
   React.useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
       setDeliveryNoticeCount(props.searched.count);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.searched]);
 
-  // Set warehouse count and remove spinner when data fetch is done
+  /**
+   * Set delivery notice count and remove spinner when data fetch is done
+   */
   React.useEffect(() => {
     if (props.notice.count) {
       setDeliveryNoticeCount(props.notice.count)
@@ -216,16 +229,45 @@ function DeliveryNotice(props) {
     }
   }, [props.notice.count]);
 
-  // Set new warehouse data with searched items
+  /**
+   * Set new delivery notice data with searched items and remove spinner in textfield
+   */
   React.useEffect(() => {
     if (searched) {
       setSearchLoading(false);
       setDeliveryNoticeData(searched);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
-  console.log(searched);
-  console.log(props.searched)
+  /**
+   * Handler api errors
+   */
+   const handleError = () => {
+    if (props.error.status === 401) {
+      setAlertConfig({ severity: 'error', message: 'Session Expired, please login again...' });
+    } else if (props.error.status === 500) {
+      setAlertConfig({ severity: 'error', message: 'Internal Server Error' });
+    } else {
+      setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
+    }
+  }
+
+  /**
+   * Handle errors
+   */
+   React.useEffect(() => {
+    if (!_.isEmpty(props.error)) {
+      setOpenBackdrop(false);
+      setOpen(true);
+      if (props.error === 'Network Error') {
+        setAlertConfig({ severity: 'error', message: 'Network Error, please try again...' });
+      } else {
+        handleError();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.error]);
 
   return (
     <div className="container delivery-notice-container">
@@ -252,7 +294,10 @@ function DeliveryNotice(props) {
         <CircularProgress color="inherit" />
       </Spinner>
       <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
-        <Alert severity="success">{props.location.success}</Alert>
+        { !_.isEmpty(props.error) 
+          ? <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
+          : <Alert severity="success">{props.location.success}</Alert>
+        }
       </Snackbar>
     </div>
   )

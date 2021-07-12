@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import React, { useEffect } from 'react';
-import history from 'config/history';
 import { fetchWarehouseById } from 'actions';
 import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
 
@@ -30,6 +29,7 @@ function WarehouseMasterDataOverview(props) {
     } else {
       setWarehouse(props.warehouse);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouse]);
 
   const renderInformation = () => {

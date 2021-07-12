@@ -2,13 +2,11 @@
 import './style.scss';
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import Cookies from 'universal-cookie';
 import { Controller, useForm } from 'react-hook-form';
 import { fetchTruckTypes, fetchClients } from 'actions/picklist';
-import { fetchWarehouseByName, fetchWarehouses, fetchAllWarehouse } from 'actions/index';
+import { fetchWarehouses } from 'actions/index';
 import { truckTypes } from 'assets/static/index';
 
-import validator from 'validator';
 import Grid from '@material-ui/core/Grid';
 import Dropzone from 'components/Dropzone';
 import Select from '@material-ui/core/Select';
@@ -16,7 +14,6 @@ import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Spinner from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -97,6 +94,7 @@ function DeliveryNoticeForm(props) {
     if (props.deliveryNotice && props.editMode && props.clients.length)  {
       setTimeout(() => { props.fetchWarehouses() }, 500);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.clients, props.deliveryNotice]);
 
   // Set warehouse count and remove spinner when data fetch is done
@@ -108,6 +106,7 @@ function DeliveryNoticeForm(props) {
         setValue('warehouse', props.deliveryNotice.warehouse_name);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouses]);
   
   /*
@@ -125,8 +124,6 @@ function DeliveryNoticeForm(props) {
     } else {
       props.onError(data);
     }
-
-    console.log(props.warehouses)
   }
 
   return (

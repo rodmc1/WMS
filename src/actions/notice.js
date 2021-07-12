@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import inteluck from 'api/inteluck';
-import { FETCH_DELIVERY_NOTICES, THROW_ERROR, SEARCH_DELIVERY_NOTICE, FETCH_DELIVERY_NOTICE } from './types';
+import { FETCH_DELIVERY_NOTICES, THROW_ERROR, SEARCH_DELIVERY_NOTICE, FETCH_DELIVERY_NOTICE, FETCH_DELIVERY_NOTICE_SKU, SEARCH_DELIVERY_NOTICE_SKU } from './types';
 import { dispatchError } from 'helper/error';
 
 
@@ -9,6 +9,15 @@ import { dispatchError } from 'helper/error';
  */
 export const fetchAllDeliveryNotice = () => {
   return inteluck.get(`/v1/wms/Warehouse/Delivery_Notice`);
+}
+
+/**
+ * For Delivery Notice SKU Download CSV
+ */
+ export const fetchAllDeliveryNoticeSKU = id => {
+  return inteluck.get(`/v1/wms/Warehouse/Delivery_Notice/Item`, { 
+    params: { delivery_notice_id: id }
+  });
 }
 
 /**
@@ -35,7 +44,6 @@ export const fetchDeliveryNoticeById = id => dispatch => {
 export const createDeliveryNotice = params => {
   return inteluck.post(`/v1/wms/Warehouse/Delivery_Notice`, params);
 }
-
 
 /**
  * Edit Delivery Notice
@@ -111,12 +119,33 @@ export const fetchDeliveryNoticeByName = params => dispatch => {
  * 
  * @param {object} params Query data
  */
- export const fetchDeliveryNoticeByCode = params => dispatch => {
-  inteluck.get(`/v1/wms/Warehouse/Delivery_Notice`, { params })
+export const fetchDeliveryNoticeByCode = params => dispatch => {
+inteluck.get(`/v1/wms/Warehouse/Delivery_Notice/Item`, { params })
+  .then(response => {
+    const headers = response.headers['x-inteluck-data'];
+    dispatch({
+      type: SEARCH_DELIVERY_NOTICE,
+      payload: {
+        data: response.data,
+        count: Number(JSON.parse(headers).Count)
+      }
+    });
+  }).catch(error => {
+    dispatchError(dispatch, THROW_ERROR, error);
+  });
+}
+
+/**
+ * For fetch single delivery notice by unique code
+ * 
+ * @param {object} params Query data
+ */
+ export const searchDeliveryNoticeSKU = params => dispatch => {
+  inteluck.get(`/v1/wms/Warehouse/Delivery_Notice/Item`, { params })
     .then(response => {
       const headers = response.headers['x-inteluck-data'];
       dispatch({
-        type: SEARCH_DELIVERY_NOTICE,
+        type: SEARCH_DELIVERY_NOTICE_SKU,
         payload: {
           data: response.data,
           count: Number(JSON.parse(headers).Count)
@@ -125,7 +154,7 @@ export const fetchDeliveryNoticeByName = params => dispatch => {
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);
     });
-}
+  }
 
 
 /**
@@ -139,9 +168,9 @@ export const uploadDeliveryNoticeFilesById = (deliveryNoticeId, files, type, fol
   const formData = new FormData();
   files.map(file => formData.append('Docs', file));
   const uploadParams = {
-      id: folderId,
-      delivery_notice_id: deliveryNoticeId,
-      delivery_notice_document_type: type
+    id: folderId,
+    delivery_notice_id: deliveryNoticeId,
+    delivery_notice_document_type: type
   }
 
   return inteluck.post(`/v1/wms/Warehouse/Delivery_Notice-File-Upload`, formData, {
@@ -150,4 +179,32 @@ export const uploadDeliveryNoticeFilesById = (deliveryNoticeId, files, type, fol
     },
     params: uploadParams
   });
+}
+
+
+/**
+ * Create Delivery Notice SKU
+ */
+export const createDeliveryNoticeSKU = params => {
+  return inteluck.post(`/v1/wms/Warehouse/Delivery_Notice/Item`, params);
+}
+
+
+/**
+ * Fetch Delivery Notice SKU
+ */
+export const fetchDeliveryNoticeSKU = params => dispatch => {
+  inteluck.get(`/v1/wms/Warehouse/Delivery_Notice/Item`, { params })
+    .then(response => {
+      const headers = response.headers['x-inteluck-data'];
+      dispatch({
+        type: FETCH_DELIVERY_NOTICE_SKU,
+        payload: {
+          data: response.data,
+          count: Number(JSON.parse(headers).Count)
+        }
+      });
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
 }
