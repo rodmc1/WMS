@@ -119,7 +119,7 @@ function WarehouseMasterDataSKUCreate (props) {
         success: 'Successfuly saved'
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [created])
 
   const handleError = error => {
