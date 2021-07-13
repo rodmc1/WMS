@@ -275,9 +275,6 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
                   <TableRow key={i} className="table__row sku-table">
                     <TableCell key={i}>{renderPreview(data.item_document_file_type ? data.item_document_file_type : data.item_document_file)}</TableCell>
                     <TableCell key={data.length ? i+data.item_code : i+data.item_code}>{data.item_code}</TableCell>
-                    <TableCell key={data.length ? i+data.uom_description : data.uom}>
-                      {data.length ? data.uom_description : data.uom}
-                    </TableCell>
                     <TableCell key={data.length ? i+data.external_code : i+data.external_material_coding}>
                       {data.length ? 
                         <Controller name={`externalCode${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.external_code ? data.external_code : ''}
@@ -293,6 +290,9 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
                         />:
                         data.external_material_description
                       }
+                    </TableCell>
+                    <TableCell key={data.length ? i+data.uom_description : data.uom}>
+                      {data.length ? data.uom_description : data.uom}
                     </TableCell>
                     <TableCell key={i+'qty'}>
                       {data.length ? 
