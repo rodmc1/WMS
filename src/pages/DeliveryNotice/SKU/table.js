@@ -274,8 +274,8 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
                 return (
                   <TableRow key={i} className="table__row sku-table">
                     <TableCell key={i}>{renderPreview(data.item_document_file_type ? data.item_document_file_type : data.item_document_file)}</TableCell>
-                    <TableCell key={data.length ? i+data.item_code : i+data.item_code}>{data.item_code}</TableCell>
-                    <TableCell key={data.length ? i+data.external_code : i+data.external_material_coding}>
+                    <TableCell key={i+'item_code'}>{data.item_code}</TableCell>
+                    <TableCell key={i+'external_code'}>
                       {data.length ? 
                         <Controller name={`externalCode${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.external_code ? data.external_code : ''}
                           as={<TextField variant="outlined" type="text" className="external-code" required fullWidth/>}
@@ -283,7 +283,7 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
                         data.external_material_coding
                       }
                       </TableCell>
-                    <TableCell key={data.length ? i+data.product_name : i+data.external_material_description}>
+                    <TableCell key={i+'external_description'}>
                       {data.length ? 
                         <Controller name={`productName${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.product_name ? data.product_name : ''}
                           as={<TextField variant="outlined" type="text" className="product-name" required fullWidth/>}
