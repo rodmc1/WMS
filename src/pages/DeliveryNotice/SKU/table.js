@@ -316,7 +316,7 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
                           as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
                         /> :
                         data.notes
-                      }                     
+                      }
                     </TableCell>
                       <TableCell key={i + 'actions'}>
                         {data.length &&
