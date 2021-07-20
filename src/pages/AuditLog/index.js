@@ -9,7 +9,7 @@ import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { fetchAuditLogs } from 'actions';
+import { fetchAuditLogs, fetchfilteredAuditLog } from 'actions';
 
 import Table from 'components/Table';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -41,6 +41,9 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
 const useStyles2 = makeStyles(theme => ({
   toolbar: {
@@ -81,28 +84,89 @@ const useStyles2 = makeStyles(theme => ({
 }));
 
 function AuditLog(props) {
+  const csvLink = useRef();
   const classes = useStyles2();
+  const [csvData, setCsvData] = useState([]);
   const [expanded, setExpanded] = React.useState(false);
-  const [startDate, setStartDate] = React.useState();
-  const [endDate, setEndDate] = React.useState();
   const [focusedInput, setFocusedInput] = React.useState();
   const [query, setQuery] = React.useState('');
   const [searchLoading, setSearchLoading] = React.useState(false);
+  const [auditLog, setAuditLog] = React.useState(false);
+  const [search, setSearched] = React.useState('');
+  const [startDate, setStartDate] = React.useState(null);
+  const [endDate, setEndDate] = React.useState(null);
   const routes = [{ label: 'Audig Log', path: '/audit-log' }];
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
+  const handleExpandClick = (index) => {
+    index === expanded ? setExpanded(false) : setExpanded(index);
   };
 
   // Handle Search input
-  const handleInputChange = (event) => {
-    console.log(event.target.value);
+  const handleInputChange = event => {
+    setQuery(event.target.value);
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  const delayedQuery = React.useCallback(_.debounce(() => {
+    setSearchLoading(true);
+    props.fetchfilteredAuditLog({
+      filter: query
+    })
+  }, 510), [query]);
+
+  // Function for CSV Download  
+  const handleDownloadCSV = () => {
+    const newData = props.logs.data.map(log => {
+      return {
+        name: 'Full Name',
+        action: log.action,
+        details: log.message,
+      }
+    });
+
+    setCsvData(newData);
+    csvLink.current.link.click();
+  }
+
+  // CSV Headers
+  const csvHeaders = [  
+    { label: "Name", key: "name" },
+    { label: "Action", key: "action" },
+    { label: "Details", key: "details" },
+  ];
+
+  /**
+   * Call delayedQuery function when user search and set new delivery notice data
+   */
+     React.useEffect(() => {
+      if (query) {
+        delayedQuery();
+      } else if (!query) {
+        setAuditLog(props.logs.data);
+        setSearchLoading(false);
+      }
+      return delayedQuery.cancel;
+      // eslint-disable-next-line react-hooks/exhaustive-deps 
+    }, [query]);
+  
 
   React.useEffect(() => {
     props.fetchAuditLogs();
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
+
+  React.useEffect(() => {
+    console.log(startDate);
+    console.log(endDate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [startDate, endDate]);
+
+  // Set searched values and warehouse count after search
+  React.useEffect(() => {
+    if (props.searched) {
+      setSearched(props.searched.data);
+    }
+  }, [props.searched]);
 
   return (
     <div className="container audit-log-container">
@@ -151,36 +215,41 @@ function AuditLog(props) {
             </div>
           </Grid>
           <Grid item xs={2} md={2}>
-            <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginLeft: 10 }}>Download CSV</Button>
+            <CSVLink data={csvData} filename="audit-log.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
+            <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginLeft: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
           </Grid>
         </Grid>
         <div className="paper__divider" />
-        <Card className={classes.root}>
-      <CardHeader
-        avatar={<Avatar aria-label="recipe" className={classes.avatar}>R</Avatar>}
-        action={
-          <IconButton
-            className={clsx(classes.expand, {
-              [classes.expandOpen]: expanded,
-            })}
-            onClick={handleExpandClick}
-            aria-expanded={expanded}
-            aria-label="show more"
-          >
-            <ExpandMoreIcon />
-          </IconButton>
-        }
-        title="Shrimp and Chorizo Paella"
-        subheader="September 14, 2016"
-      />
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography>
-            Set aside off of the heat to let rest for 10 minutes, and then serve.
-          </Typography>
-        </CardContent>
-      </Collapse>
-    </Card>
+        {props.logs.data && props.logs.data.map((log, index) => {
+          return (
+            <Card elevation={0} key={index}>
+              <CardHeader
+                avatar={<Avatar aria-label="recipe" className={classes.avatar}><AccountCircleIcon /></Avatar>}
+                action={
+                  <IconButton
+                    className={clsx(classes.expand, {
+                      [classes.expandOpen]: expanded === index,
+                    })}
+                    onClick={() => handleExpandClick(index)}
+                    aria-expanded={expanded === index}
+                    aria-label="show more"
+                  >
+                    <ExpandMoreIcon />
+                  </IconButton>
+                }
+                title={log.message}
+                subheader={moment(log.stamp).format('DD-MMM-YYYY [at] hh:mm A')}
+              />
+              <Collapse in={expanded === index} timeout="auto" unmountOnExit>
+                <CardContent>
+                  <Typography>
+                    {log.action}
+                  </Typography>
+                </CardContent>
+              </Collapse>
+            </Card>
+          )
+        })}
       </Paper>
     </div>
   )
@@ -192,8 +261,9 @@ function AuditLog(props) {
  const mapStateToProps = state => {
   return { 
     error: state.error,
-    logs: state.logs
+    logs: state.logs,
+    searched: state.logs.search
   }
 };
 
-export default connect(mapStateToProps, { fetchAuditLogs })(AuditLog);
+export default connect(mapStateToProps, { fetchAuditLogs, fetchfilteredAuditLog })(AuditLog);

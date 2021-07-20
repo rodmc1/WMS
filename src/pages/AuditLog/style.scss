@@ -14,7 +14,12 @@
   .MuiOutlinedInput-input {
     padding: 14px 14px;
   }
-  
+
+  .MuiCard-root {
+    margin-bottom: 1.5%;
+    border: 1px solid #E0E0E0;
+  }
+
   @media (min-width: 1500px) {
     .search_form {
       width: 100% !important;
