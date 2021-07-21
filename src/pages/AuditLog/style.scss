@@ -1,4 +1,7 @@
 .audit-log-container {
+  .log-list {
+    min-height: 80vh;
+  }
   .DateInput {
     max-width: 105px;
   }
@@ -20,25 +23,18 @@
     border: 1px solid #E0E0E0;
   }
 
+  .nrf {
+    margin-top: 150px;
+    position: relative;
+    float: left;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
   @media (min-width: 1500px) {
     .search_form {
       width: 100% !important;
     }
   }
-
-  // @media (min-width: 1200px) {
-  //   .drawer + main .DateInput {
-  //     max-width: 155px !important;
-  //   }
-  // }
 }
-
-// @media (min-width: 1400px) {
-// @media (min-width: 1400px) {
-  // .drawer + main .audit-log-container .DateInput {
-  //   max-width: 100% !important;
-  // }
-  // .drawer:not(.drawer--collapsed) + main .audit-log-container .DateInput {
-  //   max-width: 105px !important;
-  // }
-// }

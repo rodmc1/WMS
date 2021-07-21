@@ -22,7 +22,7 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import "react-dates/initialize";
-import { DateRangePicker } from "react-dates";
+import { DateRangePicker, SingleDatePicker } from "react-dates";
 import "react-dates/lib/css/_datepicker.css";
 
 import FormControl from '@material-ui/core/FormControl';
@@ -88,18 +88,14 @@ function AuditLog(props) {
   const classes = useStyles2();
   const [csvData, setCsvData] = useState([]);
   const [expanded, setExpanded] = React.useState(false);
-  const [focusedInput, setFocusedInput] = React.useState();
+  const [focused, setFocused] = React.useState();
   const [query, setQuery] = React.useState('');
   const [searchLoading, setSearchLoading] = React.useState(false);
-  const [auditLog, setAuditLog] = React.useState(false);
-  const [search, setSearched] = React.useState('');
-  const [startDate, setStartDate] = React.useState(null);
-  const [endDate, setEndDate] = React.useState(null);
+  const [auditLog, setAuditLog] = React.useState(null);
+  const [searched, setSearched] = React.useState('');
+  const [date, setDate] = React.useState(null);
+  const [ready, setReady] = React.useState(false);
   const routes = [{ label: 'Audig Log', path: '/audit-log' }];
-
-  const handleExpandClick = (index) => {
-    index === expanded ? setExpanded(false) : setExpanded(index);
-  };
 
   // Handle Search input
   const handleInputChange = event => {
@@ -107,30 +103,22 @@ function AuditLog(props) {
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps 
-  const delayedQuery = React.useCallback(_.debounce(() => {
+  const delayedQuery = React.useCallback(_.debounce(date => {
     setSearchLoading(true);
     props.fetchfilteredAuditLog({
-      filter: query
+      filter: query,
+      date: date
     })
   }, 510), [query]);
 
   // Function for CSV Download  
   const handleDownloadCSV = () => {
-    const newData = props.logs.data.map(log => {
-      return {
-        name: 'Full Name',
-        action: log.action,
-        details: log.message,
-      }
-    });
-
-    setCsvData(newData);
     csvLink.current.link.click();
   }
 
   // CSV Headers
   const csvHeaders = [  
-    { label: "Name", key: "name" },
+    { label: "Name", key: "fullname" },
     { label: "Action", key: "action" },
     { label: "Details", key: "details" },
   ];
@@ -138,17 +126,23 @@ function AuditLog(props) {
   /**
    * Call delayedQuery function when user search and set new delivery notice data
    */
-     React.useEffect(() => {
-      if (query) {
-        delayedQuery();
-      } else if (!query) {
-        setAuditLog(props.logs.data);
-        setSearchLoading(false);
-      }
-      return delayedQuery.cancel;
-      // eslint-disable-next-line react-hooks/exhaustive-deps 
-    }, [query]);
-  
+  React.useEffect(() => {
+    if (query) {
+      delayedQuery();
+    } else if (!query) {
+      setAuditLog(props.logs.data);
+      setSearchLoading(false);
+    }
+    return delayedQuery.cancel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [query]);
+
+  React.useEffect(() => {
+    if (date) {
+      delayedQuery(date.format("MM/DD/YYYY"))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [date]);
 
   React.useEffect(() => {
     props.fetchAuditLogs();
@@ -156,36 +150,71 @@ function AuditLog(props) {
   }, []);
 
   React.useEffect(() => {
-    console.log(startDate);
-    console.log(endDate);
+    if (props.logs.data) {
+      setAuditLog(props.logs.data);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [startDate, endDate]);
+  }, [props.logs.data]);
+
+  React.useEffect(() => {
+    if (auditLog) {
+      const newData = auditLog.map(log => {
+        return {
+          fullname: log.fullname,
+          action: log.action,
+          details: log.message,
+        }
+      });
+
+      setCsvData(newData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [auditLog]);
+
+
+  // Set searched values and warehouse count after search
+  React.useEffect(() => {
+    if (searched) {
+      setAuditLog(searched);
+      setSearchLoading(false)
+    }
+  }, [searched]);
 
   // Set searched values and warehouse count after search
   React.useEffect(() => {
     if (props.searched) {
-      setSearched(props.searched.data);
+      setSearched(props.searched);
+      if (!props.searched.length && (query || date)) {
+        setInterval(() => {setReady(true)}, 300);
+      } else {
+        setReady(false)
+      }
     }
   }, [props.searched]);
+
+  const handleDate = date => {
+    setDate(date);
+  }
+
+  const handleFocus = ({focused}) => {
+    setFocused(focused)
+  }
 
   return (
     <div className="container audit-log-container">
       <Breadcrumbs routes={routes} />
-      <Paper className="paper" elevation={0} variant="outlined">
+      <Paper className="paper log-list" elevation={0} variant="outlined">
         <Grid container spacing={3} direction="row" alignItems="stretch">
           <Grid item xs={3} md={3}>
             <div className="button-group">
-              <DateRangePicker
-                startDate={startDate}
-                startDateId="start-date"
-                endDate={endDate}
-                endDateId="end-date"
-                onDatesChange={({ startDate, endDate }) => {
-                  setStartDate(startDate);
-                  setEndDate(endDate);
-                }}
-                focusedInput={focusedInput}
-                onFocusChange={(focusedInput) => setFocusedInput(focusedInput)}
+              <SingleDatePicker
+                date={date}
+                onDateChange={handleDate} 
+                focused={focused}
+                onFocusChange={handleFocus} 
+                id="log-date-picker"
+                showDefaultInputIcon
+                inputIconPosition="after"
               />
             </div>
           </Grid>
@@ -220,23 +249,11 @@ function AuditLog(props) {
           </Grid>
         </Grid>
         <div className="paper__divider" />
-        {props.logs.data && props.logs.data.map((log, index) => {
+        {auditLog && auditLog.map((log, index) => {
           return (
             <Card elevation={0} key={index}>
               <CardHeader
-                avatar={<Avatar aria-label="recipe" className={classes.avatar}><AccountCircleIcon /></Avatar>}
-                action={
-                  <IconButton
-                    className={clsx(classes.expand, {
-                      [classes.expandOpen]: expanded === index,
-                    })}
-                    onClick={() => handleExpandClick(index)}
-                    aria-expanded={expanded === index}
-                    aria-label="show more"
-                  >
-                    <ExpandMoreIcon />
-                  </IconButton>
-                }
+                avatar={<Avatar aria-label="recipe" className={classes.avatar}>{log.fullname.charAt(0)}</Avatar>}
                 title={log.message}
                 subheader={moment(log.stamp).format('DD-MMM-YYYY [at] hh:mm A')}
               />
@@ -250,6 +267,7 @@ function AuditLog(props) {
             </Card>
           )
         })}
+        {ready ? <Typography className="nrf">No Results Found</Typography> : ''}
       </Paper>
     </div>
   )
