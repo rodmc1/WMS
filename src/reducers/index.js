@@ -5,6 +5,7 @@ import warehousesReducer from './warehousesReducer';
 import skuReducer from './skuReducer';
 import noticeReducer from './noticeReducer';
 import authReducer from './authReducer';
+import logReducer from './logReducer';
 
 export default combineReducers({
   auth: authReducer,
@@ -12,5 +13,6 @@ export default combineReducers({
   warehouses: warehousesReducer,
   picklist: picklistReducer,
   sku: skuReducer,
-  notice: noticeReducer
+  notice: noticeReducer,
+  logs: logReducer
 });
