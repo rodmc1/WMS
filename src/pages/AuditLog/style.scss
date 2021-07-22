@@ -1,3 +1,6 @@
+@import 'assets/scss/button';
+@import 'assets/scss/variable';
+
 .audit-log-container {
   .log-list {
     min-height: 80vh;
@@ -21,6 +24,28 @@
   .MuiCard-root {
     margin-bottom: 1.5%;
     border: 1px solid #E0E0E0;
+  }
+
+  .log-action-icon {
+    position: absolute;
+    margin-top: 25px;
+    margin-left: 15px;
+    &.created {
+      color: $emerald;
+    }
+    &.added {
+      color: $emerald;
+    }
+    &.updated {
+      color: #FEB56B;
+    }
+    &.deleted {
+      color: #EB5757;
+    }
+  }
+
+  .MuiCardHeader-root {
+    margin-left: 39px;
   }
 
   .nrf {

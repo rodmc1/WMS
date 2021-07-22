@@ -44,6 +44,10 @@ import IconButton from '@material-ui/core/IconButton';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import CreateIcon from '@material-ui/icons/Create';
+import DeleteIcon from '@material-ui/icons/Delete';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
 
 const useStyles2 = makeStyles(theme => ({
   toolbar: {
@@ -95,7 +99,7 @@ function AuditLog(props) {
   const [searched, setSearched] = React.useState('');
   const [date, setDate] = React.useState(null);
   const [ready, setReady] = React.useState(false);
-  const routes = [{ label: 'Audig Log', path: '/audit-log' }];
+  const routes = [{ label: 'Audit Log', path: '/audit-log' }];
 
   // Handle Search input
   const handleInputChange = event => {
@@ -200,6 +204,14 @@ function AuditLog(props) {
     setFocused(focused)
   }
 
+  const renderIcon = (str) => {
+    if (str.match(/created/)) return <AddCircleIcon className="log-action-icon created" />;
+    if (str.match(/changed/) || str.match(/updated/)) return <CreateIcon className="log-action-icon updated" />;
+    if (str.match(/deleted/)) return <CreateIcon className="log-action-icon deleted" />;
+    if (str.match(/added/)) return <CreateIcon className="log-action-icon added" />;
+    else return <CreateIcon className="log-action-icon updated" />;
+  }
+
   return (
     <div className="container audit-log-container">
       <Breadcrumbs routes={routes} />
@@ -214,6 +226,7 @@ function AuditLog(props) {
                 onFocusChange={handleFocus} 
                 id="log-date-picker"
                 showDefaultInputIcon
+                isOutsideRange={() => false}
                 inputIconPosition="after"
               />
             </div>
@@ -251,20 +264,23 @@ function AuditLog(props) {
         <div className="paper__divider" />
         {auditLog && auditLog.map((log, index) => {
           return (
-            <Card elevation={0} key={index}>
-              <CardHeader
-                avatar={<Avatar aria-label="recipe" className={classes.avatar}>{log.fullname.charAt(0)}</Avatar>}
-                title={log.message}
-                subheader={moment(log.stamp).format('DD-MMM-YYYY [at] hh:mm A')}
-              />
-              <Collapse in={expanded === index} timeout="auto" unmountOnExit>
-                <CardContent>
-                  <Typography>
-                    {log.action}
-                  </Typography>
-                </CardContent>
-              </Collapse>
-            </Card>
+            <React.Fragment>
+              {renderIcon(log.message)}
+              <Card elevation={0} key={index}>
+                <CardHeader
+                  avatar={<Avatar aria-label="recipe" className={classes.avatar}>{log.fullname.charAt(0)}</Avatar>}
+                  title={log.message}
+                  subheader={moment(log.stamp).format('DD-MMM-YYYY [at] hh:mm A')}
+                />
+                <Collapse in={expanded === index} timeout="auto" unmountOnExit>
+                  <CardContent>
+                    <Typography>
+                      {log.action}
+                    </Typography>
+                  </CardContent>
+                </Collapse>
+              </Card>
+            </React.Fragment>
           )
         })}
         {ready ? <Typography className="nrf">No Results Found</Typography> : ''}
