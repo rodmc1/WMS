@@ -213,8 +213,11 @@ function AuditLog(props) {
   }
 
   const renderMessage = str => {
-    if (str.match(/logged in/)) return str.substring(0, str.indexOf('logged in') + 'logged in'.length); 
-    else return str;
+    if (str.match(/logged in/)) {
+      return str.substring(0, str.indexOf('logged in') + 'logged in'.length); 
+    } else {
+      return str;
+    }
   }
 
   return (
