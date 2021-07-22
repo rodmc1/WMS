@@ -212,6 +212,10 @@ function AuditLog(props) {
     else return <CreateIcon className="log-action-icon updated" />;
   }
 
+  const renderMessage = str => {
+    if (str.match(/logged in/)) return str.substring(0, str.indexOf('logged in') + 'logged in'.length); 
+  }
+
   return (
     <div className="container audit-log-container">
       <Breadcrumbs routes={routes} />
@@ -228,6 +232,7 @@ function AuditLog(props) {
                 showDefaultInputIcon
                 isOutsideRange={() => false}
                 inputIconPosition="after"
+                numberOfMonths={1}
               />
             </div>
           </Grid>
@@ -269,7 +274,7 @@ function AuditLog(props) {
               <Card elevation={0} key={index}>
                 <CardHeader
                   avatar={<Avatar aria-label="recipe" className={classes.avatar}>{log.fullname.charAt(0)}</Avatar>}
-                  title={log.message}
+                  title={renderMessage(log.message)}
                   subheader={moment(log.stamp).format('DD-MMM-YYYY [at] hh:mm A')}
                 />
                 <Collapse in={expanded === index} timeout="auto" unmountOnExit>
