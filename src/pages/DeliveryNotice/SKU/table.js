@@ -200,14 +200,85 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
   React.useEffect(() => {
     if (defaultData) setTableData(defaultData);
     if (data.length) setTableData(data);
-  }, [data, defaultData])
+  }, [data, defaultData]);
 
   // Set the page number and item count for searched items
   React.useEffect(() => {
-      handleRowCount(page, rowsPerPage);
-      onPaginate(page, rowsPerPage);
+    handleRowCount(page, rowsPerPage);
+    onPaginate(page, rowsPerPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [page, rowsPerPage]);
+
+  const renderTableBody = () => {
+    const tableBody = Object.values(tableData).map((data, i) => 
+      <TableRow key={data.item_id} className="table__row sku-table">
+        <TableCell key={i}>{renderPreview(data.item_document_file_type ? data.item_document_file_type : data.item_document_file)}</TableCell>
+        <TableCell key={i+'item_code'}>{data.item_code}</TableCell>
+        <TableCell key={i+'external_code'}>
+          {data.length ? 
+            <Controller name={`externalCode${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.external_code}
+              as={<TextField variant="outlined" type="text" className="external-code" required fullWidth/>}
+            /> :
+            data.external_material_coding
+          }
+          </TableCell>
+        <TableCell key={i+'external_description'}>
+          {data.length ? 
+            <Controller name={`productName${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.product_name}
+              as={<TextField variant="outlined" type="text" className="product-name" required fullWidth/>}
+            />:
+            data.external_material_description
+          }
+        </TableCell>
+        <TableCell key={data.length ? i+data.uom_description : data.uom}>
+          {data.length ? data.uom_description : data.uom}
+        </TableCell>
+        <TableCell key={i+'qty'}>
+          {data.length ? 
+            <Controller 
+              name={`expectedQty${i}`}
+              control={control}
+              rules={{ 
+                required: "This field is required",
+                validate: value => { return value < 0 ? 'Invalid value' : true } 
+              }}
+              defaultValue={data.expected_qty ? data.expected_qty : 0}
+              
+              as={<TextField variant="outlined" type="number" className="expected-quantity" required fullWidth/>}
+            /> :
+            data.expected_qty
+          }
+        </TableCell>
+        <TableCell key={i + 'notes'}>
+          {data.length ? 
+            <Controller name={`notes${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.notes ? data.notes : "None"}
+              as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
+            /> :
+            data.notes
+          }
+        </TableCell>
+        <TableCell key={i + 'actions'}>
+          {data.length &&
+            <>
+              <Tooltip title="Save">
+                <IconButton color="primary" aria-label="save" component="span" onClick={() => handleSave(data, i)}>
+                  <CheckIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Cancel">
+                <IconButton color="secondary" aria-label="cancel" component="span" onClick={() => handleCancel(data)}>
+                  <ClearIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          }
+        </TableCell>
+      </TableRow>
+    );
+
+    return tableBody;
+  }
+
   
   return (
     <React.Fragment>
@@ -270,73 +341,7 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
                   <TableCell colSpan={12} align="center" className="no-results-row">No results found</TableCell>
                 </TableRow>
               }
-              {Object.values(tableData).map((data, i) => {
-                return (
-                  <TableRow key={i} className="table__row sku-table">
-                    <TableCell key={i}>{renderPreview(data.item_document_file_type ? data.item_document_file_type : data.item_document_file)}</TableCell>
-                    <TableCell key={i+'item_code'}>{data.item_code}</TableCell>
-                    <TableCell key={i+'external_code'}>
-                      {data.length ? 
-                        <Controller name={`externalCode${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.external_code ? data.external_code : ''}
-                          as={<TextField variant="outlined" type="text" className="external-code" required fullWidth/>}
-                        /> :
-                        data.external_material_coding
-                      }
-                      </TableCell>
-                    <TableCell key={i+'external_description'}>
-                      {data.length ? 
-                        <Controller name={`productName${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.product_name ? data.product_name : ''}
-                          as={<TextField variant="outlined" type="text" className="product-name" required fullWidth/>}
-                        />:
-                        data.external_material_description
-                      }
-                    </TableCell>
-                    <TableCell key={data.length ? i+data.uom_description : data.uom}>
-                      {data.length ? data.uom_description : data.uom}
-                    </TableCell>
-                    <TableCell key={i+'qty'}>
-                      {data.length ? 
-                        <Controller 
-                          name={`expectedQty${i}`}
-                          control={control}
-                          rules={{ 
-                            required: "This field is required",
-                            validate: value => { return value < 0 ? 'Invalid value' : true } 
-                          }}
-                          defaultValue={data.expected_qty ? data.expected_qty : 0}
-                          
-                          as={<TextField variant="outlined" type="number" className="expected-quantity" required fullWidth/>}
-                        /> :
-                        data.expected_qty
-                      }
-                    </TableCell>
-                    <TableCell key={i + 'notes'}>
-                      {data.length ? 
-                        <Controller name={`notes${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.notes ? data.notes : "None"}
-                          as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
-                        /> :
-                        data.notes
-                      }
-                    </TableCell>
-                      <TableCell key={i + 'actions'}>
-                        {data.length &&
-                          <>
-                            <Tooltip title="Save">
-                              <IconButton color="primary" aria-label="save" component="span" onClick={() => handleSave(data, i)}>
-                                <CheckIcon />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Cancel">
-                              <IconButton color="secondary" aria-label="cancel" component="span" onClick={() => handleCancel(data)}>
-                                <ClearIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </>
-                        }
-                      </TableCell>
-                  </TableRow>
-                )
-              })}
+              {renderTableBody()}
             </TableBody>
           </Table>
         </TableContainer>
