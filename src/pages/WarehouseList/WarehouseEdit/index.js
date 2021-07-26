@@ -114,21 +114,21 @@ function WarehouseEdit(props) {
     let existingUserContactPerson = { data: null };
 
     const newBroker = {
-      role: 'Broker',
       last_name: data.companyBrokerLastName,
       first_name: data.companyBrokerFirstName,
       middle_name: data.companyBrokerMiddleName,
       mobile_number: data.companyBrokerMobileNumber,
       email_address: data.companyBrokerEmailAddress,
+      role: 'Broker',
     }
 
     const newContactPerson = {
-      role: 'Contact Person',
       last_name: data.contactPersonLastName,
       first_name: data.contactPersonFirstName,
       middle_name: data.contactPersonMiddleName,
       mobile_number: data.contactPersonMobileNumber,
       email_address: data.contactPersonEmailAddress,
+      role: 'Contact Person',
     }
 
     existingWarehouse.warehouse_users_details.forEach(user => {
@@ -158,7 +158,7 @@ function WarehouseEdit(props) {
 
     const hasBrokerChange = JSON.stringify(existingUserBroker.data) !== JSON.stringify(newBroker);
     const hasContactChange = JSON.stringify(existingUserContactPerson.data) !== JSON.stringify(newContactPerson);
-
+    
     if (hasBrokerChange) {
       handleUpdateUserById(existingUserBroker.id, newBroker);
     } else {
