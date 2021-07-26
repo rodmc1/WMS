@@ -85,28 +85,25 @@ function WarehouseMasterDataSKUDetail (props) {
   const handleImageUpdate = (data) => {
     const imageExtensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];
     const newImages = data.images[data.images.length - 1].map(i => { return  i.name }); 
+    let existingSKUImages = [];
     
     if (existingSKU.item_document_file_type) {
-
+      existingSKUImages = existingSKU.item_document_file_type.map(i => { return i.item_filename });
       existingSKU.item_document_file_type.forEach(file => {
         if (imageExtensions.includes(file.item_filename.split('.').pop().toLowerCase()) && !newImages.includes(file.item_filename)) {
           deleteSKUPhotosById(file.item_document_file_id);
         }
       });
     }
-
-    if (data.images[data.images.length - 1].length) {
-      uploadSKUFilesById(existingSKU.item_id, existingSKU.item_document_id, data.images[data.images.length - 1])
-        .then(response => {
-          if (response) {
-            setStatus(prevState => { return {...prevState, images: true }});
-          }
-        }).catch(error => {
-          dispatchError(dispatch, THROW_ERROR, error);
-        });
-    } else {
+    
+    data.images[data.images.length - 1].forEach(file => {
+      if (!existingSKUImages.includes(file.name)) {
+        uploadSKUFilesById(existingSKU.item_id, existingSKU.item_document_id, data.images[data.images.length - 1])
+      }
+    });
+    setInterval(() => { 
       setStatus(prevState => { return {...prevState, images: true }});
-    }
+    }, 700);
   }
 
   const handleError = error => {

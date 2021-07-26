@@ -5,6 +5,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
 import EventNoteIcon from '@material-ui/icons/EventNote';
 import { HomeWork, KeyboardArrowUp, ChevronLeft, ChevronRight, TableChart } from '@material-ui/icons';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 
 function Navigation(props) {
   const location = useLocation();
@@ -32,6 +33,16 @@ function Navigation(props) {
           path: '/delivery-notice',
           icon: EventNoteIcon
         }
+      ]
+    },
+    {
+      group: 'Records',
+      list: [
+        {
+          label:'Audit Log',
+          path: '/audit-log',
+          icon: AssignmentIcon
+        },
       ]
     },
   ]);
@@ -68,7 +79,6 @@ function Navigation(props) {
                 <div className="main-nav__group-label" onClick={() => toggleNavigationGroup(index)}>
                   <p>{item.group} <KeyboardArrowUp /></p>
                   <span>{item.list.map((i, index) => {
-                    // if (i.permission && !Common.getPermission(i.permission, i.page)) return;
                     const separator = index !== item.list.length - 1 ? ', ' : '';
                     return i.label + separator;
                   })}</span>
@@ -79,7 +89,6 @@ function Navigation(props) {
                 maxHeight: (item.list.length * 48 + 68)
               }}>
                 {item.list.map(i => {
-                  // if (i.permission && !Common.getPermission(i.permission, i.page)) return;
                   return (
                     <li key={i.label} className="main-nav__group-list-item">
                       { props.isNavigationCollapsed
