@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import inteluck from 'api/inteluck';
 import { FETCH_WAREHOUSE_LOGS, FILTER_LOGS, THROW_ERROR } from './types';
 import { dispatchError } from 'helper/error';
