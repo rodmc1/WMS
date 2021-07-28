@@ -178,6 +178,8 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
     return <img src={defaultImage} onError={handleImageError} className="table-img-preview" alt="" />
   }
 
+  console.log(tableData)
+
   const handleSave = (data, i) => {
     const values = getValues([`externalCode${i}`, `productName${i}`, `uom${i}`, `expectedQty${i}`, `notes${i}`]);
     const rowData = {
@@ -230,7 +232,7 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
             data.external_material_description
           }
         </TableCell>
-        <TableCell key={data.length ? i+data.uom_description : data.uom}>
+        <TableCell key={i+"uom"}>
           {data.length ? data.uom_description : data.uom}
         </TableCell>
         <TableCell key={i+'qty'}>
@@ -249,7 +251,7 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
             data.expected_qty
           }
         </TableCell>
-        <TableCell key={i + 'notes'}>
+        <TableCell key={i+'notes'}>
           {data.length ? 
             <Controller name={`notes${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.notes ? data.notes : "None"}
               as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
