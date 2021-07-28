@@ -15,7 +15,9 @@ export const fetchAllDeliveryNotice = (target_id) => {
  * 
  * @param {object} params Set of data
  */
- export const fetchAuditLogs = params => dispatch => {
+ export const fetchAuditLogs = () => dispatch => {
+  const params = { target_object: 'warehouse' };
+  
   inteluck.get('/v1/wms/Warehouse/Logs', { params })
     .then(response => {
       dispatch({
@@ -32,7 +34,9 @@ export const fetchAllDeliveryNotice = (target_id) => {
  * 
  * @param {object} params Set of data
  */
- export const fetchfilteredAuditLog = params => dispatch => {
+ export const fetchfilteredAuditLog = (query, date) => dispatch => {
+  const params = { query, date, target_object: 'warehouse' };
+
   inteluck.get('/v1/wms/Warehouse/Logs', { params })
     .then(response => {
       dispatch({

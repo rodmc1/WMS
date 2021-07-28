@@ -86,10 +86,7 @@ function AuditLog(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const delayedQuery = React.useCallback(_.debounce(date => {
     setSearchLoading(true);
-    props.fetchfilteredAuditLog({
-      filter: query,
-      date: date
-    })
+    props.fetchfilteredAuditLog(query, date);
   }, 510), [query]);
 
   // Function for CSV Download  
