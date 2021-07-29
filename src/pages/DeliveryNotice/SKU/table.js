@@ -180,12 +180,12 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
   }
 
   const handleSave = (data, i) => {
-    const values = getValues([`externalCode${i}`, `productName${i}`, `uom${i}`, `expectedQty${i}`, `notes${i}`]);
+    const values = getValues([`externalCode${data.item_id}`, `productName${data.item_id}`, `uom${data.item_id}`, `expectedQty${data.item_id}`, `notes${data.item_id}`]);
     const rowData = {
-      externalCode: values[`externalCode${i}`],
-      productName: values[`productName${i}`],
-      expectedQty: values[`expectedQty${i}`],
-      notes: values[`notes${i}`],
+      externalCode: values[`externalCode${data.item_id}`],
+      productName: values[`productName${data.item_id}`],
+      expectedQty: values[`expectedQty${data.item_id}`],
+      notes: values[`notes${data.item_id}`],
       code: data.item_code,
       id: data.item_id
     }
@@ -283,27 +283,27 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
                   <TableCell key={i+'item_code'}>{data.item_code}</TableCell>
                   <TableCell key={i+'external_code'}>
                     {addMode ? 
-                      <Controller name={`externalCode${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.external_code}
+                      <Controller name={`externalCode${data.item_id}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.external_code}
                         as={<TextField variant="outlined" type="text" className="external-code" required fullWidth/>}
                       /> :
                       data.external_material_coding
                     }
                     </TableCell>
-                  <TableCell key={i+'external_description'}>
+                  <TableCell>
                     {addMode ? 
-                      <Controller name={`productName${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.product_name}
+                      <Controller name={`productName${data.item_id}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.product_name}
                         as={<TextField variant="outlined" type="text" className="product-name" required fullWidth/>}
                       />:
                       data.external_material_description
                     }
                   </TableCell>
-                  <TableCell key={i+"uom"}>
+                  <TableCell>
                     {data.uom_description ? data.uom_description : data.uom}
                   </TableCell>
-                  <TableCell key={i+'qty'}>
+                  <TableCell>
                     {addMode ? 
                       <Controller 
-                        name={`expectedQty${i}`}
+                        name={`expectedQty${data.item_id}`}
                         control={control}
                         rules={{ 
                           required: "This field is required",
@@ -315,15 +315,15 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
                       data.expected_qty
                     }
                   </TableCell>
-                  <TableCell key={i+'notes'}>
+                  <TableCell>
                     {addMode ? 
-                      <Controller name={`notes${i}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.notes ? data.notes : "None"}
+                      <Controller name={`notes${data.item_id}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.notes ? data.notes : "None"}
                         as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
                       /> :
                       data.notes
                     }
                   </TableCell>
-                  <TableCell key={i + 'actions'}>
+                  <TableCell>
                     {addMode &&
                       <>
                         <Tooltip title="Save">

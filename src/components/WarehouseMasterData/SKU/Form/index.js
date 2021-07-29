@@ -114,7 +114,7 @@ function WarehouseMasterDataSKUForm(props) {
                   <MenuItem value="Pallet">Pallet</MenuItem>
                   <MenuItem value="Carton">Carton</MenuItem>
                   <MenuItem value="Piece">Piece</MenuItem>
-                  <MenuItem value="Piece">Bundle</MenuItem>
+                  <MenuItem value="Bundle">Bundle</MenuItem>
                 </Select>
               }
               control={control}
