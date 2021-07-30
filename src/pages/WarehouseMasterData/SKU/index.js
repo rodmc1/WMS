@@ -134,6 +134,7 @@ function WarehouseMasterDataSKU (props) {
       const newData = response.data.map(sku => {
         return {
           warehouseName: sku.warehouse_name,
+          productName: sku.product_name,
           UOMDescription: sku.uom_description,
           itemCode: sku.item_code,
           externalCode: sku.external_code,
@@ -161,6 +162,7 @@ function WarehouseMasterDataSKU (props) {
   // CSV Headers
   const csvHeaders = [  
     { label: "Warehouse Name", key: "warehouseName" },
+    { label: "Product Name", key: "productName" },
     { label: "UOM", key: "UOMDescription" },
     { label: "Code", key: "itemCode" },
     { label: "External Code", key: "externalCode" },
