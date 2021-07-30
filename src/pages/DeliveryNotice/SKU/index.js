@@ -106,10 +106,13 @@ function DeliveryNoticeSKU(props) {
   }
 
   // Function for cancel action
-  const handleCancel = (data) => {
-    setIsChecked(isChecked.filter(check => check !== data.item_id));
-    setSelectedSKU(items.filter(sku => sku.item_id !== data.item_id));
-    setItems(items.filter(sku => sku.item_id !== data.item_id));
+  const handleCancel = (data, allData) => {
+    const filteredCheck = isChecked.filter(check => check !== data.item_id);
+    const filteredItem = items.filter(sku => sku.item_id !== data.item_id);
+    setIsChecked(filteredCheck);
+    setSelectedSKU(filteredItem);
+    setItems(filteredItem);
+    console.log(allData)
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps 

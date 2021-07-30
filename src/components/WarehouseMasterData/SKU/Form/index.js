@@ -55,18 +55,18 @@ function WarehouseMasterDataSKUForm(props) {
         ['productName', props.sku.product_name],
         ['code', props.sku.item_code],
         ['externalCode', props.sku.external_code],
-        ['minQuantity', props.sku.min_qty],
-        ['maxQuantity', props.sku.max_qty],
-        ['valuePerUnit', props.sku.value_per_unit],
-        ['length', props.sku.length],
-        ['width', props.sku.width],
-        ['height', props.sku.height],
-        ['weight', props.sku.weight],
+        ['minQuantity', props.sku.min_qty ? props.sku.min_qty : '0'],
+        ['maxQuantity', props.sku.max_qty ? props.sku.max_qty : '0'],
+        ['valuePerUnit', props.sku.value_per_unit ? props.sku.value_per_unit : '0'],
+        ['length', props.sku.length ? props.sku.length : '0'],
+        ['width', props.sku.width ? props.sku.width : '0'],
+        ['height', props.sku.height ? props.sku.height : '0'],
+        ['weight', props.sku.weight ? props.sku.weight : '0'],
         ['storageType', props.sku.storage_type],
         ['uom', props.sku.uom_description],
         ['remarks', props.sku.remarks]
       ];
-      
+
       setSKU(props.sku);
       SKUDetails.forEach(w => {
         if (w[1]) setValue(w[0], w[1]);
@@ -114,6 +114,7 @@ function WarehouseMasterDataSKUForm(props) {
                   <MenuItem value="Pallet">Pallet</MenuItem>
                   <MenuItem value="Carton">Carton</MenuItem>
                   <MenuItem value="Piece">Piece</MenuItem>
+                  <MenuItem value="Bundle">Bundle</MenuItem>
                 </Select>
               }
               control={control}
