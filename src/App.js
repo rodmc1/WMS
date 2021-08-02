@@ -23,6 +23,8 @@ import DeliveryNoticeOverview from 'pages/DeliveryNotice/Overview';
 import DeliveryNoticeEdit from 'pages/DeliveryNotice/Edit';
 import DeliveryNoticeSKU from 'pages/DeliveryNotice/SKU';
 import Authentication from 'components/Authentication';
+import ReceivingAndReleasing from 'pages/ReceivingAndReleasing';
+import DeliveryList from 'pages/ReceivingAndReleasing/Delivery';
 import AuditLog from 'pages/AuditLog';
 
 function App() {
@@ -60,6 +62,8 @@ function App() {
                 <Route exact path='/delivery-notice/:id/overview' component={DeliveryNoticeOverview} />
                 <Route exact path='/delivery-notice/:id/edit' component={DeliveryNoticeEdit} />
                 <Route exact path='/delivery-notice/:id/sku' component={DeliveryNoticeSKU} />
+                <Route exact path='/receiving-and-releasing' component={ReceivingAndReleasing} />
+                <Route exact path='/receiving-and-releasing/:id' component={DeliveryList} />
                 <Route exact path='/audit-log' component={AuditLog} />
                 <Route><Redirect to='/' /></Route>
               </Switch>

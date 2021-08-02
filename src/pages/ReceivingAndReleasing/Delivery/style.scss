@@ -1,0 +1,96 @@
+@import 'assets/scss/variable';
+
+.sku-search-items .MuiInputBase-formControl {
+  width: 90%;
+  margin-top: 5%;
+}
+
+.sku-search-items {
+  text-align: center;
+  align-items: center;
+
+}
+
+.items-popover {
+  z-index: 999;
+
+  .MuiOutlinedInput-input {
+    padding: 14px 11px;
+    font-size: 0.875rem;
+  }
+  .MuiPaper-root {
+    max-height: auto;
+    overflow: auto;
+    min-width: 400px;
+    margin-right: 40px;
+  }
+  .MuiListItem-root {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+  }
+  hr {
+    margin: 0px 0px;
+  }
+  button.btn {
+    margin: 15px 25px;
+    padding: 6px 8px;
+    float: right;
+  }
+  .MuiListItem-root.Mui-selected, .MuiListItem-root.Mui-selected:hover {
+    background-color: white;
+  }
+  #menu-list-grow {
+    min-height: 150px;
+    max-height: 300px;
+    overflow: auto;
+  }
+  .MuiCheckbox-colorSecondary.Mui-checked {
+    color: $emerald;
+  }
+}
+
+
+.delivery-notice-container {
+  .btn.btn-csv {
+    margin-left: 10px;
+  }
+  .MuiIconButton-root {
+    padding: 10px;
+  }
+  .no-results-row.MuiTableCell-root.MuiTableCell-body {
+    padding: 25px;
+  }
+  .MuiTableCell-root {
+    max-width: 400px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    &.MuiTableCell-head {
+      padding: 16px 9px;
+    }
+    .MuiIconButton-colorPrimary {
+      color: $emerald;
+    }
+    .MuiIconButton-colorSecondary {
+      color: $red;
+    }
+  }
+}
+
+.receiving-releasing-table {
+  &:hover {
+    cursor: auto;
+  }
+  .notes {
+    min-width: 100px !important;
+  }
+  .uom {
+    min-width: 100px;
+  }
+  .product-name {
+    min-width: 200px;
+  }
+  .external-code {
+    min-width: 180px;
+  }
+}

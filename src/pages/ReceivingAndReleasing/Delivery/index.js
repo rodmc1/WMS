@@ -7,7 +7,7 @@ import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { createDeliveryNoticeSKU, fetchDeliveryNotices, fetchAllDeliveryNoticeSKU, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
+import { createDeliveryNoticeSKU, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
 import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
 import Table from './table';
 import Grid from '@material-ui/core/Grid';
@@ -39,10 +39,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function DeliveryNoticeSKU(props) {
+function DeliveryList(props) {
   const csvLink = useRef();
   const [SKU, setSKU] = useState([]);
-  const [deliveryNoticeSKU, setDeliveryNoticeSKU] = useState([]);
+  const [tableData, setTableData] = useState([]);
   const anchorRef = React.useRef(null);
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -67,16 +67,12 @@ function DeliveryNoticeSKU(props) {
 
   const routes = [
     {
-      label: 'Delivery Notice',
-      path: '/delivery-notice'
+      label: 'Receiving & Releasing',
+      path: '/receiving-and-releasing'
     },
     {
       label: props.match.params.id,
-      path: `/delivery-notice/${props.match.params.id}/overview`
-    },
-    {
-      label: `SKU`,
-      path: `/delivery-notice/${props.match.params.id}/sku`
+      path: `/d/receiving-and-releasing/${props.match.params.id}`
     }
   ];
 
@@ -162,13 +158,15 @@ function DeliveryNoticeSKU(props) {
     rowsPerPage: 10,
     headers: [
       { label: 'ID', key: 'warehouse_id' },
-      { label: 'Preview' },
-      { label: 'SKU Code', key: 'item_code' },
-      { label: 'External Material Coding', key: 'external_code' },
-      { label: 'External Material Description', key: 'external_reference_number' },
-      { label: 'UOM', key: 'warehouse_client' },
-      { label: 'Expected Quantity'},
-      { label: 'Notes' },
+      { label: 'No. of SKU', key: 'item_code' },
+      { label: 'Container Van No.', key: 'external_code' },
+      { label: 'Serial No.', key: 'external_reference_number' },
+      { label: 'Trucker', key: 'trucker' },
+      { label: 'Plate Number', key: 'plate_number'},
+      { label: 'Driver', key: 'driver_name' },
+      { label: 'Date & Time Start', key: 'date_in' },
+      { label: 'Date & Time End', key: 'date_out' },
+      { label: 'Notes', key: 'notes' },
       { label: ' ' },
     ]
   }
@@ -195,16 +193,6 @@ function DeliveryNoticeSKU(props) {
   const handlePagination = (page, rowsPerPage) => {
     if (query) {
       delayedQuery(page, rowsPerPage);
-    } else {
-      if (deliveryNoticeData) {
-        let params = {
-          delivery_notice_id: deliveryNoticeData.delivery_notice_id,
-          count: rowsPerPage,
-          after: page * rowsPerPage
-        }
-        if (!params.after) params = { delivery_notice_id: deliveryNoticeData.delivery_notice_id }
-        props.fetchDeliveryNoticeSKU(params);
-      }
     }
   };
 
@@ -212,9 +200,10 @@ function DeliveryNoticeSKU(props) {
   React.useEffect(() => {
     if (!query) {
       setSearchLoading(true);
-      props.fetchDeliveryNotices({
+      props.fetchAllReceivingAndReleasingById({
         count: page || 10,
-        after: page * rowCount
+        after: page * rowCount,
+        filter: props.match.params.id
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -235,14 +224,18 @@ function DeliveryNoticeSKU(props) {
    * Function for CSV Download
    */ 
   const handleDownloadCSV = async () => {
-    await fetchAllDeliveryNoticeSKU(deliveryNoticeData.delivery_notice_id).then(response => {
+    await fetchAllReceivingAndReleasingByCode(props.match.params.id).then(response => {
       const newData = response.data.map(data => {
         return {
-          item_code: data.item_code,
-          external_material_coding: data.external_material_coding,
-          external_material_description: data.external_material_description,
-          uom: data.uom,
-          expected_qty: data.expected_qty,
+          recieved_id: data.recieved_id,
+          unique_code: data.unique_code,
+          trucker: data.trucker,
+          driver_name: data.driver_name,
+          transaction_type: data.transaction_type,
+          status: data.status,
+          plate_number: data.plate_number,
+          date_in: data.date_in,
+          date_out: data.date_out,
           notes: data.notes,
         }
       });
@@ -331,12 +324,6 @@ function DeliveryNoticeSKU(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.notice]);
 
-  React.useEffect(() => { 
-    if (JSON.stringify(deliveryNoticeData) === '{}') {
-      setOpenBackdrop(false);
-    }
-  }, [deliveryNoticeData]);
-
   // Set searched values and warehouse count after search
   React.useEffect(() => {
     if (props.searched) {
@@ -345,64 +332,23 @@ function DeliveryNoticeSKU(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.searched]);
 
-  // Set delivery notice count and remove spinner when data fetch is done
-  React.useEffect(() => {
-    if (props.notice) {
-      setOpenBackdrop(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.notice]);
-
   // Set new warehouse data with searched items
   React.useEffect(() => {
     if (searched) {
       setSearchLoading(false);
-      setDeliveryNoticeSKU(searched);
+      // setTableData(searched);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
   React.useEffect(() => {
-    if (props.notice && !SKU.length) {
-      if (!itemQuery) {
-        fetchAllWarehouseSKUs({ warehouse_name: props.notice.warehouse_name })
-        .then(response => {
-          setSKU(response.data);
-          setwarehouseSKUs(response.data);
-        })
-        .catch(error => {
-          dispatchError(dispatch, THROW_ERROR, error);
-        });
-      }
-    }
-    if (props.sku) setSKUCount(props.sku.count);
+    if (props.receivingAndReleasing) setTableData(props.receivingAndReleasing.data);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.sku]);
+  }, [props.receivingAndReleasing]);
 
   React.useEffect(() => {
-    if (deliveryNoticeData) {
-      setOpenBackdrop(true)
-      props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [deliveryNoticeData]);
-
-  React.useEffect(() => {
-    if (selectedSKU.length) setDeliveryNoticeSKU([]);
-    if (!selectedSKU.length && deliveryNoticeData) {
-      props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
-      setOpenBackdrop(true)
-    } 
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [selectedSKU]);
-
-  React.useEffect(() => {
-    if (props.sku) {
-      setDeliveryNoticeSKU(props.sku.data);
-      setOpenBackdrop(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.sku]);
+    if (!Array.isArray(tableData)) setOpenBackdrop(false);
+  }, [tableData]);
 
   React.useEffect(() => {
     if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
@@ -442,80 +388,31 @@ function DeliveryNoticeSKU(props) {
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         <div className="button-group">
-          <CSVLink data={csvData} filename="delivery_notice.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
-          <Button ref={anchorRef} aria-haspopup="true" onClick={handleToggle} variant="contained" className="btn btn--emerald" disableElevation endIcon={<ArrowDropDownIcon />}>Add Items</Button>
-          <Popper
-            className="items-popover"
-            open={openAddItems}
-            anchorEl={anchorRef.current}
-            role={undefined}
-            transition
-            disablePortal
-            placement='bottom-end'
-            modifiers={{ offset: { enabled: true, offset: '40, 0' }}}
-          >
-            {({ TransitionProps }) => (
-              <Grow {...TransitionProps} style={{ transformOrigin: "center top" }}>
-                <Paper>
-                  <TextField
-                    className="sku-search-items"
-                    variant="outlined"
-                    type="text" 
-                    value={itemQuery}
-                    required
-                    fullWidth
-                    placeholder="Search"
-                    onChange={handleItemSearch}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <CircularProgress />
-                      </InputAdornment>
-                    }
-                  />
-                  <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}> 
-                    {SKU.map((item) => (
-                      <MenuItem key={item.item_id} value={item.product_name} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.item_id))} >
-                        <Checkbox checked={isChecked.includes(item.item_id)} />
-                        <ListItemText primary={item.product_name} />
-                      </MenuItem>
-                    ))}
-                  </MenuList>
-                  <hr />
-                  <Button variant="contained" className="btn btn--emerald" onClick={handleAddItems} disableElevation>Done</Button>
-                </Paper>
-              </Grow>
-            )}
-          </Popper>
+          <CSVLink data={csvData} filename="receiving-and-releasing.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
+          <Button ref={anchorRef} aria-haspopup="true" onClick={handleToggle} variant="contained" className="btn btn--emerald" disableElevation>Add Delivery</Button>
           <Button variant="contained" className="btn btn--emerald btn-csv" disableElevation onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
-      <Grid container spacing={2} direction="row" justify="space-evenly" alignItems="stretch">
-        <Grid item xs={12} md={3}>
-          <WarehouseSideBar id={props.match.params.id} deleteId={deliveryNoticeData && deliveryNoticeData.delivery_notice_id} />
-        </Grid>
-        <Grid item xs={12} md={9}>
-          <Table 
-            config={config}
-            data={selectedSKU}
-            defaultData={deliveryNoticeSKU}
-            handleRowCount={handleRowCount}
-            onPaginate={handlePagination}
-            query={query}
-            searchLoading={searchLoading}
-            onInputChange={onInputChange}
-            handleCancel={handleCancel}
-            onSubmit={handleSubmit}
-            onError={handleErrors}
-            total={skuCount || 0}
-          />
-          <Spinner className={classes.backdrop} open={openBackdrop} >
-            <CircularProgress color="inherit" />
-          </Spinner>
-          <Snackbar open={openSnackBar} autoHideDuration={3000} onClose={() => setOpenSnackBar(false)}>
-            <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
-          </Snackbar>
-        </Grid>
-      </Grid>
+      <Table 
+        config={config}
+        data={selectedSKU}
+        defaultData={tableData}
+        handleRowCount={handleRowCount}
+        onPaginate={handlePagination}
+        query={query}
+        searchLoading={searchLoading}
+        onInputChange={onInputChange}
+        handleCancel={handleCancel}
+        onSubmit={handleSubmit}
+        onError={handleErrors}
+        total={skuCount || 0}
+      />
+      <Spinner className={classes.backdrop} open={openBackdrop} >
+        <CircularProgress color="inherit" />
+      </Spinner>
+      <Snackbar open={openSnackBar} autoHideDuration={3000} onClose={() => setOpenSnackBar(false)}>
+        <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
+      </Snackbar>
     </div>
   )
 }
@@ -526,10 +423,11 @@ function DeliveryNoticeSKU(props) {
 const mapStateToProps = (state, ownProps) => {
   return { 
     error: state.error,
-    searched: state.notice.searchedSKU,
+    searched: state.receiving_releasing.search,
     notice: state.notice.data[ownProps.match.params.id],
-    sku: state.notice.sku
+    sku: state.notice.sku,
+    receivingAndReleasing: state.receiving_releasing
   }
 };
 
-export default connect(mapStateToProps, { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU })(DeliveryNoticeSKU);
+export default connect(mapStateToProps, { fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU })(DeliveryList);

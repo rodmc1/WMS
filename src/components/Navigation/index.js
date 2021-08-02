@@ -6,6 +6,15 @@ import Tooltip from '@material-ui/core/Tooltip';
 import EventNoteIcon from '@material-ui/icons/EventNote';
 import { HomeWork, KeyboardArrowUp, ChevronLeft, ChevronRight, TableChart } from '@material-ui/icons';
 import AssignmentIcon from '@material-ui/icons/Assignment';
+import SvgIcon from '@material-ui/core/SvgIcon';
+
+function InventoryIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M20 2H4C3 2 2 2.9 2 4V7.01C2 7.73 2.43 8.35 3 8.7V20C3 21.1 4.1 22 5 22H19C19.9 22 21 21.1 21 20V8.7C21.57 8.35 22 7.73 22 7.01V4C22 2.9 21 2 20 2ZM15 14H9V12H15V14ZM20 7H4V4L20 3.98V7Z" fill="#323232"/>
+    </SvgIcon>
+  );
+}
 
 function Navigation(props) {
   const location = useLocation();
@@ -32,7 +41,12 @@ function Navigation(props) {
           label:'Delivery Notice',
           path: '/delivery-notice',
           icon: EventNoteIcon
-        }
+        },
+        {
+          label:'Receiving and Releasing',
+          path: '/receiving-and-releasing',
+          icon: InventoryIcon
+        },
       ]
     },
     {
