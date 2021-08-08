@@ -21,6 +21,7 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import Chip from '@material-ui/core/Chip';
 // import defaultImage from '/assets/images/default-image.png';
 
 
@@ -171,17 +172,18 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
   }
 
   const renderTableCell = (data, type) => {
-    let cellData;
-    if (type === 'item_document_file_type') {
-      cellData = renderPreview(data);
-    } else if (type === 'booking_datetime') {
-      cellData = moment(data).format('MM/DD/YYYY h:mm a');
-    } else if (type === 'appointment_datetime') {
-      cellData = moment(data).format('MM/DD/YYYY h:mm a');
-    } else {
-      cellData = data
-    }
+    let cellData = data;
+    if (type === 'item_document_file_type') cellData = renderPreview(data);
+    if (type === 'booking_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
+    if (type === 'appointment_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
+    if (type === 'status') cellData = renderStatus(data);
     return cellData;
+  }
+
+  const renderStatus = data => {
+    let jsx = <Chip label="Completed" className="status-chip emerald" />
+    if (data === 'Open') jsx = <Chip label="In-Progress" className="status-chip tangerine" />;
+    return jsx
   }
 
   // Setter for table data

@@ -1,6 +1,7 @@
 import './style.scss';
 import _ from 'lodash';
 import React from 'react';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -128,14 +129,13 @@ const useStyles2 = makeStyles({
   },
 });
 
-export default function Table_({ onSubmit, onError, defaultData, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick, handleCancel }) {
+export default function Table_({ onSubmit, addMode, onError, defaultData, searchLoading, handleRowCount, query, total, config, onInputChange, onPaginate, onRowClick, handleCancel }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
   const [tableData, setTableData] = React.useState([]);
-  const [addMode, setAddMode] = React.useState(false);
-  console.log(defaultData)
+
   // Hook Form
   const { errors, control, getValues } = useForm({
     shouldFocusError: false,
@@ -159,6 +159,13 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
     setPage(0);
   }
 
+  // Set the page number and item count for searched items
+  React.useEffect(() => {
+    handleRowCount(page, rowsPerPage);
+    onPaginate(page, rowsPerPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [page, rowsPerPage]);
+
   /**
    * @args str url
    * @return formatted image src
@@ -179,19 +186,11 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
     return <img src={defaultImage} onError={handleImageError} className="table-img-preview" alt="" />
   }
 
-  const handleSave = (data, i) => {
-    const values = getValues([`externalCode${data.item_id}`, `productName${data.item_id}`, `uom${data.item_id}`, `expectedQty${data.item_id}`, `notes${data.item_id}`]);
-    const rowData = {
-      externalCode: values[`externalCode${data.item_id}`],
-      productName: values[`productName${data.item_id}`],
-      expectedQty: values[`expectedQty${data.item_id}`],
-      notes: values[`notes${data.item_id}`],
-      code: data.item_code,
-      id: data.item_id
-    }
+  const handleSave = () => {
+    const values = getValues([`containerVanNumber`, `serialNumber`, `trucker`, `plateNumber`, `driverName`, 'dateStart', 'dateEnd', 'notes']);
 
     if (_.isEmpty(errors)) {
-      onSubmit(rowData);
+      onSubmit(values);
     } else {
       onError(errors)
     }
@@ -201,20 +200,8 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
   React.useEffect(() => {
     if (defaultData) {
       setTableData(defaultData);
-      setAddMode(false);
     }
-    if (data.length) {
-      setTableData(data);
-      setAddMode(true);
-    }
-  }, [data, defaultData]);
-
-  // Set the page number and item count for searched items
-  React.useEffect(() => {
-    handleRowCount(page, rowsPerPage);
-    onPaginate(page, rowsPerPage);
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [page, rowsPerPage]);
+  }, [defaultData]);
   
   return (
     <React.Fragment>
@@ -265,99 +252,93 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
             <TableHead>
               <TableRow>
                 {headers.map((header, index) => (
-                  index !== 0 && 
+                  (index !== 0 && (header !== "No. of SKU" && addMode)) &&
+                  <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
+                ))}
+                {headers.map((header, index) => (
+                  (index !== 0 && !addMode) &&
                   <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
               {
-                ((!tableData.length && Array.isArray(tableData)) || JSON.stringify(tableData) === '{}') && 
+                ((!tableData.length && Array.isArray(tableData) && !addMode) || JSON.stringify(tableData) === '{}' && !addMode) && 
                 <TableRow className="table__row">
-                  <TableCell colSpan={12} align="center" className="no-results-row">No results found</TableCell>
+                  <TableCell colSpan={12} align="center" className="no-results-row">No Data found</TableCell>
                 </TableRow>
               }
-              {Object.values(tableData).map((data, i) => 
-                <TableRow key={data.recieved_id} className="table__row receiving-releasing-table">
-                  <TableCell>0</TableCell>
+              { !addMode ? Object.values(tableData).map((data, i) => 
+                <TableRow key={data.recieved_id} className="table__row receiving-releasing-table" onClick={() => onRowClick(data)} >
+                  <TableCell>{data.sku_count}</TableCell>
+                  <TableCell>{data.container_van_no}</TableCell>
+                  <TableCell>{data.serial_no}</TableCell>
+                  <TableCell>{data.trucker}</TableCell>
+                  <TableCell>{data.plate_number}</TableCell>
+                  <TableCell>{data.driver_name}</TableCell>
+                  <TableCell>{moment( data.date_in).format('MM/DD/YYYY hh:mm a')}</TableCell>
+                  <TableCell>{moment( data.date_out).format('MM/DD/YYYY hh:mm a')}</TableCell>
+                  <TableCell>{data.notes}</TableCell>
+                </TableRow>
+              ) : 
+                <TableRow className="table__row receiving-releasing-table-addmode">
                   <TableCell>
-                    {addMode ? 
-                      <Controller name={`externalCode${data.recieved_id}`} control={control} rules={{ required: "This field is required" }}
-                        as={<TextField variant="outlined" type="text" className="external-code" required fullWidth/>}
-                      /> : 0
-                    }
-                    </TableCell>
-                  <TableCell>
-                    {addMode ? 
-                      <Controller name={`serialNumber${data.recieved_id}`} control={control} rules={{ required: "This field is required" }}
-                        as={<TextField variant="outlined" type="text" className="product-name" required fullWidth/>}
-                      /> : 0
-                    }
+                    <Controller name={`containerVanNumber`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required fullWidth/>}
+                    /> 
                   </TableCell>
                   <TableCell>
-                    {data.trucker}
+                    <Controller name={`serialNumber`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required fullWidth/>}
+                    />
                   </TableCell>
                   <TableCell>
-                    {addMode ? 
-                      <Controller 
-                        name={`plateNumber${data.recieved_id}`}
-                        control={control}
-                        rules={{ 
-                          required: "This field is required",
-                          validate: value => { return value < 0 ? 'Invalid value' : true } 
-                        }}
-                        defaultValue={0}
-                        as={<TextField variant="outlined" type="number" className="expected-quantity" required fullWidth/>}
-                      /> :
-                      data.plate_number
-                    }
+                    <Controller name={`trucker`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required fullWidth/>}
+                    />
                   </TableCell>
                   <TableCell>
-                    {addMode ? 
-                      <Controller name={`driverName${data.recieved_id}`} control={control} rules={{ required: "This field is required" }}
-                        as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
-                      /> : data.driver_name
-                    }
+                    <Controller 
+                      name={`plateNumber`}
+                      control={control}
+                      rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required fullWidth/>}
+                    />
                   </TableCell>
                   <TableCell>
-                    {addMode ? 
-                      <Controller name={`dateStart${data.date_in}`} control={control} rules={{ required: "This field is required" }}
-                        as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
-                      /> : data.date_in
-                    }
+                    <Controller name={`driverName`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required fullWidth/>}
+                    />
                   </TableCell>
                   <TableCell>
-                    {addMode ? 
-                      <Controller name={`dateEnd${data.date_out}`} control={control} rules={{ required: "This field is required" }}
-                        as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
-                      /> : data.date_out
-                    }
+                    <Controller name={`dateStart`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="datetime-local" required />}
+                    />
                   </TableCell>
                   <TableCell>
-                    {addMode ? 
-                      <Controller name={`notes${data.recieved_id}`} control={control} rules={{ required: "This field is required" }}
-                        as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
-                      /> : data.notes
-                    }
+                    <Controller name={`dateEnd`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="datetime-local"  InputLabelProps={{shrink: true }} class="datetime" required />}
+                    />
                   </TableCell>
                   <TableCell>
-                    {addMode &&
-                      <>
-                        <Tooltip title="Save">
-                          <IconButton color="primary" aria-label="save" component="span" onClick={() => handleSave(data, i)}>
-                            <CheckIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Cancel">
-                          <IconButton color="secondary" aria-label="cancel" component="span" onClick={() => handleCancel(data)}>
-                            <ClearIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </>
-                    }
+                    <Controller name={`notes`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required/>}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Tooltip title="Save">
+                      <IconButton color="primary" aria-label="save" component="span" onClick={handleSave}>
+                        <CheckIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Cancel">
+                      <IconButton color="secondary" aria-label="cancel" component="span" onClick={() => handleCancel()}>
+                        <ClearIcon />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
-              )}
+              }
             </TableBody>
           </Table>
         </TableContainer>

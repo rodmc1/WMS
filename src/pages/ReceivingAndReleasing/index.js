@@ -58,7 +58,7 @@ function ReceivingAndReleasing(props) {
       { label: 'Transaction Type', key: 'transaction_type' },
       { label: 'Booking Date', key: 'booking_datetime' },
       { label: 'Appointed Date', key: 'appointment_datetime' },
-      { label: 'Status', key: 'delivery_mode' },
+      { label: 'Status', key: 'status' },
     ] 
   }
 

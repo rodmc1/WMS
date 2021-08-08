@@ -8,7 +8,6 @@
 .sku-search-items {
   text-align: center;
   align-items: center;
-
 }
 
 .items-popover {
@@ -49,38 +48,56 @@
   }
 }
 
-.delivery-notice-receiving-container {
+.receiving-add-item-btn {
+  height: 45px !important;
+  margin-right: 15px !important;
+}
+
+@media (min-width: 1900px) {
+  .receiving-items-search {
+    width: 440% !important;
+  }
+}
+
+@media (min-width: 1500px) {
+  .receiving-items-search {
+    width: 285%;
+  }
+}
+
+@media (max-width: 1499px) {
+  .receiving-items-search {
+    width: 230%;
+  }
+}
+
+@media (max-width: 1399px) {
+  .receiving-items-search {
+    width: 190%;
+  }
+}
+
+@media (max-width: 1290px) {
+  .receiving-items-search {
+    width: 170%;
+  }
+}
+
+@media (max-width: 1210px) {
+  .receiving-items-search {
+    width: 150%;
+  }
+}
+
+.delivery-notice-receiving-items-container {
   .search__spinner {
     margin-left: -50px;
   }
-  .search_form {
-    width: 200%;
-    @media (min-width: 1900px) {
-      width: 400% !important;
-    }
-    
-    @media (min-width: 1500px) {
-      width: 235% !important;
-    }
-    
-    @media (max-width: 1499px) {
-      width: 210% !important;
-    }
-    
-    @media (max-width: 1425px) {
-      width: 190% !important;
-    }
-    
-    @media (max-width: 1335px) {
-      width: 170% !important;
-    }
-    
-    @media (max-width: 1280px) {
-      width: 150% !important;
-    }
-    @media (max-width: 1225px) {
-      width: 120% !important;
-    }
+  .MuiSvgIcon-root {
+    font-size: 20px;
+  }
+  .receiving-title {
+    margin: 5px 0px 25px 0px;
   }
   .btn.btn-csv {
     margin-left: 10px;
@@ -108,9 +125,17 @@
   }
 }
 
-.receiving-releasing-table {
+.sku-table {
   &:hover {
     cursor: auto;
+  }
+  
+  .MuiTableCell-body {
+    padding: 10px 9px
+  }
+  .MuiOutlinedInput-input {
+    padding: 13px 11px;
+    font-size: 0.85rem;
   }
   .notes {
     min-width: 100px !important;
@@ -123,20 +148,5 @@
   }
   .external-code {
     min-width: 180px;
-  }
-}
-
-.receiving-releasing-table-addmode {
-  .MuiOutlinedInput-root {
-    min-width: 130px;
-  }
-
-  .MuiOutlinedInput-input {
-    padding: 12px 12px;
-    font-size: 0.92rem;
-  }
-  
-  .MuiTableCell-root {
-    padding: 14px 6px;
   }
 }

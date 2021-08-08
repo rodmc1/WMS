@@ -1,13 +1,14 @@
 /* eslint-disable react/prop-types */
 import './style.scss';
-import _ from 'lodash';
+import _, { set } from 'lodash';
+import history from 'config/history';
 import React, {  useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { createDeliveryNoticeSKU, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
+import { createReceivingAndReleasing, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
 import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
 import Table from './table';
 import Grid from '@material-ui/core/Grid';
@@ -27,6 +28,12 @@ import Grow from "@material-ui/core/Grow";
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Receiving from './Receiving'
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -37,16 +44,38 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
   },
+  dialogPaper: {
+    minHeight: '92vh',
+    maxHeight: '92vh',
+  },
 }));
+
+
+
+// Table config
+const config = {
+  rowsPerPage: 10,
+  headers: [
+    { label: 'ID', key: 'warehouse_id' },
+    { label: 'No. of SKU', key: 'item_code' },
+    { label: 'Container Van No.', key: 'external_code' },
+    { label: 'Serial No.', key: 'external_reference_number' },
+    { label: 'Trucker', key: 'trucker' },
+    { label: 'Plate Number', key: 'plate_number'},
+    { label: 'Driver', key: 'driver_name' },
+    { label: 'Date & Time Start', key: 'date_in' },
+    { label: 'Date & Time End', key: 'date_out' },
+    { label: 'Notes', key: 'notes' },
+    { label: ' ' },
+  ]
+}
 
 function DeliveryList(props) {
   const csvLink = useRef();
-  const [SKU, setSKU] = useState([]);
   const [tableData, setTableData] = useState([]);
   const anchorRef = React.useRef(null);
   const classes = useStyles();
   const dispatch = useDispatch();
-  const [openAddItems, setOpenAddItems] = React.useState(false);
   const [page, setPage]= useState(10);
   const [query, setQuery] = useState('');
   const [csvData, setCsvData] = useState([]);
@@ -56,14 +85,13 @@ function DeliveryList(props) {
   const [skuCount, setSKUCount] = useState(0);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [itemQuery, setItemQuery] = useState('');
-  const [searchedItem, setSearchedItem] = useState(null);
-  const [selectedSKU, setSelectedSKU] = React.useState([]);
-  const [isChecked, setIsChecked] = React.useState([]);
-  const [items, setItems] = useState([]);
-  const [warehouseSKUs, setwarehouseSKUs] = useState([]);
   const [alertConfig, setAlertConfig] = React.useState({});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
+  const [addMode, setAddMode] = React.useState(false);
+  const [receivingDialog, setReceivingDialog] = React.useState(false);
+  const [receivingDialogData, setReceivingDialogData] = React.useState([]);
+  const [itemCount, setItemCount] = useState([]);
+  const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
 
   const routes = [
     {
@@ -76,99 +104,20 @@ function DeliveryList(props) {
     }
   ];
 
-  const handleToggle = () => {
-    setOpenAddItems((prevOpen) => !prevOpen);
+  const handleAddDelivery = () => {
+    setAddMode(true);
   };
 
-  function handleListKeyDown(event) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      setOpenAddItems(false);
-    }
-  }
-
-  const toggleCheckboxValue = (item, bool) => {
-    if (!isChecked.includes(item.item_id)) {
-      setIsChecked(oldArray => [...oldArray, item.item_id]);
-    } else {
-      setIsChecked(isChecked.filter(check => check !== item.item_id));
-    }
-
-    if (bool) {
-      setItems(items.filter(sku => sku.item_id !== item.item_id));
-    } else {
-      setItems(oldArray => [...oldArray, item]);
-    }
-  }
-
   // Function for cancel action
-  const handleCancel = (data, allData) => {
-    const filteredCheck = isChecked.filter(check => check !== data.item_id);
-    const filteredItem = items.filter(sku => sku.item_id !== data.item_id);
-    setIsChecked(filteredCheck);
-    setSelectedSKU(filteredItem);
-    setItems(filteredItem);
-  }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps 
-  const handleSearchItems = React.useCallback(_.debounce(() => {
-    searchWarehouseSKUByName({
-      warehouse_name: deliveryNoticeData.warehouse_name,
-      filter: itemQuery,
-    }).then(response => {
-      setSearchedItem(response.data);
-    })
-  }, 510), [itemQuery]);
-  
-  // Call delayedQuery function when user search and set new warehouse data
-  React.useEffect(() => {
-    if (itemQuery) {
-      handleSearchItems()
-    } else if (!itemQuery) {
-      setSearchedItem(warehouseSKUs)
-    }
-    return handleSearchItems.cancel;
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [itemQuery, handleSearchItems, SKU]);
-
-  // Set new warehouse data with searched items
-  React.useEffect(() => {
-    if (searchedItem) {
-      setSKU(searchedItem);
-    }
-  }, [searchedItem]);
-
-  const handleAddItems = () => {
-    setOpenAddItems(false);
-    setSelectedSKU(items);
-  }
-
-  const prevOpen = React.useRef(openAddItems);
-
-  React.useEffect(() => {
-    if (prevOpen.current === true && openAddItems === false) {
-      anchorRef.current.focus();
-    }
-
-    prevOpen.current = openAddItems;
-  }, [openAddItems]);
-
-  // Table config
-  const config = {
-    rowsPerPage: 10,
-    headers: [
-      { label: 'ID', key: 'warehouse_id' },
-      { label: 'No. of SKU', key: 'item_code' },
-      { label: 'Container Van No.', key: 'external_code' },
-      { label: 'Serial No.', key: 'external_reference_number' },
-      { label: 'Trucker', key: 'trucker' },
-      { label: 'Plate Number', key: 'plate_number'},
-      { label: 'Driver', key: 'driver_name' },
-      { label: 'Date & Time Start', key: 'date_in' },
-      { label: 'Date & Time End', key: 'date_out' },
-      { label: 'Notes', key: 'notes' },
-      { label: ' ' },
-    ]
+  const handleCancel = () => {
+    setOpenBackdrop(true);
+    props.fetchAllReceivingAndReleasingById({
+      count: rowsPerPage,
+      after: page * rowCount,
+      filter: props.match.params.id
+    });
+          
+    setAddMode(false);
   }
 
   // Function for getting page and row count on table
@@ -177,10 +126,26 @@ function DeliveryList(props) {
     setPage(page);
   };
 
-  // Set query state on input change
-  const handleItemSearch = (e) => {
-    setSearchedItem(null);
-    setItemQuery(e.target.value);
+  // Redirect to selected item
+  const handleRowClick = row => {
+    setReceivingDialogData(row)
+    setReceivingDialog(true);
+  }
+
+  // Handle single page update
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleModalClose = () => {
+    setOpenBackdrop(true);
+    props.fetchAllReceivingAndReleasingById({
+      count: rowsPerPage,
+      after: page * rowCount,
+      filter: props.match.params.id
+    });
+    setReceivingDialog(false)
   }
 
   // Set query state on input change
@@ -193,6 +158,12 @@ function DeliveryList(props) {
   const handlePagination = (page, rowsPerPage) => {
     if (query) {
       delayedQuery(page, rowsPerPage);
+    } else {
+      props.fetchAllReceivingAndReleasingById({
+        count: rowsPerPage,
+        after: page * rowCount,
+        filter: props.match.params.id
+      });
     }
   };
 
@@ -201,22 +172,20 @@ function DeliveryList(props) {
     if (!query) {
       setSearchLoading(true);
       props.fetchAllReceivingAndReleasingById({
-        count: page || 10,
+        count: rowsPerPage,
         after: page * rowCount,
         filter: props.match.params.id
       });
+      setSearchLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps 
-  const delayedQuery = React.useCallback(_.debounce((page, rowCount) => {
+  const delayedQuery = React.useCallback(_.debounce(() => {
     setSearchLoading(true);
-    props.searchDeliveryNoticeSKU({
-      delivery_notice_id: deliveryNoticeData.delivery_notice_id,
+    props.searchReceivingAndReleasing({
       filter: query,
-      count: rowCount,
-      after: page * rowCount
     })
   }, 510), [query]);
   
@@ -236,6 +205,8 @@ function DeliveryList(props) {
           plate_number: data.plate_number,
           date_in: data.date_in,
           date_out: data.date_out,
+          serial_no: data.serial_no,
+          container_van_no: data.container_van_no,
           notes: data.notes,
         }
       });
@@ -250,11 +221,14 @@ function DeliveryList(props) {
 
   // CSV Headers
   const csvHeaders = [  
-    { label: "SKU Code", key: "item_code" },
-    { label: "External Material Coding", key: "external_material_coding" },
-    { label: "External Material Description", key: "external_material_description" },
-    { label: "UOM", key: "uom" },
-    { label: "Expected Quantity", key: "expected_qty" },
+    { label: "Receiving ID", key: "recieved_id" },
+    { label: "Container Van No.", key: "container_van_no" },
+    { label: "Serial No.", key: "serial_no" },
+    { label: "Trucker", key: "trucker" },
+    { label: "Plate Number", key: "plate_number" },
+    { label: "Driver", key: "driver_name" },
+    { label: "Date & Time Start", key: "date_in" },
+    { label: "Date & Time End", key: "date_out" },
     { label: "Notes", key: "notes" }
   ];
 
@@ -265,26 +239,34 @@ function DeliveryList(props) {
    */
   const handleSubmit = data => {
     setOpenSnackBar(false);
-    setAlertConfig({ severity: 'info', message: 'Adding SKU...' });
+    setAlertConfig({ severity: 'info', message: 'Adding Delivery...' });
     setOpenSnackBar(true);
-
-    const SKUData = {
-      delivery_notice_id: Number(deliveryNoticeData.delivery_notice_id),
-      code: data.code,
-      expected_qty: Number(data.expectedQty),
-      external_material_coding: data.externalCode,
-      external_material_description: data.productName,
-      notes: data.notes
+    
+    const deliveryData = {
+      delivery_notice_id: deliveryNoticeData.delivery_notice_id,
+      trucker: data.trucker,
+      plate_number: data.plateNumber,
+      driver_name: data.driverName,
+      datetime_in: data.dateStart,
+      datetime_out: data.dateEnd,
+      notes: data.notes,
+      container_van_no: data.containerVanNumber,
+      serial_no: data.serialNumber,
     }
     
-    //Invoke action for adding delivery notice SKU
-    createDeliveryNoticeSKU(SKUData)
+    //Invoke action for adding receiving and releasing
+    createReceivingAndReleasing(deliveryData)
       .then(response => {
         if (response.status === 201) {
           setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
-          setIsChecked(isChecked.filter(check => check !== data.id));
-          setSelectedSKU(items.filter(sku => sku.item_id !== data.id));
-          setItems(items.filter(sku => sku.item_id !== data.id));
+          setOpenBackdrop(true);
+          props.fetchAllReceivingAndReleasingById({
+            count: rowsPerPage,
+            after: page * rowCount,
+            filter: props.match.params.id
+          });
+          
+          setAddMode(false);
         }
       })
       .catch(error => {
@@ -306,7 +288,7 @@ function DeliveryList(props) {
   React.useEffect(() => {
     if (query) {
       delayedQuery(page, rowCount);
-    } else if (!query) {
+    } else if (!query && deliveryNoticeData === null) {
       setDeliveryNoticeData(props.notice);
       setSearchLoading(false);
     }
@@ -335,14 +317,25 @@ function DeliveryList(props) {
   // Set new warehouse data with searched items
   React.useEffect(() => {
     if (searched) {
+      setTableData(searched)
       setSearchLoading(false);
-      // setTableData(searched);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
   React.useEffect(() => {
-    if (props.receivingAndReleasing) setTableData(props.receivingAndReleasing.data);
+    if (props.receivingAndReleasing && Array.isArray(tableData)) {
+      setTableData(props.receivingAndReleasing.data);
+      setItemCount(props.receivingAndReleasing.count);
+      setSKUCount(props.receivingAndReleasing.count);
+      setSearchLoading(false);
+    }
+
+    if (props.receivingAndReleasing) {
+      setTableData(props.receivingAndReleasing.data);
+      setItemCount(props.receivingAndReleasing.count);
+      setOpenBackdrop(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.receivingAndReleasing]);
 
@@ -354,6 +347,12 @@ function DeliveryList(props) {
     if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouse]);
+
+  React.useEffect(() => { 
+    if (addMode) props.fetchDeliveryNoticeById(props.match.params.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [addMode]);
+
 
   /**
    * Handler api errors
@@ -383,19 +382,20 @@ function DeliveryList(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.error]);
 
+  console.log()
+
   return (
-    <div className="container delivery-notice-container sku">
+    <div className="container delivery-notice-receiving-container sku">
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         <div className="button-group">
           <CSVLink data={csvData} filename="receiving-and-releasing.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
-          <Button ref={anchorRef} aria-haspopup="true" onClick={handleToggle} variant="contained" className="btn btn--emerald" disableElevation>Add Delivery</Button>
+          <Button ref={anchorRef} aria-haspopup="true" onClick={handleAddDelivery} variant="contained" className="btn btn--emerald" disableElevation>Add Delivery</Button>
           <Button variant="contained" className="btn btn--emerald btn-csv" disableElevation onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
       <Table 
         config={config}
-        data={selectedSKU}
         defaultData={tableData}
         handleRowCount={handleRowCount}
         onPaginate={handlePagination}
@@ -405,8 +405,15 @@ function DeliveryList(props) {
         handleCancel={handleCancel}
         onSubmit={handleSubmit}
         onError={handleErrors}
-        total={skuCount || 0}
+        total={itemCount}
+        addMode={addMode}
+        onRowClick={handleRowClick}
       />
+      <Dialog open={receivingDialog} onClose={handleModalClose} classes={{ paper: classes.dialogPaper }} maxWidth={'xl'} fullWidth aria-labelledby="form-dialog-title">
+        <DialogContent>
+          <Receiving receivingData={receivingDialogData} onClose={handleModalClose} />
+        </DialogContent>
+      </Dialog>
       <Spinner className={classes.backdrop} open={openBackdrop} >
         <CircularProgress color="inherit" />
       </Spinner>
@@ -430,4 +437,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 };
 
-export default connect(mapStateToProps, { fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU })(DeliveryList);
+export default connect(mapStateToProps, { searchReceivingAndReleasing, fetchAllReceivingAndReleasingById, fetchDeliveryNoticeById, searchDeliveryNoticeSKU })(DeliveryList);
