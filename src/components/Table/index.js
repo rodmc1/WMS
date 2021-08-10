@@ -182,7 +182,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
 
   const renderStatus = data => {
     let jsx = <Chip label="Completed" className="status-chip emerald" />
-    if (data === 'Open') jsx = <Chip label="In-Progress" className="status-chip tangerine" />;
+    if (data === 'In-Progress') jsx = <Chip label="In-Progress" className="status-chip tangerine" />;
     return jsx
   }
 

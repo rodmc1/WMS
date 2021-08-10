@@ -1,32 +1,15 @@
 /* eslint-disable react/prop-types */
 import './style.scss';
 import _ from 'lodash';
-import React, {  useState, useRef } from 'react';
-import { CSVLink } from "react-csv";
+import React, {  useState } from 'react';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { createReceivingAndReleasingItem, fetchDeliveryNotices, fetchAllDeliveryNoticeSKU, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
-import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
+import { createReceivingAndReleasingItem, fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
 import Table from './table';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import MuiAlert from '@material-ui/lab/Alert';
-import Button from '@material-ui/core/Button';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import TextField from '@material-ui/core/TextField';
-import Breadcrumbs from 'components/Breadcrumbs';
 import Snackbar from '@material-ui/core/Snackbar';
-import Spinner from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Popper from "@material-ui/core/Popper";
-import MenuItem from "@material-ui/core/MenuItem";
-import MenuList from "@material-ui/core/MenuList";
-import Grow from "@material-ui/core/Grow";
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
 import { Typography } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -36,21 +19,11 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  },
-}));
-
 function Receiving(props) {
   const [SKU, setSKU] = useState([]);
   const [deliveryNoticeSKU, setDeliveryNoticeSKU] = useState([]);
-  const [receivingItem, setReceivingItem] = useState([])
-  const anchorRef = React.useRef(null);
-  const classes = useStyles();
+  const [receivingItem, setReceivingItem] = useState([]);
   const dispatch = useDispatch();
-  const [openAddItems, setOpenAddItems] = React.useState(false);
   const [page, setPage]= useState(10);
   const [query, setQuery] = useState('');
   const [rowCount, setRowCount] = useState(0);
@@ -68,31 +41,6 @@ function Receiving(props) {
   const [alertConfig, setAlertConfig] = React.useState({});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [submittedId, setSubmittedId] = React.useState(null)
-
-  const handleToggle = () => {
-    setOpenAddItems((prevOpen) => !prevOpen);
-  };
-
-  function handleListKeyDown(event) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      setOpenAddItems(false);
-    }
-  }
-
-  const toggleCheckboxValue = (item, bool) => {
-    if (!isChecked.includes(item.item_id)) {
-      setIsChecked(oldArray => [...oldArray, item.item_id]);
-    } else {
-      setIsChecked(isChecked.filter(check => check !== item.item_id));
-    }
-
-    if (bool) {
-      setItems(items.filter(sku => sku.item_id !== item.item_id));
-    } else {
-      setItems(oldArray => [...oldArray, item]);
-    }
-  }
 
   // Function for cancel action
   const handleCancel = (data, allData) => {
@@ -130,21 +78,6 @@ function Receiving(props) {
       setSKU(searchedItem);
     }
   }, [searchedItem]);
-
-  const handleAddItems = () => {
-    setOpenAddItems(false);
-    setSelectedSKU(items);
-  }
-
-  const prevOpen = React.useRef(openAddItems);
-
-  React.useEffect(() => {
-    if (prevOpen.current === true && openAddItems === false) {
-      anchorRef.current.focus();
-    }
-
-    prevOpen.current = openAddItems;
-  }, [openAddItems]);
 
   // Table config
   const config = {
