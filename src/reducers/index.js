@@ -6,6 +6,7 @@ import skuReducer from './skuReducer';
 import noticeReducer from './noticeReducer';
 import authReducer from './authReducer';
 import logReducer from './logReducer';
+import deliveryReducer from './deliveryReducer';
 
 export default combineReducers({
   auth: authReducer,
@@ -14,5 +15,6 @@ export default combineReducers({
   picklist: picklistReducer,
   sku: skuReducer,
   notice: noticeReducer,
-  logs: logReducer
+  logs: logReducer,
+  receiving_releasing: deliveryReducer
 });

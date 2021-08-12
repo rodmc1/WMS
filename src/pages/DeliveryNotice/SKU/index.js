@@ -112,7 +112,6 @@ function DeliveryNoticeSKU(props) {
     setIsChecked(filteredCheck);
     setSelectedSKU(filteredItem);
     setItems(filteredItem);
-    console.log(allData)
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -134,7 +133,7 @@ function DeliveryNoticeSKU(props) {
     }
     return handleSearchItems.cancel;
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [itemQuery, handleSearchItems, SKU]);
+  }, [itemQuery]);
 
   // Set new warehouse data with searched items
   React.useEffect(() => {

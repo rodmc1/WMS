@@ -1,4 +1,5 @@
 import './style.scss';
+import _ from 'lodash';
 import React from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
@@ -21,9 +22,11 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import Chip from '@material-ui/core/Chip';
-// import defaultImage from '/assets/images/default-image.png';
-
+import CheckIcon from '@material-ui/icons/Check';
+import ClearIcon from '@material-ui/icons/Clear';
+import Tooltip from '@material-ui/core/Tooltip';
+import { Controller, useForm } from 'react-hook-form';
+import TextField from '@material-ui/core/TextField';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -126,13 +129,18 @@ const useStyles2 = makeStyles({
   },
 });
 
-export default function Table_({ filterSize, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
+export default function Table_({ onSubmit, addMode, onError, defaultData, searchLoading, handleRowCount, query, total, config, onInputChange, onPaginate, onRowClick, handleCancel }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
-  const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
+
+  // Hook Form
+  const { errors, control, getValues } = useForm({
+    shouldFocusError: false,
+    mode: 'onChange'
+  });
 
   // Handles page updates
   const handleChangePage = (event, newPage) => {
@@ -151,10 +159,17 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     setPage(0);
   }
 
-  /*
-  * @args str url
-  * @return formatted image src
-  */
+  // Set the page number and item count for searched items
+  React.useEffect(() => {
+    handleRowCount(page, rowsPerPage);
+    onPaginate(page, rowsPerPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [page, rowsPerPage]);
+
+  /**
+   * @args str url
+   * @return formatted image src
+   */
   const extractImageUrl = (str) => {
     return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
   }
@@ -171,34 +186,22 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     return <img src={defaultImage} onError={handleImageError} className="table-img-preview" alt="" />
   }
 
-  const renderTableCell = (data, type) => {
-    let cellData = data;
-    if (type === 'item_document_file_type') cellData = renderPreview(data);
-    if (type === 'booking_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
-    if (type === 'appointment_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
-    if (type === 'status') cellData = renderStatus(data);
-    return cellData;
-  }
+  const handleSave = () => {
+    const values = getValues([`containerVanNumber`, `serialNumber`, `trucker`, `plateNumber`, `driverName`, 'dateStart', 'dateEnd', 'notes']);
 
-  const renderStatus = data => {
-    let jsx = <Chip label="Completed" className="status-chip emerald" />
-    if (data === 'In-Progress') jsx = <Chip label="In-Progress" className="status-chip tangerine" />;
-    return jsx
+    if (_.isEmpty(errors)) {
+      onSubmit(values);
+    } else {
+      onError(errors)
+    }
   }
 
   // Setter for table data
   React.useEffect(() => {
-    if (data) {
-      setTableData(data);
+    if (defaultData) {
+      setTableData(defaultData);
     }
-  }, [data, config.headers, config.rowsPerPage])
-
-  // Set the page number and item count for searched items
-  React.useEffect(() => {
-      handleRowCount(page, rowsPerPage);
-      onPaginate(page, rowsPerPage);
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [page, rowsPerPage]);
+  }, [defaultData]);
   
   return (
     <React.Fragment>
@@ -249,52 +252,93 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
             <TableHead>
               <TableRow>
                 {headers.map((header, index) => (
-                    index !== 0 && 
-                    <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
+                  (index !== 0 && (header !== "No. of SKU" && addMode)) &&
+                  <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
+                ))}
+                {headers.map((header, index) => (
+                  (index !== 0 && !addMode) &&
+                  <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
               {
-                ((!tableData.length && Array.isArray(tableData)) || JSON.stringify(tableData) === '{}') && 
+                ((!tableData.length && Array.isArray(tableData) && !addMode) || JSON.stringify(tableData) === '{}' && !addMode) && 
                 <TableRow className="table__row">
-                  <TableCell 
-                    colSpan={12}
-                    style={{
-                      whiteSpace: 'nowrap',
-                      overFlow: 'hidden',
-                      textOverFlow: 'ellipsis'
-                    }} 
-                    align="center">
-                      No results found
+                  <TableCell colSpan={12} align="center" className="no-results-row">No Data found</TableCell>
+                </TableRow>
+              }
+              { !addMode ? Object.values(tableData).map((data, i) => 
+                <TableRow key={data.recieved_id} className="table__row receiving-releasing-table" onClick={() => onRowClick(data)} >
+                  <TableCell>{data.sku_count}</TableCell>
+                  <TableCell>{data.container_van_no}</TableCell>
+                  <TableCell>{data.serial_no}</TableCell>
+                  <TableCell>{data.trucker}</TableCell>
+                  <TableCell>{data.plate_number}</TableCell>
+                  <TableCell>{data.driver_name}</TableCell>
+                  <TableCell>{moment( data.date_in).format('MM/DD/YYYY hh:mm a')}</TableCell>
+                  <TableCell>{moment( data.date_out).format('MM/DD/YYYY hh:mm a')}</TableCell>
+                  <TableCell>{data.notes}</TableCell>
+                </TableRow>
+              ) : 
+                <TableRow className="table__row receiving-releasing-table-addmode">
+                  <TableCell>
+                    <Controller name={`containerVanNumber`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required fullWidth/>}
+                    /> 
+                  </TableCell>
+                  <TableCell>
+                    <Controller name={`serialNumber`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required fullWidth/>}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Controller name={`trucker`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required fullWidth/>}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Controller 
+                      name={`plateNumber`}
+                      control={control}
+                      rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required fullWidth/>}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Controller name={`driverName`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required fullWidth/>}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Controller name={`dateStart`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="datetime-local" required />}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Controller name={`dateEnd`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="datetime-local"  InputLabelProps={{shrink: true }} class="datetime" required />}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Controller name={`notes`} control={control} rules={{ required: "This field is required" }}
+                      as={<TextField variant="outlined" type="text" required/>}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Tooltip title="Save">
+                      <IconButton color="primary" aria-label="save" component="span" onClick={handleSave}>
+                        <CheckIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Cancel">
+                      <IconButton color="secondary" aria-label="cancel" component="span" onClick={() => handleCancel()}>
+                        <ClearIcon />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               }
-              {Object.values(tableData).map((d, i) => {
-                return (
-                  <TableRow key={i} onClick={() => onRowClick(d)} className="table__row">
-                    {
-                      keys.map((k, index) => {
-                        return (
-                          index !== 0 &&
-                          <TableCell 
-                            title={d[k]}
-                            style={{
-                              maxWidth: '400px',
-                              overflowX: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }} 
-                            align={config.headers[index] ? config.headers[index].align : 'left'}
-                            key={index}>
-                              {renderTableCell(d[k], k)}
-                          </TableCell>
-                        )
-                      })
-                    }
-                  </TableRow>
-                )
-              })}
             </TableBody>
           </Table>
         </TableContainer>
