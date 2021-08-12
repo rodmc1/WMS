@@ -163,14 +163,13 @@ const config = {
   ]
 }
 
-function Table_(props, { defaultData, data, total }) {
+function Table_(props) {
   const classes = useStyles2();
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
   const [tableData, setTableData] = React.useState([]);
   const [addMode, setAddMode] = React.useState(false);
   const [SKU, setSKU] = useState([]);
-  const [deliveryNoticeSKU, setDeliveryNoticeSKU] = useState([]);
   const [receivingItem, setReceivingItem] = useState([]);
   const [itemCount, setItemCount] = useState([]);
   const anchorRef = React.useRef(null);
@@ -181,7 +180,6 @@ function Table_(props, { defaultData, data, total }) {
   const [rowCount, setRowCount] = useState(0);
   const [searched, setSearched] = useState(null);
   const [openBackdrop, setOpenBackdrop] = useState(true);
-  const [skuCount, setSKUCount] = useState(0);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [itemQuery, setItemQuery] = useState('');
@@ -190,8 +188,6 @@ function Table_(props, { defaultData, data, total }) {
   const [isChecked, setIsChecked] = React.useState([]);
   const [items, setItems] = useState([]);
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
-  const [alertConfig, setAlertConfig] = React.useState({});
-  const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
   const handleToggle = () => {
     setOpenAddItems((prevOpen) => !prevOpen);
@@ -343,7 +339,7 @@ function Table_(props, { defaultData, data, total }) {
   
 
   // Hook Form
-  const { errors, control, getValues, setError } = useForm({
+  const { errors, control, getValues, setError, clearErrors  } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
@@ -371,20 +367,7 @@ function Table_(props, { defaultData, data, total }) {
     setPage(0);
   }
 
-  /**
-   * @args str url
-   * @return formatted image src
-   */
-  const extractImageUrl = (str) => {
-    return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
-  }
-
-  // Show default image if image source is broken
-  const handleImageError = (e) => {
-    e.target.src = '/assets/images/default-image.png';
-  }
-
-  const handleSave = (data, i) => {
+  const handleSave = data => {
     const values = getValues([
       `actualQty${data.delivery_notice_item}`,
       `discrepancy${data.delivery_notice_item}`,
@@ -424,6 +407,8 @@ function Table_(props, { defaultData, data, total }) {
     } else {
       props.onError(errors);
     }
+
+    clearErrors(["inspected_by", "date"]);
   }
 
   // Setter for table data
@@ -525,7 +510,6 @@ function Table_(props, { defaultData, data, total }) {
     if (searched) {
       setSearchLoading(false);
       setTableData(searched)
-      setDeliveryNoticeSKU(searched);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
@@ -556,7 +540,6 @@ function Table_(props, { defaultData, data, total }) {
   }, [deliveryNoticeData]);
 
   React.useEffect(() => {
-    if (selectedSKU.length) setDeliveryNoticeSKU([]);
     if (!selectedSKU.length && deliveryNoticeData) {
       props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
       setOpenBackdrop(true);
@@ -574,7 +557,6 @@ function Table_(props, { defaultData, data, total }) {
 
   React.useEffect(() => {
     if (props.sku) {
-      setDeliveryNoticeSKU(props.sku.data);
       setOpenBackdrop(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -696,7 +678,7 @@ function Table_(props, { defaultData, data, total }) {
                 </TableRow>
               }
               {Object.values(tableData).map((data, i) => 
-                <TableRow key={data.delivery_notice_item} className="table__row sku-table">
+                <TableRow key={data.delivery_notice_item ? data.delivery_notice_item : i} className="table__row sku-table">
                   <TableCell key={i}>{data.item_code}</TableCell>
                   <TableCell>{!addMode ? data.expected_quantity : data.expected_qty}</TableCell>
                   <TableCell>

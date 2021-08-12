@@ -5,8 +5,7 @@ import React, {  useState } from 'react';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
-import { createReceivingAndReleasingItem, fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
+import { createReceivingAndReleasingItem, fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
 import Table from './table';
 import MuiAlert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -28,16 +27,12 @@ function Receiving(props) {
   const [query, setQuery] = useState('');
   const [rowCount, setRowCount] = useState(0);
   const [searched, setSearched] = useState(null);
-  const [openBackdrop, setOpenBackdrop] = useState(true);
-  const [skuCount, setSKUCount] = useState(0);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [itemQuery, setItemQuery] = useState('');
   const [searchedItem, setSearchedItem] = useState(null);
   const [selectedSKU, setSelectedSKU] = React.useState([]);
   const [isChecked, setIsChecked] = React.useState([]);
   const [items, setItems] = useState([]);
-  const [warehouseSKUs, setwarehouseSKUs] = useState([]);
   const [alertConfig, setAlertConfig] = React.useState({});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [submittedId, setSubmittedId] = React.useState(null)
@@ -50,27 +45,6 @@ function Receiving(props) {
     setSelectedSKU(filteredItem);
     setItems(filteredItem);
   }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps 
-  const handleSearchItems = React.useCallback(_.debounce(() => {
-    searchWarehouseSKUByName({
-      warehouse_name: deliveryNoticeData.warehouse_name,
-      filter: itemQuery,
-    }).then(response => {
-      setSearchedItem(response.data);
-    })
-  }, 510), [itemQuery]);
-  
-  // Call delayedQuery function when user search and set new warehouse data
-  React.useEffect(() => {
-    if (itemQuery) {
-      handleSearchItems()
-    } else if (!itemQuery) {
-      setSearchedItem(warehouseSKUs)
-    }
-    return handleSearchItems.cancel;
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [itemQuery, handleSearchItems, SKU]);
 
   // Set new warehouse data with searched items
   React.useEffect(() => {
@@ -99,29 +73,6 @@ function Receiving(props) {
   const handleRowCount = (page, rowsPerPage) => {
     setRowCount(rowsPerPage);
     setPage(page);
-  };
-
-  // Set query state on input change
-  const handleItemSearch = (e) => {
-    setSearchedItem(null);
-    setItemQuery(e.target.value);
-  }
-
-  // Function for pagination and search
-  const handlePagination = (page, rowsPerPage) => {
-    if (query) {
-      delayedQuery(page, rowsPerPage);
-    } else {
-      if (deliveryNoticeData) {
-        let params = {
-          delivery_notice_id: deliveryNoticeData.delivery_notice_id,
-          count: rowsPerPage,
-          after: page * rowsPerPage
-        }
-        if (!params.after) params = { delivery_notice_id: deliveryNoticeData.delivery_notice_id }
-        props.fetchDeliveryNoticeSKU(params);
-      }
-    }
   };
 
   // Fetch new data if search values was erased
@@ -173,7 +124,7 @@ function Receiving(props) {
   /**
    * Invoke alert with error message
    */
-  const handleErrors = () => {
+  const handleErrors = (data) => {
     setOpenSnackBar(true);
     setAlertConfig({ severity: 'error', message: 'All fields are required' });
   }
@@ -202,12 +153,6 @@ function Receiving(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.notice]);
 
-  React.useEffect(() => { 
-    if (JSON.stringify(deliveryNoticeData) === '{}') {
-      setOpenBackdrop(false);
-    }
-  }, [deliveryNoticeData]);
-
   // Set searched values and warehouse count after search
   React.useEffect(() => {
     if (props.searched) {
@@ -215,14 +160,6 @@ function Receiving(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.searched]);
-
-  // Set delivery notice count and remove spinner when data fetch is done
-  React.useEffect(() => {
-    if (props.notice) {
-      setOpenBackdrop(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.notice]);
 
   // Set new warehouse data with searched items
   React.useEffect(() => {
@@ -234,36 +171,16 @@ function Receiving(props) {
   }, [searched]);
 
   React.useEffect(() => {
-    if (props.notice && !SKU.length) {
-      if (!itemQuery) {
-        fetchAllWarehouseSKUs({ warehouse_name: props.notice.warehouse_name })
-        .then(response => {
-          setSKU(response.data);
-          setwarehouseSKUs(response.data);
-        })
-        .catch(error => {
-          dispatchError(dispatch, THROW_ERROR, error);
-        });
-      }
-    }
-    if (props.sku) setSKUCount(props.sku.count);
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.sku]);
-
-  React.useEffect(() => {
     if (deliveryNoticeData) {
-      setOpenBackdrop(true)
       props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [deliveryNoticeData]);
   
-
   React.useEffect(() => {
     if (selectedSKU.length) setDeliveryNoticeSKU([]);
     if (!selectedSKU.length && deliveryNoticeData) {
       props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
-      setOpenBackdrop(true)
     } 
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [selectedSKU]);
@@ -271,7 +188,6 @@ function Receiving(props) {
   React.useEffect(() => {
     if (props.sku) {
       setDeliveryNoticeSKU(props.sku.data);
-      setOpenBackdrop(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
@@ -289,7 +205,7 @@ function Receiving(props) {
   /**
    * Handler api errors
    */
-   const handleError = () => {
+  const handleError = () => {
     if (props.error.status === 401) {
       setAlertConfig({ severity: 'error', message: 'Session Expired, please login again...' });
     } else if (props.error.status === 500) {
@@ -329,13 +245,10 @@ function Receiving(props) {
         data={selectedSKU}
         defaultData={deliveryNoticeSKU}
         handleRowCount={handleRowCount}
-        onPaginate={handlePagination}
-        query={query}
         searchLoading={searchLoading}
         handleCancel={handleCancel}
         onSubmit={handleSubmit}
         onError={handleErrors}
-        total={skuCount || 0}
         deliveryNoticeId={props.receivingData.delivery_noticeid}
         receivingData={receivingItem}
         submittedId={submittedId}

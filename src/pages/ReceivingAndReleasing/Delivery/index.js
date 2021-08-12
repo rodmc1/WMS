@@ -160,6 +160,7 @@ function DeliveryList(props) {
   const delayedQuery = React.useCallback(_.debounce(() => {
     setSearchLoading(true);
     props.searchReceivingAndReleasing({
+      code: props.match.params.id,
       filter: query,
     })
   }, 510), [query]);
@@ -356,8 +357,6 @@ function DeliveryList(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.error]);
 
-  console.log()
-
   return (
     <div className="container delivery-notice-receiving-container sku">
       <div className="flex justify-space-between align-center">
@@ -384,7 +383,7 @@ function DeliveryList(props) {
         onRowClick={handleRowClick}
       />
       <Dialog open={receivingDialog} onClose={handleModalClose} classes={{ paper: classes.dialogPaper }} maxWidth={'xl'} fullWidth aria-labelledby="form-dialog-title">
-        <DialogContent>
+        <DialogContent >
           <Receiving receivingData={receivingDialogData} onClose={handleModalClose} />
         </DialogContent>
       </Dialog>
