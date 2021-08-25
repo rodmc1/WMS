@@ -269,7 +269,7 @@ function ReceivingAndReleasing(props) {
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         <div className="button-group">
-          <CSVLink data={csvData} filename="delivery-notice-list.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
+          <CSVLink data={csvData} filename="receiving-and-releasing.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
           <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginLeft: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
