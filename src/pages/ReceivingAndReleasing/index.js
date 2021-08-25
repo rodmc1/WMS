@@ -129,6 +129,7 @@ function ReceivingAndReleasing(props) {
           appointment_datetime: notice.appointment_datetime.slice(0, 10),
           delivery_mode: notice.delivery_mode,
           asset_type: notice.asset_type,
+          status: notice.status,
           qty_of_trucks: notice.qty_of_trucks,
           external_reference_number: notice.external_reference_number,
         }
@@ -144,7 +145,7 @@ function ReceivingAndReleasing(props) {
 
   // CSV Headers
   const csvHeaders = [  
-    { label: "Unique Code", key: "unique_code" },
+    { label: "Delivery Notice No.", key: "unique_code" },
     { label: "External Reference No.", key: "external_reference_number" },
     { label: "Warehouse Client", key: "warehouse_client" },
     { label: "Warehouse", key: "warehouse_name" },
@@ -153,6 +154,7 @@ function ReceivingAndReleasing(props) {
     { label: "Appointed Date", key: "appointment_datetime" },
     { label: "Delivery Mode", key: "delivery_mode" },
     { label: "Type of Trucks", key: "asset_type" },
+    { label: "Status", key: "status" },
     { label: "Quantity of truck", key: "qty_of_trucks" }
   ];
 
