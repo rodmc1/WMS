@@ -39,6 +39,7 @@ function WarehouseMasterDataSKUForm(props) {
     data.batchManagement = batchManagement;
     data.expiryManagement = expiryManagement;
     data.images = images;
+
     if (_.isEmpty(errors)) {
       props.onSubmit(data);
     } else {
@@ -74,6 +75,13 @@ function WarehouseMasterDataSKUForm(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
+
+  React.useEffect(() => {
+    if (SKU) {
+      setBatchManagement(SKU.batch_management);
+      setExpiryManagement(SKU.expiry_management);
+    }
+  }, [SKU]);
 
   return (
     <form onSubmit={handleSubmit(__submit)} className="sku-form">

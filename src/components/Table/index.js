@@ -156,6 +156,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
   * @return formatted image src
   */
   const extractImageUrl = (str) => {
+    // console.log(process.env.REACT_APP_INTELUCK_API_ENDPOINT + str.replace(/\\/g,"/"));
     return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
   }
 
