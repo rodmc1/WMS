@@ -164,7 +164,7 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
    * @return formatted image src
    */
   const extractImageUrl = (str) => {
-    return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
+    return str && str.replace(/\\/g,"/").replace("/files",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
   }
 
   // Show default image if image source is broken
