@@ -1,0 +1,95 @@
+@import 'assets/scss/button';
+@import 'assets/scss/variable';
+
+.hidden_csv {
+  display: none;
+}
+
+.dashboard {
+  .DateRangePicker {
+    margin-right: 15px;
+  }
+  .DateInput_input {
+    font-size: 1rem;
+    text-align: center;
+  }
+  .MuiPaper-elevation1 {
+    padding: 15px 20px;
+  }
+
+  .delivery-notice {
+    padding-right: 0px !important;
+    padding-left: 5px !important;
+
+    .MuiGrid-container {
+      margin-top: 12px;
+      margin-left: 0px;
+      .inbound {
+        padding-left: 0px;
+        padding-right: 8px;
+      }
+      .outbound {
+        padding-left: 8px;
+        padding-right: 0px;
+      }
+    }
+
+    .MuiTableContainer-root {
+      margin-top: 26px;
+      padding: 0px;
+      .status-chip {
+        min-width: 80px;
+        justify-content: left;
+      }
+      .MuiTableCell-root {
+        padding: 10px;
+      }
+    }
+  }
+
+  .MuiTypography-body2 {
+    padding-top: 4px;
+    color: $gray;
+  }
+
+  .analytics {
+    padding-top: 12px;
+
+    .warehouse-type {
+      padding-left: 0px;
+
+      .MuiPaper-root {
+        min-height: 400px !important;
+      }
+
+      .MuiSvgIcon-root {
+        color: $gray !important;
+        margin-left: 20px;
+        font-size: 25px;
+        cursor: pointer;
+      }
+    }
+
+    .inventory {
+      .MuiPaper-root {
+        min-height: 400px !important;
+      }
+    }
+
+    .MuiGrid-root {
+      padding-right: 5px;
+    }
+  }
+
+  .analytics.MuiGrid-spacing-xs-3 {
+    margin: 0px;
+
+    .total-items-received {
+      padding-left: 0;
+    }
+  }
+
+  .search_form {
+    max-width: 300px;
+  }
+}

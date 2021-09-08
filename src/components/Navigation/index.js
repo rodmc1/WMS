@@ -7,6 +7,7 @@ import EventNoteIcon from '@material-ui/icons/EventNote';
 import { HomeWork, KeyboardArrowUp, ChevronLeft, ChevronRight, TableChart } from '@material-ui/icons';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import SvgIcon from '@material-ui/core/SvgIcon';
+import DashboardIcon from '@material-ui/icons/Dashboard';
 
 function InventoryIcon(props) {
   return (
@@ -23,8 +24,13 @@ function Navigation(props) {
       group: 'Warehouse Management',
       list: [
         {
-          label:'Warehouse List',
+          label:'Dashboard',
           path: '/',
+          icon: DashboardIcon
+        },
+        {
+          label:'Warehouse List',
+          path: '/warehouse-list',
           icon: HomeWork
         },
       ]
