@@ -5,7 +5,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import { DateRangePicker } from "react-dates";
 import { connect, useDispatch } from 'react-redux';
-import { fetchWarehouseByName, fetchWarehouses, fetchAllWarehouse } from 'actions';
+import { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem } from 'actions';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { CSVLink } from "react-csv";
@@ -49,7 +49,7 @@ function WarehouseList(props) {
   const [searchLoading, setSearchLoading] = React.useState(false);
   const [warehouseData, setWarehouseData] = React.useState(null)
   const [open, setOpen] = React.useState(false);
-  const [openBackdrop, setOpenBackdrop] = React.useState(true);
+  const [openBackdrop, setOpenBackdrop] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const [csvData, setCsvData] = React.useState([]);
   const classes = useStyles();
@@ -59,6 +59,20 @@ function WarehouseList(props) {
   const [rowCount, setRowCount] = React.useState(0);
   const [page, setPage]= React.useState(10);
   const [warehouseCount, setWarehouseCount] = React.useState(0);
+  const [items, setItems] = React.useState([]);
+  const [deliveryNotice, setDeliveryNotice] = React.useState([]);
+  const [analytics, setAnalytics] = React.useState([]);
+  const [receivedAndRelease, setReceivedAndRelease] = React.useState([]);
+  const [warehouseType, setWarehouseType] = React.useState([]);
+  const [numberOfItems, setNumberOfItems] = React.useState([]);
+  const [noticeCount, setNoticeCount] = React.useState([]);
+  const [inboundCount, setInboundCount] = React.useState(0);
+  const [outboundCount, setOutboundCount] = React.useState(0);
+
+  // Analytics
+  const [totalItemsReceived, setTotalItemsReceived] = React.useState(0);
+  const [totalItemsReleased, setTotalItemsReleased] = React.useState(0);
+  const [totalInventory, setTotalInventory] = React.useState(0);
 
   // Dates
   const [dateRange, setDateRange] = useState('');
@@ -133,33 +147,33 @@ function WarehouseList(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const delayedQuery = React.useCallback(_.debounce((page, rowCount) => {
     setSearchLoading(true);
-    props.fetchWarehouseByName({
-      filter: query,
-      count: rowCount,
-      after: page * rowCount
-    })
+    // props.fetchWarehouseByName({
+    //   filter: query,
+    //   count: rowCount,
+    //   after: page * rowCount
+    // })
   }, 510), [query]);
 
   // Call delayedQuery function when user search and set new warehouse data
-  React.useEffect(() => {
-    if (query) {
-      delayedQuery(page, rowCount);
-    } else if (!query) {
-      setWarehouseData(props.warehouses.data);
-      setWarehouseCount(props.warehouses.count);
-      setSearchLoading(false);
-    }
-    return delayedQuery.cancel;
-  }, [query, delayedQuery, page, rowCount, props.warehouses.count, props.warehouses.data]);
+  // React.useEffect(() => {
+  //   if (query) {
+  //     delayedQuery(page, rowCount);
+  //   } else if (!query) {
+  //     setWarehouseData(props.warehouses.data);
+  //     setWarehouseCount(props.warehouses.count);
+  //     setSearchLoading(false);
+  //   }
+  //   return delayedQuery.cancel;
+  // }, [query, delayedQuery, page, rowCount, props.warehouses.count, props.warehouses.data]);
 
   // Fetch new data if search values was erased
   React.useEffect(() => {
     if (!query) {
       setSearchLoading(true);
-      props.fetchWarehouses({
-        count: page || 10,
-        after: page * rowCount
-      });
+      // props.fetchWarehouses({
+      //   count: page || 10,
+      //   after: page * rowCount
+      // });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query]);
@@ -202,10 +216,10 @@ function WarehouseList(props) {
     if (query) {
       delayedQuery(page, rowsPerPage);
     } else {
-      props.fetchWarehouses({
-        count: rowsPerPage,
-        after: page * rowsPerPage
-      });
+      // props.fetchWarehouses({
+      //   count: rowsPerPage,
+      //   after: page * rowsPerPage
+      // });
     }
   };
 
@@ -222,46 +236,47 @@ function WarehouseList(props) {
 
   // Function for CSV Download  
   const handleDownloadCSV = async () => {
-    await fetchAllWarehouse().then(response => {
-      const newData = response.data.map(warehouse => {
-        return {
-          warehouseName: warehouse.warehouse_client,
-          address: warehouse.address,
-          gpsCoordinate: warehouse.gps_coordinate,
-          country: warehouse.country,
-          warehouseType: warehouse.warehouse_type,
-          buildingType: warehouse.building_type,
-          warehouseStatus: warehouse.warehouse_status,
-          nearbyStation: warehouse.nearby_station,
-          yearTop: warehouse.year_top,
-          minLeaseTerms: warehouse.min_lease_terms,
-          psf: warehouse.psf,
-          floorArea: warehouse.floor_area,
-          coveredArea: warehouse.covered_area,
-          mezzanineArea: warehouse.mezzanine_area,
-          openArea: warehouse.open_area,
-          officeArea: warehouse.office_area,
-          batteryChargingArea: warehouse.battery_charging_area,
-          loadingAndUnloadingBays: warehouse.loading_unloading_bays,
-          remarks: warehouse.remarks,
-          facilitiesAndAmenities: warehouse.facilities_amenities
-        }
-      });
-      setCsvData(newData);
-    }).catch((error) => {
-      dispatchError(dispatch, THROW_ERROR, error);
-    });
+    return;
+    // await fetchAllWarehouse().then(response => {
+    //   const newData = response.data.map(warehouse => {
+    //     return {
+    //       warehouseName: warehouse.warehouse_client,
+    //       address: warehouse.address,
+    //       gpsCoordinate: warehouse.gps_coordinate,
+    //       country: warehouse.country,
+    //       warehouseType: warehouse.warehouse_type,
+    //       buildingType: warehouse.building_type,
+    //       warehouseStatus: warehouse.warehouse_status,
+    //       nearbyStation: warehouse.nearby_station,
+    //       yearTop: warehouse.year_top,
+    //       minLeaseTerms: warehouse.min_lease_terms,
+    //       psf: warehouse.psf,
+    //       floorArea: warehouse.floor_area,
+    //       coveredArea: warehouse.covered_area,
+    //       mezzanineArea: warehouse.mezzanine_area,
+    //       openArea: warehouse.open_area,
+    //       officeArea: warehouse.office_area,
+    //       batteryChargingArea: warehouse.battery_charging_area,
+    //       loadingAndUnloadingBays: warehouse.loading_unloading_bays,
+    //       remarks: warehouse.remarks,
+    //       facilitiesAndAmenities: warehouse.facilities_amenities
+    //     }
+    //   });
+    //   setCsvData(newData);
+    // }).catch((error) => {
+    //   dispatchError(dispatch, THROW_ERROR, error);
+    // });
 
-    csvLink.current.link.click();
+    // csvLink.current.link.click();
   }
 
   // Set warehouse count and remove spinner when data fetch is done
   React.useEffect(() => {
-    if (props.warehouses.count) {
-      setWarehouseCount(props.warehouses.count)
+    if (props.warehouses) {
+      setWarehouseCount(props.warehouses.length)
       setOpenBackdrop(false);
     }
-  }, [props.warehouses.count]);
+  }, [props.warehouses]);
 
   // Show snackbar alert when new warehouse is created
   React.useEffect(() => {
@@ -270,16 +285,73 @@ function WarehouseList(props) {
     }
   }, [props.location.success]);
 
-  const rows = [
-    {
-      code: 'USC201230189',
-      type: 'Inbound'
-    },
-    {
-      code: 'USC245686790',
-      type: 'Outbound'
+  // Show snackbar alert when new warehouse is created
+  React.useEffect(() => {
+    props.fetchDashboard({
+      from_date: startDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY")
+    });
+
+    props.fetchDashboardDeliveryNotice({
+      from_date: startDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY")
+    });
+
+    props.fetchDashboardPhysicalItem({
+      from_date: startDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY")
+    });
+  }, [startDate, endDate]);
+
+  // Set Dashboard data
+  React.useEffect(() => {
+    if (props.warehouses) {
+      setAnalytics(props.dashboard.analytics);
+      setReceivedAndRelease(props.dashboard.total_received_and_released);
+      setWarehouseType(props.dashboard.warehouse_type);
+      setNumberOfItems(props.dashboard.number_of_items);
+      setNoticeCount(props.dashboard.deliverynotice_count);
+      setDeliveryNotice(props.notice);
+      setItems(props.warehouses);
+      setWarehouseData(props.warehouses);
     }
-  ]
+  }, [props.dashboard, props.notice, props.warehouses]);
+
+  // Set Inbount and Outbound counts
+  React.useEffect(() => {
+    if (deliveryNotice) {
+      let inbound = 0;
+      let outbound = 0;
+
+      deliveryNotice.forEach(notice => {
+        if (notice.transaction_type === 'Inbound') inbound++;
+        if (notice.transaction_type === 'Outbound') outbound++
+      })
+
+      setInboundCount(inbound);
+      setOutboundCount(outbound);
+    }
+  }, [deliveryNotice]);
+
+    // Set Analytics data
+    React.useEffect(() => {
+      if (analytics) {
+        let received = 0;
+        let released = 0;
+        let inventory = 0;
+  
+        analytics.forEach(item => {
+          if (item.description === 'Inbound') received = item.value;
+          if (item.description === 'Outbound') released = item.value;
+          if (item.description === 'Inventory') inventory = item.value;
+        });
+
+        setTotalItemsReceived(received);
+        setTotalItemsReleased(released);
+        setTotalInventory(inventory);
+
+      }
+    }, [analytics]);
 
   const renderStatus = data => {
     let jsx = <Chip label="Inbound" className="status-chip emerald" />
@@ -314,19 +386,19 @@ function WarehouseList(props) {
               <Grid container item xs={12} spacing={3} className='analytics'>
                 <Grid item xs={4} className="total-items-received">
                   <Paper elevation={1}>
-                    <Typography>10,500</Typography>
+                    <Typography>{totalItemsReceived}</Typography>
                     <Typography variant="body2">Total Items Received</Typography>
                   </Paper>
                 </Grid>
                 <Grid item xs={4}>
                   <Paper elevation={1}>
-                    <Typography>9,054</Typography>
+                    <Typography>{totalItemsReleased}</Typography>
                     <Typography variant="body2">Total Items Released</Typography>
                   </Paper>
                 </Grid>
                 <Grid item xs={4}>
                   <Paper elevation={1}>
-                    <Typography>962</Typography>
+                    <Typography>{totalInventory}</Typography>
                     <Typography variant="body2">Total Inventory</Typography>
                   </Paper>
                 </Grid>
@@ -368,13 +440,13 @@ function WarehouseList(props) {
               <Grid container item xs={12} spacing={2}>
                 <Grid item xs={6} className="inbound">
                   <Paper elevation={1}>
-                    <Typography>32</Typography>
+                    <Typography>{inboundCount}</Typography>
                     <Typography variant="body2">Inbound</Typography>
                   </Paper>
                 </Grid>
                 <Grid item xs={6} className="outbound">
                   <Paper elevation={1}>
-                    <Typography>12</Typography>
+                    <Typography>{outboundCount}</Typography>
                     <Typography variant="body2">Outbound</Typography>
                   </Paper>
                 </Grid>
@@ -388,10 +460,10 @@ function WarehouseList(props) {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {rows.map((row) => (
-                      <TableRow key={row.code}>
-                        <TableCell>{row.code}</TableCell>
-                        <TableCell>{renderStatus(row.type)}</TableCell>
+                    {deliveryNotice.map((notice) => (
+                      <TableRow key={notice.unique_code}>
+                        <TableCell>{notice.unique_code}</TableCell>
+                        <TableCell>{renderStatus(notice.transaction_type)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -413,9 +485,11 @@ function WarehouseList(props) {
 
 const mapStateToProps = state => {
   return {
-    warehouses: state.warehouses,
-    searched: state.warehouses.search
+    warehouses: state.dashboard.item,
+    searched: state.warehouses.search,
+    notice: state.dashboard.notice,
+    dashboard: state.dashboard.data
   }
 }
 
-export default connect(mapStateToProps, { fetchWarehouses, fetchWarehouseByName })(WarehouseList);
+export default connect(mapStateToProps, { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem })(WarehouseList);

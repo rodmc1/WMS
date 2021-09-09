@@ -7,6 +7,7 @@ import noticeReducer from './noticeReducer';
 import authReducer from './authReducer';
 import logReducer from './logReducer';
 import deliveryReducer from './deliveryReducer';
+import dashboardReducer from './dashboardReducer';
 
 export default combineReducers({
   auth: authReducer,
@@ -16,5 +17,6 @@ export default combineReducers({
   sku: skuReducer,
   notice: noticeReducer,
   logs: logReducer,
-  receiving_releasing: deliveryReducer
+  receiving_releasing: deliveryReducer,
+  dashboard: dashboardReducer
 });
