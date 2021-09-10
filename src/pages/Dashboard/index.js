@@ -15,6 +15,8 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { spacing } from '@material-ui/system';
 import Grid from '@material-ui/core/Grid';
+import { Doughnut } from 'react-chartjs-2';
+
 
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -44,6 +46,22 @@ const useStyles = makeStyles((theme) => ({
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
+
+const doughnutData = {
+  labels: ['Red', 'Blue', 'Yellow'],
+  datasets: [
+    {
+      data: [25, 75],
+      backgroundColor: [
+        "#009688",
+        "#A8DCD3",
+      ],
+      hoverBackgroundColor: [
+        "#E9E9E9",
+      ],
+  }]
+};
+
 
 function WarehouseList(props) {
   const [searchLoading, setSearchLoading] = React.useState(false);
@@ -359,6 +377,52 @@ function WarehouseList(props) {
     return jsx
   }
 
+
+  const plugins = [{
+    beforeDraw: function(chart) {
+     var width = chart.width,
+         height = chart.height,
+         ctx = chart.ctx;
+         ctx.restore();
+         var fontSize = (height / 160).toFixed(2);
+         ctx.font = fontSize + "em sans-serif";
+         ctx.textBaseline = "middle";
+         var text = "75%",
+         textX = Math.round((width - ctx.measureText(text).width) / 2),
+         textY = height / 2;
+         ctx.fillText(text, textX, textY);
+         ctx.save();
+    } 
+  }];
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        display: false
+      },
+      labels: {
+        display: false
+      },
+    },
+    cutout: () => {
+      let val = 90;
+      const collapsed = document.querySelector('.drawer:not(.drawer--collapsed) + main');
+
+      if (collapsed && analytics) {
+        val = 75;
+      }
+      
+      return val;
+    }
+  }
+
+
+  if (document.querySelector('.drawer:not(.drawer--collapsed) + main')) {
+    console.log('collapsed')
+  }
+
   return (
     <div className="container dashboard">
       <div className="flex justify-space-between align-center">
@@ -418,6 +482,13 @@ function WarehouseList(props) {
                   <Paper elevation={1}>
                     <Typography>Inventory</Typography>
                     <Typography variant="body2">Percentage</Typography>
+                    {analytics && 
+                      <Doughnut
+                      data={doughnutData}
+                      options={options}
+                      plugins={plugins}
+                     />
+                    }
                   </Paper>
                 </Grid>
               </Grid>
@@ -432,6 +503,22 @@ function WarehouseList(props) {
                 query={query}
                 searchLoading={searchLoading}
               />
+              <Grid container item xs={12} spacing={3} className='analytics'>
+                <Grid item xs={8} className="warehouse-type">
+                  <Paper elevation={1}>
+                    <Typography>Total items Received and Released</Typography>
+                    <div className="flex justify-space-between align-center">
+                      <Typography variant="body2">Difference</Typography>
+                    </div>
+                  </Paper>
+                </Grid>
+                <Grid item xs={4} className="inventory">
+                  <Paper elevation={1}>
+                    <Typography>Number of Items</Typography>
+                    <Typography variant="body2">Descending</Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
             </Paper>
           </Grid>
           <Grid item xs={3} className="delivery-notice">
