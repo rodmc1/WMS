@@ -15,8 +15,8 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { spacing } from '@material-ui/system';
 import Grid from '@material-ui/core/Grid';
-import { Doughnut } from 'react-chartjs-2';
-
+import { Doughnut, Bar } from 'react-chartjs-2';
+import * as d3 from "d3";
 
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -35,6 +35,13 @@ import { makeStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import ListIcon from '@material-ui/icons/List';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import { forceSimulation, forceX, forceY, forceCollide, select, layout } from 'd3'
+import Bubble from './Bubble';
+import BubbleChart from "@weknow/react-bubble-chart-d3";
+import HorizontalBarChart from './ItemNumbers';
+import ReceivedAndReleased from './ReceivedAndReleased';
+import NumberOfItems from './ItemNumbers';
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -46,22 +53,6 @@ const useStyles = makeStyles((theme) => ({
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-
-const doughnutData = {
-  labels: ['Red', 'Blue', 'Yellow'],
-  datasets: [
-    {
-      data: [25, 75],
-      backgroundColor: [
-        "#009688",
-        "#A8DCD3",
-      ],
-      hoverBackgroundColor: [
-        "#E9E9E9",
-      ],
-  }]
-};
-
 
 function WarehouseList(props) {
   const [searchLoading, setSearchLoading] = React.useState(false);
@@ -86,6 +77,7 @@ function WarehouseList(props) {
   const [noticeCount, setNoticeCount] = React.useState([]);
   const [inboundCount, setInboundCount] = React.useState(0);
   const [outboundCount, setOutboundCount] = React.useState(0);
+  const [hoveredTransactionType, setHoveredTransasctionType] = React.useState(null);
 
   // Analytics
   const [totalItemsReceived, setTotalItemsReceived] = React.useState(0);
@@ -98,6 +90,26 @@ function WarehouseList(props) {
   const [focusedInput, setFocusedInput] = useState(null);
   const [endDate, setEndDate] = useState(moment().endOf('today'));
   const [startDate, setStartDate] = useState(moment().startOf('year'));
+
+  const dataJSON = [
+    {
+      Name: "Stocky Yard",
+      Count: 8
+    },
+    {
+      Name: "Home Economics",
+      Count: 4
+    },
+    {
+      Name: "Venture Capital Investment",
+      Count: 3
+    },
+    {
+      Name: "Fabric design",
+      Count: 6
+    }
+  ];
+
 
   const routes = [
     {
@@ -325,7 +337,7 @@ function WarehouseList(props) {
   React.useEffect(() => {
     if (props.warehouses) {
       setAnalytics(props.dashboard.analytics);
-      setReceivedAndRelease(props.dashboard.total_received_and_released);
+      setReceivedAndRelease(props.dashboard.total_received_and_release);
       setWarehouseType(props.dashboard.warehouse_type);
       setNumberOfItems(props.dashboard.number_of_items);
       setNoticeCount(props.dashboard.deliverynotice_count);
@@ -384,10 +396,10 @@ function WarehouseList(props) {
          height = chart.height,
          ctx = chart.ctx;
          ctx.restore();
-         var fontSize = (height / 160).toFixed(2);
+         var fontSize = (height / 80).toFixed(2);
          ctx.font = fontSize + "em sans-serif";
          ctx.textBaseline = "middle";
-         var text = "75%",
+         var text = getInventoryPercentage() + '%',
          textX = Math.round((width - ctx.measureText(text).width) / 2),
          textY = height / 2;
          ctx.fillText(text, textX, textY);
@@ -395,6 +407,14 @@ function WarehouseList(props) {
     } 
   }];
 
+  const getInventoryPercentage = () => {
+    let percentage = 0;
+    if (totalItemsReceived && totalInventory)  {
+      percentage = totalInventory / totalItemsReceived * 100;
+    }
+
+    return percentage > 100 ? 100 : percentage
+  }
   const options = {
     responsive: true,
     maintainAspectRatio: true,
@@ -407,21 +427,162 @@ function WarehouseList(props) {
       },
     },
     cutout: () => {
-      let val = 90;
+      let val = 105;
       const collapsed = document.querySelector('.drawer:not(.drawer--collapsed) + main');
 
       if (collapsed && analytics) {
-        val = 75;
+        val = 80;
       }
       
       return val;
     }
   }
 
+  const doughnutData = {
+    datasets: [
+      {
+        data: [getInventoryPercentage(), getInventoryPercentage() - 100],
+        backgroundColor: [
+          "#009688",
+          "#A8DCD3",
+        ],
+        hoverBackgroundColor: [
+          "#E9E9E9",
+        ],
+    }]
+  };
 
-  if (document.querySelector('.drawer:not(.drawer--collapsed) + main')) {
-    console.log('collapsed')
+
+  // if (document.querySelector('.drawer:not(.drawer--collapsed) + main')) {
+  //   console.log('collapsed')
+  // }
+
+  var colorLegend = [
+    //reds from dark to light
+    {color: "#67000d", text: 'Negative', textColor: "#ffffff"}, "#a50f15", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2",
+    //neutral grey
+    {color: "#f0f0f0", text: 'Neutral'},
+    // blues from light to dark
+    "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#08519c", {color: "#08306b", text: 'Positive', textColor: "#ffffff"}
+  ];
+   
+  var tooltipProps = [{
+    css: 'symbol',
+    prop: '_id'
+  }, {
+    css: 'value',
+    prop: 'value',
+    display: 'Last Value'
+  }, {
+    css: 'change',
+    prop: 'colorValue',
+    display: 'Change'
+  }];
+
+  useEffect(() => {
+    if (analytics) {
+      // getSvg();
+      drawBubble(dataJSON.map(e=> dataForPacking(e)))
+    }
+  }, [analytics]);
+
+  const getSvg = () => {
+    const svg = d3.select(svgRef.current)
+                .attr("width", 500)
+                .attr("height", 500);
+                
+      // Step 1
+      const data = [
+        {source:"Item 1", x: 100, y: 60, val: 8, color: "#C9D6DF"},
+        {source:"Item 2", x: 30, y: 80, val: 4, color: "#F7EECF"},
+        {source:"Item 4", x: 190, y: 100, val: 3, color: "#F9CAC8"},
+        {source:"Item 5", x: 80, y: 170, val: 6, color: "#F9CAC8"}
+      ]
+
+    // Step 4
+    svg.selectAll("circle")
+      .data(data).enter()
+      .append("circle")
+      .attr("cx", function(d) {return d.x})
+      .attr("cy", function(d) {return d.y})
+      .attr("r", function(d) {
+        return Math.sqrt(d.val)/Math.PI 
+      })
+      .attr("fill", function(d) {
+        return d.color;
+      });
+
+    // Step 5
+    svg.selectAll("text")
+      .data(data).enter()
+      .append("text")
+      .attr("x", function(d) {return d.x+(Math.sqrt(d.val)/Math.PI)})
+      .attr("y", function(d) {return d.y+4})
+      .text(function(d) {return d.source})
+      .style("font-family", "arial")
+      .style("font-size", "12px")
   }
+
+  
+  const dataForPacking = (data) => {
+    return {
+      r: data.Count,
+      x: 0,
+      y: 0,
+      Count: data.Count,
+      Name: data.Name
+    };
+  };
+
+  const svgRef = React.createRef()
+
+  const drawBubble = () => {
+    const svg = d3.select(svgRef.current);
+    svg.select("g").remove();
+    const diameter = 600;
+
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    const circles = svg
+      .append("g")
+      .attr("class", "circles")
+      .attr(
+        "transform",
+        `translate(${325 / 2},
+          ${300 / 2})scale(8)`
+      );
+
+    const node = circles
+      .selectAll(".node")
+      .data(d3.packSiblings(dataJSON.map(e=> dataForPacking(e))))
+      .enter()
+      .append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) {
+        return "translate(" + d.x + "," + d.y + ")";
+      });
+
+    node
+      .append("circle")
+      .attr("r", function(d) {
+        return d.r;
+      })
+      .attr("class", "circle")
+      .style("fill", function(d, i) {
+        return color(i);
+      });
+
+    node
+      .append("text")
+      .attr("dy", "0.3em")
+      .style("text-anchor", "middle")
+      .text(function(d) {
+        return d.Count;
+      })
+      .attr("font-family", "Gill Sans", "Gill Sans MT")
+      .attr("font-size", 2)
+      .attr("fill", "white");
+  };
 
   return (
     <div className="container dashboard">
@@ -476,13 +637,15 @@ function WarehouseList(props) {
                         <ListIcon />
                       </div>
                     </div>
+                    {/* <svg width="500" height="500" ref={svgRef} /> */}
+                    <svg width="300" height="300" ref={svgRef} />
                   </Paper>
                 </Grid>
                 <Grid item xs={4} className="inventory">
                   <Paper elevation={1}>
                     <Typography>Inventory</Typography>
-                    <Typography variant="body2">Percentage</Typography>
-                    {analytics && 
+                    <Typography variant="body2" style={{marginBottom: 45}}>Percentage</Typography>
+                    {totalInventory && 
                       <Doughnut
                       data={doughnutData}
                       options={options}
@@ -505,17 +668,22 @@ function WarehouseList(props) {
               />
               <Grid container item xs={12} spacing={3} className='analytics'>
                 <Grid item xs={8} className="warehouse-type">
-                  <Paper elevation={1}>
+                  <Paper elevation={1} className="chart">
                     <Typography>Total items Received and Released</Typography>
                     <div className="flex justify-space-between align-center">
                       <Typography variant="body2">Difference</Typography>
                     </div>
+                     {receivedAndRelease && <ReceivedAndReleased data={receivedAndRelease} />}
                   </Paper>
                 </Grid>
                 <Grid item xs={4} className="inventory">
-                  <Paper elevation={1}>
+                  <Paper elevation={1} className="chart">
                     <Typography>Number of Items</Typography>
                     <Typography variant="body2">Descending</Typography>
+                    {/* <HorizontalBarChart />
+                    
+                    NumberOfItems*/}
+                    {receivedAndRelease && <NumberOfItems data={numberOfItems} />}
                   </Paper>
                 </Grid>
               </Grid>
@@ -548,9 +716,12 @@ function WarehouseList(props) {
                   </TableHead>
                   <TableBody>
                     {deliveryNotice.map((notice) => (
-                      <TableRow key={notice.unique_code}>
+                      <TableRow key={notice.unique_code} className="hover-button">
                         <TableCell>{notice.unique_code}</TableCell>
-                        <TableCell>{renderStatus(notice.transaction_type)}</TableCell>
+                        <TableCell className="transaction-type">
+                          {renderStatus(notice.transaction_type)}
+                          <OpenInNewIcon className="hover-button--on" fontSize="small" onClick={() => history.push(`/delivery-notice/${notice.unique_code}/overview`)} />
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

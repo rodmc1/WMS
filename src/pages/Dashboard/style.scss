@@ -6,6 +6,12 @@
 }
 
 .dashboard {
+  .circle {
+    background-color: #F80;
+    border: 3px solid #FFF !important;
+    border-radius: 18px;
+    box-shadow: 0 0 2px #888;
+  }
   .DateRangePicker {
     margin-right: 15px;
   }
@@ -20,6 +26,14 @@
   .delivery-notice {
     padding-right: 0px !important;
     padding-left: 5px !important;
+  
+    .hover-button .hover-button--on {
+      display: none;
+    }
+
+    .hover-button:hover .hover-button--on {
+      display: inline;
+    }
 
     .MuiGrid-container {
       margin-top: 12px;
@@ -33,6 +47,20 @@
         padding-right: 0px;
       }
     }
+
+    
+    .transaction-type {
+      display: flex;
+      align-items: center;
+      
+      .MuiSvgIcon-fontSizeSmall {
+        margin-left: 5px;
+        color: $gray;
+        cursor: pointer;
+      }
+    }
+
+    
 
     .MuiTableContainer-root {
       margin-top: 26px;
@@ -89,7 +117,18 @@
     }
   }
 
+  .apexcharts-legend-marker {
+    border-radius: 7px;
+  }
+
   .search_form {
     max-width: 300px;
+  }
+
+  .chart {
+    padding: 15px 5px;
+    p {
+      padding: 0px 20px 5px 20px;
+    }
   }
 }
