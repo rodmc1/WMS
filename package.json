@@ -26,6 +26,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "react-spring": "^8.0.27",
+    "react-to-print": "^2.13.0",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "universal-cookie": "^4.0.4",
@@ -35,6 +36,7 @@
   },
   "scripts": {
     "start": "env-cmd -e development react-scripts start",
+    "start-staging": "env-cmd -e staging react-scripts start",
     "build-dev": "env-cmd -e development react-scripts build",
     "build-staging": "env-cmd -e staging react-scripts build",
     "build-prod": "env-cmd -e production react-scripts build",

@@ -1,6 +1,6 @@
 import './style.scss';
 import _ from 'lodash';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { THROW_ERROR } from 'actions/types';
@@ -40,6 +40,12 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import Spinner from '@material-ui/core/Backdrop';
+
+// package for print
+import ReactToPrint from 'react-to-print';
+
+// component for the printable form
+import PrintableForms from '../PrintableForms';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -129,7 +135,9 @@ const useStyles2 = makeStyles((theme) => ({
     }
   },
   filter: {
-    position: 'relative'
+    position: 'relative',
+    display: 'flex',
+    width: '63%'
   },
   input: {
     backgroundColor: '#e8e8e8',
@@ -164,6 +172,8 @@ const config = {
 }
 
 function Table_(props) {
+  const receivingData = props.receivingData;
+  const printComponent = useRef();
   const classes = useStyles2();
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
@@ -188,6 +198,8 @@ function Table_(props) {
   const [isChecked, setIsChecked] = React.useState([]);
   const [items, setItems] = useState([]);
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
+
+  const rowReceivingReleasing = localStorage.getItem('rowReceivingReleasing');
 
   const handleToggle = () => {
     setOpenAddItems((prevOpen) => !prevOpen);
@@ -409,6 +421,18 @@ function Table_(props) {
     }
 
     clearErrors(["inspected_by", "date"]);
+  }
+
+  // Handles printing Receiving/Releasing forms
+  const handlePrintForm = () => {
+    console.info(props);
+    const content = document.getElementById("formToPrint");
+    const pri = document.getElementById("printableForm").contentWindow;
+    pri.document.open();
+    pri.document.write(content.innerHTML);
+    pri.document.close();
+    pri.focus();
+    pri.print();
   }
 
   // Setter for table data
@@ -641,6 +665,18 @@ function Table_(props) {
               classes={{notchedOutline:classes.noBorder}}
             />
           </FormControl>
+          {/* <Button variant="contained" className="btn btn--emerald receiving-add-item-btn" disableElevation style={{marginLeft: 15}} onClick={handlePrintForm}>Print</Button> */}
+          <div>
+            <ReactToPrint
+              trigger={() => {
+                // NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+                // to the root node of the returned component as it will be overwritten.
+                return <Button variant="contained" className="btn btn--emerald receiving-add-item-btn" disableElevation style={{marginLeft: 15}}>Print</Button>;
+              }}
+              content={() => printComponent.current}
+            />
+            <PrintableForms ref={printComponent} row={rowReceivingReleasing}/>
+          </div>
         </div>
         <div className={classes.pagination}>
           <TablePagination

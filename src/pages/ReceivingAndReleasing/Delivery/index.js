@@ -19,6 +19,9 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import Receiving from './Receiving'
 
+import Cookie from 'universal-cookie';
+
+const cookie = new Cookie();
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
@@ -109,6 +112,7 @@ function DeliveryList(props) {
 
   // Redirect to selected item
   const handleRowClick = row => {
+    cookie.set('rowReceiveingReleasing', JSON.stringify(row))
     setReceivingDialogData(row)
     setReceivingDialog(true);
   }
