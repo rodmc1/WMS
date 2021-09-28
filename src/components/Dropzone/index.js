@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
  * @return formatted image src
  */
 const extractImageUrl = (str) => {
-  return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
+  return str && str.replace(/\\/g,"/").replace("/files",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
 }
 
 /*
@@ -45,7 +45,6 @@ function Dropzone(props) {
         
         setExpanded(false);
         let images = props.defaultFiles.warehouse_document_file.map(e => extractImageUrl(e.warehouse_document_path));
-        console.log(images)
         let newArrayImages = initialImages;
 
         images.forEach(image => {
