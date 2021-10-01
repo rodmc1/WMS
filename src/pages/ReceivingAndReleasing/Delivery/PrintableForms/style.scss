@@ -1,0 +1,122 @@
+.print-source {
+  display: none;
+  // background-color: red;
+}
+  
+body > .print-source {
+  display: block;
+}
+  
+@media print {
+  .print-source {
+    display: block;
+  }
+}
+
+.top-border{
+  position: absolute;
+  width: 2480px;
+  height: 17px;
+  left: 0px;
+  top: 0px;
+  margin-bottom: 20px;
+}
+
+.green{
+  background: #009688;
+}
+
+.orange{
+  background: #FF7E00;
+}
+
+.form-title{
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 30px;
+  // line-height: 75px;
+}
+
+.green-color{
+  color: #009688;
+}
+
+.orange-color{
+  color: #FF7E00;
+}
+
+.form-title-left-line{
+  width: 13px;
+  height: 48px;
+  left: 0px;
+  top: 0px;
+  border-radius: 18px;
+  margin-right: 15px;
+}
+
+.align-center {
+  display: flex;
+  align-content: 'center';
+}
+
+.align-center.row {
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.form-logo{
+  width: 50%;
+  position: relative;
+  float: right;
+}
+
+.details-cont label{
+  width: 100%;
+  height: 20px;
+  display: block;
+}
+
+.details-cont.left label{
+  text-align: left;
+}
+
+.details-cont.right label{
+  text-align: right;
+}
+
+.details-cont label:nth-child(1){
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  // line-height: 52px;
+  color: #333333;
+}
+
+.details-cont label:nth-child(2){
+  color: #828282;
+}
+
+.details-cont div{
+  width: 100%;
+  height: 60px;
+  border-bottom: 1px solid #000000;
+}
+
+.details-cont span{
+  font-size: 20px;
+  color: #828282;
+  margin-top: 5px;
+}
+
+.broken-line{
+  border-bottom: 5px dashed #4F4F4F;
+  padding: 0px 30px 30px 30px;
+}
+
+.bottom-section{
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+}
