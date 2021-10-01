@@ -47,6 +47,9 @@ import ReactToPrint from 'react-to-print';
 // component for the printable form
 import PrintableForms from '../PrintableForms';
 
+import Cookies from 'universal-cookie';
+
+const cookie = new Cookies();
 const useStyles1 = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
@@ -513,7 +516,8 @@ function Table_(props) {
       if (Array.isArray(props.item.data)) {
         if (props.item.data.length) {
           setReceivingItem(props.item.data);
-          setItemCount(props.item.count)
+          setItemCount(props.item.count);
+          cookie.set('total_print_table',props.item.count);
           setOpenBackdrop(false);
         }
       }
