@@ -4,6 +4,8 @@ import formIcon from '../../../../assets/img/tmpLogo.png';
 import '../PrintableForms/style.scss';
 import history from 'config/history';
 import Cookie from 'universal-cookie';
+import inteluck from 'api/inteluck';
+import moment from 'moment';
 
 const cookie = new Cookie();
 // the react-to-print package only support class components to print
@@ -11,13 +13,25 @@ class PrintableForms extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            data: {}
+            data: cookie.get('rowReceiveingReleasing'),
+            tableData: []
         };
     }
 
     componentDidMount(){
-        this.setState({data: cookie.get('rowReceiveingReleasing')})
-        console.info(cookie.get('rowReceiveingReleasing'));
+        const dataObj = {
+            received_id: this.state.data.recieved_id,
+            count: parseInt(cookie.get('total_print_table')),
+            after: 0,
+        }
+
+        // get the table data
+        inteluck.get(`/v1/wms/Warehouse/Delivery/Received_Item`, { params: dataObj })
+        .then(response => {
+            this.setState({tableData: response.data});
+        }).catch(error => {
+            console.info(error);
+        });
     }
 
     render() {
@@ -45,19 +59,19 @@ class PrintableForms extends React.Component {
                 <Grid item xs={6}>
                     <Grid container>
                         <Grid item xs={12} className="align-center row details-cont left">
-                            <label>WUHAN FIBERHOME INT. TECH. PHILS. INC.</label>
+                            <label>{this.state.data.client_name}</label>
                             <label>Client</label>
                         </Grid>
                         <Grid item xs={12} className="align-center row details-cont left">
-                            <label>WUHAN FIBERHOME INT. TECH. PHILS. INC.</label>
+                            <label>{this.state.data.shipper_name}</label>
                             <label>Shipper</label>
                         </Grid>
                         <Grid item xs={12} className="align-center row details-cont left">
-                            <label>Delivery</label>
-                            <label>Mode of Entry</label>
+                            <label>{this.state.data.transaction_type}</label>
+                            <label>Transaction type</label>
                         </Grid>
                         <Grid item xs={12} className="align-center row details-cont left">
-                            <label>1035-Inteluck-COD</label>
+                            <label>{this.state.data.warehouse_name}</label>
                             <label>Location</label>
                         </Grid>
                     </Grid>
@@ -65,15 +79,15 @@ class PrintableForms extends React.Component {
                 <Grid item xs={6}>
                     <Grid container>
                         <Grid item xs={12} className="align-center row details-cont right">
-                            <label>RR20210908001</label>
+                            <label>{this.state.data.unique_code}</label>
                             <label>Receiving Report Number</label>
                         </Grid>
                         <Grid item xs={12} className="align-center row details-cont right">
-                            <label>September 1, 2021</label>
+                            <label>{moment(new Date(this.state.data.datetime)).format('LL')}</label>
                             <label>Date</label>
                         </Grid>
                         <Grid item xs={12} className="align-center row details-cont right">
-                            <label>FHSQ-20210908-0001</label>
+                            <label>{this.state.data.reference_number}</label>
                             <label>Reference Number</label>
                         </Grid>
                     </Grid>
@@ -93,214 +107,18 @@ class PrintableForms extends React.Component {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableRow>
-                                <TableCell>1</TableCell>
-                                <TableCell>DESCRIPTION</TableCell>
-                                <TableCell>CODE</TableCell>
-                                <TableCell>QTY</TableCell>
-                                <TableCell>UNIT</TableCell>
-                                <TableCell>EXP DATE</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>2</TableCell>
-                                <TableCell>DESCRIPTION</TableCell>
-                                <TableCell>CODE</TableCell>
-                                <TableCell>QTY</TableCell>
-                                <TableCell>UNIT</TableCell>
-                                <TableCell>EXP DATE</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>3</TableCell>
-                                <TableCell>DESCRIPTION</TableCell>
-                                <TableCell>CODE</TableCell>
-                                <TableCell>QTY</TableCell>
-                                <TableCell>UNIT</TableCell>
-                                <TableCell>EXP DATE</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>4</TableCell>
-                                <TableCell>DESCRIPTION</TableCell>
-                                <TableCell>CODE</TableCell>
-                                <TableCell>QTY</TableCell>
-                                <TableCell>UNIT</TableCell>
-                                <TableCell>EXP DATE</TableCell>
-                            </TableRow>
-                            {/* <TableRow>
-                                <TableCell>5</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>6</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>7</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>8</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>9</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow> */}
-                            {/* <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>10</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                                <TableCell>--</TableCell>
-                            </TableRow> */}
+                            {
+                                this.state.tableData.map((item, key) => (
+                                    <TableRow key={key}>
+                                        <TableCell>{key + 1}</TableCell>
+                                        <TableCell>{item.product_name}</TableCell>
+                                        <TableCell>{item.external_code}</TableCell>
+                                        <TableCell>{item.actual_quantity}</TableCell>
+                                        <TableCell>{item.unit}</TableCell>
+                                        <TableCell>{moment(new Date(item.actual_arrived_date_time)).format('L')}</TableCell>
+                                    </TableRow>
+                                ))
+                            }
                         </TableBody>
                     </Table>
                 </TableContainer>
@@ -315,7 +133,7 @@ class PrintableForms extends React.Component {
                     </Grid>
                 </Grid>
             </Grid>
-            <div className="bottom-section">
+            <div className={this.state.tableData.length < 10 ? "bottom-section" : ""}>
                 <div className="broken-line"/>
                 <Grid container spacing={1} style={{padding: '30px', paddingTop: '15px'}}>
                     <Grid item xs={6}>
