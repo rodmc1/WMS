@@ -5,3 +5,4 @@ export * from './sku';
 export * from './notice';
 export * from './logs';
 export * from './deliveries';
+export * from './dashboard';
