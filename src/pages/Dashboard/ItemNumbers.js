@@ -1,19 +1,25 @@
 
 import React, { useState, useEffect } from 'react';
 import ReactApexChart from "react-apexcharts";
-import moment from 'moment';
 
 const NumberOfItems = (props) => {
-  const [data, setData] = useState('');
   const [chartData, setChartData] = useState(null);
-  const [barColors, setColors] = useState([]);
+  const [barColors, setColors] = useState([
+    "hsl(169, 43%, 58%)",
+    "hsl(169, 36%, 66%)",
+    "hsl(169, 29%, 74%)",
+    "hsl(169, 22%, 82%)",
+    "hsl(169, 15%, 90%)",
+    "hsl(169, 10%, 94%)",
+    "hsl(169, 9%, 96%)",
+    "hsl(169, 6%, 100%)"
+  ]);
 
   const getColors = () => {
     let color = [];
     let saturation = 0;
     let lightness = 0;
 
-    console.log(chartData)
     chartData.value.forEach(() => {
       saturation = saturation + 6;
       lightness = lightness + 7;
@@ -27,6 +33,7 @@ const NumberOfItems = (props) => {
     if (chartData) {
       getColors();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [chartData])
 
   const options = {
@@ -40,7 +47,10 @@ const NumberOfItems = (props) => {
       enabled: true,
       textAnchor: 'start',
       style: {
-        colors: ['#fff']
+        colors: ['#fff'],
+        fontSize: '12px',
+        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontWeight: 'normal'
       },
       formatter: function (val, opt) {
         return opt.w.globals.labels[opt.dataPointIndex]
@@ -61,38 +71,40 @@ const NumberOfItems = (props) => {
         },
       }
     },
-    colors: [
-      "hsl(169, 43%, 58%)",
-      "hsl(169, 36%, 66%)",
-      "hsl(169, 29%, 74%)",
-      "hsl(169, 22%, 82%)",
-      "hsl(169, 15%, 90%)",
-      "hsl(169, 8%, 98%)",
-      "hsl(169, 1%, 106%)"
-    ],
+    colors: barColors,
     xaxis: {
       categories: chartData && chartData.description,
       labels: {
-        trim: true
-      }
+        trim: false,
+        show: false,
+      },
+      floating: false,
+      minHeight: undefined,
+      maxHeight: 120,
+      axisTicks: {
+        show: false
+      },
     },
     yaxis: {
+      show: false,
       labels: {
         show: false
       }
     },
     tooltip: {
-      theme: 'dark',
+      custom: function({ series, seriesIndex, dataPointIndex, w }) {
+        return `<div class="custom-tooltip">
+                  ${w.globals.labels[dataPointIndex]} <br>
+                  <span class='legend' style="background: ${w.globals.colors[dataPointIndex]}; color: ${w.globals.colors[dataPointIndex]}">|</span>
+                  <b>${series[seriesIndex][dataPointIndex]}<b>
+                </div>`
+      },
       x: {
         show: false
       },
-      y: {
-        title: {
-          formatter: function () {
-            return ''
-          }
-        }
-      }
+      marker: {
+        show: false,
+      },
     },
     fill: {
       opacity: 1
@@ -126,13 +138,9 @@ const NumberOfItems = (props) => {
 
   useEffect(() => {
     if (props.data) {
-      setData(props.data);
       getChartData(props.data);
     }
   }, [props.data]);
-  
-
-  console.log(chartData)
 
   return (
     <React.Fragment>

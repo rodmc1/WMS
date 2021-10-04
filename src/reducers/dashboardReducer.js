@@ -1,9 +1,10 @@
-import { FETCH_DASHBOARD, FETCH_DASHBOARD_PHYSICAL_ITEM, FETCH_DASHBOARD_DELIVERY_NOTICE } from "actions/types";
+import { FETCH_DASHBOARD, FETCH_DASHBOARD_PHYSICAL_ITEM, FETCH_DASHBOARD_DELIVERY_NOTICE, SEARCH_WAREHOUSE_ITEM } from "actions/types";
 
 const initialState = {
   data: [],
   item: [],
-  notice: []
+  notice: [],
+  search: [],
 }
 
 const dashboardReducer = (state = initialState, action) => {
@@ -14,6 +15,8 @@ const dashboardReducer = (state = initialState, action) => {
       return { ...state, item: action.payload };
     case FETCH_DASHBOARD_DELIVERY_NOTICE:
       return { ...state, notice: action.payload };
+    case SEARCH_WAREHOUSE_ITEM:
+      return { ...state, search: action.payload };
     default:
       return initialState;
   }

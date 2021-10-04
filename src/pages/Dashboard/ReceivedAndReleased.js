@@ -52,6 +52,19 @@ const Apex = (props) => {
         horizontal: 15,
         vertical: 12
       },
+    },
+    tooltip: {
+      custom: function({ series, seriesIndex, dataPointIndex, w }) {
+        return `<div class="custom-tooltip received-tooltip">
+                  <span class="tooltip-date">${moment(w.globals.lastXAxis.categories[dataPointIndex]).format('MMMM D, YYYY')}</span> <br>
+                  <div class="received-label">Received</div>
+                  <span class='legend received'>|</span>
+                  <b>${series[1][dataPointIndex]}</b>
+                  <div class="received-label">Released</div>
+                  <span class='legend released'>|</span>
+                  <b>${series[0][dataPointIndex]}</b>
+                </div>`
+      }
     }
   }
 

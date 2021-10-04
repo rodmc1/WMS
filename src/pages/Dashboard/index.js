@@ -5,17 +5,15 @@ import moment from 'moment';
 import _ from 'lodash';
 import { DateRangePicker } from "react-dates";
 import { connect, useDispatch } from 'react-redux';
-import { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem } from 'actions';
+import { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem, fetchDashboardPhysicalItemByName, fetchDashboardItems } from 'actions';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { CSVLink } from "react-csv";
-import "react-dates/initialize";
 import "react-dates/lib/css/_datepicker.css";
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import { spacing } from '@material-ui/system';
 import Grid from '@material-ui/core/Grid';
-import { Doughnut, Bar } from 'react-chartjs-2';
+import { Doughnut } from 'react-chartjs-2';
 import * as d3 from "d3";
 
 import Snackbar from '@material-ui/core/Snackbar';
@@ -36,12 +34,9 @@ import Chip from '@material-ui/core/Chip';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import ListIcon from '@material-ui/icons/List';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import { forceSimulation, forceX, forceY, forceCollide, select, layout } from 'd3'
-import Bubble from './Bubble';
-import BubbleChart from "@weknow/react-bubble-chart-d3";
-import HorizontalBarChart from './ItemNumbers';
 import ReceivedAndReleased from './ReceivedAndReleased';
 import NumberOfItems from './ItemNumbers';
+import Radar from './Radar'
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -68,16 +63,14 @@ function WarehouseList(props) {
   const [rowCount, setRowCount] = React.useState(0);
   const [page, setPage]= React.useState(10);
   const [warehouseCount, setWarehouseCount] = React.useState(0);
-  const [items, setItems] = React.useState([]);
   const [deliveryNotice, setDeliveryNotice] = React.useState([]);
   const [analytics, setAnalytics] = React.useState([]);
   const [receivedAndRelease, setReceivedAndRelease] = React.useState([]);
   const [warehouseType, setWarehouseType] = React.useState([]);
   const [numberOfItems, setNumberOfItems] = React.useState([]);
-  const [noticeCount, setNoticeCount] = React.useState([]);
   const [inboundCount, setInboundCount] = React.useState(0);
   const [outboundCount, setOutboundCount] = React.useState(0);
-  const [hoveredTransactionType, setHoveredTransasctionType] = React.useState(null);
+  const [activeWarehouseType, setActiveWarehouseType] = useState('radar');
 
   // Analytics
   const [totalItemsReceived, setTotalItemsReceived] = React.useState(0);
@@ -85,28 +78,80 @@ function WarehouseList(props) {
   const [totalInventory, setTotalInventory] = React.useState(0);
 
   // Dates
-  const [dateRange, setDateRange] = useState('');
-  const [activeButton, setActiveButton] = useState(null);
   const [focusedInput, setFocusedInput] = useState(null);
   const [endDate, setEndDate] = useState(moment().endOf('today'));
   const [startDate, setStartDate] = useState(moment().startOf('year'));
 
+  const [bubbleData, setbubbleData] = useState([]);
+
+  useEffect(() => {
+    if (warehouseType) {
+      let bubbleJSON = [];
+
+      warehouseType.forEach(item => {
+        let data = {
+          Name: "",
+          Count: 0,
+          color: '',
+          opacity: 0
+        }
+
+        if (item.description === 'Controlled Humidity Warehouse') {
+          data.Name = 'Controlled Humidity Warehouse';
+          data.Count = item.value;
+          data.color = '#FF7E00';
+          data.opacity = 0.8;
+        }
+        if (item.description === 'Heated & Unheated General Warehouse') {
+          data.Name = 'Heated & Unheated General Warehouse'
+          data.Count = item.value;
+          data.color = '#009688';
+          data.opacity = 0.6;
+        }
+        if (item.description === 'Refrigerated Warehouse') {
+          data.Name = item.description;
+          data.Count = item.value;
+          data.color = '#FDC638';
+          data.opacity = 0.8;
+        }
+        if (item.description === 'Stockyard') {
+          data.Name = item.description;
+          data.Count = item.value;
+          data.color = '#009688';
+          data.opacity = 0.9;
+        }
+
+        bubbleJSON.push(data)
+      });
+
+      setbubbleData(bubbleJSON);
+    }
+  }, [warehouseType]);
+
   const dataJSON = [
     {
-      Name: "Stocky Yard",
-      Count: 8
+      Name: "Stockyard",
+      Count: 7,
+      color: '#009688',
+      opacity: 0.9
     },
     {
-      Name: "Home Economics",
-      Count: 4
+      Name: "Heated and unheated general warehouse",
+      Count: 4,
+      color: '#009688',
+      opacity: 0.6
     },
     {
-      Name: "Venture Capital Investment",
-      Count: 3
+      Name: "Refrigerated Warehouse",
+      Count: 3,
+      color: '#FDC638',
+      opacity: 0.8
     },
     {
-      Name: "Fabric design",
-      Count: 6
+      Name: "Controlled Humidity Warehouse",
+      Count: 6,
+      color: '#FF7E00',
+      opacity: 0.8 
     }
   ];
 
@@ -128,45 +173,23 @@ function WarehouseList(props) {
     rowsPerPage: 10,
     headers: [
       { label: 'ID', key: 'warehouse_id' },
-      { label: 'Warehouse', key: 'warehouse_client' },
-      { label: 'Street Address', key: 'address' },
-      { label: 'Country', key: 'country' },
-      { label: 'GPS Coordinates', key: 'gps_coordinate' },
-      { label: 'Nearby Stations', key: 'nearby_station' },
-      { label: 'Type', key: 'building_type' },
-      { label: 'Min Lease Term', key: 'min_lease_terms', align: 'right' },
-      { label: 'Floor Area', key: 'office_area', align: 'right' }
+      { label: 'Warehouse', key: 'warehouse_name' },
+      { label: 'SKU', key: 'product_name' },
+      { label: 'Inbound', key: 'inbound', align: 'right' },
+      { label: 'Outbound', key: 'outbound', align: 'right' },
+      { label: 'Inventory', key: 'physical_count', align: 'right' },
     ]
   }
 
   // CSV Headers
   const csvHeaders = [  
     { label: "Warehouse Name", key: "warehouseName" },
-    { label: "Address", key: "address" },
-    { label: "GPS Coordinates", key: "gpsCoordinate" },
-    { label: "Country", key: "country" },
-    { label: "Warehouse Type", key: "warehouseType" },
-    { label: "Building Type", key: "buildingType" },
-    { label: "Warehouse Status", key: "warehouseStatus" },
-    { label: "Nearby Station", key: "nearbyStation" },
-    { label: "Year of TOP", key: "yearTop" },
-    { label: "Min lease terms (months)", key: "minLeaseTerms" },
-    { label: "PSF", key: "psf" },
-    { label: "Floor Area (sqm)", key: "floorArea" },
-    { label: "Covered Area (sqm)", key: "coveredArea" },
-    { label: "Mezzanine Area (sqm)", key: "mezzanineArea" },
-    { label: "Open Area (sqm)", key: "openArea" },
-    { label: "Office Area (sqm)", key: "officeArea" },
-    { label: "Battery Charging Area (sqm)", key: "batteryChargingArea" },
-    { label: "Loading and Unloading Bays", key: "loadingAndUnloadingBays" },
-    { label: "Facilities and amenities", key: "facilitiesAndAmenities" },
-    { label: "Remarks", key: "remarks" }
+    { label: "Product Name", key: "productName" },
+    { label: "Item ID", key: "itemId" },
+    { label: "Inbound", key: "inbound" },
+    { label: "Outbound", key: "outbound" },
+    { label: "Physical Count", key: "physical_count" }
   ];
-
-  // Redirect to create warehouse page
-  const handleCreateWarehouse = () => {
-    history.push('/warehouse-list/warehouse-create');
-  }
 
   // Set query state on input change
   const onInputChange = (e) => {
@@ -177,37 +200,34 @@ function WarehouseList(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const delayedQuery = React.useCallback(_.debounce((page, rowCount) => {
     setSearchLoading(true);
-    // props.fetchWarehouseByName({
-    //   filter: query,
-    //   count: rowCount,
-    //   after: page * rowCount
-    // })
+    props.fetchDashboardPhysicalItemByName({
+      from_date: startDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY"),
+      filter: query,
+      count: rowCount,
+      after: page * rowCount
+    })
   }, 510), [query]);
 
   // Call delayedQuery function when user search and set new warehouse data
-  // React.useEffect(() => {
-  //   if (query) {
-  //     delayedQuery(page, rowCount);
-  //   } else if (!query) {
-  //     setWarehouseData(props.warehouses.data);
-  //     setWarehouseCount(props.warehouses.count);
-  //     setSearchLoading(false);
-  //   }
-  //   return delayedQuery.cancel;
-  // }, [query, delayedQuery, page, rowCount, props.warehouses.count, props.warehouses.data]);
+  React.useEffect(() => {
+    if (query) {
+      delayedQuery(page, rowCount);
+    } else if (!query) {
+      setWarehouseData(props.warehouses.data);
+      setWarehouseCount(props.warehouses.count);
+      setSearchLoading(false);
+    }
+    return delayedQuery.cancel;
+  }, [query, delayedQuery, page, rowCount, props.warehouses.data]);
 
   // Fetch new data if search values was erased
   React.useEffect(() => {
     if (!query) {
-      setSearchLoading(true);
-      // props.fetchWarehouses({
-      //   count: page || 10,
-      //   after: page * rowCount
-      // });
+      setSearchLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query]);
-
 
   React.useEffect(() => { 
     if (JSON.stringify(warehouseData) === '{}') {
@@ -235,6 +255,7 @@ function WarehouseList(props) {
   React.useEffect(() => {
     if (props.warehouses.data) {
       setWarehouseData(props.warehouses.data);
+      setWarehouseCount(props.warehouses.count)
     }
   }, [props.warehouses]);
 
@@ -246,17 +267,17 @@ function WarehouseList(props) {
     if (query) {
       delayedQuery(page, rowsPerPage);
     } else {
-      // props.fetchWarehouses({
-      //   count: rowsPerPage,
-      //   after: page * rowsPerPage
-      // });
+      props.fetchDashboardPhysicalItem({
+        from_date: startDate.format("MM/DD/YYYY"),
+        to_date: endDate.format("MM/DD/YYYY"),
+        count: rowsPerPage,
+        after: page * rowsPerPage
+      });
     }
   };
 
   // Redirect to selected warehouse
-  const handleRowClick = (row) => {
-    history.push(`/warehouse-list/${row.warehouse_client}/overview`);
-  }
+  const handleRowClick = row => {};
 
   // Handler for react-dates picker
   const handleDatesChange = ({ startDate, endDate }) => {
@@ -266,44 +287,33 @@ function WarehouseList(props) {
 
   // Function for CSV Download  
   const handleDownloadCSV = async () => {
-    return;
-    // await fetchAllWarehouse().then(response => {
-    //   const newData = response.data.map(warehouse => {
-    //     return {
-    //       warehouseName: warehouse.warehouse_client,
-    //       address: warehouse.address,
-    //       gpsCoordinate: warehouse.gps_coordinate,
-    //       country: warehouse.country,
-    //       warehouseType: warehouse.warehouse_type,
-    //       buildingType: warehouse.building_type,
-    //       warehouseStatus: warehouse.warehouse_status,
-    //       nearbyStation: warehouse.nearby_station,
-    //       yearTop: warehouse.year_top,
-    //       minLeaseTerms: warehouse.min_lease_terms,
-    //       psf: warehouse.psf,
-    //       floorArea: warehouse.floor_area,
-    //       coveredArea: warehouse.covered_area,
-    //       mezzanineArea: warehouse.mezzanine_area,
-    //       openArea: warehouse.open_area,
-    //       officeArea: warehouse.office_area,
-    //       batteryChargingArea: warehouse.battery_charging_area,
-    //       loadingAndUnloadingBays: warehouse.loading_unloading_bays,
-    //       remarks: warehouse.remarks,
-    //       facilitiesAndAmenities: warehouse.facilities_amenities
-    //     }
-    //   });
-    //   setCsvData(newData);
-    // }).catch((error) => {
-    //   dispatchError(dispatch, THROW_ERROR, error);
-    // });
+    // return;
+    await fetchDashboardItems({
+      from_date: startDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY"),
+    }).then(response => {
+      const newData = response.data.map(warehouse => {
+        return {
+          warehouseName: warehouse.warehouse_name,
+          productName: warehouse.product_name,
+          itemId: warehouse.item_id,
+          inbound: warehouse.inbound,
+          outbound: warehouse.outbound,
+          physical_count: warehouse.physical_count
+        }
+      });
+      setCsvData(newData);
+    }).catch((error) => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
 
-    // csvLink.current.link.click();
+    csvLink.current.link.click();
   }
 
   // Set warehouse count and remove spinner when data fetch is done
   React.useEffect(() => {
     if (props.warehouses) {
-      setWarehouseCount(props.warehouses.length)
+      setWarehouseCount(props.warehouses.count)
       setOpenBackdrop(false);
     }
   }, [props.warehouses]);
@@ -329,7 +339,9 @@ function WarehouseList(props) {
 
     props.fetchDashboardPhysicalItem({
       from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY")
+      to_date: endDate.format("MM/DD/YYYY"),
+      count: page || 10,
+      after: page * rowCount
     });
   }, [startDate, endDate]);
 
@@ -340,10 +352,8 @@ function WarehouseList(props) {
       setReceivedAndRelease(props.dashboard.total_received_and_release);
       setWarehouseType(props.dashboard.warehouse_type);
       setNumberOfItems(props.dashboard.number_of_items);
-      setNoticeCount(props.dashboard.deliverynotice_count);
       setDeliveryNotice(props.notice);
-      setItems(props.warehouses);
-      setWarehouseData(props.warehouses);
+      setWarehouseData(props.warehouses.data);
     }
   }, [props.dashboard, props.notice, props.warehouses]);
 
@@ -363,32 +373,31 @@ function WarehouseList(props) {
     }
   }, [deliveryNotice]);
 
-    // Set Analytics data
-    React.useEffect(() => {
-      if (analytics) {
-        let received = 0;
-        let released = 0;
-        let inventory = 0;
-  
-        analytics.forEach(item => {
-          if (item.description === 'Inbound') received = item.value;
-          if (item.description === 'Outbound') released = item.value;
-          if (item.description === 'Inventory') inventory = item.value;
-        });
+  // Set Analytics data
+  React.useEffect(() => {
+    if (analytics) {
+      let received = 0;
+      let released = 0;
+      let inventory = 0;
 
-        setTotalItemsReceived(received);
-        setTotalItemsReleased(released);
-        setTotalInventory(inventory);
+      analytics.forEach(item => {
+        if (item.description === 'Inbound') received = item.value;
+        if (item.description === 'Outbound') released = item.value;
+        if (item.description === 'Inventory') inventory = item.value;
+      });
 
-      }
-    }, [analytics]);
+      setTotalItemsReceived(received);
+      setTotalItemsReleased(released);
+      setTotalInventory(inventory);
+
+    }
+  }, [analytics]);
 
   const renderStatus = data => {
     let jsx = <Chip label="Inbound" className="status-chip emerald" />
     if (data === 'Outbound') jsx = <Chip label="Outbound" className="status-chip tangerine" />;
     return jsx
   }
-
 
   const plugins = [{
     beforeDraw: function(chart) {
@@ -415,9 +424,9 @@ function WarehouseList(props) {
 
     return percentage > 100 ? 100 : percentage
   }
+
   const options = {
-    responsive: true,
-    maintainAspectRatio: true,
+    animation: false,
     plugins: {
       legend: {
         display: false
@@ -427,11 +436,20 @@ function WarehouseList(props) {
       },
     },
     cutout: () => {
-      let val = 105;
       const collapsed = document.querySelector('.drawer:not(.drawer--collapsed) + main');
+      const inventory = document.querySelector('.inventory');
+      let val = 105;
 
       if (collapsed && analytics) {
         val = 80;
+      }
+
+      if (inventory.clientWidth > 320) {
+        val = 105;
+      }
+
+      if (inventory.clientWidth > 340) {
+        val = 118;
       }
       
       return val;
@@ -452,77 +470,11 @@ function WarehouseList(props) {
     }]
   };
 
-
-  // if (document.querySelector('.drawer:not(.drawer--collapsed) + main')) {
-  //   console.log('collapsed')
-  // }
-
-  var colorLegend = [
-    //reds from dark to light
-    {color: "#67000d", text: 'Negative', textColor: "#ffffff"}, "#a50f15", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2",
-    //neutral grey
-    {color: "#f0f0f0", text: 'Neutral'},
-    // blues from light to dark
-    "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#08519c", {color: "#08306b", text: 'Positive', textColor: "#ffffff"}
-  ];
-   
-  var tooltipProps = [{
-    css: 'symbol',
-    prop: '_id'
-  }, {
-    css: 'value',
-    prop: 'value',
-    display: 'Last Value'
-  }, {
-    css: 'change',
-    prop: 'colorValue',
-    display: 'Change'
-  }];
-
   useEffect(() => {
-    if (analytics) {
-      // getSvg();
+    if (analytics && bubbleData.length) {
       drawBubble(dataJSON.map(e=> dataForPacking(e)))
     }
-  }, [analytics]);
-
-  const getSvg = () => {
-    const svg = d3.select(svgRef.current)
-                .attr("width", 500)
-                .attr("height", 500);
-                
-      // Step 1
-      const data = [
-        {source:"Item 1", x: 100, y: 60, val: 8, color: "#C9D6DF"},
-        {source:"Item 2", x: 30, y: 80, val: 4, color: "#F7EECF"},
-        {source:"Item 4", x: 190, y: 100, val: 3, color: "#F9CAC8"},
-        {source:"Item 5", x: 80, y: 170, val: 6, color: "#F9CAC8"}
-      ]
-
-    // Step 4
-    svg.selectAll("circle")
-      .data(data).enter()
-      .append("circle")
-      .attr("cx", function(d) {return d.x})
-      .attr("cy", function(d) {return d.y})
-      .attr("r", function(d) {
-        return Math.sqrt(d.val)/Math.PI 
-      })
-      .attr("fill", function(d) {
-        return d.color;
-      });
-
-    // Step 5
-    svg.selectAll("text")
-      .data(data).enter()
-      .append("text")
-      .attr("x", function(d) {return d.x+(Math.sqrt(d.val)/Math.PI)})
-      .attr("y", function(d) {return d.y+4})
-      .text(function(d) {return d.source})
-      .style("font-family", "arial")
-      .style("font-size", "12px")
-  }
-
+  }, [analytics, activeWarehouseType, bubbleData]);
   
   const dataForPacking = (data) => {
     return {
@@ -530,7 +482,9 @@ function WarehouseList(props) {
       x: 0,
       y: 0,
       Count: data.Count,
-      Name: data.Name
+      Name: data.Name,
+      color: data.color,
+      opacity: data.opacity
     };
   };
 
@@ -539,17 +493,14 @@ function WarehouseList(props) {
   const drawBubble = () => {
     const svg = d3.select(svgRef.current);
     svg.select("g").remove();
-    const diameter = 600;
-
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
 
     const circles = svg
       .append("g")
       .attr("class", "circles")
       .attr(
         "transform",
-        `translate(${325 / 2},
-          ${300 / 2})scale(8)`
+        `translate(${300 / 2},
+          ${300 / 2})scale(7)`
       );
 
     const node = circles
@@ -567,9 +518,12 @@ function WarehouseList(props) {
       .attr("r", function(d) {
         return d.r;
       })
+      .attr("fill-opacity", function(d, i) {
+        return d.opacity;
+      })
       .attr("class", "circle")
       .style("fill", function(d, i) {
-        return color(i);
+        return d.color;
       });
 
     node
@@ -631,27 +585,68 @@ function WarehouseList(props) {
                   <Paper elevation={1}>
                     <Typography>Warehouse Type</Typography>
                     <div className="flex justify-space-between align-center">
-                      <Typography variant="body2">Bubble group</Typography>
+                      <Typography variant="body2">{activeWarehouseType === 'list' ? 'List' : 'Radar'}</Typography>
                       <div className="button-group">
-                        <AssessmentIcon />
-                        <ListIcon />
+                        <AssessmentIcon onClick={() => setActiveWarehouseType('radar')} className={activeWarehouseType === 'radar' ? 'active' : ''} />
+                        <ListIcon onClick={() => setActiveWarehouseType('list')} className={activeWarehouseType === 'list' ? 'active' : ''} />
                       </div>
                     </div>
+                    {activeWarehouseType === 'radar' ? 
+                    <Radar data={warehouseType} /> :
+                      <TableContainer>
+                        <MuiTable aria-label="simple table">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Type</TableCell>
+                              <TableCell align="right">Total Items Recorded</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {warehouseType.map((warehouse) => (
+                              <TableRow className="hover-button">
+                                <TableCell>{warehouse.description}</TableCell>
+                                <TableCell align="right">{warehouse.value}</TableCell>
+                              </TableRow>
+                            ))}
+                            {/* <TableRow className="hover-button">
+                              <TableCell>{'Stockyard'}</TableCell>
+                              <TableCell align="right">{'1234'}</TableCell>
+                            </TableRow>
+                            <TableRow className="hover-button">
+                              <TableCell>{'Refrigerated Warehouse'}</TableCell>
+                              <TableCell align="right">{'2700'}</TableCell>
+                            </TableRow> */}
+                            {/* {deliveryNotice.map((notice) => (
+                              <TableRow key={notice.unique_code} className="hover-button">
+                                <TableCell>{notice.unique_code}</TableCell>
+                                <TableCell className="transaction-type">
+                                  {renderStatus(notice.transaction_type)}
+                                  <OpenInNewIcon className="hover-button--on" fontSize="small" onClick={() => history.push(`/delivery-notice/${notice.unique_code}/overview`)} />
+                                </TableCell>
+                              </TableRow>
+                            ))} */}
+                          </TableBody>
+                        </MuiTable>
+                      </TableContainer>
+                    }
                     {/* <svg width="500" height="500" ref={svgRef} /> */}
-                    <svg width="300" height="300" ref={svgRef} />
                   </Paper>
                 </Grid>
                 <Grid item xs={4} className="inventory">
                   <Paper elevation={1}>
                     <Typography>Inventory</Typography>
-                    <Typography variant="body2" style={{marginBottom: 45}}>Percentage</Typography>
-                    {totalInventory && 
+                    <Typography variant="body2" style={{marginBottom: 25}}>Percentage</Typography>
+                    {totalInventory &&
+                    // <Inventory data={[getInventoryPercentage(), getInventoryPercentage() - 100]}
+                    //  />
                       <Doughnut
-                      data={doughnutData}
-                      options={options}
-                      plugins={plugins}
-                     />
+                        style={{maxHeight: 300, maxWidth: 300}}
+                        data={doughnutData}
+                        options={options}
+                        plugins={plugins}
+                      />
                     }
+                      {/* {totalInventory && console.log([getInventoryPercentage(), getInventoryPercentage() - 100]) } */}
                   </Paper>
                 </Grid>
               </Grid>
@@ -667,7 +662,7 @@ function WarehouseList(props) {
                 searchLoading={searchLoading}
               />
               <Grid container item xs={12} spacing={3} className='analytics'>
-                <Grid item xs={8} className="warehouse-type">
+                <Grid item xs={8} className="received-released">
                   <Paper elevation={1} className="chart">
                     <Typography>Total items Received and Released</Typography>
                     <div className="flex justify-space-between align-center">
@@ -676,7 +671,7 @@ function WarehouseList(props) {
                      {receivedAndRelease && <ReceivedAndReleased data={receivedAndRelease} />}
                   </Paper>
                 </Grid>
-                <Grid item xs={4} className="inventory">
+                <Grid item xs={4}>
                   <Paper elevation={1} className="chart">
                     <Typography>Number of Items</Typography>
                     <Typography variant="body2">Descending</Typography>
@@ -744,10 +739,10 @@ function WarehouseList(props) {
 const mapStateToProps = state => {
   return {
     warehouses: state.dashboard.item,
-    searched: state.warehouses.search,
+    searched: state.dashboard.search,
     notice: state.dashboard.notice,
     dashboard: state.dashboard.data
   }
 }
 
-export default connect(mapStateToProps, { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem })(WarehouseList);
+export default connect(mapStateToProps, { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem, fetchDashboardPhysicalItemByName })(WarehouseList);

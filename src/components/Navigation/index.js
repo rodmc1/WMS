@@ -81,10 +81,9 @@ function Navigation(props) {
     const sPage = sPath.substring(sPath.lastIndexOf('/') + 1);
     let className = 'main-nav__group-list-item-link';
     const activeClassName = `${className} main-nav__group-list-item-link--active`;
-
+    
     if (!sPage.length && i.path === '/') className = activeClassName;
     if (history.location.pathname.match(i.path) && i.path !== '/') className = activeClassName;
-    if (history.location.pathname.match('warehouse-list') && i.path === '/') className = activeClassName;
 
     return className;
   }
