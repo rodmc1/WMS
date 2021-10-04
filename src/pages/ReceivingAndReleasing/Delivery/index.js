@@ -75,7 +75,7 @@ function DeliveryList(props) {
   const [receivingDialog, setReceivingDialog] = React.useState(false);
   const [receivingDialogData, setReceivingDialogData] = React.useState([]);
   const [itemCount, setItemCount] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
+  const rowsPerPage = config.rowsPerPage;
 
   const routes = [
     {

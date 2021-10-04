@@ -1,0 +1,281 @@
+@import 'assets/scss/button';
+@import 'assets/scss/variable';
+
+.hidden_csv {
+  display: none;
+}
+
+.dashboard {
+  .circle {
+    background-color: #F80;
+    border: 3px solid #FFF !important;
+    border-radius: 18px;
+    box-shadow: 0 0 2px #888;
+  }
+  .DateRangePicker {
+    margin-right: 15px;
+  }
+  .DateInput_input {
+    font-size: 1rem;
+    text-align: center;
+  }
+  .MuiPaper-elevation1 {
+    padding: 15px 20px;
+  }
+
+  .delivery-notice {
+    padding-right: 0px !important;
+    padding-left: 5px !important;
+  
+    .hover-button .hover-button--on {
+      display: none;
+    }
+
+    .hover-button:hover .hover-button--on {
+      display: inline;
+    }
+
+    .MuiGrid-container {
+      margin-top: 12px;
+      margin-left: 0px;
+      .inbound {
+        padding-left: 0px;
+        padding-right: 8px;
+      }
+      .outbound {
+        padding-left: 8px;
+        padding-right: 0px;
+      }
+    }
+
+    
+    .transaction-type {
+      display: flex;
+      align-items: center;
+      
+      .MuiSvgIcon-fontSizeSmall {
+        margin-left: 5px;
+        color: $gray;
+        cursor: pointer;
+      }
+    }
+
+    .MuiTableContainer-root {
+      margin-top: 26px;
+      padding: 0px;
+      .status-chip {
+        min-width: 80px;
+        justify-content: left;
+      }
+      .MuiTableCell-root {
+        padding: 10px;
+      }
+    }
+  }
+
+  .MuiPaper-root canvas {
+    padding: 15px;
+  }
+
+  @media (min-width: 1900px) {
+    .MuiPaper-root canvas {
+      padding: 25px !important;
+    }
+  }
+
+  
+
+  
+
+  
+
+  // .MuiTableContainer-root {
+    // padding: -10px !important;
+    // width: 105%;
+    // padding-left: -50px !important;
+  // }
+
+  .MuiTypography-body2 {
+    padding-top: 4px;
+    color: $gray;
+  }
+
+  .analytics {
+    padding-top: 12px;
+
+    .warehouse-type {
+      padding-left: 0px;
+
+      .MuiPaper-root {
+        max-height: 400px;
+        @media (min-width: 1850px) {
+          min-height: 425px !important;
+          max-height: 425px !important;
+        }
+
+        @media (max-width: 1700px) {
+          min-height: 400px !important;
+        }
+      }
+
+
+      .MuiSvgIcon-root {
+        color: $gray;
+        margin-left: 20px;
+        font-size: 25px;
+        cursor: pointer;
+        
+        &.active {
+          color: $emerald !important;
+        }
+      }
+    }
+
+    .received-released {
+      .MuiPaper-root {
+        min-height: 400px !important;
+      }
+    }
+
+    .inventory {
+      .MuiPaper-root {
+        min-height: 400px !important;
+        @media (min-width: 1900px) {
+          height: 425px !important;
+        }
+      }
+    }
+
+    .received-released {
+      // .MuiPaper-root {
+        padding: 8px 8px 6px 0px !important;
+      // }
+    }
+
+    .MuiGrid-root {
+      padding-right: 5px;
+    }
+  }
+
+  .analytics.MuiGrid-spacing-xs-3 {
+    margin: 0px;
+
+    .total-items-received {
+      padding-left: 0;
+    }
+  }
+
+  .apexcharts-legend-marker {
+    border-radius: 7px;
+  }
+
+  .search_form {
+    max-width: 300px;
+  }
+
+  .chart {
+    padding: 15px 5px;
+    p {
+      padding: 0px 20px 5px 20px;
+    }
+  }
+
+  .radar-legend {
+    margin-right: 5px;
+    padding: 0.1px;
+    background-color: #009688;
+    color: #009688;
+    opacity: 0.6;
+
+  }
+
+  .legend {
+    margin-right: 5px;
+    padding: 0.1px;
+    color: transparent;
+    
+    &.released {
+      background-color: #5EBCAB;
+    }
+    &.received {
+      background-color: #C5EBE4;
+    }
+  }
+
+  .received-tooltip {
+    padding: 15px !important;
+  }
+
+  .received-label {
+    margin-top: 8px;
+    margin-bottom: 2px;
+    color: #828282
+  }
+
+  .custom-tooltip {
+    min-width: 75px;
+    padding: 8px;
+    font-size: 0.7rem;
+    
+    .legend {
+      margin-right: 5px;
+      padding: 0.1px;
+    }
+  }
+
+  .tooltip-date {
+    font-size: 12px;
+  }
+  
+  .main-table-root {
+    &.MuiPaper-elevation1 {
+      padding: 1px !important;
+    }
+    .MuiTableCell-root {
+      padding: 12px !important;
+    }
+  }
+
+  .wh-legend {
+    align-items: center;
+    margin-top: 45px;
+    .MuiTypography-root {
+      margin-top: 5px;
+      font-size: 0.875rem;
+    }
+  }
+
+  
+  .test {
+    color: blue;
+    margin-right: 10px;
+    
+    &.stocky {
+      color: $emerald;
+    }
+    &.heated {
+      color: $emerald;
+      opacity: 0.5;
+    }
+    &.refrigerated {
+      color: $tangerine;
+      opacity: 0.5;
+    }
+    &.controlled {
+      color: #FDC638;
+      opacity: 0.5;
+    }
+  }
+
+}
+
+
+.drawer + main {
+  .dashboard {
+    .MuiPaper-root canvas {
+      @media (min-width: 1900px) {
+        margin-left: 6% !important;
+      }
+    }
+  }
+}

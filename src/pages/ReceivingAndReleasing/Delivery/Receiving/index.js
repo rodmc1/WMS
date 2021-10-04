@@ -19,7 +19,6 @@ function Alert(props) {
 }
 
 function Receiving(props) {
-  const [SKU, setSKU] = useState([]);
   const [deliveryNoticeSKU, setDeliveryNoticeSKU] = useState([]);
   const [receivingItem, setReceivingItem] = useState([]);
   const dispatch = useDispatch();
@@ -29,7 +28,6 @@ function Receiving(props) {
   const [searched, setSearched] = useState(null);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [searchedItem, setSearchedItem] = useState(null);
   const [selectedSKU, setSelectedSKU] = React.useState([]);
   const [isChecked, setIsChecked] = React.useState([]);
   const [items, setItems] = useState([]);
@@ -45,13 +43,6 @@ function Receiving(props) {
     setSelectedSKU(filteredItem);
     setItems(filteredItem);
   }
-
-  // Set new warehouse data with searched items
-  React.useEffect(() => {
-    if (searchedItem) {
-      setSKU(searchedItem);
-    }
-  }, [searchedItem]);
 
   // Table config
   const config = {

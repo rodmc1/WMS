@@ -28,7 +28,7 @@ import Chip from '@material-ui/core/Chip';
 const useStyles1 = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(2)
   },
 }));
 
@@ -243,7 +243,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
             />
         </div>
       </div>
-      <Paper className={classes.root}>
+      <Paper className={classes.root} className="main-table-root">
         <TableContainer>
           <Table aria-label="custom pagination table" className="warehouse_table">  
             <TableHead>
