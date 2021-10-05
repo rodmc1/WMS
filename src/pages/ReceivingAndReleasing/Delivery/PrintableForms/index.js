@@ -14,14 +14,31 @@ class PrintableForms extends React.Component {
         super(props);
         this.state = {
             data: cookie.get('rowReceiveingReleasing'),
-            tableData: []
+            tableData: [],
+            rowCount: this.props.count || 0
         };
+
+        this.getTableData = this.getTableData.bind(this);
     }
 
     componentDidMount(){
+        // initial call of the table
+        this.getTableData();
+    }
+
+    componentDidUpdate(){
+        if(this.props.count !== this.state.rowCount){
+            console.info('count changed')
+            this.setState({rowCount: this.props.count},() => {
+                this.getTableData();
+            })
+        }
+    }
+
+    getTableData(){
         const dataObj = {
             received_id: this.state.data.recieved_id,
-            count: parseInt(cookie.get('total_print_table')),
+            count: this.state.rowCount,
             after: 0,
         }
 
