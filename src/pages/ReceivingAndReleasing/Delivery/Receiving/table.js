@@ -679,7 +679,7 @@ function Table_(props) {
               }}
               content={() => printComponent.current}
             />
-            <PrintableForms ref={printComponent} row={rowReceivingReleasing}/>
+            <PrintableForms ref={printComponent} count={itemCount}/>
           </div>
         </div>
         <div className={classes.pagination}>
