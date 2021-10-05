@@ -62,9 +62,9 @@ const Radar = (props) => {
 
   useEffect(() => {
     if (props.data) {
-      let controlled;
-      let heated;
-      let refrigerated;
+      let controlled = 0;
+      let heated = 0;
+      let refrigerated = 0;
       let stockyard = 0;
 
       props.data.forEach((item) => {

@@ -10,13 +10,22 @@ import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Grow from '@material-ui/core/Grow';
 import Popper from '@material-ui/core/Popper';
-import Cookies from 'js-cookie';
+import Cookies from 'universal-cookie';
 
 function Header() {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
-  const account = JSON.parse(Cookies.get('userData'));
+  const [account, setAccount] = React.useState(null)
   const prevOpen = React.useRef(open);
+  const cookie = new Cookies();
+
+  React.useEffect(() => {
+    if (cookie.get('user-token')) {
+      const data = cookie.get('userData');
+      setAccount(data);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, []);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -39,7 +48,7 @@ function Header() {
   }, [open]);
 
   const handleLogout = () => {
-    Cookies.remove('user-token');
+    document.cookie = "user-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.inteluck.com";
     window.location.href = process.env.REACT_APP_INTELUCK_LOGIN_API_ENDPOINT;
     return false; 
   }
@@ -58,8 +67,8 @@ function Header() {
           onClick={handleToggle}
         >
           <Avatar 
-            alt={account.username && account.username[0].toUpperCase()}
-            src={`${process.env.REACT_APP_INTELUCK_API_ENDPOINT}assets/images/user/${account.id ? account.id.substring(3) : ''}.jpg`}
+            alt={account && account.username[0].toUpperCase()}
+            src={account && `${process.env.REACT_APP_INTELUCK_API_ENDPOINT}assets/images/user/${account.id ? account.id.substring(3) : ''}.jpg`}
             ref={anchorRef}
             id="composition-button"
             aria-controls={open ? 'composition-menu' : undefined}
