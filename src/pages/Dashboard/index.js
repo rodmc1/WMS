@@ -239,9 +239,11 @@ function WarehouseList(props) {
   React.useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
-      setWarehouseCount(props.searched.count);
+      if (props.searched.data) setWarehouseCount(props.searched.data.length);
     }
   }, [props.searched]);
+
+  console.log(props.searched.data)
 
   // Set new warehouse data with searched items
   React.useEffect(() => {
@@ -608,28 +610,10 @@ function WarehouseList(props) {
                                 <TableCell align="right">{warehouse.value}</TableCell>
                               </TableRow>
                             ))}
-                            {/* <TableRow className="hover-button">
-                              <TableCell>{'Stockyard'}</TableCell>
-                              <TableCell align="right">{'1234'}</TableCell>
-                            </TableRow>
-                            <TableRow className="hover-button">
-                              <TableCell>{'Refrigerated Warehouse'}</TableCell>
-                              <TableCell align="right">{'2700'}</TableCell>
-                            </TableRow> */}
-                            {/* {deliveryNotice.map((notice) => (
-                              <TableRow key={notice.unique_code} className="hover-button">
-                                <TableCell>{notice.unique_code}</TableCell>
-                                <TableCell className="transaction-type">
-                                  {renderStatus(notice.transaction_type)}
-                                  <OpenInNewIcon className="hover-button--on" fontSize="small" onClick={() => history.push(`/delivery-notice/${notice.unique_code}/overview`)} />
-                                </TableCell>
-                              </TableRow>
-                            ))} */}
                           </TableBody>
                         </MuiTable>
                       </TableContainer>
                     }
-                    {/* <svg width="500" height="500" ref={svgRef} /> */}
                   </Paper>
                 </Grid>
                 <Grid item xs={4} className="inventory">
@@ -637,8 +621,6 @@ function WarehouseList(props) {
                     <Typography>Inventory</Typography>
                     <Typography variant="body2" style={{marginBottom: 25}}>Percentage</Typography>
                     {totalInventory &&
-                    // <Inventory data={[getInventoryPercentage(), getInventoryPercentage() - 100]}
-                    //  />
                       <Doughnut
                         style={{maxHeight: 300, maxWidth: 300}}
                         data={doughnutData}
@@ -646,7 +628,6 @@ function WarehouseList(props) {
                         plugins={plugins}
                       />
                     }
-                      {/* {totalInventory && console.log([getInventoryPercentage(), getInventoryPercentage() - 100]) } */}
                   </Paper>
                 </Grid>
               </Grid>
@@ -675,9 +656,6 @@ function WarehouseList(props) {
                   <Paper elevation={1} className="chart">
                     <Typography>Number of Items</Typography>
                     <Typography variant="body2">Descending</Typography>
-                    {/* <HorizontalBarChart />
-                    
-                    NumberOfItems*/}
                     {receivedAndRelease && <NumberOfItems data={numberOfItems} />}
                   </Paper>
                 </Grid>

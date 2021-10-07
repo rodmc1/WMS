@@ -6,6 +6,10 @@
 }
 
 .dashboard {
+  .MuiSelect-select.MuiSelect-select {
+    padding-top: 10px;
+  }
+
   .circle {
     background-color: #F80;
     border: 3px solid #FFF !important;
