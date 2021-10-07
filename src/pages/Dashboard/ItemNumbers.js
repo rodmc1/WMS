@@ -5,7 +5,7 @@ import ReactApexChart from "react-apexcharts";
 const NumberOfItems = (props) => {
   const [chartData, setChartData] = useState(null);
   const [barColors, setColors] = useState([
-    "hsl(169, 43%, 58%)",
+    "hsl(169, 70%, 58%)",
     "hsl(169, 36%, 66%)",
     "hsl(169, 29%, 74%)",
     "hsl(169, 22%, 82%)",
@@ -22,8 +22,8 @@ const NumberOfItems = (props) => {
 
     chartData.value.forEach(() => {
       saturation = saturation + 6;
-      lightness = lightness + 7;
-      color.push(`hsl(169, ${50 - saturation}%, ${lightness + 50}%)`)
+      lightness = lightness + 6;
+      color.push(`hsl(169, ${52 - saturation}%, ${lightness + 42}%)`)
     });
 
     setColors(color);
@@ -133,6 +133,10 @@ const NumberOfItems = (props) => {
       }
     });
 
+    if (chartData.value.length >= 10) {
+      chartData.value.length = 10;
+    }
+
     setChartData(chartData);
   }
 
@@ -149,7 +153,7 @@ const NumberOfItems = (props) => {
           options={options}
           series={series}
           type="bar"
-          height="100%"
+          height="350"
         />
       }
     </React.Fragment>
