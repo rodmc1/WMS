@@ -243,8 +243,6 @@ function WarehouseList(props) {
     }
   }, [props.searched]);
 
-  console.log(props.searched.data)
-
   // Set new warehouse data with searched items
   React.useEffect(() => {
     if (searched) {
@@ -470,74 +468,6 @@ function WarehouseList(props) {
           "#E9E9E9",
         ],
     }]
-  };
-
-  useEffect(() => {
-    if (analytics && bubbleData.length) {
-      drawBubble(dataJSON.map(e=> dataForPacking(e)))
-    }
-  }, [analytics, activeWarehouseType, bubbleData]);
-  
-  const dataForPacking = (data) => {
-    return {
-      r: data.Count,
-      x: 0,
-      y: 0,
-      Count: data.Count,
-      Name: data.Name,
-      color: data.color,
-      opacity: data.opacity
-    };
-  };
-
-  const svgRef = React.createRef()
-
-  const drawBubble = () => {
-    const svg = d3.select(svgRef.current);
-    svg.select("g").remove();
-
-    const circles = svg
-      .append("g")
-      .attr("class", "circles")
-      .attr(
-        "transform",
-        `translate(${300 / 2},
-          ${300 / 2})scale(7)`
-      );
-
-    const node = circles
-      .selectAll(".node")
-      .data(d3.packSiblings(dataJSON.map(e=> dataForPacking(e))))
-      .enter()
-      .append("g")
-      .attr("class", "node")
-      .attr("transform", function(d) {
-        return "translate(" + d.x + "," + d.y + ")";
-      });
-
-    node
-      .append("circle")
-      .attr("r", function(d) {
-        return d.r;
-      })
-      .attr("fill-opacity", function(d, i) {
-        return d.opacity;
-      })
-      .attr("class", "circle")
-      .style("fill", function(d, i) {
-        return d.color;
-      });
-
-    node
-      .append("text")
-      .attr("dy", "0.3em")
-      .style("text-anchor", "middle")
-      .text(function(d) {
-        return d.Count;
-      })
-      .attr("font-family", "Gill Sans", "Gill Sans MT")
-      .attr("font-size", 2)
-      .attr("fill", "white");
   };
 
   return (
