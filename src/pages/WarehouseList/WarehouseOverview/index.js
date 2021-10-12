@@ -3,12 +3,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { fetchWarehouseById, fetchFacilitiesAndAmenities } from 'actions/index';
 
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import MuiAlert from '@material-ui/lab/Alert';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import MuiAlert from '@mui/material/Alert';
 import Breadcrumbs from 'components/Breadcrumbs';
-import Snackbar from '@material-ui/core/Snackbar';
-import Typography from '@material-ui/core/Typography';
+import Snackbar from '@mui/material/Snackbar';
+import Typography from '@mui/material/Typography';
 import WarehouseSideBar from 'components/WarehouseList/WarehouseSidebar';
 
 // Alerts

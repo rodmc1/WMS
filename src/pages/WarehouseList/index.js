@@ -8,21 +8,13 @@ import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { CSVLink } from "react-csv";
 
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
-import Spinner from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import Spinner from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Table from 'components/Table';
-import { Button } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles';
-
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  },
-}));
+import Button from '@mui/material/Button';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -35,7 +27,6 @@ function WarehouseList(props) {
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
   const [query, setQuery] = React.useState('');
   const [csvData, setCsvData] = React.useState([]);
-  const classes = useStyles();
   const dispatch = useDispatch();
   const csvLink = React.useRef();
   const [searched, setSearched] = React.useState(null);
@@ -260,7 +251,7 @@ function WarehouseList(props) {
         query={query}
         searchLoading={searchLoading}
       />
-      <Spinner className={classes.backdrop} open={openBackdrop} >
+      <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
         <CircularProgress color="inherit" />
       </Spinner>
       <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>

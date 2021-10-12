@@ -339,7 +339,7 @@ function WarehouseList(props) {
 
     props.fetchDashboardPhysicalItem({
       from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
       count: page || 10,
       after: page * rowCount
     });
