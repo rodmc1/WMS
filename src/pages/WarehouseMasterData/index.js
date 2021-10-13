@@ -6,24 +6,15 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
 import { fetchWarehouses, fetchWarehouseByName, fetchAllWarehouse } from 'actions';
 
 import Table from 'components/Table';
-import Button from '@material-ui/core/Button';
-import Spinner from '@material-ui/core/Backdrop';
+import Button from '@mui/material/Button';
+import Spinner from '@mui/material/Backdrop';
 import Breadcrumbs from 'components/Breadcrumbs';
-import CircularProgress from '@material-ui/core/CircularProgress';
-
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  },
-}));
+import CircularProgress from '@mui/material/CircularProgress';
 
 function WarehouseMasterData(props) {
-  const classes = useStyles();
   const dispatch = useDispatch();
   const csvLink = React.useRef();
   
@@ -220,7 +211,7 @@ function WarehouseMasterData(props) {
         searchLoading={searchLoading}
         onInputChange={onInputChange}
       />
-      <Spinner className={classes.backdrop} open={openBackdrop} >
+      <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
         <CircularProgress color="inherit" />
       </Spinner>
     </div>

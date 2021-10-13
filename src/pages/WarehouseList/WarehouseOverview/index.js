@@ -11,10 +11,9 @@ import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import WarehouseSideBar from 'components/WarehouseList/WarehouseSidebar';
 
-// Alerts
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 // Functional component for warehouse overview
 function WarehouseOverview(props) {
@@ -220,7 +219,7 @@ function WarehouseOverview(props) {
           <Grid item xs={9}>
             {renderInformation()}
           </Grid>
-          <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+          <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
             <Alert severity="success">{props.location.success}</Alert>
           </Snackbar>
       </Grid>
