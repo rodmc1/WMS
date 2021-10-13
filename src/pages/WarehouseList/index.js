@@ -16,9 +16,9 @@ import Breadcrumbs from 'components/Breadcrumbs';
 import Table from 'components/Table';
 import Button from '@mui/material/Button';
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function WarehouseList(props) {
   const [searchLoading, setSearchLoading] = React.useState(false);
@@ -254,7 +254,7 @@ function WarehouseList(props) {
       <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
         <CircularProgress color="inherit" />
       </Spinner>
-      <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+      <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
         <Alert severity="success">{props.location.success}</Alert>
       </Snackbar>
     </div>

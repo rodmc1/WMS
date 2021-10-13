@@ -11,24 +11,24 @@ import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { fetchSKUByName, fetchWarehouseSKUs, updateWarehouseSKU, uploadSKUFilesById, deleteSKUPhotosById } from 'actions';
 
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import MuiAlert from '@material-ui/lab/Alert';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import MuiAlert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 import Breadcrumbs from 'components/Breadcrumbs';
-import Snackbar from '@material-ui/core/Snackbar';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 
 // Alerts
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function WarehouseMasterDataSKUDetail (props) {
   const dispatch = useDispatch();
   const [sku, setSKU] = React.useState('');
   const [edited, setEdited] = React.useState(false);
   const [existingSKU, setExistingSKU] = React.useState('');
-  const [alertConfig, setAlertConfig] = React.useState({});
+  const [alertConfig, setAlertConfig] = React.useState({severity: 'info', message: 'Loading...'});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState({ open: false });
   const [status, setStatus] = React.useState({ images: false, sku: false });
@@ -173,7 +173,7 @@ function WarehouseMasterDataSKUDetail (props) {
             <WarehouseMasterDataSKUForm sku={sku} handleDialog={handleDialog} onSubmit={onSubmit} onError={handleError} />
           </Paper>
         </Grid>
-        <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
+        <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
         <WarehouseDialog
