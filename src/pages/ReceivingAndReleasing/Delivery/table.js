@@ -179,13 +179,6 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
     e.target.src = '/assets/images/default-image.png';
   }
 
-  const renderPreview = preview => {
-    let defaultImage = '/assets/images/default-image.png';
-    if (Array.isArray(preview)) defaultImage = extractImageUrl(preview[0].item_filepath);
-    
-    return <img src={defaultImage} onError={handleImageError} className="table-img-preview" alt="" />
-  }
-
   const handleSave = () => {
     const values = getValues([`containerVanNumber`, `serialNumber`, `trucker`, `plateNumber`, `driverName`, 'dateStart', 'dateEnd', 'notes']);
 

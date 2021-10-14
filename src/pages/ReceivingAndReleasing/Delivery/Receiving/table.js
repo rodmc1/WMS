@@ -1,12 +1,12 @@
 import './style.scss';
 import _ from 'lodash';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { fetchDeliveryNotices, fetchReceivingItem, fetchAllDeliveryNoticeSKU, searchReceivingAndReleasingItem, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchReceivingAndReleasingSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
+import { fetchDeliveryNotices, fetchReceivingItem, fetchAllDeliveryNoticeSKU, searchReceivingAndReleasingItem, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchReceivingAndReleasingSKU, fetchAllWarehouseSKUs } from 'actions';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import Search from '@material-ui/icons/Search';
@@ -41,6 +41,15 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import Spinner from '@material-ui/core/Backdrop';
 
+// package for print
+import ReactToPrint from 'react-to-print';
+
+// component for the printable form
+import PrintableForms from '../PrintableForms';
+
+import Cookies from 'universal-cookie';
+
+const cookie = new Cookies();
 const useStyles1 = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
@@ -129,7 +138,9 @@ const useStyles2 = makeStyles((theme) => ({
     }
   },
   filter: {
-    position: 'relative'
+    position: 'relative',
+    display: 'flex',
+    width: '63%'
   },
   input: {
     backgroundColor: '#e8e8e8',
@@ -163,14 +174,15 @@ const config = {
   ]
 }
 
-function Table_(props, { defaultData, data, total }) {
+function Table_(props) {
+  const receivingData = props.receivingData;
+  const printComponent = useRef();
   const classes = useStyles2();
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
   const [tableData, setTableData] = React.useState([]);
   const [addMode, setAddMode] = React.useState(false);
   const [SKU, setSKU] = useState([]);
-  const [deliveryNoticeSKU, setDeliveryNoticeSKU] = useState([]);
   const [receivingItem, setReceivingItem] = useState([]);
   const [itemCount, setItemCount] = useState([]);
   const anchorRef = React.useRef(null);
@@ -181,7 +193,6 @@ function Table_(props, { defaultData, data, total }) {
   const [rowCount, setRowCount] = useState(0);
   const [searched, setSearched] = useState(null);
   const [openBackdrop, setOpenBackdrop] = useState(true);
-  const [skuCount, setSKUCount] = useState(0);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [itemQuery, setItemQuery] = useState('');
@@ -190,8 +201,8 @@ function Table_(props, { defaultData, data, total }) {
   const [isChecked, setIsChecked] = React.useState([]);
   const [items, setItems] = useState([]);
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
-  const [alertConfig, setAlertConfig] = React.useState({});
-  const [openSnackBar, setOpenSnackBar] = React.useState(false);
+
+  const rowReceivingReleasing = localStorage.getItem('rowReceivingReleasing');
 
   const handleToggle = () => {
     setOpenAddItems((prevOpen) => !prevOpen);
@@ -343,7 +354,7 @@ function Table_(props, { defaultData, data, total }) {
   
 
   // Hook Form
-  const { errors, control, getValues, setError } = useForm({
+  const { errors, control, getValues, setError, clearErrors  } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
@@ -371,20 +382,7 @@ function Table_(props, { defaultData, data, total }) {
     setPage(0);
   }
 
-  /**
-   * @args str url
-   * @return formatted image src
-   */
-  const extractImageUrl = (str) => {
-    return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
-  }
-
-  // Show default image if image source is broken
-  const handleImageError = (e) => {
-    e.target.src = '/assets/images/default-image.png';
-  }
-
-  const handleSave = (data, i) => {
+  const handleSave = data => {
     const values = getValues([
       `actualQty${data.delivery_notice_item}`,
       `discrepancy${data.delivery_notice_item}`,
@@ -424,6 +422,20 @@ function Table_(props, { defaultData, data, total }) {
     } else {
       props.onError(errors);
     }
+
+    clearErrors(["inspected_by", "date"]);
+  }
+
+  // Handles printing Receiving/Releasing forms
+  const handlePrintForm = () => {
+    console.info(props);
+    const content = document.getElementById("formToPrint");
+    const pri = document.getElementById("printableForm").contentWindow;
+    pri.document.open();
+    pri.document.write(content.innerHTML);
+    pri.document.close();
+    pri.focus();
+    pri.print();
   }
 
   // Setter for table data
@@ -504,7 +516,8 @@ function Table_(props, { defaultData, data, total }) {
       if (Array.isArray(props.item.data)) {
         if (props.item.data.length) {
           setReceivingItem(props.item.data);
-          setItemCount(props.item.count)
+          setItemCount(props.item.count);
+          cookie.set('total_print_table',props.item.count);
           setOpenBackdrop(false);
         }
       }
@@ -525,7 +538,6 @@ function Table_(props, { defaultData, data, total }) {
     if (searched) {
       setSearchLoading(false);
       setTableData(searched)
-      setDeliveryNoticeSKU(searched);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
@@ -556,7 +568,6 @@ function Table_(props, { defaultData, data, total }) {
   }, [deliveryNoticeData]);
 
   React.useEffect(() => {
-    if (selectedSKU.length) setDeliveryNoticeSKU([]);
     if (!selectedSKU.length && deliveryNoticeData) {
       props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
       setOpenBackdrop(true);
@@ -574,7 +585,6 @@ function Table_(props, { defaultData, data, total }) {
 
   React.useEffect(() => {
     if (props.sku) {
-      setDeliveryNoticeSKU(props.sku.data);
       setOpenBackdrop(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -659,6 +669,18 @@ function Table_(props, { defaultData, data, total }) {
               classes={{notchedOutline:classes.noBorder}}
             />
           </FormControl>
+          {/* <Button variant="contained" className="btn btn--emerald receiving-add-item-btn" disableElevation style={{marginLeft: 15}} onClick={handlePrintForm}>Print</Button> */}
+          <div>
+            <ReactToPrint
+              trigger={() => {
+                // NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+                // to the root node of the returned component as it will be overwritten.
+                return <Button variant="contained" className="btn btn--emerald receiving-add-item-btn" disableElevation style={{marginLeft: 15}}>Print</Button>;
+              }}
+              content={() => printComponent.current}
+            />
+            <PrintableForms ref={printComponent} count={itemCount}/>
+          </div>
         </div>
         <div className={classes.pagination}>
           <TablePagination
@@ -696,7 +718,7 @@ function Table_(props, { defaultData, data, total }) {
                 </TableRow>
               }
               {Object.values(tableData).map((data, i) => 
-                <TableRow key={data.delivery_notice_item} className="table__row sku-table">
+                <TableRow key={data.delivery_notice_item ? data.delivery_notice_item : i} className="table__row sku-table">
                   <TableCell key={i}>{data.item_code}</TableCell>
                   <TableCell>{!addMode ? data.expected_quantity : data.expected_qty}</TableCell>
                   <TableCell>

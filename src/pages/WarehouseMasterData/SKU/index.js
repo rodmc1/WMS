@@ -227,12 +227,11 @@ function WarehouseMasterDataSKU (props) {
 
   // Close spinner if api request for SKU is complete
   useEffect(() => { 
-    if (JSON.stringify(SKUData) === '{}') {
-      setOpenBackdrop(false);
-    }
+    if (JSON.stringify(SKUData) === '{}') setOpenBackdrop(false);
+    if (typeof SKUData === "object") setOpenBackdrop(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [SKUData]);
-
+  
   // Show snackbar alert when new warehouse is created
   useEffect(() => {
     if (props.location.success) {

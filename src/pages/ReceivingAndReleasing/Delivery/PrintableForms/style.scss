@@ -1,0 +1,139 @@
+.print-source {
+  display: none;
+}
+  
+body > .print-source {
+  display: block;
+}
+  
+@media print {
+  .print-source {
+    display: block;
+  }
+}
+
+.top-border{
+  // position: absolute;
+  width: 100%;
+  height: 12px;
+  left: 0px;
+  // top: 0px;
+  margin-bottom: 2%;
+}
+
+.green{
+  background: #009688;
+}
+
+.orange{
+  background: #FF7E00;
+}
+
+.form-title{
+  display: inline-block;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  // line-height: 75px;
+  // margin: 10px 0px;
+}
+
+.green-color{
+  color: #009688;
+}
+
+.orange-color{
+  color: #FF7E00;
+}
+
+.form-title-left-line{
+  display: inline-block;
+  width: 6px;
+  height: 24px;
+  left: 0px;
+  top: 0px;
+  border-radius: 18px;
+  margin-right: 15px;
+}
+
+.align-center {
+  display: flex;
+  align-items: center;
+}
+
+.align-center.row {
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.align-center.justify-space-between {
+  justify-content: space-between;
+}
+
+.form-logo{
+  width: 30% !important;
+  position: relative;
+  float: right;
+}
+
+.details-cont label{
+  width: 100%;
+  height: 10px;
+  display: block;
+}
+
+.details-cont.left label{
+  text-align: left;
+}
+
+.details-cont.right label{
+  text-align: right;
+}
+
+.details-cont label:nth-child(1){
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  color: #333333;
+}
+
+.details-cont label:nth-child(2){
+  color: #828282;
+  font-size: 12px;
+}
+
+.details-cont div{
+  width: 100%;
+  height: 35px;
+  border-bottom: 1px solid #828282;
+}
+
+.details-cont span{
+  font-size: 10px;
+  color: #828282;
+  // margin-top: 5px;
+}
+
+.broken-line{
+  border-bottom: 2px dashed #4F4F4F;
+  padding: 0px 30px 30px 30px;
+}
+
+.bottom-section{
+  position: fixed;
+  bottom: 10px;
+  width: 100%;
+}
+
+.tbl-cell{
+  font-size: 8pt !important;
+  height: 10px;
+  padding: 10px !important;
+}
+
+.tbl-cell.header{
+  background-color: rgba(0, 0, 0, 0.04);
+  padding: 5px !important;
+}

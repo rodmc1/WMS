@@ -1,40 +1,27 @@
 /* eslint-disable react/prop-types */
 import './style.scss';
-import _, { set } from 'lodash';
-import history from 'config/history';
+import _ from 'lodash';
 import React, {  useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import { createReceivingAndReleasing, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
-import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
+import { createReceivingAndReleasing, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
 import Table from './table';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import MuiAlert from '@material-ui/lab/Alert';
 import Button from '@material-ui/core/Button';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import TextField from '@material-ui/core/TextField';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Snackbar from '@material-ui/core/Snackbar';
 import Spinner from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Popper from "@material-ui/core/Popper";
-import MenuItem from "@material-ui/core/MenuItem";
-import MenuList from "@material-ui/core/MenuList";
-import Grow from "@material-ui/core/Grow";
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
 import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import Receiving from './Receiving'
 
+import Cookie from 'universal-cookie';
+
+const cookie = new Cookie();
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
@@ -49,8 +36,6 @@ const useStyles = makeStyles((theme) => ({
     maxHeight: '92vh',
   },
 }));
-
-
 
 // Table config
 const config = {
@@ -82,7 +67,6 @@ function DeliveryList(props) {
   const [rowCount, setRowCount] = useState(0);
   const [searched, setSearched] = useState(null);
   const [openBackdrop, setOpenBackdrop] = useState(true);
-  const [skuCount, setSKUCount] = useState(0);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [alertConfig, setAlertConfig] = React.useState({});
@@ -91,7 +75,7 @@ function DeliveryList(props) {
   const [receivingDialog, setReceivingDialog] = React.useState(false);
   const [receivingDialogData, setReceivingDialogData] = React.useState([]);
   const [itemCount, setItemCount] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
+  const rowsPerPage = config.rowsPerPage;
 
   const routes = [
     {
@@ -128,15 +112,10 @@ function DeliveryList(props) {
 
   // Redirect to selected item
   const handleRowClick = row => {
+    cookie.set('rowReceiveingReleasing', JSON.stringify(row))
     setReceivingDialogData(row)
     setReceivingDialog(true);
   }
-
-  // Handle single page update
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   const handleModalClose = () => {
     setOpenBackdrop(true);
@@ -185,6 +164,7 @@ function DeliveryList(props) {
   const delayedQuery = React.useCallback(_.debounce(() => {
     setSearchLoading(true);
     props.searchReceivingAndReleasing({
+      code: props.match.params.id,
       filter: query,
     })
   }, 510), [query]);
@@ -327,7 +307,6 @@ function DeliveryList(props) {
     if (props.receivingAndReleasing && Array.isArray(tableData)) {
       setTableData(props.receivingAndReleasing.data);
       setItemCount(props.receivingAndReleasing.count);
-      setSKUCount(props.receivingAndReleasing.count);
       setSearchLoading(false);
     }
 
@@ -382,8 +361,6 @@ function DeliveryList(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.error]);
 
-  console.log()
-
   return (
     <div className="container delivery-notice-receiving-container sku">
       <div className="flex justify-space-between align-center">
@@ -410,7 +387,7 @@ function DeliveryList(props) {
         onRowClick={handleRowClick}
       />
       <Dialog open={receivingDialog} onClose={handleModalClose} classes={{ paper: classes.dialogPaper }} maxWidth={'xl'} fullWidth aria-labelledby="form-dialog-title">
-        <DialogContent>
+        <DialogContent >
           <Receiving receivingData={receivingDialogData} onClose={handleModalClose} />
         </DialogContent>
       </Dialog>
