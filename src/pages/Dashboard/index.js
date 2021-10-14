@@ -128,34 +128,6 @@ function WarehouseList(props) {
     }
   }, [warehouseType]);
 
-  const dataJSON = [
-    {
-      Name: "Stockyard",
-      Count: 7,
-      color: '#009688',
-      opacity: 0.9
-    },
-    {
-      Name: "Heated and unheated general warehouse",
-      Count: 4,
-      color: '#009688',
-      opacity: 0.6
-    },
-    {
-      Name: "Refrigerated Warehouse",
-      Count: 3,
-      color: '#FDC638',
-      opacity: 0.8
-    },
-    {
-      Name: "Controlled Humidity Warehouse",
-      Count: 6,
-      color: '#FF7E00',
-      opacity: 0.8 
-    }
-  ];
-
-
   const routes = [
     {
       label: 'Dashboard',
@@ -329,12 +301,12 @@ function WarehouseList(props) {
   React.useEffect(() => {
     props.fetchDashboard({
       from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY")
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59'
     });
 
     props.fetchDashboardDeliveryNotice({
       from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY")
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59'
     });
 
     props.fetchDashboardPhysicalItem({
@@ -419,10 +391,10 @@ function WarehouseList(props) {
   const getInventoryPercentage = () => {
     let percentage = 0;
     if (totalItemsReceived && totalInventory)  {
-      percentage = totalInventory / totalItemsReceived * 100;
+      percentage = totalItemsReleased / (totalItemsReceived + totalItemsReleased) * 100;
     }
 
-    return percentage > 100 ? 100 : percentage
+    return Math.round(percentage * 10) / 10;
   }
 
   const options = {
@@ -459,7 +431,7 @@ function WarehouseList(props) {
   const doughnutData = {
     datasets: [
       {
-        data: [getInventoryPercentage(), getInventoryPercentage() - 100],
+        data: [getInventoryPercentage(), Math.abs(getInventoryPercentage() - 100)],
         backgroundColor: [
           "#009688",
           "#A8DCD3",

@@ -177,6 +177,8 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     if (type === 'booking_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
     if (type === 'appointment_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
     if (type === 'status') cellData = renderStatus(data);
+    if (type === 'physical_count') cellData = data ? data : 0;
+
     return cellData;
   }
 

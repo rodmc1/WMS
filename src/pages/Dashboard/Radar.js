@@ -82,6 +82,11 @@ const Radar = (props) => {
         }
       });
 
+      console.log(controlled);
+      console.log(heated);
+      console.log(refrigerated);
+      console.log(stockyard);
+
       setHeated(heated);
       setControlled(controlled);
       setRefrigerated(refrigerated);
@@ -92,9 +97,9 @@ const Radar = (props) => {
 
   useEffect(() => {
     if (props.data) {
-      setDataSeries([heated, controlled, refrigerated, stockyard]);
+      setDataSeries([heated, refrigerated, controlled, stockyard]);
     }
-  }, [controlled, heated]);
+  }, [controlled, heated, refrigerated, stockyard]);
 
 
   return (
