@@ -211,7 +211,7 @@ function WarehouseList(props) {
   React.useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
-      if (props.searched.data) setWarehouseCount(props.searched.data.length);
+      if (props.searched.data) setWarehouseCount(props.searched.count);
     }
   }, [props.searched]);
 
