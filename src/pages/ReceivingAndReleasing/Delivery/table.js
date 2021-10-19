@@ -18,8 +18,9 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import TableContainer from '@material-ui/core/TableContainer';
 import TablePagination from '@material-ui/core/TablePagination';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
+
+import { useTheme } from '@mui/material/styles';
+import CircularProgress from '@mui/material/CircularProgress';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import CheckIcon from '@material-ui/icons/Check';
@@ -27,21 +28,22 @@ import ClearIcon from '@material-ui/icons/Clear';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Controller, useForm } from 'react-hook-form';
 import TextField from '@material-ui/core/TextField';
+import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles1 = makeStyles((theme) => ({
+const useStyles1 = makeStyles({
   root: {
     flexShrink: 0,
-    marginLeft: theme.spacing(2),
+    marginLeft: 8
   },
-}));
+});
 
 /*
  * Handler for warehouse list pagination actions
  * @args pages and functions
  */
 function TablePaginationActions(props) {
-  const classes = useStyles1();
   const theme = useTheme();
+  const classes = useStyles1(theme);
   const { count, page, rowsPerPage, onChangePage } = props;
 
   // Pagination
@@ -239,7 +241,7 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
             />
         </div>
       </div>
-      <Paper className={classes.root}>
+      <Paper sx={{flexShrink: 0}}>
         <TableContainer>
           <Table aria-label="custom pagination table" className="warehouse_table">  
             <TableHead>

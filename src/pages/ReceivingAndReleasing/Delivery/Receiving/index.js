@@ -33,7 +33,7 @@ function Receiving(props) {
   const [items, setItems] = useState([]);
   const [alertConfig, setAlertConfig] = React.useState({});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
-  const [submittedId, setSubmittedId] = React.useState(null)
+  const [submittedId, setSubmittedId] = React.useState(null);
 
   // Function for cancel action
   const handleCancel = (data, allData) => {
