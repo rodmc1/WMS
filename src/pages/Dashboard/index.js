@@ -174,7 +174,7 @@ function WarehouseList(props) {
     setSearchLoading(true);
     props.fetchDashboardPhysicalItemByName({
       from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
       filter: query,
       count: rowCount,
       after: page * rowCount
@@ -241,7 +241,7 @@ function WarehouseList(props) {
     } else {
       props.fetchDashboardPhysicalItem({
         from_date: startDate.format("MM/DD/YYYY"),
-        to_date: endDate.format("MM/DD/YYYY"),
+        to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
         count: rowsPerPage,
         after: page * rowsPerPage
       });
@@ -262,7 +262,7 @@ function WarehouseList(props) {
     // return;
     await fetchDashboardItems({
       from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
     }).then(response => {
       const newData = response.data.map(warehouse => {
         return {
