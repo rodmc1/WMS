@@ -90,7 +90,7 @@ const Apex = (props) => {
     let chartDate = [];
 
     data.forEach(item => {
-      if (!chartData.date.includes(item.datetime)) {
+      if (!chartDate.includes(item.datetime)) {
         chartDate.push(item.datetime);
         chartData.date.push(moment(item.datetime).format('MM/DD/YYYY') + ' GMT');
       }

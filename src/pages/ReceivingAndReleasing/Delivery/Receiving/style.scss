@@ -103,8 +103,17 @@
     margin-left: 10px;
   }
   .MuiIconButton-root {
-    padding: 10px;
+    padding: 3px !important;
   }
+  .MuiTablePagination-toolbar {
+    padding-right: 5px;
+  }
+  @media (min-width: 600px) {
+    .MuiToolbar-gutters {
+      padding-left: 4px;
+    }
+  }
+  
   .no-results-row.MuiTableCell-root.MuiTableCell-body {
     padding: 25px;
   }
