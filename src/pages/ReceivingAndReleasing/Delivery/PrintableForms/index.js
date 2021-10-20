@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, TableContainer, Table, TableHead, TableBody, TableRow, TableCell } from '@mui/material';
+import { Grid, TableContainer, Table, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core';
 import formIcon from '../../../../assets/img/tmpLogo.png';
 import '../PrintableForms/style.scss';
 import Cookie from 'universal-cookie';
