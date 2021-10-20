@@ -2,68 +2,39 @@
 import './style.scss';
 import _ from 'lodash';
 import moment from 'moment';
+import "react-dates/initialize";
+import "react-dates/lib/css/_datepicker.css";
 import React, { useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { connect } from 'react-redux';
 import { SingleDatePicker } from "react-dates";
 import { makeStyles } from '@material-ui/core/styles';
 import { fetchAuditLogs, fetchfilteredAuditLog } from 'actions';
-
-import Button from '@material-ui/core/Button';
 import Breadcrumbs from 'components/Breadcrumbs';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import "react-dates/initialize";
-import "react-dates/lib/css/_datepicker.css";
-import FormControl from '@material-ui/core/FormControl';
-import Search from '@material-ui/icons/Search';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import Avatar from '@material-ui/core/Avatar';
-import CreateIcon from '@material-ui/icons/Create';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
 
-const useStyles2 = makeStyles(theme => ({
-  toolbar: {
-    display: 'flex',
-    padding: '12px 20px',
-    background: '#FFF',
-    boxShadow: '0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)'
-  },
-  pagination: {
-    flex: 1,
-    '& button': {
-      padding: '0'
-    }
-  },
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import Paper from '@mui/material/Paper';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Search from '@material-ui/icons/Search';
+import Typography from '@mui/material/Typography';
+import CardHeader from '@mui/material/CardHeader';
+import FormControl from '@mui/material/FormControl';
+import CreateIcon from '@mui/icons-material/Create';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import CircularProgress from '@mui/material/CircularProgress';
+
+const useStyles2 = makeStyles({
   filter: {
     position: 'relative'
   },
   noBorder: {
     border: "none",
   },
-  root: {
-    maxWidth: 345,
-  },
-  media: {
-    height: 0,
-    paddingTop: '56.25%',
-  },
-  expand: {
-    transform: 'rotate(0deg)',
-    marginLeft: 'auto',
-    transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: 'rotate(180deg)',
-  }
-}));
+});
 
 function AuditLog(props) {
   const csvLink = useRef();

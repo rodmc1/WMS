@@ -4,21 +4,21 @@ import history from 'config/history';
 import React, { useEffect, useState } from 'react';
 import { fetchDeliveryNoticeByName, fetchDeliveryNoticeById } from 'actions';
 import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
-
-import Badge from '@material-ui/core/Badge';
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper';
 import Breadcrumbs from 'components/Breadcrumbs';
-import Typography from '@material-ui/core/Typography';
-import EventIcon from "@material-ui/icons/Event";
-import LabelIcon from '@material-ui/icons/Label';
-import HomeWorkIcon from '@material-ui/icons/HomeWork';
-import PersonIcon from '@material-ui/icons/Person';
-import Button from '@material-ui/core/Button';
-import LocalShippingIcon from '@material-ui/icons/LocalShipping';
-import AllInboxIcon from '@material-ui/icons/AllInbox';
+
+import Grid from '@mui/material/Grid';
+import Badge from '@mui/material/Badge';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import ListItem from "@mui/material/ListItem";
+import Typography from '@mui/material/Typography';
+import EventIcon from "@mui/icons-material/Event";
+import LabelIcon from '@mui/icons-material/Label';
+import PersonIcon from '@mui/icons-material/Person';
+import ListItemText from "@mui/material/ListItemText";
+import AllInboxIcon from '@mui/icons-material/AllInbox';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
 function DeliveryNoticeOverview(props) {
   const [deliveryNotice, setDeliveryNotice] = React.useState([]);

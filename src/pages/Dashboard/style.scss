@@ -6,6 +6,7 @@
 }
 
 .dashboard {
+
   .MuiSelect-select.MuiSelect-select {
     padding-top: 10px;
   }
@@ -16,13 +17,16 @@
     border-radius: 18px;
     box-shadow: 0 0 2px #888;
   }
+
   .DateRangePicker {
     margin-right: 15px;
   }
+
   .DateInput_input {
     font-size: 1rem;
     text-align: center;
   }
+  
   .MuiPaper-elevation1 {
     padding: 15px 20px;
   }

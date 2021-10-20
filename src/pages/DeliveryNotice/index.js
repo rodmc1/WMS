@@ -7,42 +7,33 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
 import { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchAllDeliveryNotice } from 'actions';
 
 import Table from 'components/Table';
-import MuiAlert from '@material-ui/lab/Alert';
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
+import MuiAlert from '@mui/material/Alert';
+import Spinner from '@mui/material/Backdrop';
+import Snackbar from '@mui/material/Snackbar';
 import Breadcrumbs from 'components/Breadcrumbs';
-import Snackbar from '@material-ui/core/Snackbar';
-import Spinner from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  },
-}));
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function DeliveryNotice(props) {
   const csvLink = useRef();
-  const classes = useStyles();
   const dispatch = useDispatch();
   const [page, setPage]= useState(10);
   const [query, setQuery] = useState('');
   const [csvData, setCsvData] = useState([]);
   const [rowCount, setRowCount] = useState(0);
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const [searched, setSearched] = useState(null);
   const [openBackdrop, setOpenBackdrop] = useState(true);
   const [deliveryNoticeCount, setDeliveryNoticeCount] = useState(0);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
-  const [alertConfig, setAlertConfig] = React.useState({});
+  const [alertConfig, setAlertConfig] = useState({ severity: 'info', message: 'loading...' });
   const [searchLoading, setSearchLoading] = useState(false);
   const routes = [{ label: 'Delivery Notice', path: '/delivery-notice' }];
 
@@ -290,10 +281,10 @@ function DeliveryNotice(props) {
         searchLoading={searchLoading}
         onInputChange={onInputChange}
       />
-      <Spinner className={classes.backdrop} open={openBackdrop} >
+      <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
         <CircularProgress color="inherit" />
       </Spinner>
-      <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+      <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
         { !_.isEmpty(props.error) 
           ? <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
           : <Alert severity="success">{props.location.success}</Alert>

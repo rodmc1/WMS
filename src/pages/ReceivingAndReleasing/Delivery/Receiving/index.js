@@ -6,32 +6,33 @@ import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { createReceivingAndReleasingItem, fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
-import Table from './table';
-import MuiAlert from '@material-ui/lab/Alert';
-import Snackbar from '@material-ui/core/Snackbar';
-import { Typography } from '@material-ui/core';
-import ClearIcon from '@material-ui/icons/Clear';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+import Table from './table';
+import MuiAlert from '@mui/material/Alert';
+import Tooltip from '@mui/material/Tooltip';
+import Snackbar from '@mui/material/Snackbar';
+import ClearIcon from '@mui/icons-material/Clear';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function Receiving(props) {
-  const [deliveryNoticeSKU, setDeliveryNoticeSKU] = useState([]);
-  const [receivingItem, setReceivingItem] = useState([]);
   const dispatch = useDispatch();
   const [page, setPage]= useState(10);
   const [query, setQuery] = useState('');
   const [rowCount, setRowCount] = useState(0);
   const [searched, setSearched] = useState(null);
+  const [items, setItems] = useState([]);
+  const [receivingItem, setReceivingItem] = useState([]);
+  const [deliveryNoticeSKU, setDeliveryNoticeSKU] = useState([]);
   const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [selectedSKU, setSelectedSKU] = React.useState([]);
   const [isChecked, setIsChecked] = React.useState([]);
-  const [items, setItems] = useState([]);
-  const [alertConfig, setAlertConfig] = React.useState({});
+  const [alertConfig, setAlertConfig] = React.useState({ severity: 'info', message: 'loading...' });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [submittedId, setSubmittedId] = React.useState(null);
 
@@ -244,7 +245,7 @@ function Receiving(props) {
         receivingData={receivingItem}
         submittedId={submittedId}
       />
-      <Snackbar open={openSnackBar} autoHideDuration={3000} onClose={() => setOpenSnackBar(false)}>
+      <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} autoHideDuration={3000} onClose={() => setOpenSnackBar(false)}>
         <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
       </Snackbar>
     </div>
