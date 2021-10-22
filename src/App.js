@@ -8,6 +8,7 @@ import { AuthenticationProvider } from 'context/Authentication';
 import { SnackbarProvider } from 'context/Snackbar';
 import Header from 'components/Header';
 import Navigation from 'components/Navigation';
+import Dashboard from 'pages/Dashboard';
 import WarehouseList from 'pages/WarehouseList';
 import WarehouseOverview from 'pages/WarehouseList/WarehouseOverview';
 import WarehouseCreate from 'pages/WarehouseList/WarehouseCreate';
@@ -49,7 +50,8 @@ function App() {
             </animated.div>
             <animated.main style={mainSpring}>
               <Switch>
-                <Route exact path='/' component={WarehouseList} />
+              <Route exact path='/' component={Dashboard} />
+                <Route exact path='/warehouse-list' component={WarehouseList} />
                 <Route exact path='/warehouse-list/:id/overview/' component={WarehouseOverview} />
                 <Route exact path='/warehouse-list/warehouse-create' component={WarehouseCreate} />
                 <Route exact path='/warehouse-list/:id/warehouse-edit' component={WarehouseEdit} />

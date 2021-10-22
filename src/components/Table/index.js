@@ -28,7 +28,7 @@ import Chip from '@material-ui/core/Chip';
 const useStyles1 = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(2)
   },
 }));
 
@@ -156,8 +156,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
   * @return formatted image src
   */
   const extractImageUrl = (str) => {
-    // console.log(process.env.REACT_APP_INTELUCK_API_ENDPOINT + str.replace(/\\/g,"/"));
-    return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
+    return str && str.replace(/\\/g,"/").replace("/files",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
   }
 
   // Show default image if image source is broken
@@ -178,6 +177,8 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     if (type === 'booking_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
     if (type === 'appointment_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
     if (type === 'status') cellData = renderStatus(data);
+    if (type === 'physical_count') cellData = data ? data : 0;
+
     return cellData;
   }
 
@@ -244,7 +245,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
             />
         </div>
       </div>
-      <Paper className={classes.root}>
+      <Paper className={classes.root} className="main-table-root">
         <TableContainer>
           <Table aria-label="custom pagination table" className="warehouse_table">  
             <TableHead>
