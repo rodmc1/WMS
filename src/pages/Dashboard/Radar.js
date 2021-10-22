@@ -82,11 +82,6 @@ const Radar = (props) => {
         }
       });
 
-      console.log(controlled);
-      console.log(heated);
-      console.log(refrigerated);
-      console.log(stockyard);
-
       setHeated(heated);
       setControlled(controlled);
       setRefrigerated(refrigerated);
