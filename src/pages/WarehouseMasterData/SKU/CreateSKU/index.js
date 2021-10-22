@@ -44,13 +44,13 @@ function WarehouseMasterDataSKUCreate (props) {
 
     const SKUData = {
       warehouse: props.match.params.id,
+      client: data.client,
       product_name: data.productName,
-      uom: data.uom,
+      uoh: data.unitOfHandling,
+      uom: data.unitOfMeasurement,
       external_code: data.externalCode,
       code: data.code,
-      min_quantity: Number(data.minQuantity),
-      max_quantity: Number(data.maxQuantity),
-      value_per_unit: Number(data.valuePerUnit),
+      value_per_unit: Number(data.valuePerHandling),
       length: Number(data.length),
       width: Number(data.width),
       height: Number(data.height),
@@ -61,22 +61,24 @@ function WarehouseMasterDataSKUCreate (props) {
       remarks: data.remarks,
     }
 
-    createWarehouseSKU(SKUData)
-      .then(res => {
-        if (data.images.length > 1) {
-          handleImageUpload(res.data.id, data);
-        } else {
-          setStatus(prevState => { return {...prevState, images: true }});
-        }
-        if (res.status === 201) setStatus(prevState => { return {...prevState, sku: true }});
-      })
-      .catch(error => {
-        if (error.response.data.type === '23505') {
-          setAlertConfig({ severity: 'error', message: `Product code already exists.` });
-        } else {
-          dispatchError(dispatch, THROW_ERROR, error);
-        }
-      });
+    console.log(SKUData)
+
+    // createWarehouseSKU(SKUData)
+    //   .then(res => {
+    //     if (data.images.length > 1) {
+    //       handleImageUpload(res.data.id, data);
+    //     } else {
+    //       setStatus(prevState => { return {...prevState, images: true }});
+    //     }
+    //     if (res.status === 201) setStatus(prevState => { return {...prevState, sku: true }});
+    //   })
+    //   .catch(error => {
+    //     if (error.response.data.type === '23505') {
+    //       setAlertConfig({ severity: 'error', message: `Product code already exists.` });
+    //     } else {
+    //       dispatchError(dispatch, THROW_ERROR, error);
+    //     }
+    //   });
   }
 
   // Function for image upload
