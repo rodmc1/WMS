@@ -385,7 +385,6 @@ function Table_(props) {
     const values = getValues([
       `actualQty${data.delivery_notice_item}`,
       `cbm${data.delivery_notice_item}`,
-      `uom${data.delivery_notice_item}`,
       `discrepancy${data.delivery_notice_item}`,
       `damage${data.delivery_notice_item}`,
       `date${data.delivery_notice_item}`,
@@ -398,7 +397,6 @@ function Table_(props) {
       item_code: data.item_code,
       actual_quantity: Number(values[`actualQty${data.delivery_notice_item}`]),
       cbm: Number(values[`cbm${data.delivery_notice_item}`]),
-      uom: Number(values[`uom${data.delivery_notice_item}`]),
       discrepancy: Number(values[`discrepancy${data.delivery_notice_item}`]),
       damage: Number(values[`damage${data.delivery_notice_item}`]),
       arrival_datetime: values[`date${data.delivery_notice_item}`],
@@ -744,15 +742,7 @@ function Table_(props) {
                     }
                   </TableCell>
                   <TableCell>
-                    {addMode ? 
-                      <Controller
-                        name={`uom${data.delivery_notice_item}`}
-                        control={control}
-                        rules={{ required: "This field is required" }}
-                        defaultValue={0}
-                        as={<TextField variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} required fullWidth/>}
-                      /> : data.uom_type
-                    }
+                    { !addMode ? data.uom_type : data.uom }
                   </TableCell>
                   <TableCell>
                     {addMode ? 
