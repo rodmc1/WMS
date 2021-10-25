@@ -83,7 +83,9 @@ function Receiving(props) {
     setOpenSnackBar(false);
     setAlertConfig({ severity: 'info', message: 'Adding Item...' });
     setOpenSnackBar(true);
-    
+
+    // console.log(data)
+
     //Invoke action for adding delivery notice SKU
     createReceivingAndReleasingItem(data)
       .then(response => {

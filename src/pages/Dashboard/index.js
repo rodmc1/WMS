@@ -5,7 +5,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import { DateRangePicker } from "react-dates";
 import { connect, useDispatch } from 'react-redux';
-import { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem, fetchDashboardPhysicalItemByName, fetchDashboardItems } from 'actions';
+import { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem, fetchDashboardPhysicalItemByName, fetchDashboardItems, fetchCBMMonitoring, fetchPalletMonitoring } from 'actions';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { CSVLink } from "react-csv";
@@ -14,8 +14,6 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import { Doughnut } from 'react-chartjs-2';
-import * as d3 from "d3";
-
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import Spinner from '@material-ui/core/Backdrop';
@@ -36,7 +34,10 @@ import ListIcon from '@material-ui/icons/List';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import ReceivedAndReleased from './ReceivedAndReleased';
 import NumberOfItems from './ItemNumbers';
-import Radar from './Radar'
+import Radar from './Radar';
+import CBMMonitoring from './CBMMonitoring';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -49,16 +50,16 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-function WarehouseList(props) {
+function Dashboard(props) {
+  const classes = useStyles();
+  const csvLink = React.useRef();
+  const dispatch = useDispatch();
   const [searchLoading, setSearchLoading] = React.useState(false);
   const [warehouseData, setWarehouseData] = React.useState(null)
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const [csvData, setCsvData] = React.useState([]);
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const csvLink = React.useRef();
   const [searched, setSearched] = React.useState(null);
   const [rowCount, setRowCount] = React.useState(0);
   const [page, setPage]= React.useState(10);
@@ -71,6 +72,8 @@ function WarehouseList(props) {
   const [inboundCount, setInboundCount] = React.useState(0);
   const [outboundCount, setOutboundCount] = React.useState(0);
   const [activeWarehouseType, setActiveWarehouseType] = useState('radar');
+  const [activeCbmMonitoring, setActiveCbmMonitoring] = useState('accumulate');
+  const [activePalletMonitoring, setActivePalletMonitoring] = useState('accumulate');
 
   // Analytics
   const [totalItemsReceived, setTotalItemsReceived] = React.useState(0);
@@ -81,52 +84,6 @@ function WarehouseList(props) {
   const [focusedInput, setFocusedInput] = useState(null);
   const [endDate, setEndDate] = useState(moment().endOf('today'));
   const [startDate, setStartDate] = useState(moment().startOf('year'));
-
-  const [bubbleData, setbubbleData] = useState([]);
-
-  useEffect(() => {
-    if (warehouseType) {
-      let bubbleJSON = [];
-
-      warehouseType.forEach(item => {
-        let data = {
-          Name: "",
-          Count: 0,
-          color: '',
-          opacity: 0
-        }
-
-        if (item.description === 'Controlled Humidity Warehouse') {
-          data.Name = 'Controlled Humidity Warehouse';
-          data.Count = item.value;
-          data.color = '#FF7E00';
-          data.opacity = 0.8;
-        }
-        if (item.description === 'Heated & Unheated General Warehouse') {
-          data.Name = 'Heated & Unheated General Warehouse'
-          data.Count = item.value;
-          data.color = '#009688';
-          data.opacity = 0.6;
-        }
-        if (item.description === 'Refrigerated Warehouse') {
-          data.Name = item.description;
-          data.Count = item.value;
-          data.color = '#FDC638';
-          data.opacity = 0.8;
-        }
-        if (item.description === 'Stockyard') {
-          data.Name = item.description;
-          data.Count = item.value;
-          data.color = '#009688';
-          data.opacity = 0.9;
-        }
-
-        bubbleJSON.push(data)
-      });
-
-      setbubbleData(bubbleJSON);
-    }
-  }, [warehouseType]);
 
   const routes = [
     {
@@ -314,6 +271,16 @@ function WarehouseList(props) {
       to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
       count: page || 10,
       after: page * rowCount
+    });
+
+    props.fetchCBMMonitoring({
+      from_date: startDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
+    });
+
+    props.fetchPalletMonitoring({
+      from_date: startDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
     });
   }, [startDate, endDate]);
 
@@ -562,6 +529,31 @@ function WarehouseList(props) {
                   </Paper>
                 </Grid>
               </Grid>
+              <Grid item xs={12} className="monitoring">
+                <Paper elevation={1}>
+                  <Typography>CBM Monitoring</Typography>
+                  <div className="flex justify-space-between align-center">
+                    <Typography variant="body2">{activeCbmMonitoring === 'accumulate' ? 'Accumulate' : 'Difference'}</Typography>
+                    <div className="button-group chart-icon">
+                      <TrendingUpIcon onClick={() => setActiveCbmMonitoring('accumulate')} className={activeCbmMonitoring === 'accumulate' ? 'active' : ''} />
+                      <BarChartIcon onClick={() => setActiveCbmMonitoring('difference')} className={activeCbmMonitoring === 'difference' ? 'active' : ''} />
+                    </div>
+                  </div>
+                  <CBMMonitoring data={warehouseType} />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} className="monitoring">
+                <Paper elevation={1}>
+                  <Typography>Pallet Monitoring</Typography>
+                  <div className="flex justify-space-between align-center">
+                    <Typography variant="body2">{activePalletMonitoring === 'accumulate' ? 'Accumulate' : 'Difference'}</Typography>
+                    <div className="button-group chart-icon">
+                      <TrendingUpIcon onClick={() => setActivePalletMonitoring('accumulate')} className={activePalletMonitoring === 'accumulate' ? 'active' : ''} />
+                      <BarChartIcon onClick={() => setActivePalletMonitoring('difference')} className={activePalletMonitoring === 'difference' ? 'active' : ''} />
+                    </div>
+                  </div>
+                </Paper>
+              </Grid>
             </Paper>
           </Grid>
           <Grid item xs={3} className="delivery-notice">
@@ -625,4 +617,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem, fetchDashboardPhysicalItemByName })(WarehouseList);
+export default connect(mapStateToProps, { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem, fetchDashboardPhysicalItemByName, fetchCBMMonitoring, fetchPalletMonitoring })(Dashboard);

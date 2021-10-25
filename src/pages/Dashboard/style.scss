@@ -91,25 +91,40 @@
     }
   }
 
-  
-
-  
-
-  
-
-  // .MuiTableContainer-root {
-    // padding: -10px !important;
-    // width: 105%;
-    // padding-left: -50px !important;
-  // }
+  .monitoring {
+    margin-top: 12px;
+  }
 
   .MuiTypography-body2 {
     padding-top: 4px;
     color: $gray;
   }
 
+  .chart-icon {
+    .MuiSvgIcon-root {
+      color: $gray;
+      margin-left: 20px;
+      font-size: 25px;
+      cursor: pointer;
+      
+      &.active {
+        color: $emerald !important;
+      }
+    }
+  }
   .analytics {
-    padding-top: 12px;
+    padding-top: 15px;
+    
+    .MuiSvgIcon-root {
+      color: $gray;
+      margin-left: 20px;
+      font-size: 25px;
+      cursor: pointer;
+      
+      &.active {
+        color: $emerald !important;
+      }
+    }
 
     .warehouse-type {
       padding-left: 0px;
@@ -123,18 +138,6 @@
 
         @media (max-width: 1700px) {
           min-height: 400px !important;
-        }
-      }
-
-
-      .MuiSvgIcon-root {
-        color: $gray;
-        margin-left: 20px;
-        font-size: 25px;
-        cursor: pointer;
-        
-        &.active {
-          color: $emerald !important;
         }
       }
     }
@@ -155,9 +158,7 @@
     }
 
     .received-released {
-      // .MuiPaper-root {
-        padding: 8px 8px 6px 0px !important;
-      // }
+      padding: 8px 8px 6px 0px !important;
     }
 
     .MuiGrid-root {

@@ -63,13 +63,14 @@ function WarehouseMasterDataSKUForm(props) {
         ['externalCode', props.sku.external_code],
         ['minQuantity', props.sku.min_qty ? props.sku.min_qty : '0'],
         ['maxQuantity', props.sku.max_qty ? props.sku.max_qty : '0'],
-        ['valuePerUnit', props.sku.value_per_unit ? props.sku.value_per_unit : '0'],
+        ['valuePerHandling', props.sku.value_per_unit ? props.sku.value_per_unit : '0'],
         ['length', props.sku.length ? props.sku.length : '0'],
         ['width', props.sku.width ? props.sku.width : '0'],
         ['height', props.sku.height ? props.sku.height : '0'],
         ['weight', props.sku.weight ? props.sku.weight : '0'],
         ['storageType', props.sku.storage_type],
-        ['uom', props.sku.uom_description],
+        ['unitOfMeasurement', props.sku.uom_description],
+        ['unitOfHandling', props.sku.unit_of_handling],
         ['remarks', props.sku.remarks]
       ];
 
@@ -123,7 +124,7 @@ function WarehouseMasterDataSKUForm(props) {
                   disabled={props.clients ? false : true}
                   displayEmpty={true}
                   renderValue={
-                    !isClientFetched ? () => <CircularProgress className="search__spinner"/> : getValues("client")
+                    getValues("client") !== "" ? undefined : () => <CircularProgress className="search__spinner" style={{display: props.clients.length ? 'none' : true}} />
                   }>
                   {
                     !props.clients ? null :
@@ -226,7 +227,7 @@ function WarehouseMasterDataSKUForm(props) {
               required
               rules={{ required: "This field is required" }}
             />
-            {errors.minQuantity && <FormHelperText error>{errors.minQuantity.message}</FormHelperText>}
+            {errors.unitOfHandling && <FormHelperText error>{errors.unitOfHandling.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={6}>
             <label className="paper__label">Value per Handling</label>
@@ -248,7 +249,7 @@ function WarehouseMasterDataSKUForm(props) {
               }}
               onInput={() => setHasChanged(true)}
             />
-            {errors.maxQuantity && <FormHelperText error>{errors.maxQuantity.message}</FormHelperText>}
+            {errors.valuePerHandling && <FormHelperText error>{errors.valuePerHandling.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={6}>
             <label className="paper__label">Unit of Measurement</label>
@@ -278,23 +279,22 @@ function WarehouseMasterDataSKUForm(props) {
             <label className="paper__label">UOH per UOM</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" 
+                <TextField 
+                disabled
+                fullWidth
+                variant="outlined"
+                type="number"
+                style={{backgroundColor: '#F2F2F2'}}
                 InputProps={{
                   inputProps: { min: 0, step: .01 },
                 }} />
               }
               name="UOHPerUOM"
               control={control}
-              disabled
-              required
               defaultValue=""
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
               onInput={() => setHasChanged(true)}
             />
-            {errors.valuePerUnit && <FormHelperText error>{errors.valuePerUnit.message}</FormHelperText>}
+            {errors.UOHPerUOM && <FormHelperText error>{errors.UOHPerUOM.message}</FormHelperText>}
           </Grid>
         </Grid>
         <Grid container spacing={2}>

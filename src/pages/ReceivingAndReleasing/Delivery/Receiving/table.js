@@ -418,13 +418,11 @@ function Table_(props) {
       });
     }
 
-    console.log(rowData)
-
-    // if (_.isEmpty(errors)) {
-    //   props.onSubmit(rowData, data.delivery_notice_item);
-    // } else {
-    //   props.onError(errors);
-    // }
+    if (_.isEmpty(errors)) {
+      props.onSubmit(rowData, data.delivery_notice_item);
+    } else {
+      props.onError(errors);
+    }
 
     clearErrors(["inspected_by", "date"]);
   }

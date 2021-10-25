@@ -61,24 +61,22 @@ function WarehouseMasterDataSKUCreate (props) {
       remarks: data.remarks,
     }
 
-    console.log(SKUData)
-
-    // createWarehouseSKU(SKUData)
-    //   .then(res => {
-    //     if (data.images.length > 1) {
-    //       handleImageUpload(res.data.id, data);
-    //     } else {
-    //       setStatus(prevState => { return {...prevState, images: true }});
-    //     }
-    //     if (res.status === 201) setStatus(prevState => { return {...prevState, sku: true }});
-    //   })
-    //   .catch(error => {
-    //     if (error.response.data.type === '23505') {
-    //       setAlertConfig({ severity: 'error', message: `Product code already exists.` });
-    //     } else {
-    //       dispatchError(dispatch, THROW_ERROR, error);
-    //     }
-    //   });
+    createWarehouseSKU(SKUData)
+      .then(res => {
+        if (data.images.length > 1) {
+          handleImageUpload(res.data.id, data);
+        } else {
+          setStatus(prevState => { return {...prevState, images: true }});
+        }
+        if (res.status === 201) setStatus(prevState => { return {...prevState, sku: true }});
+      })
+      .catch(error => {
+        if (error.response.data.type === '23505') {
+          setAlertConfig({ severity: 'error', message: `Product code already exists.` });
+        } else {
+          dispatchError(dispatch, THROW_ERROR, error);
+        }
+      });
   }
 
   // Function for image upload
