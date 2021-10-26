@@ -82,6 +82,22 @@ function WarehouseMasterDataSKUForm(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
 
+  // useEffect(() => {
+  //   if (props.clients) {
+  //     let SKUDetails = [
+  //       ['remarks', props.client]
+  //     ];
+
+  //     setValue('clients', );
+
+  //     setSKU(props.sku);
+  //     SKUDetails.forEach(w => {
+  //       if (w[1]) setValue(w[0], w[1]);
+  //     });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps 
+  // }, [props.client]);
+
   React.useEffect(() => {
     if (SKU) {
       setBatchManagement(SKU.batch_management);
