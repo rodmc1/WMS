@@ -10,28 +10,27 @@ import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { CSVLink } from "react-csv";
 import "react-dates/lib/css/_datepicker.css";
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
 import { Doughnut } from 'react-chartjs-2';
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
-import Spinner from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import Spinner from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Table from 'components/Table';
-import MuiTable from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import { Button } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles';
-import Chip from '@material-ui/core/Chip';
-import AssessmentIcon from '@material-ui/icons/Assessment';
-import ListIcon from '@material-ui/icons/List';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import MuiTable from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import ListIcon from '@mui/icons-material/List';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ReceivedAndReleased from './ReceivedAndReleased';
 import NumberOfItems from './ItemNumbers';
 import Radar from './Radar';
@@ -39,19 +38,11 @@ import CBMMonitoring from './CBMMonitoring';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  },
-}));
-
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function Dashboard(props) {
-  const classes = useStyles();
   const csvLink = React.useRef();
   const dispatch = useDispatch();
   const [searchLoading, setSearchLoading] = React.useState(false);
@@ -79,6 +70,8 @@ function Dashboard(props) {
   const [totalItemsReceived, setTotalItemsReceived] = React.useState(0);
   const [totalItemsReleased, setTotalItemsReleased] = React.useState(0);
   const [totalInventory, setTotalInventory] = React.useState(0);
+  const [CBM, setCBM] = React.useState([]);
+  const [pallet, setPallet] = React.useState([]);
 
   // Dates
   const [focusedInput, setFocusedInput] = useState(null);
@@ -287,11 +280,13 @@ function Dashboard(props) {
   // Set Dashboard data
   React.useEffect(() => {
     if (props.warehouses) {
-      setAnalytics(props.dashboard.analytics);
-      setReceivedAndRelease(props.dashboard.total_received_and_release);
-      setWarehouseType(props.dashboard.warehouse_type);
-      setNumberOfItems(props.dashboard.number_of_items);
+      setAnalytics(props.dashboard.data.analytics);
+      setReceivedAndRelease(props.dashboard.data.total_received_and_release);
+      setWarehouseType(props.dashboard.data.warehouse_type);
+      setNumberOfItems(props.dashboard.data.number_of_items);
       setDeliveryNotice(props.notice);
+      setCBM(props.dashboard.cbm);
+      setPallet(props.dashboard.pallet)
       setWarehouseData(props.warehouses.data);
     }
   }, [props.dashboard, props.notice, props.warehouses]);
@@ -539,7 +534,7 @@ function Dashboard(props) {
                       <BarChartIcon onClick={() => setActiveCbmMonitoring('difference')} className={activeCbmMonitoring === 'difference' ? 'active' : ''} />
                     </div>
                   </div>
-                  <CBMMonitoring data={warehouseType} />
+                  <CBMMonitoring data={CBM} />
                 </Paper>
               </Grid>
               <Grid item xs={12} className="monitoring">
@@ -598,10 +593,10 @@ function Dashboard(props) {
           </Grid>
         </Grid>
       </Grid>
-      <Spinner className={classes.backdrop} open={openBackdrop} >
+      <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
         <CircularProgress color="inherit" />
       </Spinner>
-      <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+      <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
         <Alert severity="success">{props.location.success}</Alert>
       </Snackbar>
     </div>
@@ -613,7 +608,7 @@ const mapStateToProps = state => {
     warehouses: state.dashboard.item,
     searched: state.dashboard.search,
     notice: state.dashboard.notice,
-    dashboard: state.dashboard.data
+    dashboard: state.dashboard
   }
 }
 

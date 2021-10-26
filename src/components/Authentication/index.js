@@ -7,10 +7,10 @@ import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 
 import { withStyles } from '@material-ui/core/styles';
-import Dialog from '@material-ui/core/Dialog';
-import Button from '@material-ui/core/Button';
-import MuiDialogContent from '@material-ui/core/DialogContent';
-import Typography from '@material-ui/core/Typography';
+import Dialog from '@mui/material/Dialog';
+import Button from '@mui/material/Button';
+import MuiDialogContent from '@mui/material/DialogContent';
+import Typography from '@mui/material/Typography';
 import { fetchAccountDetails } from 'actions';
 
 const DialogContent = withStyles((theme) => ({

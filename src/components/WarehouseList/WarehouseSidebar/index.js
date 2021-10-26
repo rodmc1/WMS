@@ -3,11 +3,11 @@ import React from 'react';
 import history from 'config/history';
 import { deleteWarehouseById } from 'actions/index';
 
-import List from '@material-ui/core/List';
-import Paper from '@material-ui/core/Paper';
-import ListItem from '@material-ui/core/ListItem';
+import List from '@mui/material/List';
+import Paper from '@mui/material/Paper';
+import ListItem from '@mui/material/ListItem';
 import WarehouseDialog from 'components/WarehouseDialog';
-import ListItemText from '@material-ui/core/ListItemText';
+import ListItemText from '@mui/material/ListItemText';
 
 function WarehouseSideBar(props) {
   const [openDialog, setOpenDialog] = React.useState({ open: false });

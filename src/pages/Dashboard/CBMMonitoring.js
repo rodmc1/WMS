@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ReactApexChart from "react-apexcharts";
 import moment from 'moment';
-import { fetchMonitoring } from 'actions';
-import { connect, useDispatch } from 'react-redux';
 
 const CBMMonitoring = (props) => {
-  const [data, setData] = useState('');
   const [chartData, setChartData] = useState(null);
 
   const options = {
@@ -30,31 +27,15 @@ const CBMMonitoring = (props) => {
     },
     xaxis: {
       type: 'datetime',
-      categories: chartData && chartData.date,
+      categories: ['01/01/2011 GMT', '01/02/2011 GMT', '01/03/2011 GMT', '01/04/2011 GMT','01/05/2011 GMT', '01/06/2011 GMT'],
     },
     fill: {
       opacity: 1
     },
     legend: {
-      inverseOrder: true,
-      offsetX: 0,
-      offsetY: 15,
-      markers: {
-        width: 12,
-        height: 12,
-        strokeWidth: 0,
-        radius: 12,
-        offsetX: -5,
-        offsetY: 0
-      },
-      labels: {
-        padding: 50
-      },
-      itemMargin: {
-        horizontal: 15,
-        vertical: 12
-      },
+      show: false
     },
+    colors: ['#244945','#28514D','#2C5A56','#31645F','#366F6A','#3C7B75','#438982','#4B9891','#53A9A1','#5CBCB3'],
     tooltip: {
       custom: function({ series, seriesIndex, dataPointIndex, w }) {
         return `<div class="custom-tooltip received-tooltip">
@@ -72,63 +53,64 @@ const CBMMonitoring = (props) => {
 
   const series = [
     {
-      name: 'Released',
-      color: '#5EBCAB',
-      data: chartData && chartData.released
+      data: [44, 55, 41, 67, 22, 43]
     },
     {
-      name: 'Received',
-      color: '#C5EBE4',
-      data: chartData && chartData.received
+      data: [13, 23, 20, 8, 13, 27]
+    },
+    {
+      data: [11, 17, 15, 15, 21, 14]
+    },
+    {
+      data: [21, 7, 25, 13, 22, 8]
     },
   ];
 
   const getChartData = data => {
+    let chartDate = [];
     const chartData = {
       date: [],
-      received: [],
-      released: []
+      value: [],
+      description: [],
+      series: []
     }
-    let chartDate = [];
 
     data.forEach(item => {
-      if (!chartDate.includes(item.datetime)) {
-        chartDate.push(item.datetime);
-        chartData.date.push(moment(item.datetime).format('MM/DD/YYYY') + ' GMT');
+      if (!chartDate.includes(item.actual_arrived_datetime)) {
+        chartDate.push(item.actual_arrived_datetime);
+        chartData.date.push(moment(item.actual_arrived_datetime).format('MM/DD/YYYY') + ' GMT');
       }
     });
 
     chartDate.forEach(date => {
-      let received = 0;
-      let released = 0;
+      let value = 0;
+      let description;
 
       data.forEach(item => {
-        if (item.description === 'Inbound' && date.includes(item.datetime)) {
-          received = item.value
-        } 
-  
-        if (item.description === 'Outbound' && date.includes(item.datetime)) {
-          released = item.value;
+        if (date.includes(item.actual_arrived_datetime)) {
+          value = item.value;
+          description = item.description;
         }
       });
 
-      chartData.received.push(received);
-      chartData.released.push(released);
+      chartData.value.push(value);
+      chartData.description.push(description);
     });
 
     setChartData(chartData);
   }
 
+  console.log(chartData)
+
   useEffect(() => {
     if (props.data) {
-      setData(props.data);
       getChartData(props.data);
     }
   }, [props.data]);
 
   return (
     <React.Fragment>
-      { chartData && 
+      { 
         <ReactApexChart
           options={options}
           series={series}

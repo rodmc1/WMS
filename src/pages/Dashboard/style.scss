@@ -93,6 +93,10 @@
 
   .monitoring {
     margin-top: 12px;
+
+    .MuiPaper-root {
+      min-height: 400px !important;
+    }
   }
 
   .MuiTypography-body2 {
@@ -112,6 +116,7 @@
       }
     }
   }
+
   .analytics {
     padding-top: 15px;
     
