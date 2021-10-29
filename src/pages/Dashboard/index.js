@@ -156,6 +156,7 @@ function WarehouseList(props) {
   // CSV Headers
   const csvHeaders = [  
     { label: "Warehouse Name", key: "warehouseName" },
+    { label: "External Code", key: "externalCode" },
     { label: "Product Name", key: "productName" },
     { label: "Item ID", key: "itemId" },
     { label: "Inbound", key: "inbound" },
@@ -267,6 +268,7 @@ function WarehouseList(props) {
       const newData = response.data.map(warehouse => {
         return {
           warehouseName: warehouse.warehouse_name,
+          externalCode: warehouse.external_code,
           productName: warehouse.product_name,
           itemId: warehouse.item_id,
           inbound: warehouse.inbound,

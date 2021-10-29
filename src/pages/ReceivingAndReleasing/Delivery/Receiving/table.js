@@ -47,8 +47,13 @@ import ReactToPrint from 'react-to-print';
 // component for the printable form
 import PrintableForms from '../PrintableForms';
 
-import Cookies from 'universal-cookie';
+// logo for the excel
+import ExcelPDFLogo from '../../../../assets/json/excel-logo-json.json';
 
+import Cookies from 'universal-cookie';
+import inteluck from 'api/inteluck';
+
+const exceljs = require('exceljs');
 const cookie = new Cookies();
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -184,7 +189,7 @@ function Table_(props) {
   const [addMode, setAddMode] = React.useState(false);
   const [SKU, setSKU] = useState([]);
   const [receivingItem, setReceivingItem] = useState([]);
-  const [itemCount, setItemCount] = useState([]);
+  const [itemCount, setItemCount] = useState(0);
   const anchorRef = React.useRef(null);
   const dispatch = useDispatch();
   const [openAddItems, setOpenAddItems] = React.useState(false);
@@ -201,6 +206,7 @@ function Table_(props) {
   const [isChecked, setIsChecked] = React.useState([]);
   const [items, setItems] = useState([]);
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
+  const [disableExcelbtn, setDisableExcelbtn] = useState(false);
 
   const rowReceivingReleasing = localStorage.getItem('rowReceivingReleasing');
 
@@ -318,6 +324,293 @@ function Table_(props) {
     });
 
   }, 510), [query]);
+
+  // function for downloading the printable form as Excel
+  const handleDownloadPrintableFormAsExcel = async () => {
+    const dataObj = {
+      received_id: receivingData.recieved_id,
+      count: itemCount,
+      after: 0,
+    }
+
+    setDisableExcelbtn(true)
+    const completeRows = await inteluck.get(`/v1/wms/Warehouse/Delivery/Received_Item`, { params: dataObj }).then(res => {return res}).catch(err => {return err});
+    setDisableExcelbtn(false);
+    if(completeRows.status === 200){
+      const tableRows = completeRows.data;
+      const excelName = receivingData.transaction_type === 'Inbound' ? `Receiving items from ${receivingData.plate_number}` : `Releasing items from ${receivingData.plate_number}`;
+      const workbook = new exceljs.Workbook();
+
+      workbook.creator = 'Me';
+      workbook.created = new Date();
+      workbook.modified = new Date();
+      workbook.lastPrinted = new Date();
+      
+      const worksheet =  workbook.addWorksheet(excelName, {
+        pageSetup:{paperSize: 100, orientation:'landscape'}
+      });
+
+      worksheet.properties.defaultColWidth = 20;
+
+      worksheet.views= [
+        {zoomScale: 100, showGridLines: true}
+      ]
+
+      worksheet.getRow(3).getCell('A').value = receivingData.transaction_type === 'Inbound' ? 'Receiving Report' : 'Withdrawal Slip';
+      worksheet.getRow(3).getCell('A').alignment = {vertical: 'middle', horizontal: 'left', wrapText: true};
+      worksheet.getRow(3).getCell('A').font = {
+        name: 'Arial',
+        family: 2,
+        size: 16,
+        underline: false,
+        bold: true,
+        color: {argb: receivingData.transaction_type === 'Inbound' ? '00009688' : '00FF7E00'}
+      }
+
+      worksheet.mergeCells('A1:F1');
+      const headerRow = worksheet.getRow(1);
+      headerRow.getCell(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: {argb: receivingData.transaction_type === 'Inbound' ? '00009688' : '00FF7E00'},
+      };
+
+      const imageSample = workbook.addImage({
+        base64: ExcelPDFLogo.logo,
+        extension: 'png',
+      });
+
+      worksheet.getRow(3).height = 61.50;
+      worksheet.mergeCells('A3:F3');
+      worksheet.addImage(imageSample,'D3:F3');
+
+      let startNum = 5;
+      const leftArrLabel = [{
+        label: 'Client',
+        text: receivingData.client_name
+      },{
+        label: 'Shipper',
+        text: receivingData.shipper_name
+      },{
+        label: 'Transaction Type',
+        text: receivingData.transaction_type
+      },{
+        label: 'Location',
+        text: receivingData.warehouse_name
+      }]
+
+      const rightArrLabel = [{
+        label: receivingData.transaction_type === 'Inbound' ? 'Receiving Report Number' : 'Withdrawal Slip Number',
+        text: receivingData.unique_code
+      },{
+        label: 'Date',
+        text: moment(new Date(receivingData.datetime)).format('LL')
+      },{
+        label: 'Reference Number',
+        text: receivingData.reference_number
+      }]
+
+      headerRow.getCell(1).font = {
+        name: 'Arial',
+        family: 2,
+        size: 12,
+        underline: false,
+        bold: true
+      }
+
+      const textFont = {
+        name: 'Arial',
+        family: 2,
+        size: 14,
+        underline: false,
+        bold: true,
+        color: {argb: '00333333'}
+      }
+
+      const labelFont = {
+        name: 'Arial',
+        family: 2,
+        size: 12,
+        underline: false,
+        bold: false,
+        color: {argb: '00828282'}
+      }
+
+      for(let i = 0; i < 4; i++){
+        const nextRow = startNum + 1;
+        // text
+        worksheet.mergeCells(`A${startNum}:B${startNum}`);
+        worksheet.getRow(startNum).getCell('A').value = leftArrLabel[i].text;
+        worksheet.getRow(startNum).getCell('A').font = textFont;
+
+        // label
+        worksheet.mergeCells(`A${nextRow}:B${nextRow}`);
+        worksheet.getRow(nextRow).getCell('A').value = leftArrLabel[i].label;
+        worksheet.getRow(nextRow).getCell('A').font = labelFont;
+
+        if(rightArrLabel[i]){
+          // text
+          worksheet.mergeCells(`E${startNum}:F${startNum}`);
+          worksheet.getRow(startNum).getCell('E').value = rightArrLabel[i].text;
+          worksheet.getRow(startNum).getCell('E').font = textFont;
+          worksheet.getRow(startNum).getCell('E').alignment = {vertical: 'middle', horizontal: 'right', wrapText: true};
+
+          // label
+          worksheet.mergeCells(`E${nextRow}:F${nextRow}`);
+          worksheet.getRow(nextRow).getCell('E').value = rightArrLabel[i].label;
+          worksheet.getRow(nextRow).getCell('E').font = labelFont;
+          worksheet.getRow(nextRow).getCell('E').alignment = {vertical: 'middle', horizontal: 'right', wrapText: true};
+        }
+
+        startNum = nextRow + 2;
+      }
+
+      // header row
+      const headerArr = ["ITEM #","DESCRIPTION","CODE","QTY","UNIT","EXP DATE"];
+      headerArr.forEach((item, key) => {
+        worksheet.getRow(17).getCell(key + 1).value = item;
+        worksheet.getRow(17).getCell(key + 1).font = {
+          color: {argb: '00ffffff'}
+        }
+        worksheet.getRow(17).getCell(key + 1).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: {argb: '0080808061'},
+        };
+      })
+
+      // body rows
+      let startRow = 18;
+      tableRows.forEach((item, key) => {
+        const row = [
+          key + 1,
+          item.product_name,
+          item.external_code,
+          item.actual_quantity,
+          item.unit,
+          moment(new Date(item.actual_arrived_date_time)).format('L')
+        ]
+
+        row.forEach((rowItem, rowKey) => {
+          worksheet.getRow(startRow).getCell(rowKey + 1).value = rowItem;
+          worksheet.getRow(startRow).getCell(rowKey + 1).alignment = {vertical: 'middle', horizontal: 'left', wrapText: true};
+        })
+
+        startRow = startRow + 1;
+      })
+
+      // remarks section
+      const remarksRow = startRow + 1;
+      let lastRemarksRow;
+      for(let i = remarksRow; i <= remarksRow + 3; i++){
+        worksheet.mergeCells(`A${i}:F${i}`);
+        if(i === remarksRow) worksheet.getRow(i).getCell('A').value = 'Remarks';
+
+        headerArr.forEach((item, key) => {
+          const borderStyle = {
+            left: {style:'thin', color: {argb:'00ffffff'}},
+            bottom: {style:'thin', color: {argb: i === remarksRow + 3 ? '00000000' : '00ffffff'}}
+          }
+
+          if(i !== remarksRow){
+            borderStyle.top = {style:'thin', color: {argb: '00ffffff'}}
+          }
+
+          if(key !== headerArr.length - 1){
+            borderStyle.right = {style:'thin', color: {argb: '00ffffff'}}
+          }
+
+          worksheet.getRow(i).getCell(key + 1).border = borderStyle;
+        })
+
+        lastRemarksRow = i;
+      }
+
+      // bottom section
+      const bottomRow = lastRemarksRow + 2;
+      for(let i = 1; i <= 6; i++){
+        worksheet.getRow(bottomRow).getCell(i).border = {
+          top: {style:'mediumDashed', color: {argb: '00000000'}}
+        }
+      }
+      worksheet.mergeCells(`A${bottomRow}:F${bottomRow}`);
+
+      const labelsBottomRow = bottomRow + 1;
+      let lowerBottomRow;
+      for(let i = labelsBottomRow; i <= labelsBottomRow + 2; i++){
+        if(i === labelsBottomRow){
+          worksheet.mergeCells(`A${i}:B${i}`);
+          worksheet.getRow(i).getCell('A').value = receivingData.transaction_type === 'Inbound' ? 'Received and Checked by' : 'Released and Checked by';
+          worksheet.mergeCells(`E${i}:F${i}`);
+          worksheet.getRow(i).getCell('E').value = 'Noted by';
+        }else{
+          worksheet.mergeCells(`A${i}:B${i}`);
+          worksheet.getRow(i).getCell('A').border = {top: {style:'thin', color: {argb: '00ffffff'}}};
+          worksheet.mergeCells(`E${i}:F${i}`);
+          worksheet.getRow(i).getCell('E').border = {top: {style:'thin', color: {argb: '00ffffff'}}};
+        }
+
+        if(i === labelsBottomRow + 2){
+          worksheet.getRow(i).getCell('A').border = {
+            top: {style:'thin', color: {argb: '00ffffff'}},
+            bottom: {style:'thin', color: {argb: '00000000'}}
+          };
+          worksheet.mergeCells(`A${i+1}:B${i+1}`);
+          worksheet.getRow(i + 1).getCell('A').value = 'Warehouse Assistant';
+          worksheet.getRow(i + 1).getCell('A').alignment = {vertical: 'middle', horizontal: 'center', wrapText: true};
+
+          worksheet.getRow(i).getCell('E').border = {
+            top: {style:'thin', color: {argb: '00ffffff'}},
+            bottom: {style:'thin', color: {argb: '00000000'}}
+          };
+          worksheet.mergeCells(`E${i+1}:F${i+1}`);
+          worksheet.getRow(i + 1).getCell('E').value = 'Supervisor/Manager';
+          worksheet.getRow(i + 1).getCell('E').alignment = {vertical: 'middle', horizontal: 'center', wrapText: true};
+          lowerBottomRow = i + 3;
+        }
+      }
+
+      worksheet.getRow(lowerBottomRow).getCell('A').value = receivingData.transaction_type === 'Inbound' ? 'Delivered by' : 'Received by';
+      for(let i = lowerBottomRow; i <= lowerBottomRow + 2; i++){
+        worksheet.mergeCells(`A${i}:F${i}`);
+
+        headerArr.forEach((item, key) => {
+          const borderStyle = {
+            left: {style:'thin', color: {argb:'00ffffff'}},
+            bottom: {style:'thin', color: {argb: i === lowerBottomRow + 2 ? '00000000' : '00ffffff'}}
+          }
+
+          if(key !== headerArr.length - 1){
+            borderStyle.right = {style:'thin', color: {argb: '00ffffff'}}
+          }
+
+          worksheet.getRow(i).getCell(key + 1).border = borderStyle;
+        })
+
+        if(i === lowerBottomRow + 2){
+          worksheet.mergeCells(`A${i+1}:B${i+1}`);
+          worksheet.getRow(i+1).getCell('A').value = 'Supplier Representative';
+          worksheet.getRow(i+1).getCell('A').alignment = {vertical: 'middle', horizontal: 'center', wrapText: true};
+          worksheet.mergeCells(`C${i+1}:D${i+1}`);
+          worksheet.getRow(i+1).getCell('C').value = 'Plate Number';
+          worksheet.getRow(i+1).getCell('C').alignment = {vertical: 'middle', horizontal: 'center', wrapText: true};
+          worksheet.mergeCells(`E${i+1}:F${i+1}`);
+          worksheet.getRow(i+1).getCell('E').value = 'Date';
+          worksheet.getRow(i+1).getCell('E').alignment = {vertical: 'middle', horizontal: 'center', wrapText: true};
+        }
+      }
+
+      workbook.xlsx.writeBuffer().then((data) => {
+        const blob = new Blob([data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+        const link= window.URL.createObjectURL(blob);
+        let aDom = document.createElement('a')
+        aDom.type = 'download'
+        aDom.href = link
+        aDom.download = `${excelName}.xlsx`
+        aDom.click()
+      })
+    }
+  }
   
   // Call delayedQuery function when user search and set new warehouse data
   React.useEffect(() => {
@@ -424,18 +717,6 @@ function Table_(props) {
     }
 
     clearErrors(["inspected_by", "date"]);
-  }
-
-  // Handles printing Receiving/Releasing forms
-  const handlePrintForm = () => {
-    console.info(props);
-    const content = document.getElementById("formToPrint");
-    const pri = document.getElementById("printableForm").contentWindow;
-    pri.document.open();
-    pri.document.write(content.innerHTML);
-    pri.document.close();
-    pri.focus();
-    pri.print();
   }
 
   // Setter for table data
@@ -669,7 +950,6 @@ function Table_(props) {
               classes={{notchedOutline:classes.noBorder}}
             />
           </FormControl>
-          {/* <Button variant="contained" className="btn btn--emerald receiving-add-item-btn" disableElevation style={{marginLeft: 15}} onClick={handlePrintForm}>Print</Button> */}
           <div>
             <ReactToPrint
               trigger={() => {
@@ -681,6 +961,9 @@ function Table_(props) {
             />
             <PrintableForms ref={printComponent} count={itemCount}/>
           </div>
+          <Button variant="contained" className="btn btn--emerald receiving-add-item-btn" disableElevation onClick={handleDownloadPrintableFormAsExcel} disabled={itemCount === 0} style={{width: '33%'}} endIcon={disableExcelbtn && <CircularProgress size={15} style={{color: '#fff'}}/>}>
+            Excel
+          </Button>
         </div>
         <div className={classes.pagination}>
           <TablePagination

@@ -127,7 +127,11 @@ class PrintableForms extends React.Component {
                                 <Grid container>
                                     <Grid item xs={12} className="align-center row details-cont right">
                                         <label>{this.state.data.unique_code}</label>
-                                        <label>Receiving Report Number</label>
+                                        <label>
+                                            {
+                                                this.state.data.transaction_type && this.state.data.transaction_type === 'Inbound' ? 'Receiving Report Number' : 'Withdrawal Slip Number'
+                                            }
+                                        </label>
                                     </Grid>
                                     <Grid item xs={12} className="align-center row details-cont right">
                                         <label>{moment(new Date(this.state.data.datetime)).format('LL')}</label>

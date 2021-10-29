@@ -108,7 +108,12 @@ function Receiving(props) {
         }
       })
       .catch(error => {
-        dispatchError(dispatch, THROW_ERROR, error);
+        const regex = new RegExp('P0001:');
+        if (regex.test(error.response.data.message)) {
+          setAlertConfig({ severity: 'error', message: error.response.data.message.replace('P0001: ','') });
+        } else {
+          dispatchError(dispatch, THROW_ERROR, error);
+        }
       });
   }
 
