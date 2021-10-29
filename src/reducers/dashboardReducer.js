@@ -9,7 +9,7 @@ const initialState = {
   cbm: []
 }
 
-const dashboardReducer = (state = initialState, action, monitoringType) => {
+const dashboardReducer = (state = initialState, action) => {
   switch(action.type) {
     case FETCH_DASHBOARD:
       return { ...state, data: action.payload };

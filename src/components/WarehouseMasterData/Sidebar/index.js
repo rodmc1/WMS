@@ -2,7 +2,7 @@ import React from 'react';
 import history from 'config/history';
 import Paper from '@mui/material/Paper';
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
+import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 
 function WarehouseMasterDataSidebar(props) {

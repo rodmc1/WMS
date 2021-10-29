@@ -119,6 +119,7 @@
 
   .analytics {
     padding-top: 15px;
+    margin-bottom: 15px;
     
     .MuiSvgIcon-root {
       color: $gray;
@@ -133,7 +134,6 @@
 
     .warehouse-type {
       padding-left: 0px;
-
       .MuiPaper-root {
         max-height: 400px;
         @media (min-width: 1850px) {
@@ -151,6 +151,7 @@
       .MuiPaper-root {
         min-height: 400px !important;
       }
+      padding-left: 45px;
     }
 
     .inventory {
@@ -163,11 +164,11 @@
     }
 
     .received-released {
-      padding: 8px 8px 6px 0px !important;
+      padding: 8px 8px 6px 8px !important;
     }
 
     .MuiGrid-root {
-      padding-right: 5px;
+      padding-right: 0px;
     }
   }
 

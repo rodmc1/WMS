@@ -103,7 +103,7 @@ const Apex = (props) => {
       data.forEach(item => {
         if (item.description === 'Inbound' && date.includes(item.datetime)) {
           received = item.value
-        } 
+        }
   
         if (item.description === 'Outbound' && date.includes(item.datetime)) {
           released = item.value;

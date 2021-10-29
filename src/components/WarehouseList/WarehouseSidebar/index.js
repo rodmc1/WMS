@@ -5,7 +5,7 @@ import { deleteWarehouseById } from 'actions/index';
 
 import List from '@mui/material/List';
 import Paper from '@mui/material/Paper';
-import ListItem from '@mui/material/ListItem';
+import ListItem from '@material-ui/core/ListItem';
 import WarehouseDialog from 'components/WarehouseDialog';
 import ListItemText from '@mui/material/ListItemText';
 

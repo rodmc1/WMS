@@ -1,10 +1,10 @@
 import './style.scss';
 import React, { useState } from 'react';
 
-import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import MuiButtonGroup from '@mui/material/ButtonGroup';
+import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import MuiButtonGroup from '@material-ui/core/ButtonGroup';
 
 // default colors for buttons, add if needed
 const btnColor = {

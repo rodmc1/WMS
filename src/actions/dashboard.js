@@ -89,7 +89,7 @@ export const fetchDashboardItems = (params) => {
     .then(response => {
       dispatch({
         type: FETCH_PALLET_MONITORING,
-        payload: response.data[0].dashboard_monitoring_value
+        payload: response.data
       });
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);
@@ -109,7 +109,7 @@ export const fetchDashboardItems = (params) => {
     .then(response => {
       dispatch({
         type: FETCH_CBM_MONITORING,
-        payload: response.data[0].dashboard_monitoring_value
+        payload: response.data
       });
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);

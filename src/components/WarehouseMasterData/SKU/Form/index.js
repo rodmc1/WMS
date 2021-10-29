@@ -9,12 +9,11 @@ import ButtonGroup from 'components/_ButtonGroup';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
 import FormHelperText from '@mui/material/FormHelperText';
-import CircularProgress from '@mui/material/CircularProgress';
 
 function WarehouseMasterDataSKUForm(props) {
   const [hasChanged, setHasChanged] = React.useState(false);
@@ -82,22 +81,6 @@ function WarehouseMasterDataSKUForm(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
 
-  // useEffect(() => {
-  //   if (props.clients) {
-  //     let SKUDetails = [
-  //       ['remarks', props.client]
-  //     ];
-
-  //     setValue('clients', );
-
-  //     setSKU(props.sku);
-  //     SKUDetails.forEach(w => {
-  //       if (w[1]) setValue(w[0], w[1]);
-  //     });
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps 
-  // }, [props.client]);
-
   React.useEffect(() => {
     if (SKU) {
       setBatchManagement(SKU.batch_management);
@@ -129,56 +112,6 @@ function WarehouseMasterDataSKUForm(props) {
         <Typography variant="subtitle1" className="paper__heading">General Information</Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} md={12}>
-            <label className="paper__label">Client</label>
-            <Controller
-              as={
-                <Select
-                  className="sku-client"
-                  variant="outlined"
-                  fullWidth
-                  defaultValue=""
-                  disabled={props.clients ? false : true}
-                  displayEmpty={true}
-                  renderValue={
-                    getValues("client") !== "" ? undefined : () => <CircularProgress className="search__spinner" style={{display: props.clients.length ? 'none' : true}} />
-                  }>
-                  {
-                    !props.clients ? null :
-                    props.clients.map(client => {
-                      return <MenuItem key={client.Id} value={client.name}>{client.name}</MenuItem>
-                    })
-                  }
-                </Select>
-              }
-              name="client"
-              control={control}
-              defaultValue=""
-              onInput={() => setHasChanged(true)}
-            />
-          </Grid>
-        </Grid>
-        <Grid container spacing={2} style={{ marginTop: !isClientFetched ? -6 : 0}}>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">External Code</label>
-            <Controller
-              as={
-                <TextField
-                  variant="outlined"
-                  type="text"
-                  required
-                  inputProps={{ maxLength: 40 }}
-                  fullWidth
-                />
-              }
-              name="externalCode"
-              control={control}
-              rules={{ required: "This field is required" }}
-              defaultValue=""
-              onInput={() => setHasChanged(true)}
-            />
-            {errors.externalCode && <FormHelperText error>{errors.externalCode.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4}>
             <label className="paper__label">Product Name</label>
             <Controller
               as={
@@ -198,7 +131,29 @@ function WarehouseMasterDataSKUForm(props) {
             />
             {errors.productName && <FormHelperText error>{errors.productName.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={4}>
+        </Grid>
+        <Grid container spacing={2} style={{ marginTop: !isClientFetched ? -6 : 0}}>
+          <Grid item xs={12} md={6}>
+            <label className="paper__label">External Code</label>
+            <Controller
+              as={
+                <TextField
+                  variant="outlined"
+                  type="text"
+                  required
+                  inputProps={{ maxLength: 40 }}
+                  fullWidth
+                />
+              }
+              name="externalCode"
+              control={control}
+              rules={{ required: "This field is required" }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.externalCode && <FormHelperText error>{errors.externalCode.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={12} md={6}>
             <label className="paper__label">Code</label>
             <Controller
               as={

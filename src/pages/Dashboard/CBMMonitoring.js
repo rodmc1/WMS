@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactApexChart from "react-apexcharts";
 import moment from 'moment';
+import { ListItemSecondaryAction } from '@mui/material';
 
 const CBMMonitoring = (props) => {
   const [chartData, setChartData] = useState(null);
@@ -27,7 +28,7 @@ const CBMMonitoring = (props) => {
     },
     xaxis: {
       type: 'datetime',
-      categories: ['01/01/2011 GMT', '01/02/2011 GMT', '01/03/2011 GMT', '01/04/2011 GMT','01/05/2011 GMT', '01/06/2011 GMT'],
+      categories: chartData && chartData.date[0],
     },
     fill: {
       opacity: 1
@@ -35,72 +36,93 @@ const CBMMonitoring = (props) => {
     legend: {
       show: false
     },
+    states: {
+      hover: {
+        filter: {
+          type: 'none',
+        }
+      },
+    },
     colors: ['#244945','#28514D','#2C5A56','#31645F','#366F6A','#3C7B75','#438982','#4B9891','#53A9A1','#5CBCB3'],
     tooltip: {
       custom: function({ series, seriesIndex, dataPointIndex, w }) {
-        return `<div class="custom-tooltip received-tooltip">
-                  <span class="tooltip-date">${moment(w.globals.lastXAxis.categories[dataPointIndex]).format('MMMM D, YYYY')}</span> <br>
-                  <div class="received-label">Received</div>
+        const test = w.globals.seriesNames.map((item, index) => {
+          
+          return `<div class="received-label">${item}</div>
                   <span class='legend received'>|</span>
-                  <b>${series[1][dataPointIndex]}</b>
-                  <div class="received-label">Released</div>
-                  <span class='legend released'>|</span>
-                  <b>${series[0][dataPointIndex]}</b>
+                  <b>${series[index][dataPointIndex]}</b>`
+        })
+        
+        return `<div class="custom-tooltip received-tooltip">
+                  <span class="tooltip-date">${moment(w.globals.lastXAxis.categories[dataPointIndex]).format('MMMM D, YYYY')}</span><br>
+                  ${test.reverse()}
                 </div>`
       }
     }
   }
-
+  console.log(chartData)
   const series = [
     {
-      data: [44, 55, 41, 67, 22, 43]
+      name: 'PRODUCT A',
+      data: [44, 55, 41, 67]
     },
     {
-      data: [13, 23, 20, 8, 13, 27]
+      name: 'PRODUCT B',
+      data: [13, 23, 20, 8]
     },
     {
-      data: [11, 17, 15, 15, 21, 14]
+      name: 'PRODUCT C',
+      data: [11, 17, 15, 15]
     },
     {
-      data: [21, 7, 25, 13, 22, 8]
+      name: 'PRODUCT D',
+      data: [21, 7, 25, 13]
     },
   ];
 
   const getChartData = data => {
-    let chartDate = [];
+    // let chartDate = [];
     const chartData = {
       date: [],
-      value: [],
-      description: [],
+      values: [],
+      descriptions: [],
       series: []
     }
 
-    data.forEach(item => {
-      if (!chartDate.includes(item.actual_arrived_datetime)) {
-        chartDate.push(item.actual_arrived_datetime);
-        chartData.date.push(moment(item.actual_arrived_datetime).format('MM/DD/YYYY') + ' GMT');
-      }
-    });
+    const descriptions = [];
+    const values = [];
+    console.log(data)
+    const chartDate = data.map(item => moment(item.date).format('MM/DD/YYYY') + ' GMT');
+    chartData.date.push(chartDate);
 
-    chartDate.forEach(date => {
-      let value = 0;
-      let description;
-
-      data.forEach(item => {
-        if (date.includes(item.actual_arrived_datetime)) {
-          value = item.value;
-          description = item.description;
+    data.forEach(cbm => {
+      cbm.items[0].forEach(item => {
+        if (!chartData.descriptions.includes(item.description)) {
+          chartData.descriptions.push(item.description);
         }
-      });
-
-      chartData.value.push(value);
-      chartData.description.push(description);
+        chartData.values.push(item.value)
+      }) 
     });
+
+    // console.log(description)
+
+    // chartDate.forEach(date => {
+    //   let value = 0;
+    //   let description;
+
+    //   data.forEach(item => {
+    //     if (date.includes(item.actual_arrived_datetime)) {
+    //       value = item.value;
+    //       description = item.description;
+    //     }
+    //   });
+
+    //   chartData.value.push(value);
+    //   chartData.description.push(description);
+    // });
 
     setChartData(chartData);
   }
-
-  console.log(chartData)
 
   useEffect(() => {
     if (props.data) {
@@ -110,7 +132,7 @@ const CBMMonitoring = (props) => {
 
   return (
     <React.Fragment>
-      { 
+      { chartData && 
         <ReactApexChart
           options={options}
           series={series}

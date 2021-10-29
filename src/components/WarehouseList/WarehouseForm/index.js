@@ -8,13 +8,13 @@ import { getWarehouseDetails } from './warehouseDetails';
 import { fetchFacilitiesAndAmenities, fetchBuildingTypes } from 'actions/picklist';
 
 import validator from 'validator';
-import Grid from '@mui/material/Grid';
+import Grid from '@material-ui/core/Grid';
 import Dropzone from 'components/Dropzone';
 import GoogleMap from 'components/GoogleMap';
-import Select from '@mui/material/Select';
+import Select from '@material-ui/core/Select';
 import Button from '@mui/material/Button';
 import ButtonGroup from 'components/ButtonGroup';
-import MenuItem from '@mui/material/MenuItem';
+import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';

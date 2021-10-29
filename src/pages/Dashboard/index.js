@@ -12,7 +12,7 @@ import { CSVLink } from "react-csv";
 import "react-dates/lib/css/_datepicker.css";
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
+import Grid from '@material-ui/core/Grid';
 import { Doughnut } from 'react-chartjs-2';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
@@ -20,9 +20,9 @@ import Spinner from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Table from 'components/Table';
-import MuiTable from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
+import MuiTable from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
@@ -425,8 +425,8 @@ function Dashboard(props) {
           <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginRight: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
-      <Grid container spacing={1}>
-        <Grid container item xs={12} spacing={3}>
+      <Grid container spacing={2} className="analytics-charts">
+        <Grid container item xs={12} spacing={2}>
           <Grid item xs={9}>
             <Paper elevation={1}>
               <Typography>Analytics</Typography>
@@ -507,8 +507,9 @@ function Dashboard(props) {
                 handleRowCount={handleRowCount}
                 query={query}
                 searchLoading={searchLoading}
+                className="dashboard-table"
               />
-              <Grid container item xs={12} spacing={3} className='analytics'>
+              <Grid container item xs={12} spacing={2} className='analytics'>
                 <Grid item xs={8} className="received-released">
                   <Paper elevation={1} className="chart">
                     <Typography>Total items Received and Released</Typography>
@@ -518,7 +519,7 @@ function Dashboard(props) {
                      {receivedAndRelease && <ReceivedAndReleased data={receivedAndRelease} />}
                   </Paper>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4} className="number-of-items">
                   <Paper elevation={1} className="chart">
                     <Typography>Number of Items</Typography>
                     <Typography variant="body2">Descending</Typography>
@@ -576,6 +577,7 @@ function Dashboard(props) {
                     <TableRow>
                       <TableCell>Unique Code</TableCell>
                       <TableCell>Transaction Type</TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>

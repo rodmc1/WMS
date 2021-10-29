@@ -44,7 +44,6 @@ function WarehouseMasterDataSKUCreate (props) {
 
     const SKUData = {
       warehouse: props.match.params.id,
-      client: data.client,
       product_name: data.productName,
       uoh: data.unitOfHandling,
       uom: data.unitOfMeasurement,

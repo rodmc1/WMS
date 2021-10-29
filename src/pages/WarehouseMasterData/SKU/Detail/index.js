@@ -45,7 +45,6 @@ function WarehouseMasterDataSKUDetail (props) {
     
     const SKUData = {
       warehouse: props.match.params.id,
-      client: data.client,
       product_name: data.productName,
       uom: data.uom,
       external_code: data.externalCode,
