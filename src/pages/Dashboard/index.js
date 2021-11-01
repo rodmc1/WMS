@@ -35,6 +35,7 @@ import ReceivedAndReleased from './ReceivedAndReleased';
 import NumberOfItems from './ItemNumbers';
 import Radar from './Radar';
 import CBMMonitoring from './CBMMonitoring';
+import PalletMonitoring from './PalletMonitoring';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
@@ -537,7 +538,7 @@ function Dashboard(props) {
                       <BarChartIcon onClick={() => setActiveCbmMonitoring('difference')} className={activeCbmMonitoring === 'difference' ? 'active' : ''} />
                     </div>
                   </div>
-                  <CBMMonitoring data={CBM} />
+                  <CBMMonitoring data={CBM} type={activeCbmMonitoring === 'accumulate' ? 'accumulate' : 'difference'} />
                 </Paper>
               </Grid>
               <Grid item xs={12} className="monitoring">
@@ -550,6 +551,7 @@ function Dashboard(props) {
                       <BarChartIcon onClick={() => setActivePalletMonitoring('difference')} className={activePalletMonitoring === 'difference' ? 'active' : ''} />
                     </div>
                   </div>
+                  <PalletMonitoring data={pallet} type={activePalletMonitoring === 'accumulate' ? 'accumulate' : 'difference'}/>
                 </Paper>
               </Grid>
             </Paper>
