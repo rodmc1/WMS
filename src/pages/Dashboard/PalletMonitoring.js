@@ -84,7 +84,7 @@ const CBMMonitoring = (props) => {
         chartData.values.push(item.value)
       });
     });
-    
+
     chartData.descriptions.forEach((desc, index) => {
       let seriesData = {
         name: desc,
