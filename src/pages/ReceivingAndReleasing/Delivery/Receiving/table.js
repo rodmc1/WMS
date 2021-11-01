@@ -165,6 +165,8 @@ const config = {
     { label: 'SKU Code' },
     { label: 'Expected Quantity'},
     { label: 'Actual Quantity' },
+    { label: 'CBM' },
+    { label: 'UOM' },
     { label: 'Discrepancy'},
     { label: 'Damaged' },
     { label: 'Actual Arrived Date' },
@@ -175,7 +177,6 @@ const config = {
 }
 
 function Table_(props) {
-  const receivingData = props.receivingData;
   const printComponent = useRef();
   const classes = useStyles2();
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
@@ -383,6 +384,7 @@ function Table_(props) {
   const handleSave = data => {
     const values = getValues([
       `actualQty${data.delivery_notice_item}`,
+      `cbm${data.delivery_notice_item}`,
       `discrepancy${data.delivery_notice_item}`,
       `damage${data.delivery_notice_item}`,
       `date${data.delivery_notice_item}`,
@@ -394,6 +396,7 @@ function Table_(props) {
       received_id: props.receivingData.recieved_id,
       item_code: data.item_code,
       actual_quantity: Number(values[`actualQty${data.delivery_notice_item}`]),
+      cbm: Number(values[`cbm${data.delivery_notice_item}`]),
       discrepancy: Number(values[`discrepancy${data.delivery_notice_item}`]),
       damage: Number(values[`damage${data.delivery_notice_item}`]),
       arrival_datetime: values[`date${data.delivery_notice_item}`],
@@ -592,11 +595,6 @@ function Table_(props) {
     if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouse]);
-
-  React.useEffect(() => {
-    if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.warehouse]);
   
   return (
     <React.Fragment>
@@ -726,10 +724,24 @@ function Table_(props) {
                         control={control}
                         rules={{ required: "This field is required" }}
                         defaultValue={0}
-                        as={<TextField variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} className="external-code" required fullWidth/>}
+                        as={<TextField variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} className="actual-quantity" required fullWidth/>}
                       /> : data.actual_quantity
                     }
-                    </TableCell>
+                  </TableCell>
+                  <TableCell>
+                    {addMode ? 
+                      <Controller
+                        name={`cbm${data.delivery_notice_item}`}
+                        control={control}
+                        rules={{ required: "This field is required" }}
+                        defaultValue={0}
+                        as={<TextField variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} required/>}
+                      /> : data.cbm
+                    }
+                  </TableCell>
+                  <TableCell>
+                    { !addMode ? data.uom_type : data.uom }
+                  </TableCell>
                   <TableCell>
                     {addMode ? 
                       <Controller
@@ -741,7 +753,7 @@ function Table_(props) {
                         }}
                         defaultValue={0}
                         InputProps={{ inputProps: { min: 0 }}} 
-                        as={<TextField variant="outlined" type="number" className="product-name" required fullWidth/>}
+                        as={<TextField variant="outlined" type="number" className="discrepancy" required fullWidth/>}
                       /> : data.discrepancy
                     }
                   </TableCell>

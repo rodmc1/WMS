@@ -8,7 +8,6 @@ import React, { useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { connect } from 'react-redux';
 import { SingleDatePicker } from "react-dates";
-import { makeStyles } from '@material-ui/core/styles';
 import { fetchAuditLogs, fetchfilteredAuditLog } from 'actions';
 import Breadcrumbs from 'components/Breadcrumbs';
 
@@ -17,7 +16,8 @@ import Card from '@mui/material/Card';
 import Paper from '@mui/material/Paper';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import Search from '@material-ui/icons/Search';
+import Search from '@mui/icons-material/Search';
+import makeStyles from '@mui/styles/makeStyles';
 import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 import FormControl from '@mui/material/FormControl';

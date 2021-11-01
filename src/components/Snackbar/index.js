@@ -3,10 +3,8 @@ import { SNACKBAR } from 'config/constants';
 import { SnackbarContext } from 'context/Snackbar';
 
 import { Snackbar as MuiSnackbar } from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
-import Fade from '@material-ui/core/Fade';
-
-
+import MuiAlert from '@mui/material/Alert';
+import Fade from '@mui/material/Fade';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -14,7 +12,6 @@ function Alert(props) {
 
 function Snackbar() {
   const [snackbarConfig] = React.useContext(SnackbarContext);
-
   const [state, setState] = React.useState({
     open: false,
     vertical: 'top',

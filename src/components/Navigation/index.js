@@ -2,12 +2,12 @@ import './style.scss';
 import React from 'react';
 import history from 'config/history';
 import { NavLink, useLocation } from 'react-router-dom';
-import Tooltip from '@material-ui/core/Tooltip';
-import EventNoteIcon from '@material-ui/icons/EventNote';
+import Tooltip from '@mui/material/Tooltip';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import { HomeWork, KeyboardArrowUp, ChevronLeft, ChevronRight, TableChart } from '@material-ui/icons';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-import SvgIcon from '@material-ui/core/SvgIcon';
-import DashboardIcon from '@material-ui/icons/Dashboard';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import SvgIcon from '@mui/material/SvgIcon';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 function InventoryIcon(props) {
   return (

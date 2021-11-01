@@ -45,22 +45,6 @@ function Receiving(props) {
     setItems(filteredItem);
   }
 
-  // Table config
-  const config = {
-    rowsPerPage: 10,
-    headers: [
-      { label: 'ID', key: 'warehouse_id' },
-      { label: 'Preview' },
-      { label: 'SKU Code', key: 'item_code' },
-      { label: 'External Material Coding', key: 'external_code' },
-      { label: 'External Material Description', key: 'external_reference_number' },
-      { label: 'UOM', key: 'warehouse_client' },
-      { label: 'Expected Quantity'},
-      { label: 'Notes' },
-      { label: ' ' },
-    ]
-  }
-
   // Function for getting page and row count on table
   const handleRowCount = (page, rowsPerPage) => {
     setRowCount(rowsPerPage);
@@ -99,7 +83,9 @@ function Receiving(props) {
     setOpenSnackBar(false);
     setAlertConfig({ severity: 'info', message: 'Adding Item...' });
     setOpenSnackBar(true);
-    
+
+    // console.log(data)
+
     //Invoke action for adding delivery notice SKU
     createReceivingAndReleasingItem(data)
       .then(response => {
@@ -233,7 +219,6 @@ function Receiving(props) {
         </Tooltip>
       </div>
       <Table
-        config={config}
         data={selectedSKU}
         defaultData={deliveryNoticeSKU}
         handleRowCount={handleRowCount}

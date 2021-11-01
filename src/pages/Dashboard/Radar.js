@@ -9,7 +9,6 @@ const Radar = (props) => {
   const [heated, setHeated] = useState(0);
   const [dataSeries, setDataSeries] = useState([]);
   
-
   const options = {
     chart: {
       type: 'radar',
@@ -81,11 +80,6 @@ const Radar = (props) => {
           stockyard = item.value;
         }
       });
-
-      console.log(controlled);
-      console.log(heated);
-      console.log(refrigerated);
-      console.log(stockyard);
 
       setHeated(heated);
       setControlled(controlled);
