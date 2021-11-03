@@ -545,7 +545,7 @@ function Dashboard(props) {
                 <Paper elevation={1}>
                   <Typography>Pallet Monitoring</Typography>
                   <div className="flex justify-space-between align-center">
-                    <Typography variant="body2">{activePalletMonitoring}</Typography>
+                    <Typography variant="body2">{activePalletMonitoring[0].toUpperCase() + activePalletMonitoring.slice(1)}</Typography>
                     <div className="button-group chart-icon">
                       <TrendingUpIcon onClick={() => setActivePalletMonitoring('accumulate')} className={activePalletMonitoring === 'accumulate' ? 'active' : ''} />
                       <BarChartIcon onClick={() => setActivePalletMonitoring('difference')} className={activePalletMonitoring === 'difference' ? 'active' : ''} />

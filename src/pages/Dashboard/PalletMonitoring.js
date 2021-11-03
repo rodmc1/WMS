@@ -6,6 +6,23 @@ const CBMMonitoring = (props) => {
   const [chartData, setChartData] = useState(null);
   
   const series = chartData && chartData.series;
+  const getAxis = () => {
+    let data = {
+      type: 'datetime',
+      categories: chartData && chartData.date[0],
+    }
+
+    if (!props.data.length) {
+      data = {
+        categories: chartData && chartData.date[0],
+        labels: {
+          show: true
+        }
+      }
+    }
+
+    return data;
+  }
   const options = {
     chart: {
       type: 'bar',
@@ -26,10 +43,7 @@ const CBMMonitoring = (props) => {
         borderRadius: 5
       },
     },
-    xaxis: {
-      type: 'datetime',
-      categories: chartData && chartData.date[0],
-    },
+    xaxis: chartData && getAxis(),
     fill: {
       opacity: 1
     },
@@ -62,7 +76,7 @@ const CBMMonitoring = (props) => {
       }
     }
   }
-
+  console.log(chartData)
   const getChartData = (data, type) => {
     const chartData = {
       date: [],
@@ -74,7 +88,7 @@ const CBMMonitoring = (props) => {
     const date = data.map(item => moment(item.date).format('MM/DD/YYYY') + ' GMT');
     
     if (!date.length) {
-      chartData.date.push([props.date.start + ' GMT', props.date.end + ' GMT']);
+      chartData.date.push([moment(props.date.start).format("DD MMM"), moment(props.date.end).format("DD MMM")]);
     } else {
       chartData.date.push(date);
     }
