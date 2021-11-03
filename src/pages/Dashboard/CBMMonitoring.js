@@ -4,7 +4,7 @@ import moment from 'moment';
 
 const CBMMonitoring = (props) => {
   const [chartData, setChartData] = useState(null);
-
+  
   const options = {
     chart: {
       type: 'bar',
@@ -73,8 +73,13 @@ const CBMMonitoring = (props) => {
       series: []
     }
 
-    const chartDate = data.map(item => moment(item.date).format('MM/DD/YYYY') + ' GMT');
-    chartData.date.push(chartDate);
+    const date = data.map(item => moment(item.date).format('MM/DD/YYYY') + ' GMT');
+    
+    if (!date.length) {
+      chartData.date.push([props.date.start, props.date.end]);
+    } else {
+      chartData.date.push(date);
+    }
 
     data.forEach(cbm => {
       cbm.items[0].forEach(item => {

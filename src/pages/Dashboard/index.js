@@ -538,14 +538,14 @@ function Dashboard(props) {
                       <BarChartIcon onClick={() => setActiveCbmMonitoring('difference')} className={activeCbmMonitoring === 'difference' ? 'active' : ''} />
                     </div>
                   </div>
-                  <CBMMonitoring data={CBM} type={activeCbmMonitoring === 'accumulate' ? 'accumulate' : 'difference'} />
+                  <CBMMonitoring data={CBM} type={activeCbmMonitoring} date={{start: startDate.format("MM/DD/YYYY"), end: endDate.format("MM/DD/YYYY")}} />
                 </Paper>
               </Grid>
               <Grid item xs={12} className="monitoring">
                 <Paper elevation={1}>
                   <Typography>Pallet Monitoring</Typography>
                   <div className="flex justify-space-between align-center">
-                    <Typography variant="body2">{activePalletMonitoring === 'accumulate' ? 'Accumulate' : 'Difference'}</Typography>
+                    <Typography variant="body2">{activePalletMonitoring}</Typography>
                     <div className="button-group chart-icon">
                       <TrendingUpIcon onClick={() => setActivePalletMonitoring('accumulate')} className={activePalletMonitoring === 'accumulate' ? 'active' : ''} />
                       <BarChartIcon onClick={() => setActivePalletMonitoring('difference')} className={activePalletMonitoring === 'difference' ? 'active' : ''} />
