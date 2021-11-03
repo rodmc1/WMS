@@ -65,8 +65,6 @@ function WarehouseMasterDataSKU (props) {
       { label: 'UOM', key: 'uom_description' },
       { label: 'Code', key: 'item_code' },
       { label: 'External Code', key: 'external_code' },
-      { label: 'Min Quantity', key: 'min_qty' },
-      { label: 'Max Quantity', key: 'max_qty' }
     ]
   }
 
@@ -129,8 +127,6 @@ function WarehouseMasterDataSKU (props) {
           UOMDescription: sku.uom_description,
           itemCode: sku.item_code,
           externalCode: sku.external_code,
-          minQty: sku.min_qty,
-          maxQty: sku.max_qty,
           valuePerUnit: sku.value_per_unit,
           length: sku.length,
           width: sku.width,
@@ -157,8 +153,6 @@ function WarehouseMasterDataSKU (props) {
     { label: "UOM", key: "UOMDescription" },
     { label: "Code", key: "itemCode" },
     { label: "External Code", key: "externalCode" },
-    { label: "Min Quantity", key: "minQty" },
-    { label: "Max Quantity", key: "maxQty" },
     { label: "Value Per Unit", key: "valuePerUnit" },
     { label: "Length", key: "length" },
     { label: "Width", key: "width" },
