@@ -551,7 +551,7 @@ function Dashboard(props) {
                       <BarChartIcon onClick={() => setActivePalletMonitoring('difference')} className={activePalletMonitoring === 'difference' ? 'active' : ''} />
                     </div>
                   </div>
-                  <PalletMonitoring data={pallet} type={activePalletMonitoring === 'accumulate' ? 'accumulate' : 'difference'}/>
+                  <PalletMonitoring data={pallet} type={activePalletMonitoring} date={{start: startDate.format("MM/DD/YYYY"), end: endDate.format("MM/DD/YYYY")}}/>
                 </Paper>
               </Grid>
             </Paper>
