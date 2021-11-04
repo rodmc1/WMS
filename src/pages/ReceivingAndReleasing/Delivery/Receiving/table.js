@@ -715,7 +715,16 @@ function Table_(props) {
               }
               {Object.values(tableData).map((data, i) => 
                 <TableRow key={data.delivery_notice_item ? data.delivery_notice_item : i} className="table__row sku-table">
-                  <TableCell key={i}>{data.item_code}</TableCell>
+                  <TableCell
+                    key={i}
+                    title={data.item_code}
+                    style={{
+                      maxWidth: '180px',
+                      overflowX: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>{data.item_code}
+                  </TableCell>
                   <TableCell>{!addMode ? data.expected_quantity : data.expected_qty}</TableCell>
                   <TableCell>
                     {addMode ? 

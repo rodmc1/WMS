@@ -10,13 +10,17 @@ const CBMMonitoring = (props) => {
     let data = {
       type: 'datetime',
       categories: chartData && chartData.date[0],
+      labels: {
+        format: 'dd MMM'
+      }
     }
 
     if (!props.data.length) {
       data = {
         categories: chartData && chartData.date[0],
         labels: {
-          show: true
+          show: true,
+          format: 'dd MMM'
         }
       }
     }
@@ -41,7 +45,8 @@ const CBMMonitoring = (props) => {
     plotOptions: {
       bar: {
         horizontal: false,
-        borderRadius: 5
+        borderRadius: 5,
+        columnWidth: chartData && chartData.date[0].length < 4 ? '15%' : '90%'
       },
     },
     xaxis: chartData && getAxis(),
@@ -65,7 +70,7 @@ const CBMMonitoring = (props) => {
         w.globals.seriesNames.forEach((item, index) => {
           if (series[index][dataPointIndex]) {
             tooltip.push(`<div class="received-label">${item}</div>
-            <span class='legend received'>|</span>
+            <span class='legend' style="background: ${w.globals.colors[index]}; color: ${w.globals.colors[index]}">|</span>
             <b>${series[index][dataPointIndex]}</b>`)
           }
         })
@@ -105,11 +110,20 @@ const CBMMonitoring = (props) => {
 
     chartData.descriptions.forEach(desc => {
       let seriesData = {
+        date: null,
         name: desc,
         data: []
       }
 
       data.forEach((cbm, i) => {
+        seriesData.date = moment(cbm.date).format('MM/DD/YYYY') + ' GMT';
+        
+        // chartData.series.forEach((item, idx) => {
+        //   if (item.date === moment(cbm.date).format('MM/DD/YYYY') + ' GMT') {
+        //     console.log(item, idx)
+        //   }
+        // })
+
         let val = 0
         cbm.items[0].forEach(item => {
           if (desc === item.description) {
@@ -129,10 +143,8 @@ const CBMMonitoring = (props) => {
           seriesData.data.push(val);
         }
       });
-      
       chartData.series.push(seriesData)
     });
-
     setChartData(chartData);
   }
   

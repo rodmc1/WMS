@@ -4,19 +4,22 @@ import moment from 'moment';
 
 const CBMMonitoring = (props) => {
   const [chartData, setChartData] = useState(null);
-  
   const series = chartData && chartData.series;
   const getAxis = () => {
     let data = {
       type: 'datetime',
       categories: chartData && chartData.date[0],
+      labels: {
+        format: 'dd MMM'
+      }
     }
 
     if (!props.data.length) {
       data = {
         categories: chartData && chartData.date[0],
         labels: {
-          show: true
+          show: true,
+          format: 'dd MMM'
         }
       }
     }
@@ -40,8 +43,9 @@ const CBMMonitoring = (props) => {
     plotOptions: {
       bar: {
         horizontal: false,
-        borderRadius: 5
-      },
+        borderRadius: 5,
+        columnWidth: chartData && chartData.date[0].length < 4 ? '12%' : '90%'
+      }
     },
     xaxis: chartData && getAxis(),
     fill: {
@@ -64,7 +68,7 @@ const CBMMonitoring = (props) => {
         w.globals.seriesNames.forEach((item, index) => {
           if (series[index][dataPointIndex]) {
             tooltip.push(`<div class="received-label">${item}</div>
-            <span class='legend received'>|</span>
+            <span class='legend' style="background: ${w.globals.colors[dataPointIndex]}; color: ${w.globals.colors[dataPointIndex][index]}">|</span>
             <b>${series[index][dataPointIndex]}</b>`)
           }
         })
@@ -76,7 +80,7 @@ const CBMMonitoring = (props) => {
       }
     }
   }
-  console.log(chartData)
+
   const getChartData = (data, type) => {
     const chartData = {
       date: [],

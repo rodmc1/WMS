@@ -42,12 +42,12 @@ function WarehouseMasterDataSKUDetail (props) {
   const onSubmit = data => {
     setAlertConfig({ severity: 'info', message: 'Saving Changes...' });
     setOpenSnackBar(true);
-    
+
     const SKUData = {
       warehouse: props.match.params.id,
       product_name: data.productName,
       uoh: data.unitOfHandling,
-      uom: data.uom,
+      uom: data.unitOfMeasurement,
       external_code: data.externalCode,
       code: data.code,
       value_per_unit: Number(data.valuePerHandling),
