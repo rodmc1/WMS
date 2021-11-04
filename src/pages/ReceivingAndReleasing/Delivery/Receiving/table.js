@@ -50,6 +50,10 @@ import ReactToPrint from 'react-to-print';
 
 // component for the printable form
 import PrintableForms from '../PrintableForms';
+
+// logo for the excel
+import ExcelPDFLogo from '../../../../assets/json/excel-logo-json.json';
+
 import Cookies from 'universal-cookie';
 import inteluck from 'api/inteluck';
 
