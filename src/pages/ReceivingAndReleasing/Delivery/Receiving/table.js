@@ -1,66 +1,67 @@
 import './style.scss';
 import _ from 'lodash';
-import React, { useState, useRef } from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import React, { useState, useRef } from 'react';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { fetchDeliveryNotices, fetchReceivingItem, fetchAllDeliveryNoticeSKU, searchReceivingAndReleasingItem, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchReceivingAndReleasingSKU, fetchAllWarehouseSKUs } from 'actions';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import Search from '@material-ui/icons/Search';
-import TableRow from '@material-ui/core/TableRow';
-import TableBody from '@material-ui/core/TableBody';
-import TableHead from '@material-ui/core/TableHead';
-import TableCell from '@material-ui/core/TableCell';
-import IconButton from '@material-ui/core/IconButton';
-import LastPageIcon from '@material-ui/icons/LastPage';
-import FormControl from '@material-ui/core/FormControl';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import TableContainer from '@material-ui/core/TableContainer';
-import TablePagination from '@material-ui/core/TablePagination';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
-import Tooltip from '@material-ui/core/Tooltip';
 import { Controller, useForm } from 'react-hook-form';
-import TextField from '@material-ui/core/TextField';
-import Popper from "@material-ui/core/Popper";
-import MenuItem from "@material-ui/core/MenuItem";
-import MenuList from "@material-ui/core/MenuList";
-import Grow from "@material-ui/core/Grow";
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
-import Spinner from '@material-ui/core/Backdrop';
+import { useTheme } from '@mui/material/styles';
+import { fetchDeliveryNotices, fetchReceivingItem, fetchAllDeliveryNoticeSKU, searchReceivingAndReleasingItem, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchReceivingAndReleasingSKU, fetchAllWarehouseSKUs } from 'actions';
+
+import Grow from "@mui/material/Grow";
+import Button from '@mui/material/Button';
+import Popper from "@mui/material/Popper";
+import Spinner from '@mui/material/Backdrop';
+import MenuItem from "@mui/material/MenuItem";
+import MenuList from "@mui/material/MenuList";
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
+
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableRow from '@mui/material/TableRow';
+import Search from '@material-ui/icons/Search';
+import TableBody from '@mui/material/TableBody';
+import TableHead from '@mui/material/TableHead';
+import TableCell from '@mui/material/TableCell';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import TableContainer from '@mui/material/TableContainer';
+import TablePagination from '@mui/material/TablePagination';
+
+import Tooltip from '@mui/material/Tooltip';
+import TextField from '@mui/material/TextField';
+import makeStyles from '@mui/styles/makeStyles';
+import IconButton from '@mui/material/IconButton';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import LastPageIcon from '@mui/icons-material/LastPage';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import CircularProgress from '@mui/material/CircularProgress';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
 // package for print
 import ReactToPrint from 'react-to-print';
 
 // component for the printable form
 import PrintableForms from '../PrintableForms';
-
-// logo for the excel
-import ExcelPDFLogo from '../../../../assets/json/excel-logo-json.json';
-
 import Cookies from 'universal-cookie';
 import inteluck from 'api/inteluck';
 
 const exceljs = require('exceljs');
 const cookie = new Cookies();
-const useStyles1 = makeStyles((theme) => ({
+
+const useStyles1 = makeStyles({
   root: {
     flexShrink: 0,
-    marginLeft: theme.spacing(2),
+    marginLeft: 8
   },
-}));
+});
 
 /*
  * Handler for warehouse list pagination actions
@@ -129,7 +130,7 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-const useStyles2 = makeStyles((theme) => ({
+const useStyles2 = makeStyles({
   toolbar: {
     display: 'flex',
     padding: '12px 20px',
@@ -156,11 +157,7 @@ const useStyles2 = makeStyles((theme) => ({
   noBorder: {
     border: "none",
   },
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  },
-}));
+});
 
 // Table config
 const config = {
@@ -170,6 +167,8 @@ const config = {
     { label: 'SKU Code' },
     { label: 'Expected Quantity'},
     { label: 'Actual Quantity' },
+    { label: 'CBM' },
+    { label: 'UOM' },
     { label: 'Discrepancy'},
     { label: 'Damaged' },
     { label: 'Actual Arrived Date' },
@@ -180,7 +179,6 @@ const config = {
 }
 
 function Table_(props) {
-  const receivingData = props.receivingData;
   const printComponent = useRef();
   const classes = useStyles2();
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
@@ -207,8 +205,6 @@ function Table_(props) {
   const [items, setItems] = useState([]);
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
   const [disableExcelbtn, setDisableExcelbtn] = useState(false);
-
-  const rowReceivingReleasing = localStorage.getItem('rowReceivingReleasing');
 
   const handleToggle = () => {
     setOpenAddItems((prevOpen) => !prevOpen);
@@ -678,6 +674,7 @@ function Table_(props) {
   const handleSave = data => {
     const values = getValues([
       `actualQty${data.delivery_notice_item}`,
+      `cbm${data.delivery_notice_item}`,
       `discrepancy${data.delivery_notice_item}`,
       `damage${data.delivery_notice_item}`,
       `date${data.delivery_notice_item}`,
@@ -689,6 +686,7 @@ function Table_(props) {
       received_id: props.receivingData.recieved_id,
       item_code: data.item_code,
       actual_quantity: Number(values[`actualQty${data.delivery_notice_item}`]),
+      cbm: Number(values[`cbm${data.delivery_notice_item}`]),
       discrepancy: Number(values[`discrepancy${data.delivery_notice_item}`]),
       damage: Number(values[`damage${data.delivery_notice_item}`]),
       arrival_datetime: values[`date${data.delivery_notice_item}`],
@@ -875,11 +873,6 @@ function Table_(props) {
     if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouse]);
-
-  React.useEffect(() => {
-    if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.warehouse]);
   
   return (
     <React.Fragment>
@@ -1002,7 +995,16 @@ function Table_(props) {
               }
               {Object.values(tableData).map((data, i) => 
                 <TableRow key={data.delivery_notice_item ? data.delivery_notice_item : i} className="table__row sku-table">
-                  <TableCell key={i}>{data.item_code}</TableCell>
+                  <TableCell
+                    key={i}
+                    title={data.item_code}
+                    style={{
+                      maxWidth: '180px',
+                      overflowX: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>{data.item_code}
+                  </TableCell>
                   <TableCell>{!addMode ? data.expected_quantity : data.expected_qty}</TableCell>
                   <TableCell>
                     {addMode ? 
@@ -1011,10 +1013,24 @@ function Table_(props) {
                         control={control}
                         rules={{ required: "This field is required" }}
                         defaultValue={0}
-                        as={<TextField variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} className="external-code" required fullWidth/>}
+                        as={<TextField variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} className="actual-quantity" required fullWidth/>}
                       /> : data.actual_quantity
                     }
-                    </TableCell>
+                  </TableCell>
+                  <TableCell>
+                    {addMode ? 
+                      <Controller
+                        name={`cbm${data.delivery_notice_item}`}
+                        control={control}
+                        rules={{ required: "This field is required" }}
+                        defaultValue={0}
+                        as={<TextField variant="outlined" type="number" InputProps={{ inputProps: { min: 0 }}} required/>}
+                      /> : data.cbm
+                    }
+                  </TableCell>
+                  <TableCell>
+                    { !addMode ? data.uom_type : data.uom }
+                  </TableCell>
                   <TableCell>
                     {addMode ? 
                       <Controller
@@ -1026,7 +1042,7 @@ function Table_(props) {
                         }}
                         defaultValue={0}
                         InputProps={{ inputProps: { min: 0 }}} 
-                        as={<TextField variant="outlined" type="number" className="product-name" required fullWidth/>}
+                        as={<TextField variant="outlined" type="number" className="discrepancy" required fullWidth/>}
                       /> : data.discrepancy
                     }
                   </TableCell>
@@ -1103,7 +1119,7 @@ function Table_(props) {
           </Table>
         </TableContainer>
       </Paper>
-      <Spinner className={classes.backdrop} open={openBackdrop} >
+      <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
         <CircularProgress color="inherit" />
       </Spinner>
     </React.Fragment>

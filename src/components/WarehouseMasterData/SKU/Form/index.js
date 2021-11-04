@@ -1,17 +1,19 @@
 import React, { useEffect } from 'react';
 import _ from 'lodash';
 import './style.scss';
+import { connect } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
+import { fetchClients } from 'actions/picklist';
 import Dropzone from 'components/Dropzone';
 import ButtonGroup from 'components/_ButtonGroup';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import Button from '@material-ui/core/Button';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import InputAdornment from '@mui/material/InputAdornment';
+import Button from '@mui/material/Button';
+import FormHelperText from '@mui/material/FormHelperText';
 
 function WarehouseMasterDataSKUForm(props) {
   const [hasChanged, setHasChanged] = React.useState(false);
@@ -20,7 +22,9 @@ function WarehouseMasterDataSKUForm(props) {
   const [batchManagement, setBatchManagement] = React.useState(false);;
   const [expiryManagement, setExpiryManagement] = React.useState(false);
   const [SKU, setSKU] = React.useState([]);
-  const { handleSubmit, errors, control, formState, setValue } = useForm({
+  const [isClientFetched, setIsClientFetched] = React.useState(false)
+
+  const { handleSubmit, errors, control, formState, setValue, getValues } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
@@ -58,13 +62,14 @@ function WarehouseMasterDataSKUForm(props) {
         ['externalCode', props.sku.external_code],
         ['minQuantity', props.sku.min_qty ? props.sku.min_qty : '0'],
         ['maxQuantity', props.sku.max_qty ? props.sku.max_qty : '0'],
-        ['valuePerUnit', props.sku.value_per_unit ? props.sku.value_per_unit : '0'],
+        ['valuePerHandling', props.sku.value_per_unit ? props.sku.value_per_unit : '0'],
         ['length', props.sku.length ? props.sku.length : '0'],
         ['width', props.sku.width ? props.sku.width : '0'],
         ['height', props.sku.height ? props.sku.height : '0'],
         ['weight', props.sku.weight ? props.sku.weight : '0'],
         ['storageType', props.sku.storage_type],
-        ['uom', props.sku.uom_description],
+        ['unitOfMeasurement', props.sku.uom_description],
+        ['unitOfHandling', props.sku.unit_of_handling],
         ['remarks', props.sku.remarks]
       ];
 
@@ -83,12 +88,30 @@ function WarehouseMasterDataSKUForm(props) {
     }
   }, [SKU]);
 
+  /*
+   * Get addional picklist data
+   */
+  React.useEffect(() => {
+    if (!props.clients.length) {
+      props.fetchClients();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, []);
+
+  React.useEffect(() => {
+    if (props.clients.length) {
+      setIsClientFetched(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.clients]);
+
+
   return (
     <form onSubmit={handleSubmit(__submit)} className="sku-form">
       <div className="paper__section">
         <Typography variant="subtitle1" className="paper__heading">General Information</Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={12}>
             <label className="paper__label">Product Name</label>
             <Controller
               as={
@@ -108,52 +131,8 @@ function WarehouseMasterDataSKUForm(props) {
             />
             {errors.productName && <FormHelperText error>{errors.productName.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={6}>
-            <label className="paper__label">UOM</label>
-            <Controller
-              as={
-                <Select
-                  variant="outlined"
-                  fullWidth
-                  required
-                  defaultValue=""
-                  displayEmpty={true}>
-                  <MenuItem value="Roll">Roll</MenuItem>
-                  <MenuItem value="Pallet">Pallet</MenuItem>
-                  <MenuItem value="Carton">Carton</MenuItem>
-                  <MenuItem value="Piece">Piece</MenuItem>
-                  <MenuItem value="Bundle">Bundle</MenuItem>
-                </Select>
-              }
-              control={control}
-              name="uom"
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-            />
-            {errors.uom && <FormHelperText error>{errors.uom.message}</FormHelperText>}
-          </Grid>
         </Grid>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <label className="paper__label">Code</label>
-            <Controller
-              as={
-                <TextField
-                  variant="outlined"
-                  type="text"
-                  required
-                  inputProps={{ maxLength: 40 }}
-                  fullWidth
-                />
-              }
-              name="code"
-              control={control}
-              rules={{ required: "This field is required" }}
-              defaultValue=""
-              onInput={() => setHasChanged(true)}
-            />
-            {errors.code && <FormHelperText error>{errors.code.message}</FormHelperText>}
-          </Grid>
+        <Grid container spacing={2} style={{ marginTop: !isClientFetched ? -6 : 0}}>
           <Grid item xs={12} md={6}>
             <label className="paper__label">External Code</label>
             <Controller
@@ -174,52 +153,55 @@ function WarehouseMasterDataSKUForm(props) {
             />
             {errors.externalCode && <FormHelperText error>{errors.externalCode.message}</FormHelperText>}
           </Grid>
+          <Grid item xs={12} md={6}>
+            <label className="paper__label">Code</label>
+            <Controller
+              as={
+                <TextField
+                  variant="outlined"
+                  type="text"
+                  required
+                  inputProps={{ maxLength: 40 }}
+                  fullWidth
+                />
+              }
+              name="code"
+              control={control}
+              rules={{ required: "This field is required" }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.code && <FormHelperText error>{errors.code.message}</FormHelperText>}
+          </Grid>
         </Grid>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Min Quantity</label>
+          <Grid item xs={12} md={6}>
+            <label className="paper__label">Unit of Handling</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  inputProps: { min: 0 }
-                }} />
+                <Select
+                  variant="outlined"
+                  fullWidth
+                  required
+                  defaultValue=""
+                  displayEmpty={true}
+                  renderValue={
+                    getValues("unitOfHandling") !== "" ? undefined : () => <div style={{color: 'grey'}}>Select Unit of Handling</div>
+                  }>
+                  <MenuItem value="Cubic Meter">Cubic Meter</MenuItem>
+                  <MenuItem value="Pallet">Pallet</MenuItem>
+                </Select>
               }
-              name="minQuantity"
+              name="unitOfHandling"
               control={control}
               defaultValue=""
               required
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
-              onInput={() => setHasChanged(true)}
+              rules={{ required: "This field is required" }}
             />
-            {errors.minQuantity && <FormHelperText error>{errors.minQuantity.message}</FormHelperText>}
+            {errors.unitOfHandling && <FormHelperText error>{errors.unitOfHandling.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Max Quantity</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  inputProps: { min: 0 },
-                }} />
-              }
-              name="maxQuantity"
-              control={control}
-              defaultValue=""
-              required
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
-              onInput={() => setHasChanged(true)}
-            />
-            {errors.maxQuantity && <FormHelperText error>{errors.maxQuantity.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Value Per Unit</label>
+          <Grid item xs={12} md={6}>
+            <label className="paper__label">Value per Handling</label>
             <Controller
               as={
                 <TextField fullWidth variant="outlined" type="number" 
@@ -228,17 +210,62 @@ function WarehouseMasterDataSKUForm(props) {
                   startAdornment: <InputAdornment position="start">&#8369;</InputAdornment>,
                 }} />
               }
-              name="valuePerUnit"
+              name="valuePerHandling"
               control={control}
-              required
               defaultValue=""
+              required
               rules={{ 
                 required: "This field is required",
                 validate: value => { return value < 0 ? 'Invalid value' : true } 
               }}
               onInput={() => setHasChanged(true)}
             />
-            {errors.valuePerUnit && <FormHelperText error>{errors.valuePerUnit.message}</FormHelperText>}
+            {errors.valuePerHandling && <FormHelperText error>{errors.valuePerHandling.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <label className="paper__label">Unit of Measurement</label>
+            <Controller
+              as={
+                <Select
+                  variant="outlined"
+                  fullWidth
+                  required
+                  defaultValue=""
+                  displayEmpty={true}>
+                  <MenuItem value="Roll">Roll</MenuItem>
+                  <MenuItem value="Pallet">Pallet</MenuItem>
+                  <MenuItem value="Carton">Carton</MenuItem>
+                  <MenuItem value="Piece">Piece</MenuItem>
+                  <MenuItem value="Bundle">Bundle</MenuItem>
+                </Select>
+              }
+              control={control}
+              name="unitOfMeasurement"
+              defaultValue=""
+              rules={{ required: "This field is required" }}
+            />
+            {errors.uom && <FormHelperText error>{errors.uom.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <label className="paper__label">UOH per UOM</label>
+            <Controller
+              as={
+                <TextField 
+                disabled
+                fullWidth
+                variant="outlined"
+                type="number"
+                style={{backgroundColor: '#F2F2F2'}}
+                InputProps={{
+                  inputProps: { min: 0, step: .01 },
+                }} />
+              }
+              name="UOHPerUOM"
+              control={control}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.UOHPerUOM && <FormHelperText error>{errors.UOHPerUOM.message}</FormHelperText>}
           </Grid>
         </Grid>
         <Grid container spacing={2}>
@@ -432,4 +459,10 @@ function WarehouseMasterDataSKUForm(props) {
   )
 }
 
-export default WarehouseMasterDataSKUForm;
+const mapStateToProps = state => {
+  return {
+    clients: state.picklist.clients
+  }
+}
+
+export default connect(mapStateToProps, { fetchClients })(WarehouseMasterDataSKUForm);

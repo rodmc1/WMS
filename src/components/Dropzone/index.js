@@ -1,9 +1,9 @@
 import './style.scss';
 import React from 'react';
-import Badge from '@material-ui/core/Badge';
-import Collapse from '@material-ui/core/Collapse';
+import Badge from '@mui/material/Badge';
+import Collapse from '@mui/material/Collapse';
 import { DropzoneArea } from 'material-ui-dropzone';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 
 /*
  * @args str url

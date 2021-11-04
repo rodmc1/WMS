@@ -5,60 +5,53 @@ import moment from 'moment';
 import _ from 'lodash';
 import { DateRangePicker } from "react-dates";
 import { connect, useDispatch } from 'react-redux';
-import { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem, fetchDashboardPhysicalItemByName, fetchDashboardItems } from 'actions';
+import { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem, fetchDashboardPhysicalItemByName, fetchDashboardItems, fetchCBMMonitoring, fetchPalletMonitoring } from 'actions';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { CSVLink } from "react-csv";
 import "react-dates/lib/css/_datepicker.css";
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 import Grid from '@material-ui/core/Grid';
 import { Doughnut } from 'react-chartjs-2';
-import * as d3 from "d3";
-
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
-import Spinner from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import Spinner from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Table from 'components/Table';
 import MuiTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import { Button } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles';
-import Chip from '@material-ui/core/Chip';
-import AssessmentIcon from '@material-ui/icons/Assessment';
-import ListIcon from '@material-ui/icons/List';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import ListIcon from '@mui/icons-material/List';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ReceivedAndReleased from './ReceivedAndReleased';
 import NumberOfItems from './ItemNumbers';
-import Radar from './Radar'
+import Radar from './Radar';
+import CBMMonitoring from './CBMMonitoring';
+import PalletMonitoring from './PalletMonitoring';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  },
-}));
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
-function WarehouseList(props) {
+function Dashboard(props) {
+  const csvLink = React.useRef();
+  const dispatch = useDispatch();
   const [searchLoading, setSearchLoading] = React.useState(false);
   const [warehouseData, setWarehouseData] = React.useState(null)
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const [csvData, setCsvData] = React.useState([]);
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const csvLink = React.useRef();
   const [searched, setSearched] = React.useState(null);
   const [rowCount, setRowCount] = React.useState(0);
   const [page, setPage]= React.useState(10);
@@ -71,62 +64,20 @@ function WarehouseList(props) {
   const [inboundCount, setInboundCount] = React.useState(0);
   const [outboundCount, setOutboundCount] = React.useState(0);
   const [activeWarehouseType, setActiveWarehouseType] = useState('radar');
+  const [activeCbmMonitoring, setActiveCbmMonitoring] = useState('accumulate');
+  const [activePalletMonitoring, setActivePalletMonitoring] = useState('accumulate');
 
   // Analytics
   const [totalItemsReceived, setTotalItemsReceived] = React.useState(0);
   const [totalItemsReleased, setTotalItemsReleased] = React.useState(0);
   const [totalInventory, setTotalInventory] = React.useState(0);
+  const [CBM, setCBM] = React.useState([]);
+  const [pallet, setPallet] = React.useState([]);
 
   // Dates
   const [focusedInput, setFocusedInput] = useState(null);
   const [endDate, setEndDate] = useState(moment().endOf('today'));
   const [startDate, setStartDate] = useState(moment().startOf('year'));
-
-  const [bubbleData, setbubbleData] = useState([]);
-
-  useEffect(() => {
-    if (warehouseType) {
-      let bubbleJSON = [];
-
-      warehouseType.forEach(item => {
-        let data = {
-          Name: "",
-          Count: 0,
-          color: '',
-          opacity: 0
-        }
-
-        if (item.description === 'Controlled Humidity Warehouse') {
-          data.Name = 'Controlled Humidity Warehouse';
-          data.Count = item.value;
-          data.color = '#FF7E00';
-          data.opacity = 0.8;
-        }
-        if (item.description === 'Heated & Unheated General Warehouse') {
-          data.Name = 'Heated & Unheated General Warehouse'
-          data.Count = item.value;
-          data.color = '#009688';
-          data.opacity = 0.6;
-        }
-        if (item.description === 'Refrigerated Warehouse') {
-          data.Name = item.description;
-          data.Count = item.value;
-          data.color = '#FDC638';
-          data.opacity = 0.8;
-        }
-        if (item.description === 'Stockyard') {
-          data.Name = item.description;
-          data.Count = item.value;
-          data.color = '#009688';
-          data.opacity = 0.9;
-        }
-
-        bubbleJSON.push(data)
-      });
-
-      setbubbleData(bubbleJSON);
-    }
-  }, [warehouseType]);
 
   const routes = [
     {
@@ -175,7 +126,7 @@ function WarehouseList(props) {
     setSearchLoading(true);
     props.fetchDashboardPhysicalItemByName({
       from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
       filter: query,
       count: rowCount,
       after: page * rowCount
@@ -212,7 +163,7 @@ function WarehouseList(props) {
   React.useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
-      if (props.searched.data) setWarehouseCount(props.searched.data.length);
+      if (props.searched.data) setWarehouseCount(props.searched.count);
     }
   }, [props.searched]);
 
@@ -242,7 +193,7 @@ function WarehouseList(props) {
     } else {
       props.fetchDashboardPhysicalItem({
         from_date: startDate.format("MM/DD/YYYY"),
-        to_date: endDate.format("MM/DD/YYYY"),
+        to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
         count: rowsPerPage,
         after: page * rowsPerPage
       });
@@ -263,7 +214,7 @@ function WarehouseList(props) {
     // return;
     await fetchDashboardItems({
       from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
     }).then(response => {
       const newData = response.data.map(warehouse => {
         return {
@@ -317,16 +268,28 @@ function WarehouseList(props) {
       count: page || 10,
       after: page * rowCount
     });
+
+    props.fetchCBMMonitoring({
+      from_date: startDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
+    });
+
+    props.fetchPalletMonitoring({
+      from_date: startDate.format("MM/DD/YYYY"),
+      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
+    });
   }, [startDate, endDate]);
 
   // Set Dashboard data
   React.useEffect(() => {
     if (props.warehouses) {
-      setAnalytics(props.dashboard.analytics);
-      setReceivedAndRelease(props.dashboard.total_received_and_release);
-      setWarehouseType(props.dashboard.warehouse_type);
-      setNumberOfItems(props.dashboard.number_of_items);
+      setAnalytics(props.dashboard.data.analytics);
+      setReceivedAndRelease(props.dashboard.data.total_received_and_release);
+      setWarehouseType(props.dashboard.data.warehouse_type);
+      setNumberOfItems(props.dashboard.data.number_of_items);
       setDeliveryNotice(props.notice);
+      setCBM(props.dashboard.cbm);
+      setPallet(props.dashboard.pallet)
       setWarehouseData(props.warehouses.data);
     }
   }, [props.dashboard, props.notice, props.warehouses]);
@@ -463,8 +426,8 @@ function WarehouseList(props) {
           <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginRight: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
-      <Grid container spacing={1}>
-        <Grid container item xs={12} spacing={3}>
+      <Grid container spacing={2} className="analytics-charts">
+        <Grid container item xs={12} spacing={2}>
           <Grid item xs={9}>
             <Paper elevation={1}>
               <Typography>Analytics</Typography>
@@ -545,8 +508,9 @@ function WarehouseList(props) {
                 handleRowCount={handleRowCount}
                 query={query}
                 searchLoading={searchLoading}
+                className="dashboard-table"
               />
-              <Grid container item xs={12} spacing={3} className='analytics'>
+              <Grid container item xs={12} spacing={2} className='analytics'>
                 <Grid item xs={8} className="received-released">
                   <Paper elevation={1} className="chart">
                     <Typography>Total items Received and Released</Typography>
@@ -556,13 +520,39 @@ function WarehouseList(props) {
                      {receivedAndRelease && <ReceivedAndReleased data={receivedAndRelease} />}
                   </Paper>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4} className="number-of-items">
                   <Paper elevation={1} className="chart">
                     <Typography>Number of Items</Typography>
                     <Typography variant="body2">Descending</Typography>
                     {receivedAndRelease && <NumberOfItems data={numberOfItems} />}
                   </Paper>
                 </Grid>
+              </Grid>
+              <Grid item xs={12} className="monitoring">
+                <Paper elevation={1}>
+                  <Typography>CBM Monitoring</Typography>
+                  <div className="flex justify-space-between align-center">
+                    <Typography variant="body2">{activeCbmMonitoring === 'accumulate' ? 'Accumulate' : 'Difference'}</Typography>
+                    <div className="button-group chart-icon">
+                      <TrendingUpIcon onClick={() => setActiveCbmMonitoring('accumulate')} className={activeCbmMonitoring === 'accumulate' ? 'active' : ''} />
+                      <BarChartIcon onClick={() => setActiveCbmMonitoring('difference')} className={activeCbmMonitoring === 'difference' ? 'active' : ''} />
+                    </div>
+                  </div>
+                  <CBMMonitoring data={CBM} type={activeCbmMonitoring} date={{start: startDate.format("MM/DD/YYYY"), end: endDate.format("MM/DD/YYYY")}} />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} className="monitoring">
+                <Paper elevation={1}>
+                  <Typography>Pallet Monitoring</Typography>
+                  <div className="flex justify-space-between align-center">
+                    <Typography variant="body2">{activePalletMonitoring[0].toUpperCase() + activePalletMonitoring.slice(1)}</Typography>
+                    <div className="button-group chart-icon">
+                      <TrendingUpIcon onClick={() => setActivePalletMonitoring('accumulate')} className={activePalletMonitoring === 'accumulate' ? 'active' : ''} />
+                      <BarChartIcon onClick={() => setActivePalletMonitoring('difference')} className={activePalletMonitoring === 'difference' ? 'active' : ''} />
+                    </div>
+                  </div>
+                  <PalletMonitoring data={pallet} type={activePalletMonitoring} date={{start: startDate.format("MM/DD/YYYY"), end: endDate.format("MM/DD/YYYY")}}/>
+                </Paper>
               </Grid>
             </Paper>
           </Grid>
@@ -589,6 +579,7 @@ function WarehouseList(props) {
                     <TableRow>
                       <TableCell>Unique Code</TableCell>
                       <TableCell>Transaction Type</TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -608,10 +599,10 @@ function WarehouseList(props) {
           </Grid>
         </Grid>
       </Grid>
-      <Spinner className={classes.backdrop} open={openBackdrop} >
+      <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
         <CircularProgress color="inherit" />
       </Spinner>
-      <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+      <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
         <Alert severity="success">{props.location.success}</Alert>
       </Snackbar>
     </div>
@@ -623,8 +614,8 @@ const mapStateToProps = state => {
     warehouses: state.dashboard.item,
     searched: state.dashboard.search,
     notice: state.dashboard.notice,
-    dashboard: state.dashboard.data
+    dashboard: state.dashboard
   }
 }
 
-export default connect(mapStateToProps, { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem, fetchDashboardPhysicalItemByName })(WarehouseList);
+export default connect(mapStateToProps, { fetchDashboard, fetchDashboardDeliveryNotice, fetchDashboardPhysicalItem, fetchDashboardPhysicalItemByName, fetchCBMMonitoring, fetchPalletMonitoring })(Dashboard);

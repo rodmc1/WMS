@@ -11,16 +11,15 @@ import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { fetchWarehouseById, updateUserById, uploadWarehouseFilesById, deleteWarehouseFilesById, updateWarehouseById } from 'actions/index';
 
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper';
-import MuiAlert from '@material-ui/lab/Alert';
-import Snackbar from '@material-ui/core/Snackbar';
-import Typography from '@material-ui/core/Typography';
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper';
+import MuiAlert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import Typography from '@mui/material/Typography';
 
-// Alerts
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 // Functional component for warehouse edit
 function WarehouseEdit(props) {
@@ -332,7 +331,11 @@ function WarehouseEdit(props) {
             <WarehouseForm handleDialog={handleDialog} onSubmit={handleSubmit} onError={handleError} warehouse={existingWarehouse} resetWarehouse={resetWarehouse} />
           </Paper>
         </Grid>
-        <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
+        <Snackbar 
+          anchorOrigin={{vertical: 'bottom',horizontal: 'center'}}
+          open={openSnackBar}
+          onClose={() => setOpenSnackBar(false)}
+        >
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
         <WarehouseDialog

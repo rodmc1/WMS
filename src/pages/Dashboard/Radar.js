@@ -9,7 +9,6 @@ const Radar = (props) => {
   const [heated, setHeated] = useState(0);
   const [dataSeries, setDataSeries] = useState([]);
   
-
   const options = {
     chart: {
       type: 'radar',

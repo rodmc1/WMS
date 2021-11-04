@@ -132,6 +132,13 @@
       color: $red;
     }
   }
+  .MuiTablePagination-selectLabel {
+    margin-top: 15px;
+  }
+
+  .MuiTablePagination-displayedRows  {
+    margin-top: 15px;
+  }
 }
 
 .sku-table {
@@ -147,7 +154,7 @@
     font-size: 0.85rem;
   }
   .notes {
-    min-width: 100px !important;
+    min-width: 150px !important;
   }
   .uom {
     min-width: 100px;
@@ -158,4 +165,11 @@
   .external-code {
     min-width: 180px;
   }
+  .actual-quantity {
+    width: auto;
+  }
+  .discrepancy {
+    width: auto;
+  }
+  
 }

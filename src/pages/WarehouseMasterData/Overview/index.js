@@ -3,10 +3,10 @@ import React, { useEffect } from 'react';
 import { fetchWarehouseById } from 'actions';
 import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
 
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import Breadcrumbs from 'components/Breadcrumbs';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 
 function WarehouseMasterDataOverview(props) {
   const [warehouse, setWarehouse] = React.useState(null);

@@ -53,6 +53,13 @@
   .search__spinner {
     margin-left: -50px;
   }
+  .MuiTablePagination-selectLabel {
+    margin-top: 15px;
+  }
+
+  .MuiTablePagination-displayedRows  {
+    margin-top: 15px;
+  }
   .search_form {
     width: 200%;
     @media (min-width: 1900px) {

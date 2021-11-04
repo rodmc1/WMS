@@ -6,45 +6,38 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
 import { createDeliveryNoticeSKU, fetchDeliveryNotices, fetchAllDeliveryNoticeSKU, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
 import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
-import Table from './table';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import MuiAlert from '@material-ui/lab/Alert';
-import Button from '@material-ui/core/Button';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import TextField from '@material-ui/core/TextField';
 import Breadcrumbs from 'components/Breadcrumbs';
-import Snackbar from '@material-ui/core/Snackbar';
-import Spinner from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Popper from "@material-ui/core/Popper";
-import MenuItem from "@material-ui/core/MenuItem";
-import MenuList from "@material-ui/core/MenuList";
-import Grow from "@material-ui/core/Grow";
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+import Table from './table';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import MuiAlert from '@mui/material/Alert';
 
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  },
-}));
+import Grow from "@mui/material/Grow";
+import Popper from "@mui/material/Popper";
+import Spinner from '@mui/material/Backdrop';
+import MenuItem from "@mui/material/MenuItem";
+import MenuList from "@mui/material/MenuList";
+import Checkbox from '@mui/material/Checkbox';
+import Snackbar from '@mui/material/Snackbar';
+import TextField from '@mui/material/TextField';
+import ListItemText from '@mui/material/ListItemText';
+import InputAdornment from '@mui/material/InputAdornment';
+import CircularProgress from '@mui/material/CircularProgress';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function DeliveryNoticeSKU(props) {
   const csvLink = useRef();
   const [SKU, setSKU] = useState([]);
   const [deliveryNoticeSKU, setDeliveryNoticeSKU] = useState([]);
   const anchorRef = React.useRef(null);
-  const classes = useStyles();
   const dispatch = useDispatch();
   const [openAddItems, setOpenAddItems] = React.useState(false);
   const [page, setPage]= useState(10);
@@ -62,7 +55,7 @@ function DeliveryNoticeSKU(props) {
   const [isChecked, setIsChecked] = React.useState([]);
   const [items, setItems] = useState([]);
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
-  const [alertConfig, setAlertConfig] = React.useState({});
+  const [alertConfig, setAlertConfig] = React.useState({ severity: 'info', message: 'loading...' });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
   const routes = [
@@ -508,10 +501,10 @@ function DeliveryNoticeSKU(props) {
             onError={handleErrors}
             total={skuCount || 0}
           />
-          <Spinner className={classes.backdrop} open={openBackdrop} >
+          <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop}>
             <CircularProgress color="inherit" />
           </Spinner>
-          <Snackbar open={openSnackBar} autoHideDuration={3000} onClose={() => setOpenSnackBar(false)}>
+          <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} autoHideDuration={3000} onClose={() => setOpenSnackBar(false)}>
             <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
           </Snackbar>
         </Grid>

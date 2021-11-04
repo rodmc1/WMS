@@ -12,13 +12,13 @@ import Grid from '@material-ui/core/Grid';
 import Dropzone from 'components/Dropzone';
 import GoogleMap from 'components/GoogleMap';
 import Select from '@material-ui/core/Select';
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 import ButtonGroup from 'components/ButtonGroup';
 import MenuItem from '@material-ui/core/MenuItem';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import InputAdornment from '@mui/material/InputAdornment';
+import FormHelperText from '@mui/material/FormHelperText';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 
 function WarehouseForm(props) {

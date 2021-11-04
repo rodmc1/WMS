@@ -2,37 +2,40 @@ import './style.scss';
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import Search from '@material-ui/icons/Search';
-import TableRow from '@material-ui/core/TableRow';
-import TableBody from '@material-ui/core/TableBody';
-import TableHead from '@material-ui/core/TableHead';
-import TableCell from '@material-ui/core/TableCell';
-import IconButton from '@material-ui/core/IconButton';
-import LastPageIcon from '@material-ui/icons/LastPage';
-import FormControl from '@material-ui/core/FormControl';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import TableContainer from '@material-ui/core/TableContainer';
-import TablePagination from '@material-ui/core/TablePagination';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
-import Tooltip from '@material-ui/core/Tooltip';
+import { useTheme } from '@mui/material/styles';
 import { Controller, useForm } from 'react-hook-form';
-import TextField from '@material-ui/core/TextField';
 
-const useStyles1 = makeStyles((theme) => ({
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableRow from '@mui/material/TableRow';
+import Search from '@material-ui/icons/Search';
+import TableBody from '@mui/material/TableBody';
+import TableHead from '@mui/material/TableHead';
+import TableCell from '@mui/material/TableCell';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import TableContainer from '@mui/material/TableContainer';
+import TablePagination from '@mui/material/TablePagination';
+
+import Tooltip from '@mui/material/Tooltip';
+import TextField from '@mui/material/TextField';
+import makeStyles from '@mui/styles/makeStyles';
+import IconButton from '@mui/material/IconButton';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import LastPageIcon from '@mui/icons-material/LastPage';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import CircularProgress from '@mui/material/CircularProgress';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+
+const useStyles1 = makeStyles({
   root: {
     flexShrink: 0,
-    marginLeft: theme.spacing(2),
+    marginLeft: 8
   },
-}));
+});
 
 /*
  * Handler for warehouse list pagination actions

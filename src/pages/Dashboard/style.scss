@@ -6,6 +6,7 @@
 }
 
 .dashboard {
+
   .MuiSelect-select.MuiSelect-select {
     padding-top: 10px;
   }
@@ -16,13 +17,16 @@
     border-radius: 18px;
     box-shadow: 0 0 2px #888;
   }
+
   .DateRangePicker {
     margin-right: 15px;
   }
+
   .DateInput_input {
     font-size: 1rem;
     text-align: center;
   }
+  
   .MuiPaper-elevation1 {
     padding: 15px 20px;
   }
@@ -65,7 +69,7 @@
     }
 
     .MuiTableContainer-root {
-      margin-top: 26px;
+      margin-top: 26px !important;
       padding: 0px;
       .status-chip {
         min-width: 80px;
@@ -75,8 +79,12 @@
         padding: 10px;
       }
     }
-  }
 
+
+  }
+  .apexcharts-xaxis-label {
+    font-weight: 400
+  }
   .MuiPaper-root canvas {
     padding: 15px;
   }
@@ -87,29 +95,49 @@
     }
   }
 
-  
+  .monitoring {
+    margin-top: 12px;
 
-  
-
-  
-
-  // .MuiTableContainer-root {
-    // padding: -10px !important;
-    // width: 105%;
-    // padding-left: -50px !important;
-  // }
+    .MuiPaper-root {
+      min-height: 400px !important;
+    }
+  }
 
   .MuiTypography-body2 {
     padding-top: 4px;
     color: $gray;
   }
 
+  .chart-icon {
+    .MuiSvgIcon-root {
+      color: $gray;
+      margin-left: 20px;
+      font-size: 25px;
+      cursor: pointer;
+      
+      &.active {
+        color: $emerald !important;
+      }
+    }
+  }
+
   .analytics {
-    padding-top: 12px;
+    padding-top: 15px;
+    margin-bottom: 15px;
+    
+    .MuiSvgIcon-root {
+      color: $gray;
+      margin-left: 20px;
+      font-size: 25px;
+      cursor: pointer;
+      
+      &.active {
+        color: $emerald !important;
+      }
+    }
 
     .warehouse-type {
       padding-left: 0px;
-
       .MuiPaper-root {
         max-height: 400px;
         @media (min-width: 1850px) {
@@ -121,24 +149,13 @@
           min-height: 400px !important;
         }
       }
-
-
-      .MuiSvgIcon-root {
-        color: $gray;
-        margin-left: 20px;
-        font-size: 25px;
-        cursor: pointer;
-        
-        &.active {
-          color: $emerald !important;
-        }
-      }
     }
 
     .received-released {
       .MuiPaper-root {
         min-height: 400px !important;
       }
+      padding-left: 45px;
     }
 
     .inventory {
@@ -151,13 +168,11 @@
     }
 
     .received-released {
-      // .MuiPaper-root {
-        padding: 8px 8px 6px 0px !important;
-      // }
+      padding: 8px 8px 6px 8px !important;
     }
 
     .MuiGrid-root {
-      padding-right: 5px;
+      padding-right: 0px;
     }
   }
 

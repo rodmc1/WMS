@@ -11,23 +11,23 @@ import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { uploadWarehouseFilesById, createWarehouse } from 'actions/index';
 
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import MuiAlert from '@material-ui/lab/Alert';
-import Snackbar from '@material-ui/core/Snackbar';
-import Typography from '@material-ui/core/Typography';
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper';
+import MuiAlert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import Typography from '@mui/material/Typography';
 
 // Alerts
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 // Functional component for creation warehouse
 function WarehouseCreate(props) {
   const dispatch = useDispatch();
   const [openDialog, setOpenDialog] = React.useState({ open: false });
   const [created, setCreated] = React.useState(false);
-  const [alertConfig, setAlertConfig] = React.useState({});
+  const [alertConfig, setAlertConfig] = React.useState({ severity: 'info', message: 'Loading...' });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [status, setStatus] = React.useState({ images: false, docs: false, warehouse: false });
 
@@ -199,7 +199,7 @@ function WarehouseCreate(props) {
             <WarehouseForm handleDialog={handleDialog} onSubmit={handleSubmit} onError={handleError} />
           </Paper>
         </Grid>
-        <Snackbar open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
+        <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
         <WarehouseDialog

@@ -10,30 +10,21 @@ import { fetchSKUByName, fetchAllWarehouseSKUs, fetchWarehouseSKUs } from 'actio
 import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
 
 import Table from 'components/Table';
-import Grid from '@material-ui/core/Grid';
-import { Button } from '@material-ui/core';
-import Paper from '@material-ui/core/Paper';
-import MuiAlert from '@material-ui/lab/Alert';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import MuiAlert from '@mui/material/Alert';
+import Spinner from '@mui/material/Backdrop';
+import Snackbar from '@mui/material/Snackbar';
 import Breadcrumbs from 'components/Breadcrumbs';
-import Spinner from '@material-ui/core/Backdrop';
-import Snackbar from '@material-ui/core/Snackbar';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  },
-}));
-
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function WarehouseMasterDataSKU (props) {
-  const classes = useStyles();
   const dispatch = useDispatch();
   const csvLink = React.useRef();
   const [page, setPage]= React.useState(10);
@@ -74,8 +65,6 @@ function WarehouseMasterDataSKU (props) {
       { label: 'UOM', key: 'uom_description' },
       { label: 'Code', key: 'item_code' },
       { label: 'External Code', key: 'external_code' },
-      { label: 'Min Quantity', key: 'min_qty' },
-      { label: 'Max Quantity', key: 'max_qty' }
     ]
   }
 
@@ -138,8 +127,6 @@ function WarehouseMasterDataSKU (props) {
           UOMDescription: sku.uom_description,
           itemCode: sku.item_code,
           externalCode: sku.external_code,
-          minQty: sku.min_qty,
-          maxQty: sku.max_qty,
           valuePerUnit: sku.value_per_unit,
           length: sku.length,
           width: sku.width,
@@ -166,8 +153,6 @@ function WarehouseMasterDataSKU (props) {
     { label: "UOM", key: "UOMDescription" },
     { label: "Code", key: "itemCode" },
     { label: "External Code", key: "externalCode" },
-    { label: "Min Quantity", key: "minQty" },
-    { label: "Max Quantity", key: "maxQty" },
     { label: "Value Per Unit", key: "valuePerUnit" },
     { label: "Length", key: "length" },
     { label: "Width", key: "width" },
@@ -252,7 +237,7 @@ function WarehouseMasterDataSKU (props) {
 
   // Render empty sku container
   const renderEmptySKU = () => {
-    setTimeout(() => { setReady(true) }, 300);
+    setTimeout(() => { setReady(true) }, 10);
     
     return !ready ? <React.Fragment><div style={{height: '67vh'}} /></React.Fragment> :
       <React.Fragment>
@@ -262,6 +247,26 @@ function WarehouseMasterDataSKU (props) {
           <Typography variant="subtitle2">Please click the create button to get started.</Typography>
           <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>
         </div>
+      </React.Fragment>
+  }
+
+  const renderTable = () => {
+    return !ready ? <React.Fragment><div style={{height: '67vh'}} /></React.Fragment> :
+      <React.Fragment>
+        <Typography variant="subtitle1" className="paper__heading">SKU</Typography>
+        <div className="paper__divider" />
+        <Table 
+          filterSize={1}
+          config={config}
+          data={SKUData}
+          total={SKUCount || 0}
+          handleRowCount={handleRowCount}
+          onPaginate={handlePagination}
+          onRowClick={handleRowClick}
+          onInputChange={onInputChange}
+          query={query}
+          searchLoading={searchLoading}
+        />
       </React.Fragment>
   }
 
@@ -287,30 +292,13 @@ function WarehouseMasterDataSKU (props) {
         </Grid>
         <Grid item xs={12} md={9}>
           <Paper className="paper" elevation={0} variant="outlined">
-            { _.isEmpty(SKUData) && !props.searched ? renderEmptySKU() :
-              <React.Fragment>
-                <Typography variant="subtitle1" className="paper__heading">SKU</Typography>
-                <div className="paper__divider" />
-                <Table 
-                  filterSize={1}
-                  config={config}
-                  data={SKUData}
-                  total={SKUCount || 0}
-                  handleRowCount={handleRowCount}
-                  onPaginate={handlePagination}
-                  onRowClick={handleRowClick}
-                  onInputChange={onInputChange}
-                  query={query}
-                  searchLoading={searchLoading}
-                />
-              </React.Fragment>
-            }
+            { _.isEmpty(SKUData) && !props.searched ? renderEmptySKU() : renderTable() }
           </Paper>
         </Grid>
-        <Spinner className={classes.backdrop} open={openBackdrop} >
+        <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
           <CircularProgress color="inherit" />
         </Spinner>
-        <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+        <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
           <Alert severity="success">{props.location.success}</Alert>
         </Snackbar>
       </Grid>
