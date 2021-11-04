@@ -179,6 +179,7 @@ const config = {
 }
 
 function Table_(props) {
+  const receivingData = props.receivingData;
   const printComponent = useRef();
   const classes = useStyles2();
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
