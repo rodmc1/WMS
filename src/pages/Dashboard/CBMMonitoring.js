@@ -66,7 +66,6 @@ const CBMMonitoring = (props) => {
     colors: ['#244945','#28514D','#2C5A56','#31645F','#366F6A','#3C7B75','#438982','#4B9891','#53A9A1','#5CBCB3'],
     tooltip: {
       custom: function({ series, seriesIndex, dataPointIndex, w }) {
-        console.log(series)
         let tooltip = [];
         let totalCbm = 0;
         w.globals.seriesNames.forEach((item, index) => {

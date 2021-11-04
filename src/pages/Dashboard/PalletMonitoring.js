@@ -65,17 +65,27 @@ const CBMMonitoring = (props) => {
     tooltip: {
       custom: function({ series, seriesIndex, dataPointIndex, w }) {
         let tooltip = [];
+        let totalCbm = 0;
         w.globals.seriesNames.forEach((item, index) => {
+          totalCbm = totalCbm + series[index][dataPointIndex]
           if (series[index][dataPointIndex]) {
             tooltip.push(`<div class="received-label">${item}</div>
-            <span class='legend' style="background: ${w.globals.colors[dataPointIndex]}; color: ${w.globals.colors[dataPointIndex][index]}">|</span>
+            <span class='legend' style="background: ${w.globals.colors[index]}; color: ${w.globals.colors[index]}">|</span>
             <b>${series[index][dataPointIndex]}</b>`)
           }
         })
-        
+
+        tooltip.push(
+          `<div class="received-label">Total CBM</div>
+           <span class='legend' style="background: #E1BB1F"; color: #E1BB1F">|</span>
+           <b>${totalCbm}</b>`
+        )
+
+        tooltip.reverse();
+
         return `<div class="custom-tooltip received-tooltip">
                   <span class="tooltip-date">${moment(w.globals.lastXAxis.categories[dataPointIndex]).format('MMMM D, YYYY')}</span><br>
-                  ${tooltip.reverse()}
+                  ${tooltip.join(' ')}
                 </div>`
       }
     }
