@@ -66,18 +66,29 @@ const CBMMonitoring = (props) => {
     colors: ['#244945','#28514D','#2C5A56','#31645F','#366F6A','#3C7B75','#438982','#4B9891','#53A9A1','#5CBCB3'],
     tooltip: {
       custom: function({ series, seriesIndex, dataPointIndex, w }) {
+        console.log(series)
         let tooltip = [];
+        let totalCbm = 0;
         w.globals.seriesNames.forEach((item, index) => {
+          totalCbm = totalCbm + series[index][dataPointIndex]
           if (series[index][dataPointIndex]) {
             tooltip.push(`<div class="received-label">${item}</div>
             <span class='legend' style="background: ${w.globals.colors[index]}; color: ${w.globals.colors[index]}">|</span>
             <b>${series[index][dataPointIndex]}</b>`)
           }
         })
-        
+
+        tooltip.push(
+          `<div class="received-label">Total CBM</div>
+           <span class='legend' style="background: #E1BB1F"; color: #E1BB1F">|</span>
+           <b>${totalCbm}</b>`
+        )
+
+        tooltip.reverse();
+
         return `<div class="custom-tooltip received-tooltip">
                   <span class="tooltip-date">${moment(w.globals.lastXAxis.categories[dataPointIndex]).format('MMMM D, YYYY')}</span><br>
-                  ${tooltip.reverse()}
+                  ${tooltip.join(' ')}
                 </div>`
       }
     }
@@ -117,12 +128,6 @@ const CBMMonitoring = (props) => {
 
       data.forEach((cbm, i) => {
         seriesData.date = moment(cbm.date).format('MM/DD/YYYY') + ' GMT';
-        
-        // chartData.series.forEach((item, idx) => {
-        //   if (item.date === moment(cbm.date).format('MM/DD/YYYY') + ' GMT') {
-        //     console.log(item, idx)
-        //   }
-        // })
 
         let val = 0
         cbm.items[0].forEach(item => {
