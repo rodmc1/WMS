@@ -3,7 +3,7 @@ import _ from 'lodash';
 import './style.scss';
 import { connect } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
-import { fetchClients } from 'actions/picklist';
+import { fetchClients, fetchUOM } from 'actions/picklist';
 import Dropzone from 'components/Dropzone';
 import ButtonGroup from 'components/_ButtonGroup';
 import Typography from '@mui/material/Typography';
@@ -95,6 +95,7 @@ function WarehouseMasterDataSKUForm(props) {
     if (!props.clients.length) {
       props.fetchClients();
     }
+    props.fetchUOM();
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
@@ -104,7 +105,6 @@ function WarehouseMasterDataSKUForm(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.clients]);
-
 
   return (
     <form onSubmit={handleSubmit(__submit)} className="sku-form">
@@ -225,18 +225,33 @@ function WarehouseMasterDataSKUForm(props) {
           <Grid item xs={12} md={6}>
             <label className="paper__label">Unit of Measurement</label>
             <Controller
+              // as={
+              //   <Select
+              //     variant="outlined"
+              //     fullWidth
+              //     required
+              //     defaultValue=""
+              //     displayEmpty={true}>
+              //     <MenuItem value="Roll">Roll</MenuItem>
+              //     <MenuItem value="Pallet">Pallet</MenuItem>
+              //     <MenuItem value="Carton">Carton</MenuItem>
+              //     <MenuItem value="Piece">Piece</MenuItem>
+              //     <MenuItem value="Bundle">Bundle</MenuItem>
+              //   </Select>
+              // }
               as={
                 <Select
                   variant="outlined"
                   fullWidth
                   required
-                  defaultValue=""
-                  displayEmpty={true}>
-                  <MenuItem value="Roll">Roll</MenuItem>
-                  <MenuItem value="Pallet">Pallet</MenuItem>
-                  <MenuItem value="Carton">Carton</MenuItem>
-                  <MenuItem value="Piece">Piece</MenuItem>
-                  <MenuItem value="Bundle">Bundle</MenuItem>
+                  displayEmpty={true}
+                > 
+                  {
+                    !props.uom ? null :
+                    props.uom.map(type => {
+                      return <MenuItem key={type.Id} value={type.Description}>{type.Description}</MenuItem>
+                    })
+                  } 
                 </Select>
               }
               control={control}
@@ -461,8 +476,9 @@ function WarehouseMasterDataSKUForm(props) {
 
 const mapStateToProps = state => {
   return {
-    clients: state.picklist.clients
+    clients: state.picklist.clients,
+    uom: state.picklist.uom
   }
 }
 
-export default connect(mapStateToProps, { fetchClients })(WarehouseMasterDataSKUForm);
+export default connect(mapStateToProps, { fetchClients, fetchUOM })(WarehouseMasterDataSKUForm);

@@ -139,6 +139,10 @@
   .MuiTablePagination-displayedRows  {
     margin-top: 15px;
   }
+  
+  .MuiCheckbox-root {
+    padding: 4px 6px !important;
+  }
 }
 
 .sku-table {
@@ -171,5 +175,4 @@
   .discrepancy {
     width: auto;
   }
-  
 }

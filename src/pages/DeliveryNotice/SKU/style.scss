@@ -51,6 +51,9 @@
 
 
 .delivery-notice-container {
+  .MuiCheckbox-root {
+    padding: 4px 6px !important;
+  }
   .btn.btn-csv {
     margin-left: 10px;
   }
