@@ -58,6 +58,7 @@
     padding: 16px;
   }
 }
+
 .drawer:not(.drawer--collapsed) + main {
   @media (min-width: 1200px) {
     .search_form {

@@ -85,6 +85,9 @@ function DeliveryNoticeForm(props) {
    * Get addional picklist data
    */
   React.useEffect(() => {
+    if (props.clients.length) {
+      setOpenBackdrop(false)
+    }
     if (!props.clients.length) {
       props.fetchClients();
     } else if (!props.editMode) {
