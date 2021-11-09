@@ -45,6 +45,7 @@ class PrintableForms extends React.Component {
         inteluck.get(`/v1/wms/Warehouse/Delivery/Received_Item`, { params: dataObj })
         .then(response => {
             const resData = response.data;
+            console.log(resData)
 
             // format array
             // const arr = [{page: 1, rows: []}, {page: n, rows: []}];
@@ -167,9 +168,9 @@ class PrintableForms extends React.Component {
                                                 <TableRow key={rowItem.rowNum}>
                                                     <TableCell className="tbl-cell">{rowItem.rowNum}</TableCell>
                                                     <TableCell className="tbl-cell">{rowItem.product_name}</TableCell>
-                                                    <TableCell className="tbl-cell">{rowItem.external_code}</TableCell>
+                                                    <TableCell className="tbl-cell">{rowItem.item_code}</TableCell>
                                                     <TableCell className="tbl-cell">{rowItem.actual_quantity}</TableCell>
-                                                    <TableCell className="tbl-cell">{rowItem.unit}</TableCell>
+                                                    <TableCell className="tbl-cell">{rowItem.uom_type}</TableCell>
                                                     <TableCell className="tbl-cell">{moment(new Date(rowItem.actual_arrived_date_time)).format('L')}</TableCell>
                                                 </TableRow>
                                             ))

@@ -3,7 +3,7 @@ import _ from 'lodash';
 import './style.scss';
 import { connect } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
-import { fetchClients, fetchUOM } from 'actions/picklist';
+import { fetchClients, fetchUOM, fetchStorageType } from 'actions/picklist';
 import Dropzone from 'components/Dropzone';
 import ButtonGroup from 'components/_ButtonGroup';
 import Typography from '@mui/material/Typography';
@@ -26,7 +26,7 @@ function WarehouseMasterDataSKUForm(props) {
 
   const { handleSubmit, errors, control, formState, setValue, getValues } = useForm({
     shouldFocusError: false,
-    mode: 'onChange'
+    mode: 'onTouched'
   });
 
   const formActionModal = document.querySelector('.form__actions-container');
@@ -96,6 +96,7 @@ function WarehouseMasterDataSKUForm(props) {
       props.fetchClients();
     }
     props.fetchUOM();
+    props.fetchStorageType();
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
@@ -105,6 +106,18 @@ function WarehouseMasterDataSKUForm(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.clients]);
+
+  React.useEffect(() => {
+    console.log(getValues('externalCode'))
+    onChangeHandler()
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, []);
+  // console.log(getValues('productName'))
+  // console.log(hasChanged)
+  const [code, setCode] = React.useState(null)
+  const onChangeHandler = event => {
+    setInterval(function(){ setCode(getValues('productName') + '-' + getValues('externalCode'))  }, 1000);
+  };
 
   return (
     <form onSubmit={handleSubmit(__submit)} className="sku-form">
@@ -118,7 +131,6 @@ function WarehouseMasterDataSKUForm(props) {
                 <TextField
                   variant="outlined"
                   type="text"
-                  inputProps={{ maxLength: 40 }}
                   fullWidth
                   required
                 />
@@ -141,8 +153,8 @@ function WarehouseMasterDataSKUForm(props) {
                   variant="outlined"
                   type="text"
                   required
-                  inputProps={{ maxLength: 40 }}
                   fullWidth
+                  onChange={console.log('wew')}
                 />
               }
               name="externalCode"
@@ -155,22 +167,15 @@ function WarehouseMasterDataSKUForm(props) {
           </Grid>
           <Grid item xs={12} md={6}>
             <label className="paper__label">Code</label>
-            <Controller
-              as={
-                <TextField
-                  variant="outlined"
-                  type="text"
-                  required
-                  inputProps={{ maxLength: 40 }}
-                  fullWidth
-                />
-              }
-              name="code"
-              control={control}
-              rules={{ required: "This field is required" }}
-              defaultValue=""
-              onInput={() => setHasChanged(true)}
-            />
+              <TextField
+                variant="outlined"
+                style={{backgroundColor: '#F2F2F2'}}
+                type="text"
+                disabled
+                value={code}
+                required
+                fullWidth
+              />
             {errors.code && <FormHelperText error>{errors.code.message}</FormHelperText>}
           </Grid>
         </Grid>
@@ -225,20 +230,6 @@ function WarehouseMasterDataSKUForm(props) {
           <Grid item xs={12} md={6}>
             <label className="paper__label">Unit of Measurement</label>
             <Controller
-              // as={
-              //   <Select
-              //     variant="outlined"
-              //     fullWidth
-              //     required
-              //     defaultValue=""
-              //     displayEmpty={true}>
-              //     <MenuItem value="Roll">Roll</MenuItem>
-              //     <MenuItem value="Pallet">Pallet</MenuItem>
-              //     <MenuItem value="Carton">Carton</MenuItem>
-              //     <MenuItem value="Piece">Piece</MenuItem>
-              //     <MenuItem value="Bundle">Bundle</MenuItem>
-              //   </Select>
-              // }
               as={
                 <Select
                   variant="outlined"
@@ -381,11 +372,15 @@ function WarehouseMasterDataSKUForm(props) {
                 <Select
                   variant="outlined"
                   fullWidth
-                  defaultValue=""
-                  displayEmpty={true}>
-                  <MenuItem value="Standard">Standard</MenuItem>
-                  <MenuItem value="Temperature Control">Temperature Control</MenuItem>
-                  <MenuItem value="Others">Others</MenuItem>
+                  required
+                  displayEmpty={true}
+                > 
+                  {
+                    !props.storage_type ? null :
+                    props.storage_type.map(type => {
+                      return <MenuItem key={type.Id} value={type.Description}>{type.Description}</MenuItem>
+                    })
+                  } 
                 </Select>
               }
               control={control}
@@ -477,8 +472,9 @@ function WarehouseMasterDataSKUForm(props) {
 const mapStateToProps = state => {
   return {
     clients: state.picklist.clients,
-    uom: state.picklist.uom
+    uom: state.picklist.uom,
+    storage_type: state.picklist.storage_type
   }
 }
 
-export default connect(mapStateToProps, { fetchClients, fetchUOM })(WarehouseMasterDataSKUForm);
+export default connect(mapStateToProps, { fetchClients, fetchUOM, fetchStorageType })(WarehouseMasterDataSKUForm);
