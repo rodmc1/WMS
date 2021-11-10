@@ -57,6 +57,7 @@ function DeliveryNoticeSKU(props) {
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
   const [alertConfig, setAlertConfig] = React.useState({ severity: 'info', message: 'loading...' });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
+  const isAllSelected = items.length > 0 && items.length === SKU.length;
 
   const routes = [
     {
@@ -95,6 +96,16 @@ function DeliveryNoticeSKU(props) {
       setItems(items.filter(sku => sku.item_id !== item.item_id));
     } else {
       setItems(oldArray => [...oldArray, item]);
+    }
+  }
+  
+  const checkAll = () => {
+    if (isAllSelected) {
+      setItems([]);
+      setIsChecked([]);
+    } else {
+      setIsChecked(SKU.map(sku => sku.item_id));
+      setItems(SKU.map(sku => sku));
     }
   }
 
@@ -466,6 +477,10 @@ function DeliveryNoticeSKU(props) {
                     }
                   />
                   <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}> 
+                    <MenuItem value="all" onClick={checkAll}>
+                      <Checkbox checked={isAllSelected}/>
+                      <ListItemText primary="Select All"/>
+                    </MenuItem>
                     {SKU.map((item) => (
                       <MenuItem key={item.item_id} value={item.product_name} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.item_id))} >
                         <Checkbox checked={isChecked.includes(item.item_id)} />

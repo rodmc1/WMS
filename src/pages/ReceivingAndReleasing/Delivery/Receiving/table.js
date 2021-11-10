@@ -44,6 +44,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import ListItemIcon from '@mui/material/ListItemIcon';
 
 // package for print
 import ReactToPrint from 'react-to-print';
@@ -210,6 +211,7 @@ function Table_(props) {
   const [items, setItems] = useState([]);
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
   const [disableExcelbtn, setDisableExcelbtn] = useState(false);
+  const isAllSelected = items.length > 0 && items.length === SKU.length;
 
   const handleToggle = () => {
     setOpenAddItems((prevOpen) => !prevOpen);
@@ -268,6 +270,16 @@ function Table_(props) {
       setItems(items.filter(sku => sku.delivery_notice_item !== item.delivery_notice_item));
     } else {
       setItems(oldArray => [...oldArray, item]);
+    }
+  }
+
+  const checkAll = () => {
+    if (isAllSelected) {
+      setItems([]);
+      setIsChecked([]);
+    } else {
+      setIsChecked(SKU.map(sku => sku.delivery_notice_item));
+      setItems(SKU.map(sku => sku));
     }
   }
 
@@ -878,7 +890,7 @@ function Table_(props) {
     if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouse]);
-  
+
   return (
     <React.Fragment>
       <div className={classes.toolbar}>
@@ -891,7 +903,6 @@ function Table_(props) {
           transition
           disablePortal
           placement='bottom-end'
-          modifiers={{ offset: { enabled: true, offset: '40, 0' }}}
         >
           {({ TransitionProps }) => (
             <Grow {...TransitionProps} style={{ transformOrigin: "center top" }}>
@@ -912,6 +923,10 @@ function Table_(props) {
                   }
                 />
                 <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}> 
+                  <MenuItem value="all" onClick={checkAll}>
+                    <Checkbox checked={isAllSelected}/>
+                    <ListItemText primary="Select All"/>
+                  </MenuItem>
                   {SKU.map((item) => (
                     <MenuItem key={item.delivery_notice_item} value={item.external_material_description} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.delivery_notice_item))} >
                       <Checkbox checked={isChecked.includes(item.delivery_notice_item)} />
