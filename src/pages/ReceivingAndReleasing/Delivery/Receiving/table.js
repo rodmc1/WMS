@@ -899,7 +899,6 @@ function Table_(props) {
           className="items-popover"
           open={openAddItems}
           anchorEl={anchorRef.current}
-          role={undefined}
           transition
           disablePortal
           placement='bottom-end'
@@ -916,11 +915,6 @@ function Table_(props) {
                   fullWidth
                   placeholder="Search"
                   onChange={handleItemSearch}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <CircularProgress />
-                    </InputAdornment>
-                  }
                 />
                 <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}> 
                   <MenuItem value="all" onClick={checkAll}>
