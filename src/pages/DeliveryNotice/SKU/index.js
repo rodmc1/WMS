@@ -476,11 +476,13 @@ function DeliveryNoticeSKU(props) {
                       </InputAdornment>
                     }
                   />
-                  <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}> 
-                    <MenuItem value="all" onClick={checkAll}>
-                      <Checkbox checked={isAllSelected}/>
-                      <ListItemText primary="Select All"/>
-                    </MenuItem>
+                  <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}>
+                    {SKU.length ?
+                      <MenuItem value="all" onClick={checkAll}>
+                        <Checkbox checked={isAllSelected}/>
+                        <ListItemText primary="Select All"/>
+                      </MenuItem> : null
+                    }
                     {SKU.map((item) => (
                       <MenuItem key={item.item_id} value={item.product_name} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.item_id))} >
                         <Checkbox checked={isChecked.includes(item.item_id)} />
