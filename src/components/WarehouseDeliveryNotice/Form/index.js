@@ -11,7 +11,7 @@ import Grid from '@mui/material/Grid';
 import Dropzone from 'components/Dropzone';
 import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
+import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -85,6 +85,9 @@ function DeliveryNoticeForm(props) {
    * Get addional picklist data
    */
   React.useEffect(() => {
+    if (props.clients.length) {
+      setOpenBackdrop(false)
+    }
     if (!props.clients.length) {
       props.fetchClients();
     } else if (!props.editMode) {

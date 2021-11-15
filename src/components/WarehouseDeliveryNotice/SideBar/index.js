@@ -4,7 +4,7 @@ import history from 'config/history';
 
 import List from '@mui/material/List';
 import Paper from '@mui/material/Paper';
-import ListItem from '@mui/material/ListItem';
+import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import WarehouseDialog from 'components/WarehouseDialog';
 import { deleteDeliveryNoticeById } from 'actions/index';

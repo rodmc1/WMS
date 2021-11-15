@@ -1,10 +1,12 @@
-import { FETCH_FACILITIES_AND_AMENITIES, FETCH_BUILDING_TYPES, FETCH_TRUCK_TYPES, FETCH_CLIENTS } from '../actions/types';
+import { FETCH_FACILITIES_AND_AMENITIES, FETCH_BUILDING_TYPES, FETCH_TRUCK_TYPES, FETCH_CLIENTS, FETCH_UOM, FETCH_STORAGE_TYPE } from '../actions/types';
 
 const initialState = {
   facilities_and_amenities: [],
   building_types: [],
   truck_types: [],
-  clients: []
+  uom: [],
+  clients: [],
+  storage_type: []
 }
 
 const picklistReducer = (state = initialState, action) => {
@@ -15,8 +17,12 @@ const picklistReducer = (state = initialState, action) => {
       return { ...state, building_types: action.payload };
     case FETCH_TRUCK_TYPES:
         return { ...state, truck_types: action.payload };
+    case FETCH_UOM:
+      return { ...state, uom: action.payload };
     case FETCH_CLIENTS:
       return { ...state, clients: action.payload };
+    case FETCH_STORAGE_TYPE:
+      return { ...state, storage_type: action.payload };
     default:
       return state;
   }

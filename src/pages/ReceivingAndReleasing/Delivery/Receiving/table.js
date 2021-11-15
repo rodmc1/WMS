@@ -44,6 +44,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 
 // package for print
 import ReactToPrint from 'react-to-print';
@@ -210,6 +213,8 @@ function Table_(props) {
   const [items, setItems] = useState([]);
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
   const [disableExcelbtn, setDisableExcelbtn] = useState(false);
+  const [applyInspected, setApplyInspected] = useState(null)
+  const isAllSelected = items.length > 0 && items.length === SKU.length;
 
   const handleToggle = () => {
     setOpenAddItems((prevOpen) => !prevOpen);
@@ -268,6 +273,16 @@ function Table_(props) {
       setItems(items.filter(sku => sku.delivery_notice_item !== item.delivery_notice_item));
     } else {
       setItems(oldArray => [...oldArray, item]);
+    }
+  }
+
+  const checkAll = () => {
+    if (isAllSelected) {
+      setItems([]);
+      setIsChecked([]);
+    } else {
+      setIsChecked(SKU.map(sku => sku.delivery_notice_item));
+      setItems(SKU.map(sku => sku));
     }
   }
 
@@ -648,7 +663,7 @@ function Table_(props) {
   
 
   // Hook Form
-  const { errors, control, getValues, setError, clearErrors  } = useForm({
+  const { errors, control, getValues, setError, clearErrors, setValue } = useForm({
     shouldFocusError: false,
     mode: 'onChange'
   });
@@ -878,7 +893,27 @@ function Table_(props) {
     if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.warehouse]);
-  
+
+  const getTableHead = (header) => {
+    if ((header === 'Actual Arrived Date' || header === 'Inspected by') && addMode) {
+      return <>{header} 
+        <Tooltip title="Apply to All"  sx={{ ml: 1, my: -0.6 }}>
+          <IconButton onClick={() => onApplyAll(header === 'Inspected by' ? 'inspectedBy' : 'date')}>
+            <PlaylistAddCheckIcon color="success"/>
+          </IconButton>
+        </Tooltip>
+      </>
+    } else return header
+  }
+
+  const onApplyAll = (type) => {
+    const id = Object.values(tableData)[0].delivery_notice_item;
+    const value = getValues(type + id);
+    tableData.forEach((item, i) => {
+      setValue(`${type}${item.delivery_notice_item}`,value)
+    });
+  }
+
   return (
     <React.Fragment>
       <div className={classes.toolbar}>
@@ -887,11 +922,9 @@ function Table_(props) {
           className="items-popover"
           open={openAddItems}
           anchorEl={anchorRef.current}
-          role={undefined}
           transition
           disablePortal
           placement='bottom-end'
-          modifiers={{ offset: { enabled: true, offset: '40, 0' }}}
         >
           {({ TransitionProps }) => (
             <Grow {...TransitionProps} style={{ transformOrigin: "center top" }}>
@@ -905,13 +938,14 @@ function Table_(props) {
                   fullWidth
                   placeholder="Search"
                   onChange={handleItemSearch}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <CircularProgress />
-                    </InputAdornment>
-                  }
                 />
                 <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}> 
+                  {SKU.length ?
+                    <MenuItem value="all" onClick={checkAll}>
+                      <Checkbox checked={isAllSelected}/>
+                      <ListItemText primary="Select All"/>
+                    </MenuItem> : null
+                  }
                   {SKU.map((item) => (
                     <MenuItem key={item.delivery_notice_item} value={item.external_material_description} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.delivery_notice_item))} >
                       <Checkbox checked={isChecked.includes(item.delivery_notice_item)} />
@@ -987,7 +1021,7 @@ function Table_(props) {
               <TableRow>
                 {headers.map((header, index) => (
                   index !== 0 && 
-                  <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
+                  <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{getTableHead(header)}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
@@ -1062,19 +1096,27 @@ function Table_(props) {
                         }}
                         InputProps={{ inputProps: { min: 0 }}}
                         defaultValue={0}
-                        as={<TextField variant="outlined" required type="number"  required fullWidth/>}
+                        as={<TextField variant="outlined" required type="number" required fullWidth/>}
                       /> : data.damaged
                     }
                   </TableCell>
                   <TableCell>
-                    {addMode ? 
+                    {addMode ?
                       <Controller 
                         name={`date${data.delivery_notice_item}`}
                         control={control}
                         rules={{ 
                           required: "This field is required"
                         }}
-                        as={<TextField variant="outlined" type="date" required fullWidth/>}
+                        defaultValue={''}
+                        as={
+                          <TextField
+                            variant="outlined"
+                            type="date"
+                            required
+                            fullWidth
+                          />
+                        }
                       /> :
                       moment(data.actual_arrived_date_time).format('MM-DD-YYYY')
                     }
@@ -1084,8 +1126,9 @@ function Table_(props) {
                       <Controller
                         name={`inspectedBy${data.delivery_notice_item}`}
                         control={control}
+                        defaultValue={''}
                         rules={{ required: "This field is required" }}
-                        as={<TextField variant="outlined" type="text" required className="notes" fullWidth/>}
+                        as={<TextField variant="outlined" type="text" required className="notes" fullWidth id={'inspected_by' + i}/>}
                       /> :
                       data.inspected
                     }

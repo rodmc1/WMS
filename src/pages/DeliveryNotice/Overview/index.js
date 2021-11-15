@@ -41,6 +41,7 @@ function DeliveryNoticeOverview(props) {
   ];
 
   const renderDocuments = (obj) => {
+    console.log(obj)
     const pdfIcon = '/assets/images/pdfIcon.svg';
     const preview = obj.delivery_notice_files.map(file => {
       return (
