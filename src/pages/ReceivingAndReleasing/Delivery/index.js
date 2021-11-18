@@ -20,6 +20,9 @@ import makeStyles from '@mui/styles/makeStyles';
 import Breadcrumbs from 'components/Breadcrumbs';
 import DialogContent from '@mui/material/DialogContent';
 import CircularProgress from '@mui/material/CircularProgress';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
 
 const cookie = new Cookie();
 
@@ -368,6 +371,56 @@ function DeliveryList(props) {
           <Button variant="contained" className="btn btn--emerald btn-csv" disableElevation onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
+      <Grid container spacing={2} className="delivery-overview">
+        <Grid item xs={2}>
+          <Paper elevation={1}>
+            <Typography>Warehouse</Typography>
+            <Typography variant="body2" display="block">
+              Warehouse
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={2}>
+          <Paper elevation={1}>
+            <Typography>test</Typography>
+            <Typography variant="body2" display="block">
+              Warehouse Client
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={2}>
+          <Paper elevation={1}>
+            <Typography>test</Typography>
+            <Typography variant="body2" display="block">
+              Transaction Type
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={2}>
+          <Paper elevation={1}>
+            <Typography>test</Typography>
+            <Typography variant="body2" display="block">
+              Expected Trucks
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={2}>
+          <Paper elevation={1}>
+            <Typography>test</Typography>
+            <Typography variant="body2" display="block">
+              Expected Items
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={2}>
+          <Paper elevation={1}>
+            <Typography>test</Typography>
+            <Typography variant="body2" display="block">
+              Documents Attached
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
       <Table 
         config={config}
         defaultData={tableData}

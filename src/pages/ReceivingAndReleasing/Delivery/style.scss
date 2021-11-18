@@ -92,9 +92,6 @@
   .btn.btn-csv {
     margin-left: 10px;
   }
-  .MuiIconButton-root {
-    padding: 10px;
-  }
   .no-results-row.MuiTableCell-root.MuiTableCell-body {
     padding: 25px;
   }
@@ -103,9 +100,6 @@
     overflow-x: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    &.MuiTableCell-head {
-      padding: 16px 9px;
-    }
     .MuiIconButton-colorPrimary {
       color: $emerald;
     }
@@ -113,11 +107,21 @@
       color: $red;
     }
   }
+  
+  .hover-button .hover-button--on {
+    visibility: hidden;
+  }
+  .hover-button:hover .hover-button--on {
+    visibility: visible;
+  }
 }
 
 .receiving-releasing-table {
   &:hover {
-    cursor: auto;
+    cursor: pointer;
+  }
+  .MuiTableCell-root, .MuiTableCell-root  {
+    padding: 9px 10px 9px 20px;
   }
   .notes {
     min-width: 100px !important;
@@ -145,5 +149,45 @@
   
   .MuiTableCell-root {
     padding: 14px 6px;
+  }
+}
+
+.delivery-overview {
+  margin-bottom: 15px;
+  .MuiPaper-root {
+    padding: 15px 12px;
+  }
+  .MuiTypography-body2 {
+    margin-top: 3px;
+    color: $gray;
+    font-size: 0.85rem;
+  }
+}
+
+.document-upload-dialog {
+  .MuiButton-root {
+    text-transform: none;
+    font-weight: normal;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  .MuiButton-outlined {
+    color: black;
+    border-color: lightgray;
+    &:hover {
+      border-color:lightgray !important;
+      opacity: 0.6;
+    }
+  }
+  .MuiButton-contained {
+    background-color: #009688;
+    &:hover {
+      background-color:#009688 !important;
+      opacity: 0.8;
+    }
+  }
+  .MuiDialogActions-root {
+    padding: 20px;
   }
 }

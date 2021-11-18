@@ -30,6 +30,8 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import CircularProgress from '@mui/material/CircularProgress';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import UploadDocument from './UploadDocument';
 
 const useStyles1 = makeStyles({
   root: {
@@ -138,6 +140,8 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
   const [tableData, setTableData] = React.useState([]);
+  const [openUpload, setOpenUpload] = React.useState(false);
+  const [uploadData, setUploadData] = React.useState(null);
 
   // Hook Form
   const { errors, control, getValues } = useForm({
@@ -198,6 +202,16 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
       setTableData(defaultData);
     }
   }, [defaultData]);
+
+  const handleOpenUpload = (event, data) => {
+    event.stopPropagation();
+    setOpenUpload(true);
+    setUploadData(data);
+  }
+
+  const handleClose = () => {
+    setOpenUpload(false);
+  }
   
   return (
     <React.Fragment>
@@ -239,7 +253,7 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
             onChangePage={handleChangePage}
             onChangeRowsPerPage={handleChangeRowsPerPage}
             ActionsComponent={TablePaginationActions}
-            />
+          />
         </div>
       </div>
       <Paper sx={{flexShrink: 0}}>
@@ -265,7 +279,7 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
                 </TableRow>
               }
               { !addMode ? Object.values(tableData).map((data, i) => 
-                <TableRow key={data.recieved_id} className="table__row receiving-releasing-table" onClick={() => onRowClick(data)} >
+                <TableRow key={data.recieved_id} className="table__row receiving-releasing-table hover-button" onClick={() => onRowClick(data)}>
                   <TableCell>{data.sku_count}</TableCell>
                   <TableCell>{data.container_van_no}</TableCell>
                   <TableCell>{data.serial_no}</TableCell>
@@ -275,6 +289,13 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
                   <TableCell>{moment( data.date_in).format('MM/DD/YYYY hh:mm a')}</TableCell>
                   <TableCell>{moment( data.date_out).format('MM/DD/YYYY hh:mm a')}</TableCell>
                   <TableCell>{data.notes}</TableCell>
+                  <TableCell>
+                    <Tooltip title="Upload Document" onClick={(e) => handleOpenUpload(e, data)}>
+                      <IconButton sx={{color: '#009688'}} aria-label="Upload Document">
+                        <UploadFileIcon className="hover-button--on" />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
                 </TableRow>
               ) : 
                 <TableRow className="table__row receiving-releasing-table-addmode">
@@ -339,6 +360,7 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
           </Table>
         </TableContainer>
       </Paper>
+      <UploadDocument data={uploadData} open={openUpload} handleClose={handleClose} />
     </React.Fragment>
   );
 }
