@@ -18,6 +18,7 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
+import { pink } from '@mui/material/colors';
 
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
@@ -942,13 +943,27 @@ function Table_(props) {
                 <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}> 
                   {SKU.length ?
                     <MenuItem value="all" onClick={checkAll}>
-                      <Checkbox checked={isAllSelected}/>
+                      <Checkbox
+                        checked={isAllSelected}
+                        sx={{
+                          '&.Mui-checked': {
+                            color: '#009688',
+                          },
+                        }}
+                      />
                       <ListItemText primary="Select All"/>
                     </MenuItem> : null
                   }
                   {SKU.map((item) => (
                     <MenuItem key={item.delivery_notice_item} value={item.external_material_description} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.delivery_notice_item))} >
-                      <Checkbox checked={isChecked.includes(item.delivery_notice_item)} />
+                      <Checkbox
+                        checked={isChecked.includes(item.delivery_notice_item)} 
+                        sx={{
+                          '&.Mui-checked': {
+                            color: '#009688',
+                          },
+                        }}
+                      />
                       <ListItemText primary={item.external_material_description} />
                     </MenuItem>
                   ))}

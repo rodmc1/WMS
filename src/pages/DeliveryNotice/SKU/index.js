@@ -19,7 +19,7 @@ import MuiAlert from '@mui/material/Alert';
 import Grow from "@mui/material/Grow";
 import Popper from "@mui/material/Popper";
 import Spinner from '@mui/material/Backdrop';
-import MenuItem from "@mui/material/MenuItem";
+import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from "@mui/material/MenuList";
 import Checkbox from '@mui/material/Checkbox';
 import Snackbar from '@mui/material/Snackbar';
@@ -28,7 +28,7 @@ import ListItemText from '@mui/material/ListItemText';
 import InputAdornment from '@mui/material/InputAdornment';
 import CircularProgress from '@mui/material/CircularProgress';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-
+import { pink } from '@mui/material/colors';
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -479,13 +479,29 @@ function DeliveryNoticeSKU(props) {
                   <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}>
                     {SKU.length ?
                       <MenuItem value="all" onClick={checkAll}>
-                        <Checkbox checked={isAllSelected}/>
+                        <Checkbox 
+                          checked={isAllSelected} 
+                          sx={{
+                            color: pink[800],
+                            '&.Mui-checked': {
+                              color: '#009688',
+                            },
+                          }}
+                        />
                         <ListItemText primary="Select All"/>
                       </MenuItem> : null
                     }
                     {SKU.map((item) => (
                       <MenuItem key={item.item_id} value={item.product_name} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.item_id))} >
-                        <Checkbox checked={isChecked.includes(item.item_id)} />
+                        <Checkbox 
+                          checked={isChecked.includes(item.item_id)}
+                          sx={{
+                            color: pink[800],
+                            '&.Mui-checked': {
+                              color: '#009688',
+                            },
+                          }}
+                        />
                         <ListItemText primary={item.product_name} />
                       </MenuItem>
                     ))}
