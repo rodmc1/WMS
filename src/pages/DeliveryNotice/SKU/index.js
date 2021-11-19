@@ -6,7 +6,7 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { createDeliveryNoticeSKU, fetchDeliveryNotices, fetchAllDeliveryNoticeSKU, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
+import { createDeliveryNoticeSKU, fetchDeliveryNotices, fetchAllDeliveryNoticeSKU, fetchDeliveryNoticeById, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
 import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
 import Breadcrumbs from 'components/Breadcrumbs';
 
@@ -58,6 +58,8 @@ function DeliveryNoticeSKU(props) {
   const [alertConfig, setAlertConfig] = React.useState({ severity: 'info', message: 'loading...' });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const isAllSelected = items.length > 0 && items.length === SKU.length;
+
+  console.log(props)
 
   const routes = [
     {
@@ -331,6 +333,8 @@ function DeliveryNoticeSKU(props) {
   React.useEffect(() => {
     if (props.notice) {
       setDeliveryNoticeData(props.notice);
+    } else {
+      props.fetchDeliveryNoticeById(props.match.params.id)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.notice]);
@@ -384,6 +388,7 @@ function DeliveryNoticeSKU(props) {
   }, [props.sku]);
 
   React.useEffect(() => {
+    // console.log(deliveryNoticeData)
     if (deliveryNoticeData) {
       setOpenBackdrop(true)
       props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
@@ -404,7 +409,11 @@ function DeliveryNoticeSKU(props) {
     if (props.sku) {
       setDeliveryNoticeSKU(props.sku.data);
       setOpenBackdrop(false);
-    }
+    } 
+    // if (deliveryNoticeData) {
+    //   props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
+    // }
+    console.log(props.match)
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
 
@@ -558,4 +567,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 };
 
-export default connect(mapStateToProps, { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU })(DeliveryNoticeSKU);
+export default connect(mapStateToProps, { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchDeliveryNoticeById })(DeliveryNoticeSKU);
