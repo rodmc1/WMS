@@ -59,8 +59,6 @@ function DeliveryNoticeSKU(props) {
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const isAllSelected = items.length > 0 && items.length === SKU.length;
 
-  console.log(props)
-
   const routes = [
     {
       label: 'Delivery Notice',
@@ -388,7 +386,6 @@ function DeliveryNoticeSKU(props) {
   }, [props.sku]);
 
   React.useEffect(() => {
-    // console.log(deliveryNoticeData)
     if (deliveryNoticeData) {
       setOpenBackdrop(true)
       props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
@@ -409,11 +406,7 @@ function DeliveryNoticeSKU(props) {
     if (props.sku) {
       setDeliveryNoticeSKU(props.sku.data);
       setOpenBackdrop(false);
-    } 
-    // if (deliveryNoticeData) {
-    //   props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
-    // }
-    console.log(props.match)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku]);
 
