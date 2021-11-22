@@ -208,27 +208,9 @@
   }
 
 
-  .MuiDropzonePreviewList-root.MuiGrid-spacing-xs-8 {
-    .MuiDropzonePreviewList-imageContainer.MuiGrid-item {
-      // padding: 0% 20% 0% 0% !important;
-      overflow: hidden;
-      .MuiDropzonePreviewList-removeButton {
-        opacity: 1;
-        color: white;
-        svg path {
-          d: path('M18.3,5.71 C17.91,5.32 17.28,5.32 16.89,5.71 L12,10.59 L7.11,5.7 C6.72,5.31 6.09,5.31 5.7,5.7 C5.31,6.09 5.31,6.72 5.7,7.11 L10.59,12 L5.7,16.89 C5.31,17.28 5.31,17.91 5.7,18.3 C6.09,18.69 6.72,18.69 7.11,18.3 L12,13.41 L16.89,18.3 C17.28,18.69 17.91,18.69 18.3,18.3 C18.69,17.91 18.69,17.28 18.3,16.89 L13.41,12 L18.3,7.11 C18.68,6.73 18.68,6.09 18.3,5.71 Z') !important;
-        }
-        svg.MuiSvgIcon-root {
-          font-size: 1rem;
-        }
-      }
-    }
-  }
-
-
   .MuiGrid-root.MuiDropzonePreviewList-imageContainer.MuiGrid-item.MuiGrid-grid-xs-4 {
-    max-width: 60%;
-    flex-basis: 60%;
+    max-width: 100%;
+    flex-basis: 100%;
     text-align: left;
     margin-bottom: 1%;
     margin-top: 1%;
@@ -238,18 +220,16 @@
       margin-right: 15px !important;
     }
 
-    // .MuiDropzonePreviewList-removeButton {
-    //   width: 35px;
-    //   height: 20px;
-    //   opacity: 1;
-    //   color: white;
-    //   @media (min-width: 1600px) {
-    //     left: 55% !important;
-    //   }
-    //   svg.MuiSvgIcon-root {
-    //     font-size: 1rem;
-    //   }
-    // }
+    .MuiDropzonePreviewList-removeButton {
+      bottom: 1%;
+      color: white;
+      // @media (min-width: 1600px) {
+      //   left: 55% !important;
+      // }
+      svg.MuiSvgIcon-root {
+        font-size: 1rem;
+      }
+    }
   }
   .MuiFab-root {
     box-shadow: 0px 0px 0px 0px !important;

@@ -19,7 +19,9 @@ import Collapse from '@mui/material/Collapse';
 import { DropzoneArea } from 'material-ui-dropzone';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-
+// import { Document, Page } from 'react-pdf';
+import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
+import { borderRadius } from '@mui/system';
 /*
  * @props string { diaglogText, dialogTitle, buttonConfirmText, buttonCancelText}
  * @props dialogAction invoke props function when user click confirm button
@@ -27,9 +29,37 @@ import Paper from '@mui/material/Paper';
  */
 const UploadDocuments = props => {
   const [open, setOpen] = React.useState(false);
+  const [file, setFile] = React.useState(null);
   const [itemData, setItemData] = React.useState(false);
   const pdfIcon = '/assets/images/pdfIcon.svg';
   const docxIcon = '/assets/images/docIcon.svg';
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [scale, setScale] = useState(1)
+  const [rotate, setRotate] = useState(0)
+
+  console.log(file)
+
+  function onDocumentLoadSuccess({ numPages }) {
+    setPageNumber(1);
+    setNumPages(numPages);
+  }
+
+  function onRotate() {
+    setRotate(rotate + 90);
+  }
+
+  function changePage(offset) {
+    setPageNumber(prevPageNumber => prevPageNumber + offset);
+  }
+
+  function previousPage() {
+    changePage(-1);
+  }
+
+  function nextPage() {
+    changePage(1);
+  }
 
   // Open dialog if props openDialog is true
   React.useEffect(() => {
@@ -37,12 +67,20 @@ const UploadDocuments = props => {
     if (props.data) setItemData(props.data);
   }, [props]);
 
+  // Open dialog if props openDialog is true
+  React.useEffect(() => {
+    if (!open) {
+
+    }
+  }, [open]);
+
   /*
    * Customize Preview icon and label
    * @args file data
    * @return image and label with collapse button
    */
   const handlePreviewIcon = file => {
+    setFile(file.file)
     const string = file.file.name;
     const length = 40;
     const fileName = string.length > length ? `${string.substring(0, length - 3)}...` : string;
@@ -50,7 +88,28 @@ const UploadDocuments = props => {
 
     return (
       <React.Fragment>
+        <div style={{border: '1px solid lightgrey', borderRadius: 4,overflow: "hidden"}}>
+          <Document file={file.file} onLoadSuccess={onDocumentLoadSuccess}>
+            <Page pageNumber={pageNumber} scale={scale} rotate={rotate}/>
+          </Document>
+          <p>
+            Page {pageNumber || (numPages ? 1 : "--")} of {numPages || "--"}
+          </p>
+          <button type="button" disabled={pageNumber <= 1} onClick={previousPage}>
+            Previous
+          </button>
+          <button
+            type="button"
+            disabled={pageNumber >= numPages}
+            onClick={nextPage}
+          >
+            Next
+          </button>
+          <button type="button" onClick={() => setRotate(rotate + 90)}>Rotate +</button>
+          <button type="button" onClick={() => setRotate(rotate - 90)}>Rotate -</button>
+        </div>
         <div>
+          <Typography variant="body2" style={{marginTop: 15}}><small>Uploaded Document</small></Typography>
           <Badge><img className="doc-img" src={previewIcon} alt={file.file.name} /></Badge>
           <Badge><Typography variant='subtitle2'>{fileName}</Typography></Badge>
         </div>
@@ -78,11 +137,13 @@ const UploadDocuments = props => {
           sx={{marginTop: 50}}
           showAlerts={['error']}
           acceptedFiles={['application/*']}
+          clearOnUnmount
           filesLimit={1}
           previewGridClasses={{ root: 'dropzone__list' }}
           getPreviewIcon={file => handlePreviewIcon(file)}
-          previewText="Uploaded file"
+          previewText={false}
           showPreviews
+          onChange={() => setPageNumber(1)}
           showPreviewsInDropzone={false}
           classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
         />

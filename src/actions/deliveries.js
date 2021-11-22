@@ -32,6 +32,15 @@ export const fetchAllReceivingAndReleasingByCode = id => {
 }
 
 /**
+ * For Delivery Notice Download CSV
+ */
+ export const fetchReceivingByCode = code => {
+  return inteluck.get(`/v1/wms/Warehouse/Delivery_Notice`, { 
+    params: { filter: code }
+  });
+}
+
+/**
  * For Delivery Notice SKU by id CSV
  */
  export const searchReceivingAndReleasingSKU = params => {

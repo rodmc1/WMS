@@ -6,7 +6,7 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { createReceivingAndReleasing, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
+import { createReceivingAndReleasing, fetchReceivingByCode, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
 
 import Table from './table';
 import Receiving from './Receiving';
@@ -75,6 +75,9 @@ function DeliveryList(props) {
   const [receivingDialog, setReceivingDialog] = React.useState(false);
   const [receivingDialogData, setReceivingDialogData] = React.useState([]);
   const [itemCount, setItemCount] = useState([]);
+  const [receivingAndReleasing, setReceivingAndReleasing] = useState(null);
+  const [expectedItems, setExpectedItems] = useState(0);
+  const [expectedTrucks, setExpectedTrucks] = useState(0);
   const rowsPerPage = config.rowsPerPage;
 
   const routes = [
@@ -145,6 +148,52 @@ function DeliveryList(props) {
       });
     }
   };
+
+  /**
+   * Fetch page data
+   */ 
+  const fetchRecivingData = async () => {
+    await fetchReceivingByCode(props.match.params.id).then(response => {
+      setReceivingAndReleasing(response.data[0])
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
+  }
+
+  const getExpectedTrucksAndItems = (data) => {
+    console.log(tableData);
+    let trucks = [];
+    let items = [];
+    let totalTrucks = 0;
+    let totalOverTrucks = 0;
+    let totalItems = 0;
+    let totalOverItems = 0;
+
+    Object.entries(data).forEach(key => {
+      trucks.push((key[1].expected_trucks.split('/')))
+      items.push((key[1].expected_items.split('/')))
+    });
+
+    trucks.forEach(item => {
+      totalTrucks += Number(item[0]);
+      totalOverTrucks += Number(item[1]);
+    });
+
+    items.forEach(item => {
+      totalItems += Number(item[0]);
+      totalOverItems += Number(item[1]);
+    });
+    
+    setExpectedItems(totalItems + '/' + Number(totalOverItems.toFixed(1)));
+    setExpectedTrucks(totalTrucks + '/' + Number(totalOverTrucks.toFixed(1)));
+  }
+
+  // Fetch new data if search values was erased
+  React.useEffect(() => {
+    if (!receivingAndReleasing) {
+      fetchRecivingData()
+    }
+  }, []);
 
   // Fetch new data if search values was erased
   React.useEffect(() => {
@@ -314,6 +363,7 @@ function DeliveryList(props) {
       setTableData(props.receivingAndReleasing.data);
       setItemCount(props.receivingAndReleasing.count);
       setOpenBackdrop(false);
+      getExpectedTrucksAndItems(props.receivingAndReleasing.data)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.receivingAndReleasing]);
@@ -371,56 +421,58 @@ function DeliveryList(props) {
           <Button variant="contained" className="btn btn--emerald btn-csv" disableElevation onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
-      <Grid container spacing={2} className="delivery-overview">
-        <Grid item xs={2}>
-          <Paper elevation={1}>
-            <Typography>Warehouse</Typography>
-            <Typography variant="body2" display="block">
-              Warehouse
-            </Typography>
-          </Paper>
+      {receivingAndReleasing && 
+        <Grid container spacing={2} className="delivery-overview">
+          <Grid item xs={2}>
+            <Paper elevation={1}>
+              <Typography>{receivingAndReleasing.warehouse_name}</Typography>
+              <Typography variant="body2" display="block">
+                Warehouse
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper elevation={1}>
+              <Typography>{receivingAndReleasing.warehouse_client}</Typography>
+              <Typography variant="body2" display="block">
+                Warehouse Client
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper elevation={1}>
+              <Typography>{receivingAndReleasing.transaction_type}</Typography>
+              <Typography variant="body2" display="block">
+                Transaction Type
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper elevation={1}>
+              <Typography>{expectedTrucks}</Typography>
+              <Typography variant="body2" display="block">
+                Expected Trucks
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper elevation={1}>
+              <Typography>{expectedItems}</Typography>
+              <Typography variant="body2" display="block">
+                Expected Items
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper elevation={1}>
+              <Typography>{0}</Typography>
+              <Typography variant="body2" display="block">
+                Documents Attached
+              </Typography>
+            </Paper>
+          </Grid>
         </Grid>
-        <Grid item xs={2}>
-          <Paper elevation={1}>
-            <Typography>test</Typography>
-            <Typography variant="body2" display="block">
-              Warehouse Client
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={2}>
-          <Paper elevation={1}>
-            <Typography>test</Typography>
-            <Typography variant="body2" display="block">
-              Transaction Type
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={2}>
-          <Paper elevation={1}>
-            <Typography>test</Typography>
-            <Typography variant="body2" display="block">
-              Expected Trucks
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={2}>
-          <Paper elevation={1}>
-            <Typography>test</Typography>
-            <Typography variant="body2" display="block">
-              Expected Items
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={2}>
-          <Paper elevation={1}>
-            <Typography>test</Typography>
-            <Typography variant="body2" display="block">
-              Documents Attached
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
+      }
       <Table 
         config={config}
         defaultData={tableData}
