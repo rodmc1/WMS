@@ -228,11 +228,20 @@
 
   .viewer-actions {
     background-color: #333333;
-    color: #E9E9E9;
-    padding: 5px 5px;
+    color: #E9E9E9 !important;
     
     .MuiButtonBase-root.Mui-disabled {
-      color: #E9E9E9;
+      color: #E9E9E9 !important;
+    }
+    .MuiButtonBase-root {
+      color: #E9E9E9 !important;
+      padding: 5px 2px !important;
+    }
+    .MuiButtonBase-root:first-child {
+      margin-left: 10px !important;
+    }
+    .MuiButtonBase-root:last-child {
+      margin-right: 10px !important;
     }
     .MuiSvgIcon-root {
       margin: 3px;
@@ -240,6 +249,17 @@
     .button-group {
       margin-right: 4px
     }
+  }
+
+  .with-existing-file {
+    span.MuiTypography-root {
+      font-size: 0.875rem !important;
+    }
+    margin-left: 12px;
+  }
+
+  small {
+    color: $gray
   }
 
   .MuiGrid-root.MuiDropzonePreviewList-imageContainer.MuiGrid-item.MuiGrid-grid-xs-4 {

@@ -147,3 +147,8 @@ export const uploadDocument = (id, received_id, type, files) => {
     }
   });
 }
+
+// Fetch Receiving uploaded files 
+export const fetchDocument = id => {
+  return inteluck.get(`v1/wms/Warehouse/Delivery-Received-Documents-Get?received_id=${id}`);
+}

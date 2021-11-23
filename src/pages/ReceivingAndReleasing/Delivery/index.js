@@ -308,7 +308,7 @@ function DeliveryList(props) {
     setAlertConfig({ severity: 'info', message: 'Uploading Document...' });
     setOpenSnackBar(true);
 
-    uploadDocument(id, recievedId, type, file)
+    uploadDocument(id, recievedId, type, [file])
       .then(response => {
         if (response.status === 201) {
           setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
@@ -511,6 +511,7 @@ function DeliveryList(props) {
         addMode={addMode}
         onRowClick={handleRowClick}
         handleUploadDocument={handleUploadDocument}
+        receivingAndReleasing={receivingAndReleasing}
       />
       <Dialog open={receivingDialog} onClose={handleModalClose} classes={{ paper: classes.dialogPaper }} maxWidth={'xl'} fullWidth aria-labelledby="form-dialog-title">
         <DialogContent >
