@@ -32,6 +32,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import CircularProgress from '@mui/material/CircularProgress';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import UploadDocument from './UploadDocument';
+import useForceUpdate from 'use-force-update';
 
 const useStyles1 = makeStyles({
   root: {
@@ -134,7 +135,7 @@ const useStyles2 = makeStyles({
   },
 });
 
-export default function Table_({ onSubmit, addMode, onError, defaultData, searchLoading, handleRowCount, query, total, config, onInputChange, onPaginate, onRowClick, handleCancel }) {
+export default function Table_({ onSubmit, handleUploadDocument, addMode, onError, defaultData, searchLoading, handleRowCount, query, total, config, onInputChange, onPaginate, onRowClick, handleCancel }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
@@ -142,6 +143,7 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
   const [tableData, setTableData] = React.useState([]);
   const [openUpload, setOpenUpload] = React.useState(false);
   const [uploadData, setUploadData] = React.useState(null);
+  const forceUpdate = useForceUpdate();
 
   // Hook Form
   const { errors, control, getValues } = useForm({
@@ -210,6 +212,7 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
   }
 
   const handleClose = () => {
+    forceUpdate();
     setOpenUpload(false);
   }
   
@@ -360,7 +363,7 @@ export default function Table_({ onSubmit, addMode, onError, defaultData, search
           </Table>
         </TableContainer>
       </Paper>
-      <UploadDocument data={uploadData} open={openUpload} handleClose={handleClose} />
+      {openUpload && <UploadDocument data={uploadData} open={openUpload} handleClose={handleClose} handleUploadDocument={handleUploadDocument} />}
     </React.Fragment>
   );
 }

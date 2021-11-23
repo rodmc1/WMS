@@ -121,7 +121,7 @@
     cursor: pointer;
   }
   .MuiTableCell-root, .MuiTableCell-root  {
-    padding: 9px 10px 9px 20px;
+    padding: 9px 10px 9px 20px !important;
   }
   .notes {
     min-width: 100px !important;
@@ -165,16 +165,35 @@
 }
 
 .document-upload-dialog {
+  .slide-description {
+    margin-bottom: 25px;
+    margin-top: 8px;
+  }
+  .MuiListItemText-primary {
+    color: black !important;
+    font-size: 0.9rem !important;
+  }
+  .MuiListItemText-secondary {
+    margin-top: 2px;
+    font-size: 0.75rem;
+  }
+  .MuiListItem-root {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
   .MuiButton-root {
     text-transform: none;
     font-weight: normal;
+    padding: 5px 6px;
+    border-radius: 3px;
     &:hover {
       opacity: 0.8;
     }
   }
+
   .MuiButton-outlined {
     color: black;
-    border-color: lightgray;
+    border: 1px solid lightgray;
     &:hover {
       border-color:lightgray !important;
       opacity: 0.6;
@@ -182,6 +201,7 @@
   }
   .MuiButton-contained {
     background-color: #009688;
+    color: #E9E9E9;
     &:hover {
       background-color:#009688 !important;
       opacity: 0.8;
@@ -195,7 +215,6 @@
     font-size: 1rem;
   }
   .MuiTypography-body1 {
-    margin-bottom: 25px;
     font-weight: normal;
     font-size: 1rem;
     color: rgba(0, 0, 0, 0.87)
@@ -207,6 +226,21 @@
     margin-top: 8px;
   }
 
+  .viewer-actions {
+    background-color: #333333;
+    color: #E9E9E9;
+    padding: 5px 5px;
+    
+    .MuiButtonBase-root.Mui-disabled {
+      color: #E9E9E9;
+    }
+    .MuiSvgIcon-root {
+      margin: 3px;
+    }
+    .button-group {
+      margin-right: 4px
+    }
+  }
 
   .MuiGrid-root.MuiDropzonePreviewList-imageContainer.MuiGrid-item.MuiGrid-grid-xs-4 {
     max-width: 100%;
@@ -219,13 +253,9 @@
       width: 40px !important;
       margin-right: 15px !important;
     }
-
     .MuiDropzonePreviewList-removeButton {
       bottom: 1%;
       color: white;
-      // @media (min-width: 1600px) {
-      //   left: 55% !important;
-      // }
       svg.MuiSvgIcon-root {
         font-size: 1rem;
       }
@@ -235,8 +265,7 @@
     box-shadow: 0px 0px 0px 0px !important;
   }
   span.MuiTypography-root {
-    color: #828282 !important;
+    color: #828282;
     font-size: 0.8rem;
   }
-
 }

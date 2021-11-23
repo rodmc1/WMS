@@ -23,6 +23,8 @@ function Dropzone(props) {
   const [initialDocs, setInitialDocs] = React.useState([]);
   const [initialImages, setInitialImages] = React.useState([]);
   const [showPreviewText, setShowPreviewText] = React.useState(false);
+
+  console.log(initialImages)
   
   const pdfIcon = '/assets/images/pdfIcon.svg';
   const docxIcon = '/assets/images/docIcon.svg';

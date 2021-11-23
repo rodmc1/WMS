@@ -6,7 +6,7 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { createReceivingAndReleasing, fetchReceivingByCode, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
+import { createReceivingAndReleasing, uploadDocument, fetchReceivedDocumentType, fetchReceivingByCode, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
 
 import Table from './table';
 import Receiving from './Receiving';
@@ -161,7 +161,6 @@ function DeliveryList(props) {
   }
 
   const getExpectedTrucksAndItems = (data) => {
-    console.log(tableData);
     let trucks = [];
     let items = [];
     let totalTrucks = 0;
@@ -303,6 +302,33 @@ function DeliveryList(props) {
       });
   }
 
+  const handleUploadDocument = (id, recievedId, type, file) => {
+    setOpenBackdrop(true);
+    setOpenSnackBar(false);
+    setAlertConfig({ severity: 'info', message: 'Uploading Document...' });
+    setOpenSnackBar(true);
+
+    uploadDocument(id, recievedId, type, file)
+      .then(response => {
+        if (response.status === 201) {
+          setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+          props.fetchAllReceivingAndReleasingById({
+            count: rowsPerPage,
+            after: page * rowCount,
+            filter: props.match.params.id
+          });
+        }
+      })
+      .catch(error => {
+        const regex = new RegExp('P0001:');
+        if (regex.test(error.response.data.message)) {
+          return
+        } else {
+          dispatchError(dispatch, THROW_ERROR, error);
+        }
+      });
+  }
+
   /**
    * Invoke alert with error message
    */
@@ -352,6 +378,11 @@ function DeliveryList(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
+  // Set new warehouse data with searched items
+  React.useEffect(() => {
+    props.fetchReceivedDocumentType()
+  }, []);
+
   React.useEffect(() => {
     if (props.receivingAndReleasing && Array.isArray(tableData)) {
       setTableData(props.receivingAndReleasing.data);
@@ -362,8 +393,8 @@ function DeliveryList(props) {
     if (props.receivingAndReleasing) {
       setTableData(props.receivingAndReleasing.data);
       setItemCount(props.receivingAndReleasing.count);
+      getExpectedTrucksAndItems(props.receivingAndReleasing.data);
       setOpenBackdrop(false);
-      getExpectedTrucksAndItems(props.receivingAndReleasing.data)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.receivingAndReleasing]);
@@ -422,8 +453,8 @@ function DeliveryList(props) {
         </div>
       </div>
       {receivingAndReleasing && 
-        <Grid container spacing={2} className="delivery-overview">
-          <Grid item xs={2}>
+        <Grid container spacing={3} className="delivery-overview">
+          <Grid item xs>
             <Paper elevation={1}>
               <Typography>{receivingAndReleasing.warehouse_name}</Typography>
               <Typography variant="body2" display="block">
@@ -431,7 +462,7 @@ function DeliveryList(props) {
               </Typography>
             </Paper>
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs>
             <Paper elevation={1}>
               <Typography>{receivingAndReleasing.warehouse_client}</Typography>
               <Typography variant="body2" display="block">
@@ -439,7 +470,7 @@ function DeliveryList(props) {
               </Typography>
             </Paper>
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs>
             <Paper elevation={1}>
               <Typography>{receivingAndReleasing.transaction_type}</Typography>
               <Typography variant="body2" display="block">
@@ -447,7 +478,7 @@ function DeliveryList(props) {
               </Typography>
             </Paper>
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs>
             <Paper elevation={1}>
               <Typography>{expectedTrucks}</Typography>
               <Typography variant="body2" display="block">
@@ -455,19 +486,11 @@ function DeliveryList(props) {
               </Typography>
             </Paper>
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs>
             <Paper elevation={1}>
               <Typography>{expectedItems}</Typography>
               <Typography variant="body2" display="block">
                 Expected Items
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={2}>
-            <Paper elevation={1}>
-              <Typography>{0}</Typography>
-              <Typography variant="body2" display="block">
-                Documents Attached
               </Typography>
             </Paper>
           </Grid>
@@ -487,6 +510,7 @@ function DeliveryList(props) {
         total={itemCount}
         addMode={addMode}
         onRowClick={handleRowClick}
+        handleUploadDocument={handleUploadDocument}
       />
       <Dialog open={receivingDialog} onClose={handleModalClose} classes={{ paper: classes.dialogPaper }} maxWidth={'xl'} fullWidth aria-labelledby="form-dialog-title">
         <DialogContent >
@@ -512,8 +536,8 @@ const mapStateToProps = (state, ownProps) => {
     searched: state.receiving_releasing.search,
     notice: state.notice.data[ownProps.match.params.id],
     sku: state.notice.sku,
-    receivingAndReleasing: state.receiving_releasing
+    receivingAndReleasing: state.receiving_releasing,
   }
 };
 
-export default connect(mapStateToProps, { searchReceivingAndReleasing, fetchAllReceivingAndReleasingById, fetchDeliveryNoticeById, searchDeliveryNoticeSKU })(DeliveryList);
+export default connect(mapStateToProps, { searchReceivingAndReleasing, fetchReceivedDocumentType, fetchAllReceivingAndReleasingById, fetchDeliveryNoticeById, searchDeliveryNoticeSKU })(DeliveryList);

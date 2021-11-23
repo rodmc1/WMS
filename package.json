@@ -47,6 +47,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "universal-cookie": "^4.0.4",
+    "use-force-update": "^1.0.7",
     "use-screen-size": "^1.1.0",
     "validator": "^13.5.2",
     "web-vitals": "^1.1.0",
