@@ -169,8 +169,17 @@ function DeliveryList(props) {
     let totalOverItems = 0;
 
     Object.entries(data).forEach(key => {
-      trucks.push((key[1].expected_trucks.split('/')))
-      items.push((key[1].expected_items.split('/')))
+      if (key[1].expected_trucks) {
+        trucks.push((key[1].expected_trucks.split('/')))
+      } else {
+        trucks.push([0, 1])
+      }
+
+      if ((key[1].expected_items)) {
+        items.push((key[1].expected_items.split('/')))
+      } else {
+        trucks.push([0, 1])
+      }
     });
 
     trucks.forEach(item => {
@@ -455,16 +464,33 @@ function DeliveryList(props) {
       {receivingAndReleasing && 
         <Grid container spacing={3} className="delivery-overview">
           <Grid item xs>
-            <Paper elevation={1}>
-              <Typography>{receivingAndReleasing.warehouse_name}</Typography>
+            <Paper 
+              elevation={1}
+              title={receivingAndReleasing.warehouse_name}
+              style={{
+                maxWidth: '350px',
+                overflowX: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+              <Typography>{receivingAndReleasing.warehouse_name.replace(/(.{35})..+/, "$1…")}</Typography>
               <Typography variant="body2" display="block">
                 Warehouse
               </Typography>
             </Paper>
           </Grid>
           <Grid item xs>
-            <Paper elevation={1}>
-              <Typography>{receivingAndReleasing.warehouse_client}</Typography>
+            <Paper 
+              elevation={1}
+              title={receivingAndReleasing.warehouse_client}
+              style={{
+                maxWidth: '400px',
+                overflowX: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <Typography>{receivingAndReleasing.warehouse_client.replace(/(.{40})..+/, "$1…")}</Typography>
               <Typography variant="body2" display="block">
                 Warehouse Client
               </Typography>

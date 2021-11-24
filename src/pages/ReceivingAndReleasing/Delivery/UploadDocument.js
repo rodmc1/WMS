@@ -227,7 +227,7 @@ const UploadDocuments = props => {
               className="receiving-upload-dropzone"
               sx={{marginTop: 50}}
               showAlerts={['error']}
-              acceptedFiles={['application/*']}
+              acceptedFiles={['application/pdf']}
               clearOnUnmount
               filesLimit={1}
               previewGridClasses={{ root: 'dropzone__list' }}
