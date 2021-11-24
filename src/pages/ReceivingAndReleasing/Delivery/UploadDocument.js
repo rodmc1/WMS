@@ -52,6 +52,9 @@ const UploadDocuments = props => {
   const [existingFile, setExistingFile] = React.useState(null);
   const [deliveryNoticeData, setDeliveryNoticeData] = React.useState(null);
   
+  const contentText = existingFile ? 'Delivery Documents of ' : "You've selected vehicle ";
+  const dialogTitleText = existingFile ? 'Documents' : "Upload Document";
+  
   function onDocumentLoadSuccess({ numPages }) {
     setPageNumber(1);
     setScale(0.5);
@@ -207,7 +210,7 @@ const UploadDocuments = props => {
     >
       <DialogTitle>
         <div className="flex justify-space-between align-center receiving-title">
-          <Typography>Upload Document</Typography>
+          <Typography>{dialogTitleText}</Typography>
           <Tooltip title="Close">
             <IconButton aria-label="close" component="span" onClick={props.handleClose} >
               <ClearIcon style={{fontSize: 18}} />
@@ -216,7 +219,7 @@ const UploadDocuments = props => {
         </div>
       </DialogTitle>
       <DialogContent>
-        <DialogContentText id="alert-dialog-slide-description" className="slide-description">You've selected vehicle <b>{itemData && itemData.plate_number}</b></DialogContentText>
+        <DialogContentText id="alert-dialog-slide-description" className="slide-description">{contentText}<b>{itemData && itemData.plate_number}</b></DialogContentText>
         {!existingFile &&
           <>
             <Typography variant="caption">Upload</Typography>
