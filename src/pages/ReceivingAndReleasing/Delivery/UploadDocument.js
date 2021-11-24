@@ -7,6 +7,7 @@ import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { fetchDeliveryNotices, uploadDocument, fetchDocument } from 'actions';
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
@@ -21,7 +22,6 @@ import { DropzoneArea } from 'material-ui-dropzone';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
-import { borderRadius, padding } from '@mui/system';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
@@ -33,9 +33,6 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItem from "@mui/material/ListItem";
 import ClearIcon from '@mui/icons-material/Clear';
 import Tooltip from '@mui/material/Tooltip';
-import { jsPDF } from "jspdf";
-import { DataSaverOffOutlined } from '@mui/icons-material';
-const doc = new jsPDF();
 
 /*
  * @props string { diaglogText, dialogTitle, buttonConfirmText, buttonCancelText}
@@ -50,19 +47,15 @@ const UploadDocuments = props => {
   const docxIcon = '/assets/images/docIcon.svg';
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
-  const [scale, setScale] = useState(1)
+  const [scale, setScale] = useState(0.5)
   const [rotate, setRotate] = useState(0);
   const [existingFile, setExistingFile] = React.useState(null);
   const [deliveryNoticeData, setDeliveryNoticeData] = React.useState(null);
   
-  console.log(deliveryNoticeData)
   function onDocumentLoadSuccess({ numPages }) {
     setPageNumber(1);
+    setScale(0.5);
     setNumPages(numPages);
-  }
-
-  function onRotate() {
-    setRotate(rotate + 90);
   }
 
   function changePage(offset) {
@@ -107,32 +100,6 @@ const UploadDocuments = props => {
     if (itemData) fetchFileData();
   }, [itemData]);
 
-  // Open dialog if props openDialog is true
-  React.useEffect(() => {
-    if (existingFile) {
-
-    }
-    // if (existingFile) {
-    //   const filePath = existingFile.file_path;
-    //   fetch(filePath)
-    //     .then(res => res.blob())
-    //     .then(blob => {
-    //       var reader = new FileReader();
-    //       reader.readAsDataURL(blob);
-    //       reader.onload =  function(e){
-    //         console.log(e);
-    //       };
-          // console.log(reader)
-        // })
-      //   .then(blob => {
-      //     let objectURL = URL.createObjectURL(blob);
-      //     let myImage = new Image();
-      //     myImage.src = objectURL;
-      //     console.log(blob)
-      // });
-    // }
-  }, [existingFile]);
-
   const handleUploadDocument = () => {
     if (itemData) {
       const id = itemData.delivery_noticeid;
@@ -173,10 +140,14 @@ const UploadDocuments = props => {
 
     return (
       <React.Fragment>
-        <div style={{border: '1px solid lightgrey', borderRadius: 4,overflow: "hidden"}}>
-          <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
-            <Page pageNumber={pageNumber} scale={scale} rotate={rotate}/>
-          </Document>
+        <div className="preview-container" style={{border: '1px solid lightgrey', borderRadius: 4}}>
+          <TransformWrapper>
+            <TransformComponent>
+              <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
+                <Page pageNumber={pageNumber} scale={scale} rotate={rotate}/>
+              </Document>
+            </TransformComponent>
+          </TransformWrapper>
           <div className="flex justify-space-between align-center viewer-actions">
             <div className="align-center">
               <IconButton aria-label="previous page" disabled={pageNumber <= 1}>
@@ -194,11 +165,11 @@ const UploadDocuments = props => {
               <IconButton aria-label="rotate right">
                 <RotateRightIcon onClick={() => setRotate(rotate + 90)}/>
               </IconButton>
-              <IconButton aria-label="zoom out" disabled={scale < 1}>
-                <ZoomOutIcon onClick={() => setScale(scale - 0.5)}/>
+              <IconButton aria-label="zoom out" disabled={scale < 0.8}>
+                <ZoomOutIcon onClick={() => setScale(scale - 0.4)}/>
               </IconButton>
               <IconButton aria-label="zoom out" disabled={scale === 3}>
-                <ZoomInIcon onClick={() => setScale(scale + 0.5)} />
+                <ZoomInIcon onClick={() => setScale(scale + 0.4)} />
               </IconButton>
             </div>
           </div>
@@ -216,7 +187,7 @@ const UploadDocuments = props => {
           <Typography variant="body2" style={{marginTop: 20, marginBottom: 8}}><small>{documentTitle}</small></Typography>
           <ListItem>
             <Badge><img className="doc-img" src={previewIcon} alt={fileName} /></Badge>
-            <ListItemText primary={fileName} secondary={!existingFile ? moment(file.lastModifiedDate).format('MMMM DD, YYYY') : ''} className={!existingFile ? '' : 'with-existing-file'} />
+            <ListItemText primary={fileName} secondary={!existingFile ? moment(file.lastModifiedDate).format('MMMM DD, YYYY') : moment(file.date_stamp).format('MMMM DD, YYYY')} className={!existingFile ? '' : 'with-existing-file'} />
           </ListItem>
         </div>
       </React.Fragment>

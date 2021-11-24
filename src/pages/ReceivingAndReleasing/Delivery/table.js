@@ -17,7 +17,7 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination from '@material-ui/core/TablePagination';
 
 import Tooltip from '@mui/material/Tooltip';
 import TextField from '@mui/material/TextField';
@@ -190,19 +190,6 @@ export default function Table_(
     onPaginate(page, rowsPerPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [page, rowsPerPage]);
-
-  /**
-   * @args str url
-   * @return formatted image src
-   */
-  const extractImageUrl = (str) => {
-    return str && str.replace(/\\/g,"/").replace("wwwroot",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
-  }
-
-  // Show default image if image source is broken
-  const handleImageError = (e) => {
-    e.target.src = '/assets/images/default-image.png';
-  }
 
   const handleSave = () => {
     const values = getValues([`containerVanNumber`, `serialNumber`, `trucker`, `plateNumber`, `driverName`, 'dateStart', 'dateEnd', 'notes']);
