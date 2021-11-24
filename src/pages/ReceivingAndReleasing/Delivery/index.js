@@ -6,7 +6,7 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { createReceivingAndReleasing, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
+import { createReceivingAndReleasing, uploadDocument, fetchReceivedDocumentType, fetchReceivingByCode, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
 
 import Table from './table';
 import Receiving from './Receiving';
@@ -20,6 +20,9 @@ import makeStyles from '@mui/styles/makeStyles';
 import Breadcrumbs from 'components/Breadcrumbs';
 import DialogContent from '@mui/material/DialogContent';
 import CircularProgress from '@mui/material/CircularProgress';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
 
 const cookie = new Cookie();
 
@@ -72,6 +75,9 @@ function DeliveryList(props) {
   const [receivingDialog, setReceivingDialog] = React.useState(false);
   const [receivingDialogData, setReceivingDialogData] = React.useState([]);
   const [itemCount, setItemCount] = useState([]);
+  const [receivingAndReleasing, setReceivingAndReleasing] = useState(null);
+  const [expectedItems, setExpectedItems] = useState(0);
+  const [expectedTrucks, setExpectedTrucks] = useState(0);
   const rowsPerPage = config.rowsPerPage;
 
   const routes = [
@@ -142,6 +148,51 @@ function DeliveryList(props) {
       });
     }
   };
+
+  /**
+   * Fetch page data
+   */ 
+  const fetchRecivingData = async () => {
+    await fetchReceivingByCode(props.match.params.id).then(response => {
+      setReceivingAndReleasing(response.data[0])
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
+  }
+
+  const getExpectedTrucksAndItems = (data) => {
+    let trucks = [];
+    let items = [];
+    let totalTrucks = 0;
+    let totalOverTrucks = 0;
+    let totalItems = 0;
+    let totalOverItems = 0;
+
+    Object.entries(data).forEach(key => {
+      trucks.push((key[1].expected_trucks.split('/')))
+      items.push((key[1].expected_items.split('/')))
+    });
+
+    trucks.forEach(item => {
+      totalTrucks += Number(item[0]);
+      totalOverTrucks += Number(item[1]);
+    });
+
+    items.forEach(item => {
+      totalItems += Number(item[0]);
+      totalOverItems += Number(item[1]);
+    });
+    
+    setExpectedItems(totalItems + '/' + Number(totalOverItems.toFixed(1)));
+    setExpectedTrucks(totalTrucks + '/' + Number(totalOverTrucks.toFixed(1)));
+  }
+
+  // Fetch new data if search values was erased
+  React.useEffect(() => {
+    if (!receivingAndReleasing) {
+      fetchRecivingData()
+    }
+  }, []);
 
   // Fetch new data if search values was erased
   React.useEffect(() => {
@@ -251,6 +302,33 @@ function DeliveryList(props) {
       });
   }
 
+  const handleUploadDocument = (id, recievedId, type, file) => {
+    setOpenBackdrop(true);
+    setOpenSnackBar(false);
+    setAlertConfig({ severity: 'info', message: 'Uploading Document...' });
+    setOpenSnackBar(true);
+
+    uploadDocument(id, recievedId, type, [file])
+      .then(response => {
+        if (response.status === 201) {
+          setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+          props.fetchAllReceivingAndReleasingById({
+            count: rowsPerPage,
+            after: page * rowCount,
+            filter: props.match.params.id
+          });
+        }
+      })
+      .catch(error => {
+        const regex = new RegExp('P0001:');
+        if (regex.test(error.response.data.message)) {
+          return
+        } else {
+          dispatchError(dispatch, THROW_ERROR, error);
+        }
+      });
+  }
+
   /**
    * Invoke alert with error message
    */
@@ -300,6 +378,11 @@ function DeliveryList(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
+  // Set new warehouse data with searched items
+  React.useEffect(() => {
+    props.fetchReceivedDocumentType()
+  }, []);
+
   React.useEffect(() => {
     if (props.receivingAndReleasing && Array.isArray(tableData)) {
       setTableData(props.receivingAndReleasing.data);
@@ -310,6 +393,7 @@ function DeliveryList(props) {
     if (props.receivingAndReleasing) {
       setTableData(props.receivingAndReleasing.data);
       setItemCount(props.receivingAndReleasing.count);
+      getExpectedTrucksAndItems(props.receivingAndReleasing.data);
       setOpenBackdrop(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -368,6 +452,50 @@ function DeliveryList(props) {
           <Button variant="contained" className="btn btn--emerald btn-csv" disableElevation onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
+      {receivingAndReleasing && 
+        <Grid container spacing={3} className="delivery-overview">
+          <Grid item xs>
+            <Paper elevation={1}>
+              <Typography>{receivingAndReleasing.warehouse_name}</Typography>
+              <Typography variant="body2" display="block">
+                Warehouse
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs>
+            <Paper elevation={1}>
+              <Typography>{receivingAndReleasing.warehouse_client}</Typography>
+              <Typography variant="body2" display="block">
+                Warehouse Client
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs>
+            <Paper elevation={1}>
+              <Typography>{receivingAndReleasing.transaction_type}</Typography>
+              <Typography variant="body2" display="block">
+                Transaction Type
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs>
+            <Paper elevation={1}>
+              <Typography>{expectedTrucks}</Typography>
+              <Typography variant="body2" display="block">
+                Expected Trucks
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs>
+            <Paper elevation={1}>
+              <Typography>{expectedItems}</Typography>
+              <Typography variant="body2" display="block">
+                Expected Items
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
+      }
       <Table 
         config={config}
         defaultData={tableData}
@@ -382,6 +510,8 @@ function DeliveryList(props) {
         total={itemCount}
         addMode={addMode}
         onRowClick={handleRowClick}
+        handleUploadDocument={handleUploadDocument}
+        receivingAndReleasing={receivingAndReleasing}
       />
       <Dialog open={receivingDialog} onClose={handleModalClose} classes={{ paper: classes.dialogPaper }} maxWidth={'xl'} fullWidth aria-labelledby="form-dialog-title">
         <DialogContent >
@@ -407,8 +537,8 @@ const mapStateToProps = (state, ownProps) => {
     searched: state.receiving_releasing.search,
     notice: state.notice.data[ownProps.match.params.id],
     sku: state.notice.sku,
-    receivingAndReleasing: state.receiving_releasing
+    receivingAndReleasing: state.receiving_releasing,
   }
 };
 
-export default connect(mapStateToProps, { searchReceivingAndReleasing, fetchAllReceivingAndReleasingById, fetchDeliveryNoticeById, searchDeliveryNoticeSKU })(DeliveryList);
+export default connect(mapStateToProps, { searchReceivingAndReleasing, fetchReceivedDocumentType, fetchAllReceivingAndReleasingById, fetchDeliveryNoticeById, searchDeliveryNoticeSKU })(DeliveryList);

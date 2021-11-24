@@ -32,6 +32,15 @@ export const fetchAllReceivingAndReleasingByCode = id => {
 }
 
 /**
+ * For Delivery Notice Download CSV
+ */
+ export const fetchReceivingByCode = code => {
+  return inteluck.get(`/v1/wms/Warehouse/Delivery_Notice`, { 
+    params: { filter: code }
+  });
+}
+
+/**
  * For Delivery Notice SKU by id CSV
  */
  export const searchReceivingAndReleasingSKU = params => {
@@ -70,6 +79,8 @@ export const createReceivingAndReleasing = params => {
  export const createReceivingAndReleasingItem = params => {
   return inteluck.post(`/v1/wms/Warehouse/Delivery/Received_Item`, params);
 }
+
+
 
 /**
  * Edit Delivery Notice
@@ -118,4 +129,26 @@ export const createReceivingAndReleasing = params => {
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);
     });
+}
+
+// Warehouse files upload
+export const uploadDocument = (id, received_id, type, files) => {
+  const formData = new FormData();
+  files.map(file => formData.append('Docs', file));
+
+  return inteluck.post(`v1/wms/Warehouse/Delivery-Received-Documents-File-Upload`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    params: {
+      id: id,
+      received_id: received_id,
+      received_document_type: type
+    }
+  });
+}
+
+// Fetch Receiving uploaded files 
+export const fetchDocument = id => {
+  return inteluck.get(`v1/wms/Warehouse/Delivery-Received-Documents-Get?received_id=${id}`);
 }
