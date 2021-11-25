@@ -29,7 +29,7 @@ function Dropzone(props) {
   const pdfIcon = '/assets/images/pdfIcon.svg';
   const docxIcon = '/assets/images/docIcon.svg';
   let collapseText = expanded ? 'Hide Photos' : 'See Photos';
-  const allowedDocuments = ['doc', 'docx', 'pdf', 'txt', 'tex', 'csv'];
+  const allowedDocuments = ['doc', 'docx', 'pdf', 'txt', 'tex', 'csv', 'xlsx'];
   const allowedImages = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];
   if (props.data === 'SKU') {
     collapseText = expanded ? 'Hide Photo' : 'See Photo';
