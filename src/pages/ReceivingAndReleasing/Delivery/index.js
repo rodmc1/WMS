@@ -163,37 +163,19 @@ function DeliveryList(props) {
   const getExpectedTrucksAndItems = (data) => {
     let trucks = [];
     let items = [];
-    let totalTrucks = 0;
-    let totalOverTrucks = 0;
-    let totalItems = 0;
-    let totalOverItems = 0;
 
     Object.entries(data).forEach(key => {
       if (key[1].expected_trucks) {
-        trucks.push((key[1].expected_trucks.split('/')))
-      } else {
-        trucks.push([0, 1])
+        trucks.push((key[1].expected_trucks))
       }
 
-      if ((key[1].expected_items)) {
-        items.push((key[1].expected_items.split('/')))
-      } else {
-        trucks.push([0, 1])
+      if (key[1].expected_items) {
+        items.push((key[1].expected_items))
       }
-    });
-
-    trucks.forEach(item => {
-      totalTrucks += Number(item[0]);
-      totalOverTrucks += Number(item[1]);
-    });
-
-    items.forEach(item => {
-      totalItems += Number(item[0]);
-      totalOverItems += Number(item[1]);
     });
     
-    setExpectedItems(totalItems + '/' + Number(totalOverItems.toFixed(1)));
-    setExpectedTrucks(totalTrucks + '/' + Number(totalOverTrucks.toFixed(1)));
+    setExpectedItems(items[0] || 0);
+    setExpectedTrucks(trucks[0] || 0);
   }
 
   // Fetch new data if search values was erased
