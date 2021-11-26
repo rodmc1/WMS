@@ -18,7 +18,6 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
-import { pink } from '@mui/material/colors';
 
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
@@ -45,8 +44,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 
 // package for print
