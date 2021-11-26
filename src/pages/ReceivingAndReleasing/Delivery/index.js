@@ -382,9 +382,11 @@ function DeliveryList(props) {
     }
 
     if (props.receivingAndReleasing) {
+      if (!addMode) {
+        getExpectedTrucksAndItems(props.receivingAndReleasing.data);
+      }
       setTableData(props.receivingAndReleasing.data);
       setItemCount(props.receivingAndReleasing.count);
-      getExpectedTrucksAndItems(props.receivingAndReleasing.data);
       setOpenBackdrop(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
