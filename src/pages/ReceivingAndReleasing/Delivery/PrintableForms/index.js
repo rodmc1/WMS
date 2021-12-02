@@ -135,7 +135,7 @@ class PrintableForms extends React.Component {
                                         </label>
                                     </Grid>
                                     <Grid item xs={12} className="align-center row details-cont right">
-                                        <label>{moment(new Date(this.state.data.datetime)).format('LL')}</label>
+                                        <label>{moment(new Date(this.state.data.date_in)).format('LL')}</label>
                                         <label>Date</label>
                                     </Grid>
                                     <Grid item xs={12} className="align-center row details-cont right">
