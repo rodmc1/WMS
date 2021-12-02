@@ -169,6 +169,11 @@
     color: $gray;
     font-size: 0.85rem;
   }
+  .MuiTypography-body1 {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .document-upload-dialog {

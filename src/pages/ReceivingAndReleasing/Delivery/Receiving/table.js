@@ -176,7 +176,7 @@ const config = {
     { label: 'UOM' },
     { label: 'Discrepancy'},
     { label: 'Damaged' },
-    { label: 'Actual Arrived Date' },
+    { label: 'Actual Pull Out Date' },
     { label: 'Inspected by' },
     { label: 'Inspection Notes' },
     { label: ' ' },
@@ -901,7 +901,9 @@ function Table_(props) {
           </IconButton>
         </Tooltip>
       </>
-    } else return header
+    } else if ((header === 'Actual Pull Out Date' && receivingData.transaction_type === 'Inbound') && !addMode) {
+      return 'Actual Receiving Date';
+    } else return header;
   }
 
   const onApplyAll = (type) => {

@@ -244,7 +244,7 @@ const UploadDocuments = props => {
       </DialogContent>
       <DialogActions>
         <Button onClick={props.handleClose} variant="outlined">Cancel</Button>
-        <Button variant="contained" onClick={handleUploadDocument}>Done</Button>
+        <Button variant="contained" onClick={!existingFile ? handleUploadDocument : props.handleClose}>Done</Button>
       </DialogActions>
     </Dialog>
   )

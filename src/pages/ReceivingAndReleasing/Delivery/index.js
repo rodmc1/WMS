@@ -78,6 +78,7 @@ function DeliveryList(props) {
   const [receivingAndReleasing, setReceivingAndReleasing] = useState(null);
   const [expectedItems, setExpectedItems] = useState(0);
   const [expectedTrucks, setExpectedTrucks] = useState(0);
+  const [documentCount, setDocumentCount] = useState(0);
   const rowsPerPage = config.rowsPerPage;
 
   const routes = [
@@ -163,8 +164,10 @@ function DeliveryList(props) {
   const getExpectedTrucksAndItems = (data) => {
     let trucks = [];
     let items = [];
+    let documentCount = 0;
 
     Object.entries(data).forEach(key => {
+      documentCount += key[1].document_count;
       if (key[1].expected_trucks) {
         trucks.push((key[1].expected_trucks))
       }
@@ -173,7 +176,8 @@ function DeliveryList(props) {
         items.push((key[1].expected_items))
       }
     });
-    
+
+    setDocumentCount(documentCount);
     setExpectedItems(items[0] || 0);
     setExpectedTrucks(trucks[0] || 0);
   }
@@ -382,9 +386,7 @@ function DeliveryList(props) {
     }
 
     if (props.receivingAndReleasing) {
-      if (!addMode) {
-        getExpectedTrucksAndItems(props.receivingAndReleasing.data);
-      }
+      if (!addMode) getExpectedTrucksAndItems(props.receivingAndReleasing.data);
       setTableData(props.receivingAndReleasing.data);
       setItemCount(props.receivingAndReleasing.count);
       setOpenBackdrop(false);
@@ -447,40 +449,27 @@ function DeliveryList(props) {
       </div>
       {receivingAndReleasing && 
         <Grid container spacing={3} className="delivery-overview">
-          <Grid item xs>
+          <Grid item xs={2}>
             <Paper 
               elevation={1}
-              title={receivingAndReleasing.warehouse_name}
-              style={{
-                maxWidth: '350px',
-                overflowX: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}>
-              <Typography>{receivingAndReleasing.warehouse_name.replace(/(.{35})..+/, "$1…")}</Typography>
+              title={receivingAndReleasing.warehouse_name}>
+              <Typography>{receivingAndReleasing.warehouse_name}</Typography>
               <Typography variant="body2" display="block">
                 Warehouse
               </Typography>
             </Paper>
           </Grid>
-          <Grid item xs>
+          <Grid item xs={2}>
             <Paper 
               elevation={1}
-              title={receivingAndReleasing.warehouse_client}
-              style={{
-                maxWidth: '400px',
-                overflowX: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              <Typography>{receivingAndReleasing.warehouse_client.replace(/(.{40})..+/, "$1…")}</Typography>
+              title={receivingAndReleasing.warehouse_client}>
+              <Typography>{receivingAndReleasing.warehouse_client}</Typography>
               <Typography variant="body2" display="block">
                 Warehouse Client
               </Typography>
             </Paper>
           </Grid>
-          <Grid item xs>
+          <Grid item xs={2}>
             <Paper elevation={1}>
               <Typography>{receivingAndReleasing.transaction_type}</Typography>
               <Typography variant="body2" display="block">
@@ -488,7 +477,7 @@ function DeliveryList(props) {
               </Typography>
             </Paper>
           </Grid>
-          <Grid item xs>
+          <Grid item xs={2}>
             <Paper elevation={1}>
               <Typography>{expectedTrucks}</Typography>
               <Typography variant="body2" display="block">
@@ -496,11 +485,19 @@ function DeliveryList(props) {
               </Typography>
             </Paper>
           </Grid>
-          <Grid item xs>
+          <Grid item xs={2}>
             <Paper elevation={1}>
               <Typography>{expectedItems}</Typography>
               <Typography variant="body2" display="block">
                 Expected Items
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper elevation={1}>
+              <Typography>{documentCount}</Typography>
+              <Typography variant="body2" display="block">
+                Documents Attached
               </Typography>
             </Paper>
           </Grid>
