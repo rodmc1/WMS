@@ -104,11 +104,13 @@ const UploadDocuments = props => {
   }, [itemData]);
 
   const handleUploadDocument = () => {
-    if (itemData) {
+    if (itemData && file) {
       const id = itemData.delivery_noticeid;
       const recievedId = itemData.recieved_id;
       const type = props.receivedDocumentType;
       props.handleUploadDocument(id, recievedId, type, file);
+      props.handleClose()
+    } else {
       props.handleClose()
     }
   }
