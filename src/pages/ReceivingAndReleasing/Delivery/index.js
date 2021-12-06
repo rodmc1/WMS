@@ -6,7 +6,7 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { createReceivingAndReleasing, uploadDocument, fetchReceivedDocumentType, fetchReceivingByCode, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
+import { createReceivingAndReleasing, uploadDocument, deleteDeliveryDocumentsById, fetchAllDocument, fetchReceivedDocumentType, fetchReceivingByCode, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
 
 import Table from './table';
 import Receiving from './Receiving';
@@ -23,6 +23,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
+import AttachedDocuments from './AttachedDocuments';
 
 const cookie = new Cookie();
 
@@ -79,6 +80,8 @@ function DeliveryList(props) {
   const [expectedItems, setExpectedItems] = useState(0);
   const [expectedTrucks, setExpectedTrucks] = useState(0);
   const [documentCount, setDocumentCount] = useState(0);
+  const [uploadedDocuments, setUploadedDocuments] = useState(null);
+  const [openDocuments, setOpenDocuments] = useState(false);
   const rowsPerPage = config.rowsPerPage;
 
   const routes = [
@@ -156,6 +159,18 @@ function DeliveryList(props) {
   const fetchRecivingData = async () => {
     await fetchReceivingByCode(props.match.params.id).then(response => {
       setReceivingAndReleasing(response.data[0])
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
+  }
+
+  /**
+   * Fetch all documents
+   */
+  const fetchDeliveryDocuments = (id) => {
+    fetchAllDocument(id)
+    .then(res => {
+      setUploadedDocuments(res.data[0].received_document_file_type)
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);
     });
@@ -297,31 +312,69 @@ function DeliveryList(props) {
       });
   }
 
-  const handleUploadDocument = (id, recievedId, type, file) => {
+  // Function for document updates
+  const handleUploadDocument = (id, recievedId, type, files, existingFiles) => {
     setOpenBackdrop(true);
     setOpenSnackBar(false);
-    setAlertConfig({ severity: 'info', message: 'Uploading Document...' });
+    if (existingFiles.length) {
+      setAlertConfig({ severity: 'info', message: 'Saving Changes...' });
+    } else {
+      setAlertConfig({ severity: 'info', message: 'Uploading Document...' });
+    }
     setOpenSnackBar(true);
+    
+    const newDocs = files.map(i => { return i.name });
+    const existingDocuments = existingFiles.map(i => { return i.file_name });
 
-    uploadDocument(id, recievedId, type, [file])
-      .then(response => {
-        if (response.status === 201) {
-          setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
-          props.fetchAllReceivingAndReleasingById({
-            count: rowsPerPage,
-            after: page * rowCount,
-            filter: props.match.params.id
+    existingFiles.forEach(doc => {
+      if (!newDocs.includes(doc.file_name)) {
+        deleteDeliveryDocumentsById(doc.id)
+          .then(response => {
+            if (response.status === 204) {
+              setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+              props.fetchAllReceivingAndReleasingById({
+                count: rowsPerPage,
+                after: page * rowCount,
+                filter: props.match.params.id
+              });
+              fetchDeliveryDocuments(receivingAndReleasing.delivery_notice_id);
+            }
+          })
+          .catch(error => {
+            const regex = new RegExp('P0001:');
+            if (regex.test(error.response.data.message)) {
+              return
+            } else {
+              dispatchError(dispatch, THROW_ERROR, error);
+            }
+        });
+      }
+    });
+
+    files.forEach(file => {
+      if (!existingDocuments.includes(file.name)) {
+        uploadDocument(id, recievedId, type, [file])
+          .then(response => {
+            if (response.status === 201) {
+              setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+              props.fetchAllReceivingAndReleasingById({
+                count: rowsPerPage,
+                after: page * rowCount,
+                filter: props.match.params.id
+              });
+              fetchDeliveryDocuments(receivingAndReleasing.delivery_notice_id);
+            }
+          })
+          .catch(error => {
+            const regex = new RegExp('P0001:');
+            if (regex.test(error.response.data.message)) {
+              return
+            } else {
+              dispatchError(dispatch, THROW_ERROR, error);
+            }
           });
-        }
-      })
-      .catch(error => {
-        const regex = new RegExp('P0001:');
-        if (regex.test(error.response.data.message)) {
-          return
-        } else {
-          dispatchError(dispatch, THROW_ERROR, error);
-        }
-      });
+      }
+    });
   }
 
   /**
@@ -377,6 +430,11 @@ function DeliveryList(props) {
   React.useEffect(() => {
     props.fetchReceivedDocumentType()
   }, []);
+
+  // Set new warehouse data with searched items
+  React.useEffect(() => {
+    if (receivingAndReleasing) fetchDeliveryDocuments(receivingAndReleasing.delivery_notice_id)
+  }, [receivingAndReleasing]);
 
   React.useEffect(() => {
     if (props.receivingAndReleasing && Array.isArray(tableData)) {
@@ -494,7 +552,7 @@ function DeliveryList(props) {
             </Paper>
           </Grid>
           <Grid item xs={2}>
-            <Paper elevation={1}>
+            <Paper elevation={1} onClick={() => setOpenDocuments(true)}>
               <Typography>{documentCount}</Typography>
               <Typography variant="body2" display="block">
                 Documents Attached
@@ -502,6 +560,14 @@ function DeliveryList(props) {
             </Paper>
           </Grid>
         </Grid>
+      }
+      {openDocuments &&
+        <AttachedDocuments
+          data={uploadedDocuments}
+          open={openDocuments}
+          receivingAndReleasing={receivingAndReleasing}
+          handleClose={() => setOpenDocuments(false)}
+        />
       }
       <Table 
         config={config}

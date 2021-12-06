@@ -173,8 +173,6 @@ export const uploadDeliveryNoticeFilesById = (deliveryNoticeId, files, type, fol
     delivery_notice_document_type: type
   }
 
-  console.log(uploadParams)
-
   return inteluck.post(`/v1/wms/Warehouse/Delivery_Notice-File-Upload`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
