@@ -162,6 +162,12 @@ export const fetchAllDocument = id => {
   return inteluck.get(`v1/wms/Warehouse/Delivery-Received-Documents-Get?delivery_notice_id=${id}`);
 }
 
+// Fetch All Receiving uploaded files 
+export const downloadDocuments = id => {
+  const config = { responseType: 'blob' };
+  return inteluck.get(`v1/wms/Warehouse/Delivery-Received-Documents-Download?delivery_notice_id=${id}`, config);
+}
+
 /**
  * Delete Delivery Documents by id
  */

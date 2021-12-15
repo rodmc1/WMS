@@ -6,8 +6,10 @@ import React, {  useState } from 'react';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { fetchDeliveryNotices, uploadDocument, fetchDocument } from 'actions';
+import { fetchDeliveryNotices, uploadDocument, fetchDocument, downloadDocuments } from 'actions';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import fileDownload from 'js-file-download';
+import { saveAs } from 'file-saver';
 
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
@@ -47,7 +49,6 @@ function AttachedDocuments(props) {
   const [documents, setDocuments] = useState(null);
   const [documentData, setDocumentData] = useState(null);
   const [deliveryNoticeData, setDeliveryNoticeData] = React.useState(null);
-
   function onDocumentLoadSuccess({ numPages }) {
     setScale(0.5);
     setNumPages(numPages);
@@ -67,11 +68,15 @@ function AttachedDocuments(props) {
     changePage(1);
     setCurrentPage(documents[page + 1]);
   }
-
+  
   const handleDownload = () => {
-    console.log('test')
+    downloadDocuments(props.receivingAndReleasing.delivery_notice_id)
+      .then(response => {
+        const zipped = new File([response.data], 'filename');       
+        fileDownload(zipped, props.receivingAndReleasing.unique_code + '.zip');
+      });
   }
-  console.log(deliveryNoticeData)
+
   /*
     * @args str url
     * @return formatted image src
@@ -150,7 +155,7 @@ function AttachedDocuments(props) {
           <Typography variant="body2"  style={{marginTop: 20, marginBottom: 8}}><small>Delivery Notice Document</small></Typography>
           {deliveryNoticeData && deliveryNoticeData.map(doc => {
             return (
-              <ListItem style={{marginTop: 10, marginBottom: 8}}>
+              <ListItem style={{marginTop: 10, marginBottom: 8}} key={doc.delivery_notice_files[0].warehouse_filename}>
                 <Badge><img className="doc-img" src={pdfIcon} alt={doc.delivery_notice_files[0].warehouse_filename} /></Badge>
                 <ListItemText primary={doc.delivery_notice_files[0].warehouse_filename} className='attached-doc-typography with-existing-file' />
               </ListItem>
@@ -165,7 +170,7 @@ function AttachedDocuments(props) {
           {documentData && documentData.map(doc => {
             return (
               <ListItem>
-                <Badge><img className="doc-img" src={pdfIcon} alt={doc.file_name} /></Badge>
+                <Badge><img className="doc-img" src={pdfIcon} alt={doc.file_name} key={doc.file_name} /></Badge>
                 <ListItemText primary={doc.file_name} secondary={moment(doc.date_stamp).format('MMMM DD, YYYY')} className='attached-doc-typography with-existing-file' />
               </ListItem>
             )
@@ -204,7 +209,7 @@ function AttachedDocuments(props) {
       </DialogContent>
       <DialogActions>
         <Button onClick={props.handleClose} variant="outlined">Cancel</Button>
-        <Button variant="contained" onClick={handleDownload}>Download</Button>
+        <Button variant="contained" onClick={handleDownload} disabled={!documents}>Download</Button>
       </DialogActions>
     </Dialog>
   )

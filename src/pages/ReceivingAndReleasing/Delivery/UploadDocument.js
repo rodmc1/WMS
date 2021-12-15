@@ -189,7 +189,6 @@ const UploadDocuments = props => {
   }
 
   const handleDelete = (props) => {
-    console.log(props);
     setHasChanged(true);
   }
 
