@@ -114,6 +114,7 @@
   .hover-button:hover .hover-button--on {
     visibility: visible;
   }
+
 }
 
 .receiving-releasing-table {
@@ -265,9 +266,15 @@
 
   .with-existing-file {
     span.MuiTypography-root {
-      font-size: 0.875rem !important;
+      font-size: 0.805rem;
     }
     margin-left: 12px;
+  }
+
+  .attached-doc-typography {
+    span.MuiTypography-root {
+      font-size: 0.805rem !important;
+    }
   }
 
   small {

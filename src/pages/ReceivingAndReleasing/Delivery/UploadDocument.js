@@ -51,10 +51,13 @@ const UploadDocuments = props => {
   const [rotate, setRotate] = useState(0);
   const [existingFile, setExistingFile] = React.useState(null);
   const [deliveryNoticeData, setDeliveryNoticeData] = React.useState(null);
+  const [files, setFiles] = useState([]);
+  const [existingFiles, setExistingFiles] = useState([]);
+  const [hasChanged, setHasChanged] = useState(false)
   
   const contentText = existingFile ? 'Delivery Documents of ' : "You've selected vehicle ";
   const dialogTitleText = existingFile ? 'Documents' : "Upload Document";
-  
+
   function onDocumentLoadSuccess({ numPages }) {
     setPageNumber(1);
     setScale(0.5);
@@ -81,16 +84,6 @@ const UploadDocuments = props => {
     return str && str.replace(/\\/g,"/").replace("/files",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
   }
 
-  const fetchFileData = () => {
-    fetchDocument(itemData.recieved_id)
-      .then(response => {
-        if (response.data[0].received_document_file_type) {
-          const arrayDoc = response.data[0].received_document_file_type;
-          setExistingFile(arrayDoc[arrayDoc.length - 1])
-        }
-      });
-  }
-
   // Open dialog if props openDialog is true
   React.useEffect(() => {
     if (props) setOpen(props.open);
@@ -100,18 +93,32 @@ const UploadDocuments = props => {
 
   // Open dialog if props openDialog is true
   React.useEffect(() => {
-    if (itemData) fetchFileData();
+    if (itemData) {
+      if (itemData.received_document_file) {
+        const existingDocuments = itemData.received_document_file.map(item => item);
+        setExistingFiles(existingDocuments);
+      }
+    }
   }, [itemData]);
 
   const handleUploadDocument = () => {
-    if (itemData && file) {
-      const id = itemData.delivery_noticeid;
+    if (itemData && hasChanged) {
+      let id = itemData.delivery_noticeid;
       const recievedId = itemData.recieved_id;
       const type = props.receivedDocumentType;
-      props.handleUploadDocument(id, recievedId, type, file);
-      props.handleClose()
+      
+      if (!existingFiles.length) id = null;
+      if (itemData.received_document_file) {
+        id = itemData.received_document_file[0].received_document_id;
+      }
+      if (!existingFiles.length && !files.length) {
+        props.handleClose();
+      } else {
+        props.handleUploadDocument(id, recievedId, type, files, existingFiles);
+        props.handleClose();
+      }
     } else {
-      props.handleClose()
+      props.handleClose();
     }
   }
 
@@ -128,20 +135,11 @@ const UploadDocuments = props => {
     let previewIcon;
     let documentTitle;
 
-    if (existingFile) {
-      file = extractFileUrl(existingFile.file_path);
-      string = existingFile.file_name;
-      fileName = string;
-      previewIcon = string.split('.').pop().toLowerCase() === 'pdf' ? pdfIcon : docxIcon;
-      documentTitle = 'Delivery Document';
-    } else {
-      string = file.name;
-      length = 40;
-      fileName = string.length > length ? `${string.substring(0, length - 3)}...` : string;
-      previewIcon = string.split('.').pop().toLowerCase() === 'pdf' ? pdfIcon : docxIcon;
-      documentTitle = 'Uploaded Document';
-      setFile(file);
-    }
+    string = file.name;
+    length = 40;
+    fileName = string.length > length ? `${string.substring(0, length - 3)}...` : string;
+    previewIcon = string.split('.').pop().toLowerCase() === 'pdf' ? pdfIcon : docxIcon;
+    documentTitle = 'Uploaded Document';
 
     return (
       <React.Fragment>
@@ -180,23 +178,28 @@ const UploadDocuments = props => {
           </div>
         </div>
         <div>
-          { deliveryNoticeData.delivery_notice_document_file_type &&
-            <>
-              <Typography variant="body2" style={{marginTop: 20, marginBottom: 8}}><small>Delivery Notice Document</small></Typography>
-              <ListItem>
-                <Badge><img className="doc-img" src={previewIcon} alt={deliveryNoticeData.delivery_notice_document_file_type[0].delivery_notice_files[0].warehouse_filename} /></Badge>
-                <ListItemText primary={deliveryNoticeData.delivery_notice_document_file_type[0].delivery_notice_files[0].warehouse_filename} className={!existingFile ? '' : 'with-existing-file'} />
-              </ListItem>
-            </>
-          }
           <Typography variant="body2" style={{marginTop: 20, marginBottom: 8}}><small>{documentTitle}</small></Typography>
           <ListItem>
             <Badge><img className="doc-img" src={previewIcon} alt={fileName} /></Badge>
-            <ListItemText primary={fileName} secondary={!existingFile ? moment(file.lastModifiedDate).format('MMMM DD, YYYY') : moment(file.date_stamp).format('MMMM DD, YYYY')} className={!existingFile ? '' : 'with-existing-file'} />
+            <ListItemText primary={fileName} secondary={!existingFile ? moment(file.lastModifiedDate).format('MMMM DD, YYYY') : moment(file.date_stamp).format('MMMM DD, YYYY')} className={!existingFile ? '' : 'attached-doc-typography with-existing-file'} />
           </ListItem>
         </div>
       </React.Fragment>
     )
+  }
+
+  const handleDelete = (props) => {
+    setHasChanged(true);
+  }
+
+  const handleFileChange = (file) => {
+    setFiles(file);
+    setPageNumber(1);
+  }
+
+  const getInitialFiles = () => {
+    const initialFiles = itemData.received_document_file.map(fileData => extractFileUrl(fileData.file_path));
+    return initialFiles.length ? initialFiles : [];
   }
 
   return (
@@ -222,31 +225,32 @@ const UploadDocuments = props => {
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-slide-description" className="slide-description">{contentText}<b>{itemData && itemData.plate_number}</b></DialogContentText>
-        {!existingFile &&
-          <>
-            <Typography variant="caption">Upload</Typography>
+          <Typography variant="caption">Upload</Typography>
+          {itemData &&
             <DropzoneArea
               className="receiving-upload-dropzone"
               sx={{marginTop: 50}}
+              initialFiles={(itemData && itemData.received_document_file) && getInitialFiles()}
               showAlerts={['error']}
               acceptedFiles={['application/pdf']}
               clearOnUnmount
-              filesLimit={1}
+              filesLimit={3}
               previewGridClasses={{ root: 'dropzone__list' }}
               getPreviewIcon={file => handlePreviewIcon(file.file)}
               previewText={false}
               showPreviews
-              onChange={() => setPageNumber(1)}
+              onChange={handleFileChange}
               showPreviewsInDropzone={false}
+              onDelete={handleDelete}
+              onDrop={() => setHasChanged(true)}
               classes={{ root: 'dropzone', icon: 'dropzone__icon', text: 'dropzone__text' }}
             />
-          </>
-        }
-        {existingFile && handlePreviewIcon()}
+          }
+          {/* {existingFile && handlePreviewIcon()} */}
       </DialogContent>
       <DialogActions>
         <Button onClick={props.handleClose} variant="outlined">Cancel</Button>
-        <Button variant="contained" onClick={!existingFile ? handleUploadDocument : props.handleClose}>Done</Button>
+        <Button variant="contained" onClick={hasChanged ? handleUploadDocument : props.handleClose}>Done</Button>
       </DialogActions>
     </Dialog>
   )

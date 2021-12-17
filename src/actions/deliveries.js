@@ -80,8 +80,6 @@ export const createReceivingAndReleasing = params => {
   return inteluck.post(`/v1/wms/Warehouse/Delivery/Received_Item`, params);
 }
 
-
-
 /**
  * Edit Delivery Notice
  */
@@ -135,20 +133,44 @@ export const createReceivingAndReleasing = params => {
 export const uploadDocument = (id, received_id, type, files) => {
   const formData = new FormData();
   files.map(file => formData.append('Docs', file));
-
-  return inteluck.post(`v1/wms/Warehouse/Delivery-Received-Documents-File-Upload`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    params: {
+  let data = {
+    received_id: received_id,
+    received_document_type: type
+  }
+  if (id) {
+    data = {
       id: id,
       received_id: received_id,
       received_document_type: type
     }
+  }
+  return inteluck.post(`v1/wms/Warehouse/Delivery-Received-Documents-File-Upload`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    params: data
   });
 }
 
 // Fetch Receiving uploaded files 
 export const fetchDocument = id => {
   return inteluck.get(`v1/wms/Warehouse/Delivery-Received-Documents-Get?received_id=${id}`);
+}
+
+// Fetch All Receiving uploaded files 
+export const fetchAllDocument = id => {
+  return inteluck.get(`v1/wms/Warehouse/Delivery-Received-Documents-Get?delivery_notice_id=${id}`);
+}
+
+// Fetch All Receiving uploaded files 
+export const downloadDocuments = id => {
+  const config = { responseType: 'blob' };
+  return inteluck.get(`v1/wms/Warehouse/Delivery-Received-Documents-Download?delivery_notice_id=${id}`, config);
+}
+
+/**
+ * Delete Delivery Documents by id
+ */
+ export const deleteDeliveryDocumentsById = id => {
+  return inteluck.delete(`/v1/wms/Warehouse/Delivery-Received-Documents-File/${id}`);
 }
