@@ -32,6 +32,7 @@ const useStyles1 = makeStyles((theme) => ({
   },
 }));
 
+
 /*
  * Handler for warehouse list pagination actions
  * @args pages and functions

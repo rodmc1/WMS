@@ -23,11 +23,13 @@ function Dropzone(props) {
   const [initialDocs, setInitialDocs] = React.useState([]);
   const [initialImages, setInitialImages] = React.useState([]);
   const [showPreviewText, setShowPreviewText] = React.useState(false);
+
+  console.log(initialImages)
   
   const pdfIcon = '/assets/images/pdfIcon.svg';
   const docxIcon = '/assets/images/docIcon.svg';
   let collapseText = expanded ? 'Hide Photos' : 'See Photos';
-  const allowedDocuments = ['doc', 'docx', 'pdf', 'txt', 'tex', 'csv'];
+  const allowedDocuments = ['doc', 'docx', 'pdf', 'txt', 'tex', 'csv', 'xlsx'];
   const allowedImages = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'jfif'];
   if (props.data === 'SKU') {
     collapseText = expanded ? 'Hide Photo' : 'See Photo';

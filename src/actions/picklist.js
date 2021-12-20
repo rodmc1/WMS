@@ -1,5 +1,5 @@
 import inteluck from 'api/inteluck';
-import { FETCH_FACILITIES_AND_AMENITIES, FETCH_BUILDING_TYPES, FETCH_TRUCK_TYPES, THROW_ERROR, FETCH_CLIENTS, FETCH_UOM, FETCH_STORAGE_TYPE } from './types';
+import { FETCH_RECEIVED_DOCUMENT_TYPE, FETCH_FACILITIES_AND_AMENITIES, FETCH_BUILDING_TYPES, FETCH_TRUCK_TYPES, THROW_ERROR, FETCH_CLIENTS, FETCH_UOM, FETCH_STORAGE_TYPE } from './types';
 import { dispatchError } from 'helper/error';
 
 export const fetchFacilitiesAndAmenities = id => dispatch => {
@@ -72,6 +72,18 @@ export const fetchStorageType = id => dispatch => {
       dispatch({
         type: FETCH_STORAGE_TYPE,
         payload: response.data
+      });
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error)
+    })
+}
+
+export const fetchReceivedDocumentType = id => dispatch => {
+  inteluck.get(`/v1/SysObjects/PickLists/received_document_type`)
+    .then(response => {
+      dispatch({
+        type: FETCH_RECEIVED_DOCUMENT_TYPE,
+        payload: response.data[0]
       });
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error)

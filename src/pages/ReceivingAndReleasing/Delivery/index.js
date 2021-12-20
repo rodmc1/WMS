@@ -6,7 +6,7 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { createReceivingAndReleasing, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
+import { createReceivingAndReleasing, uploadDocument, deleteDeliveryDocumentsById, fetchAllDocument, fetchReceivedDocumentType, fetchReceivingByCode, fetchDeliveryNoticeById, searchReceivingAndReleasing, fetchAllReceivingAndReleasingByCode, fetchAllReceivingAndReleasingById, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs } from 'actions';
 
 import Table from './table';
 import Receiving from './Receiving';
@@ -20,6 +20,10 @@ import makeStyles from '@mui/styles/makeStyles';
 import Breadcrumbs from 'components/Breadcrumbs';
 import DialogContent from '@mui/material/DialogContent';
 import CircularProgress from '@mui/material/CircularProgress';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import AttachedDocuments from './AttachedDocuments';
 
 const cookie = new Cookie();
 
@@ -72,6 +76,12 @@ function DeliveryList(props) {
   const [receivingDialog, setReceivingDialog] = React.useState(false);
   const [receivingDialogData, setReceivingDialogData] = React.useState([]);
   const [itemCount, setItemCount] = useState([]);
+  const [receivingAndReleasing, setReceivingAndReleasing] = useState(null);
+  const [expectedItems, setExpectedItems] = useState(0);
+  const [expectedTrucks, setExpectedTrucks] = useState(0);
+  const [documentCount, setDocumentCount] = useState(0);
+  const [uploadedDocuments, setUploadedDocuments] = useState(null);
+  const [openDocuments, setOpenDocuments] = useState(false);
   const rowsPerPage = config.rowsPerPage;
 
   const routes = [
@@ -142,6 +152,57 @@ function DeliveryList(props) {
       });
     }
   };
+
+  /**
+   * Fetch page data
+   */ 
+  const fetchRecivingData = async () => {
+    await fetchReceivingByCode(props.match.params.id).then(response => {
+      setReceivingAndReleasing(response.data[0])
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
+  }
+
+  /**
+   * Fetch all documents
+   */
+  const fetchDeliveryDocuments = (id) => {
+    fetchAllDocument(id)
+    .then(res => {
+      setUploadedDocuments(res.data[0].received_document_file_type)
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error);
+    });
+  }
+
+  const getExpectedTrucksAndItems = (data) => {
+    let trucks = [];
+    let items = [];
+    let documentCount = 0;
+
+    Object.entries(data).forEach(key => {
+      documentCount += key[1].document_count;
+      if (key[1].expected_trucks) {
+        trucks.push((key[1].expected_trucks))
+      }
+
+      if (key[1].expected_items) {
+        items.push((key[1].expected_items))
+      }
+    });
+
+    setDocumentCount(documentCount);
+    setExpectedItems(items[0] || 0);
+    setExpectedTrucks(trucks[0] || 0);
+  }
+
+  // Fetch new data if search values was erased
+  React.useEffect(() => {
+    if (!receivingAndReleasing) {
+      fetchRecivingData()
+    }
+  }, []);
 
   // Fetch new data if search values was erased
   React.useEffect(() => {
@@ -251,6 +312,71 @@ function DeliveryList(props) {
       });
   }
 
+  // Function for document updates
+  const handleUploadDocument = (id, recievedId, type, files, existingFiles) => {
+    setOpenBackdrop(true);
+    setOpenSnackBar(false);
+    if (existingFiles.length) {
+      setAlertConfig({ severity: 'info', message: 'Saving Changes...' });
+    } else {
+      setAlertConfig({ severity: 'info', message: 'Uploading Document...' });
+    }
+    setOpenSnackBar(true);
+    
+    const newDocs = files.map(i => { return i.name });
+    const existingDocuments = existingFiles.map(i => { return i.file_name });
+
+    existingFiles.forEach(doc => {
+      if (!newDocs.includes(doc.file_name)) {
+        deleteDeliveryDocumentsById(doc.id)
+          .then(response => {
+            if (response.status === 204) {
+              setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+              props.fetchAllReceivingAndReleasingById({
+                count: rowsPerPage,
+                after: page * rowCount,
+                filter: props.match.params.id
+              });
+              fetchDeliveryDocuments(receivingAndReleasing.delivery_notice_id);
+            }
+          })
+          .catch(error => {
+            const regex = new RegExp('P0001:');
+            if (regex.test(error.response.data.message)) {
+              return
+            } else {
+              dispatchError(dispatch, THROW_ERROR, error);
+            }
+        });
+      }
+    });
+
+    files.forEach(file => {
+      if (!existingDocuments.includes(file.name)) {
+        uploadDocument(id, recievedId, type, [file])
+          .then(response => {
+            if (response.status === 201) {
+              setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+              props.fetchAllReceivingAndReleasingById({
+                count: rowsPerPage,
+                after: page * rowCount,
+                filter: props.match.params.id
+              });
+              fetchDeliveryDocuments(receivingAndReleasing.delivery_notice_id);
+            }
+          })
+          .catch(error => {
+            const regex = new RegExp('P0001:');
+            if (regex.test(error.response.data.message)) {
+              return
+            } else {
+              dispatchError(dispatch, THROW_ERROR, error);
+            }
+          });
+      }
+    });
+  }
+
   /**
    * Invoke alert with error message
    */
@@ -300,6 +426,16 @@ function DeliveryList(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
+  // Set new warehouse data with searched items
+  React.useEffect(() => {
+    props.fetchReceivedDocumentType()
+  }, []);
+
+  // Set new warehouse data with searched items
+  React.useEffect(() => {
+    if (receivingAndReleasing) fetchDeliveryDocuments(receivingAndReleasing.delivery_notice_id)
+  }, [receivingAndReleasing]);
+
   React.useEffect(() => {
     if (props.receivingAndReleasing && Array.isArray(tableData)) {
       setTableData(props.receivingAndReleasing.data);
@@ -308,6 +444,7 @@ function DeliveryList(props) {
     }
 
     if (props.receivingAndReleasing) {
+      if (!addMode) getExpectedTrucksAndItems(props.receivingAndReleasing.data);
       setTableData(props.receivingAndReleasing.data);
       setItemCount(props.receivingAndReleasing.count);
       setOpenBackdrop(false);
@@ -368,6 +505,70 @@ function DeliveryList(props) {
           <Button variant="contained" className="btn btn--emerald btn-csv" disableElevation onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
+      {receivingAndReleasing && 
+        <Grid container spacing={3} className="delivery-overview">
+          <Grid item xs={2}>
+            <Paper 
+              elevation={1}
+              title={receivingAndReleasing.warehouse_name}>
+              <Typography>{receivingAndReleasing.warehouse_name}</Typography>
+              <Typography variant="body2" display="block">
+                Warehouse
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper 
+              elevation={1}
+              title={receivingAndReleasing.warehouse_client}>
+              <Typography>{receivingAndReleasing.warehouse_client}</Typography>
+              <Typography variant="body2" display="block">
+                Warehouse Client
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper elevation={1}>
+              <Typography>{receivingAndReleasing.transaction_type}</Typography>
+              <Typography variant="body2" display="block">
+                Transaction Type
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper elevation={1}>
+              <Typography>{expectedTrucks}</Typography>
+              <Typography variant="body2" display="block">
+                Expected Trucks
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper elevation={1}>
+              <Typography>{expectedItems}</Typography>
+              <Typography variant="body2" display="block">
+                Expected Items
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={2}>
+            <Paper elevation={1} onClick={() => setOpenDocuments(true)}>
+              <Typography>{documentCount}</Typography>
+              <Typography variant="body2" display="block">
+                Documents Attached
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
+      }
+      {openDocuments &&
+        <AttachedDocuments
+          data={uploadedDocuments}
+          open={openDocuments}
+          receivingAndReleasing={receivingAndReleasing}
+          handleClose={() => setOpenDocuments(false)}
+        />
+      }
       <Table 
         config={config}
         defaultData={tableData}
@@ -382,6 +583,8 @@ function DeliveryList(props) {
         total={itemCount}
         addMode={addMode}
         onRowClick={handleRowClick}
+        handleUploadDocument={handleUploadDocument}
+        receivingAndReleasing={receivingAndReleasing}
       />
       <Dialog open={receivingDialog} onClose={handleModalClose} classes={{ paper: classes.dialogPaper }} maxWidth={'xl'} fullWidth aria-labelledby="form-dialog-title">
         <DialogContent >
@@ -407,8 +610,8 @@ const mapStateToProps = (state, ownProps) => {
     searched: state.receiving_releasing.search,
     notice: state.notice.data[ownProps.match.params.id],
     sku: state.notice.sku,
-    receivingAndReleasing: state.receiving_releasing
+    receivingAndReleasing: state.receiving_releasing,
   }
 };
 
-export default connect(mapStateToProps, { searchReceivingAndReleasing, fetchAllReceivingAndReleasingById, fetchDeliveryNoticeById, searchDeliveryNoticeSKU })(DeliveryList);
+export default connect(mapStateToProps, { searchReceivingAndReleasing, fetchReceivedDocumentType, fetchAllReceivingAndReleasingById, fetchDeliveryNoticeById, searchDeliveryNoticeSKU })(DeliveryList);

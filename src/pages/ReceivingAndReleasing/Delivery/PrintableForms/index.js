@@ -135,7 +135,7 @@ class PrintableForms extends React.Component {
                                         </label>
                                     </Grid>
                                     <Grid item xs={12} className="align-center row details-cont right">
-                                        <label>{moment(new Date(this.state.data.datetime)).format('LL')}</label>
+                                        <label>{moment(new Date(this.state.data.date_in)).format('LL')}</label>
                                         <label>Date</label>
                                     </Grid>
                                     <Grid item xs={12} className="align-center row details-cont right">
@@ -159,7 +159,6 @@ class PrintableForms extends React.Component {
                                             <TableCell className="tbl-cell header">CODE</TableCell>
                                             <TableCell className="tbl-cell header">QTY</TableCell>
                                             <TableCell className="tbl-cell header">UNIT</TableCell>
-                                            <TableCell className="tbl-cell header">EXP DATE</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -171,7 +170,6 @@ class PrintableForms extends React.Component {
                                                     <TableCell className="tbl-cell">{rowItem.item_code}</TableCell>
                                                     <TableCell className="tbl-cell">{rowItem.actual_quantity}</TableCell>
                                                     <TableCell className="tbl-cell">{rowItem.uom_type}</TableCell>
-                                                    <TableCell className="tbl-cell">{moment(new Date(rowItem.actual_arrived_date_time)).format('L')}</TableCell>
                                                 </TableRow>
                                             ))
                                         }
