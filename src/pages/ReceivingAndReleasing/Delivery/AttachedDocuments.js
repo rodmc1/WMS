@@ -90,7 +90,6 @@ function AttachedDocuments(props) {
     if (props) {
       setOpen(props.open);
       if (props.data) {
-        console.log(props.data)
         const docs = props.data.map(fileData => extractFileUrl(fileData.file_path));
         setDocuments(docs);
         setDocumentData(props.data);
