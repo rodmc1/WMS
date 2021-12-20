@@ -407,7 +407,7 @@ function DeliveryNoticeSKU(props) {
       setDeliveryNoticeSKU(props.sku.data);
       setOpenBackdrop(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.sku]);
 
   React.useEffect(() => {
