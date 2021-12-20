@@ -170,7 +170,9 @@ function DeliveryList(props) {
   const fetchDeliveryDocuments = (id) => {
     fetchAllDocument(id)
     .then(res => {
-      setUploadedDocuments(res.data[0].received_document_file_type)
+      if (res.data[0]) {
+        setUploadedDocuments(res.data[0].received_document_file_type)
+      }
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);
     });
