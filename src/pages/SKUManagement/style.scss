@@ -5,6 +5,9 @@
   .MuiOutlinedInput-input.MuiOutlinedInput-inputAdornedStart {
     padding: 14px 0px;
   }
+  .MuiTableBody-root .MuiTableCell-root {
+    padding: 12px;
+  }
 }
 .sku-empty-container {
   height: 52vh;
@@ -53,20 +56,22 @@
 
 .drawer:not(.drawer--collapsed) + main {
   .sku {
-    .search_form {
-      width: 360px;
+    @media (min-width: 1200px) {
+      .search_form {
+        width: 370px;
+      }
+    }
+    @media (min-width: 1300px) {
+      .search_form {
+        width: 490px;
+      }
     }
     @media (min-width: 1400px) {
       .search_form {
-        width: 300px;
+        width: 500px;
       }
     }
     @media (min-width: 1500px) {
-      .search_form {
-        width: 330px;
-      }
-    }
-    @media (min-width: 1900px) {
       .search_form {
         width: 600px;
       }

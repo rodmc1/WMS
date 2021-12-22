@@ -183,6 +183,13 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     return cellData;
   }
 
+  const renderTableWidth = (data, type) => {
+    let width = '400px';
+    if (type === 'item_code') width = '300px';
+
+    return width;
+  }
+
   const renderStatus = data => {
     let jsx = <Chip label="Completed" className="status-chip emerald" />
     if (data === 'In-Progress') jsx = <Chip label="In-Progress" className="status-chip tangerine" />;
@@ -283,7 +290,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
                           <TableCell 
                             title={d[k]}
                             style={{
-                              maxWidth: '400px',
+                              maxWidth: renderTableWidth(d[k], k),
                               overflowX: 'hidden',
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap'

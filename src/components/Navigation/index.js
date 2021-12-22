@@ -45,11 +45,6 @@ function Navigation(props) {
       group: 'Operation',
       list: [
         {
-          label:'Warehouse Master Data',
-          path: '/warehouse-master-data',
-          icon: TableChart
-        },
-        {
           label:'Delivery Notice',
           path: '/delivery-notice',
           icon: EventNoteIcon

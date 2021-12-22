@@ -2,8 +2,7 @@ import _ from 'lodash';
 import history from 'config/history';
 import React, { useEffect } from 'react';
 import WarehouseDialog from 'components/WarehouseDialog';
-import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
-import WarehouseMasterDataSKUForm from 'components/WarehouseMasterData/SKU/Form';
+import WarehouseMasterDataSKUForm from 'components/WarehouseSKU/SKU/Form';
 
 import { THROW_ERROR } from 'actions/types';
 import { createWarehouseSKU } from 'actions';

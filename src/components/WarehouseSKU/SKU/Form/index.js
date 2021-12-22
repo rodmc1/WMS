@@ -108,12 +108,9 @@ function WarehouseMasterDataSKUForm(props) {
   }, [props.clients]);
 
   React.useEffect(() => {
-    console.log(getValues('externalCode'))
     onChangeHandler()
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
-  // console.log(getValues('productName'))
-  // console.log(hasChanged)
   const [code, setCode] = React.useState(null)
   const onChangeHandler = event => {
     setInterval(function(){ setCode(getValues('productName') + '-' + getValues('externalCode'))  }, 1000);
@@ -154,7 +151,6 @@ function WarehouseMasterDataSKUForm(props) {
                   type="text"
                   required
                   fullWidth
-                  onChange={console.log('wew')}
                 />
               }
               name="externalCode"

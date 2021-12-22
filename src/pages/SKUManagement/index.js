@@ -7,11 +7,9 @@ import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { fetchSKUByName, fetchAllWarehouseSKUs, fetchWarehouseSKUs } from 'actions';
-import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
 
 import Table from 'components/Table';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import MuiAlert from '@mui/material/Alert';
 import Spinner from '@mui/material/Backdrop';
@@ -80,7 +78,6 @@ function WarehouseMasterDataSKU (props) {
 
   // Redirect to selected warehouse
   const handleRowClick = row => {
-    console.log(row)
     history.push({
       pathname: `/sku-management/${row.item_id}`,
       data: row
@@ -114,7 +111,6 @@ function WarehouseMasterDataSKU (props) {
     await fetchAllWarehouseSKUs({ warehouse_name: props.match.params.id }).then(response => {
       const newData = response.data.map(sku => {
         return {
-          warehouseName: sku.warehouse_name,
           productName: sku.product_name,
           UOMDescription: sku.uom_description,
           itemCode: sku.item_code,
@@ -140,7 +136,6 @@ function WarehouseMasterDataSKU (props) {
 
   // CSV Headers
   const csvHeaders = [  
-    { label: "Warehouse Name", key: "warehouseName" },
     { label: "Product Name", key: "productName" },
     { label: "UOM", key: "UOMDescription" },
     { label: "Code", key: "itemCode" },
@@ -200,7 +195,7 @@ function WarehouseMasterDataSKU (props) {
       setSKUCount(props.sku.count);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.sku]);
+  }, [props.sku.count, props.sku.data]);
 
   // Close spinner if api request for SKU is complete
   useEffect(() => { 
@@ -248,7 +243,7 @@ function WarehouseMasterDataSKU (props) {
           filterSize={1}
           config={config}
           data={SKUData}
-          total={SKUCount || 0}
+          total={SKUCount}
           handleRowCount={handleRowCount}
           onPaginate={handlePagination}
           onRowClick={handleRowClick}
@@ -263,14 +258,11 @@ function WarehouseMasterDataSKU (props) {
     <div className="container sku">
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
-        { 
-          !_.isEmpty(SKUData) && 
-          <div className="button-group">
-            <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>
-            <CSVLink data={csvData} filename={`${props.match.params.id}-sku.csv`} headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
-            <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginLeft: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
-          </div>
-        }
+        <div className="button-group">
+          <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>
+          <CSVLink data={csvData} filename={`wms-sku.csv`} headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
+          <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginLeft: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
+        </div>
       </div>
       <Grid container spacing={2}
         direction="row"

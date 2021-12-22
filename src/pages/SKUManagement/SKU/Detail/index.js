@@ -3,8 +3,7 @@ import history from 'config/history';
 import React, { useEffect } from 'react';
 
 import WarehouseDialog from 'components/WarehouseDialog';
-import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
-import WarehouseMasterDataSKUForm from 'components/WarehouseMasterData/SKU/Form';
+import WarehouseMasterDataSKUForm from 'components/WarehouseSKU/SKU/Form';
 
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
@@ -43,7 +42,6 @@ function WarehouseMasterDataSKUDetail (props) {
     setOpenSnackBar(true);
 
     const SKUData = {
-      warehouse: props.match.params.id,
       product_name: data.productName,
       uoh: data.unitOfHandling,
       uom: data.unitOfMeasurement,
@@ -58,7 +56,7 @@ function WarehouseMasterDataSKUDetail (props) {
       batch_management: data.batchManagement,
       expiry_management: data.expiryManagement,
       remarks: data.remarks,
-      id: Number(props.match.params.item_id)
+      id: Number(props.match.params.id)
     }
     
     //Images upload and delete
@@ -68,7 +66,7 @@ function WarehouseMasterDataSKUDetail (props) {
       setStatus(prevState => { return {...prevState, images: true }});
     }
 
-    updateWarehouseSKU(props.match.params.item_id, SKUData)
+    updateWarehouseSKU(SKUData.id, SKUData)
       .then(response => {
         if (response.status === 201) {
           setStatus(prevState => { return {...prevState, sku: true }});
@@ -119,8 +117,8 @@ function WarehouseMasterDataSKUDetail (props) {
   useEffect(() => {
     if (edited) {
       history.push({
-        pathname: `/warehouse-master-data/${props.match.params.id}/sku`,
-        success: 'Successfuly saved'
+        pathname: `/sku-management`,
+        success: 'Changes saved successfully'
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -132,7 +130,7 @@ function WarehouseMasterDataSKUDetail (props) {
       setSKU(props.location.data);
       if (!existingSKU) setExistingSKU(props.location.data);
     } else {
-      window.location.href = `/warehouse-master-data/${props.match.params.id}/sku`
+      window.location.href = `/sku-management`
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
@@ -177,7 +175,7 @@ function WarehouseMasterDataSKUDetail (props) {
           dialogTitle="Confirmation"
           buttonConfirmText="Yes"
           buttonCancelText="No"
-          dialogAction={() => history.push(`/warehouse-master-data/${props.match.params.id}/sku`)}
+          dialogAction={() => history.push(`/sku-management`)}
         />
       </Grid>
     </div>
