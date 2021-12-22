@@ -407,7 +407,7 @@ function DeliveryNoticeSKU(props) {
       setDeliveryNoticeSKU(props.sku.data);
       setOpenBackdrop(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.sku]);
 
   React.useEffect(() => {
@@ -444,7 +444,7 @@ function DeliveryNoticeSKU(props) {
   }, [props.error]);
 
   return (
-    <div className="container delivery-notice-container sku">
+    <div className="container delivery-notice-container dn-sku">
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         <div className="button-group">

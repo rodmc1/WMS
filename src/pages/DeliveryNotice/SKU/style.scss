@@ -55,8 +55,7 @@
     padding: 8px 6px !important;
 
     &.MuiButtonBase-root {
-      color: ''
-      
+      color: '';
     }
   }
   .btn.btn-csv {
@@ -108,5 +107,50 @@
   }
   .external-code {
     min-width: 180px;
+  }
+}
+
+
+
+.drawer:not(.drawer--collapsed) + main {
+  .dn-sku {
+    .search_form {
+      width: 360px;
+    }
+    @media (min-width: 1400px) {
+      .search_form {
+        width: 300px;
+      }
+    }
+    @media (min-width: 1500px) {
+      .search_form {
+        width: 330px;
+      }
+    }
+    @media (min-width: 1900px) {
+      .search_form {
+        width: 600px;
+      }
+    }
+  }
+}
+
+.drawer + main {
+  .dn-sku {
+    @media (min-width: 800px) {
+      .search_form {
+        width: 400px;
+      }
+    }
+    @media (min-width: 1000px) {
+      .search_form {
+        width: 450px;
+      }
+    }
+    @media (min-width: 1200px) {
+      .search_form {
+        width: 600px;
+      }
+    }
   }
 }
