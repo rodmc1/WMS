@@ -8,6 +8,11 @@
       background-color: rgba(0, 0, 0, 0.04);
     }
   }
+
+}
+
+.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows {
+  margin-top: 15px !important;
 }
 
 .table-img-preview {
@@ -98,4 +103,13 @@
       width: 600px;
     }
   }
+}
+
+.MuiTablePagination-menuItem {
+  background-color: white !important;
+  border-radius: 1px !important;
+}
+
+.MuiTablePagination-select {
+  border-radius: 1px !important;
 }

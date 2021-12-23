@@ -3,27 +3,25 @@ import React from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import Paper from '@mui/material/Paper';
-import Table from '@material-ui/core/Table';
-import Search from '@material-ui/icons/Search';
+import Table from '@mui/material/Table';
+import Search from '@mui/icons-material/Search';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
-import TableCell from '@material-ui/core/TableCell';
+import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import LastPageIcon from '@material-ui/icons/LastPage';
+import LastPageIcon from '@mui/icons-material/LastPage';
 import FormControl from '@mui/material/FormControl';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import TableContainer from '@material-ui/core/TableContainer';
-import TablePagination from '@material-ui/core/TablePagination';
+import TableContainer from '@mui/material/TableContainer';
+import TablePagination from '@mui/material/TablePagination';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import Chip from '@material-ui/core/Chip';
-// import defaultImage from '/assets/images/default-image.png';
-
+import CircularProgress from '@mui/material/CircularProgress';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import Chip from '@mui/material/Chip';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -40,26 +38,26 @@ const useStyles1 = makeStyles((theme) => ({
 function TablePaginationActions(props) {
   const classes = useStyles1();
   const theme = useTheme();
-  const { count, page, rowsPerPage, onChangePage } = props;
+  const { count, page, rowsPerPage, onPageChange } = props;
 
   // Pagination
   const handleFirstPageButtonClick = (event) => {
-    onChangePage(event, 0);
+    onPageChange(event, 0);
   };
 
   // Pagination
   const handleBackButtonClick = (event) => {
-    onChangePage(event, page - 1);
+    onPageChange(event, page - 1);
   };
 
   // Pagination
   const handleNextButtonClick = (event) => {
-    onChangePage(event, page + 1);
+    onPageChange(event, page + 1);
   };
 
   // Pagination
   const handleLastPageButtonClick = (event) => {
-    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
 
   return (
@@ -95,7 +93,7 @@ function TablePaginationActions(props) {
 // Table pagination prototypes
 TablePaginationActions.propTypes = {
   count: PropTypes.number.isRequired,
-  onChangePage: PropTypes.func.isRequired,
+  onPageChange: PropTypes.func.isRequired,
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
 };
@@ -239,7 +237,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
         <div className={classes.pagination}>
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
-            count={Number(total)}
+            count={total ? Number(total) : 0}
             rowsPerPage={rowsPerPage}
             page={page}
             component="div"
@@ -247,8 +245,8 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
               inputProps: { 'aria-label': 'rows per page' },
               native: true,
             }}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
             ActionsComponent={TablePaginationActions}
             />
         </div>
@@ -259,8 +257,8 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
             <TableHead>
               <TableRow>
                 {headers.map((header, index) => (
-                    index !== 0 && 
-                    <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
+                  index !== 0 && 
+                  <TableCell align={config.headers[index] ? config.headers[index].align : 'left'} key={header}>{header}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
