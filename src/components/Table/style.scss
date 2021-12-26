@@ -106,10 +106,13 @@
 }
 
 .MuiTablePagination-menuItem {
-  background-color: white !important;
   border-radius: 1px !important;
 }
 
 .MuiTablePagination-select {
   border-radius: 1px !important;
+}
+
+.MuiTablePagination-displayedRows {
+  margin-right: 10px;
 }

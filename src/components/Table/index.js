@@ -23,12 +23,11 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import Chip from '@mui/material/Chip';
 
-const useStyles1 = makeStyles((theme) => ({
+const useStyles1 = makeStyles({
   root: {
     flexShrink: 0,
-    marginLeft: theme.spacing(2)
   },
-}));
+});
 
 
 /*
@@ -234,8 +233,9 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
             />
           </FormControl>
         </div>
-        <div className={classes.pagination}>
+        {/* <div className={classes.pagination}> */}
           <TablePagination
+          className={classes.pagination}
             rowsPerPageOptions={[5, 10, 25]}
             count={total ? Number(total) : 0}
             rowsPerPage={rowsPerPage}
@@ -249,7 +249,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
             onRowsPerPageChange={handleChangeRowsPerPage}
             ActionsComponent={TablePaginationActions}
             />
-        </div>
+        {/* </div> */}
       </div>
       <Paper className={classes.root} className="main-table-root">
         <TableContainer>
