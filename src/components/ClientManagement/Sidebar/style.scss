@@ -1,0 +1,24 @@
+@import 'assets/scss/variable';
+.sidebar {
+  .MuiTypography-root {
+    color: #828282;
+  }
+  .active .MuiTypography-root {
+    color: $emerald;
+  }
+  .delete_button .MuiTypography-root {
+    color: #E74C3C !important
+  }
+  position: relative;
+}
+
+.warehouse-sidebar {
+  .MuiList-root {
+    height: 78vh;
+  }
+  .delete_button {
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 10px;
+  }
+}
