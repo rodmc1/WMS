@@ -58,7 +58,6 @@ function WarehouseMasterDataSKUForm(props) {
     if (props.sku) {
       let SKUDetails = [
         ['productName', props.sku.product_name],
-        ['projectType', props.sku.project_type],
         ['code', props.sku.item_code],
         ['externalCode', props.sku.external_code],
         ['minQuantity', props.sku.min_qty ? props.sku.min_qty : '0'],
@@ -122,7 +121,7 @@ function WarehouseMasterDataSKUForm(props) {
       <div className="paper__section">
         <Typography variant="subtitle1" className="paper__heading">General Information</Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={12}>
             <label className="paper__label">Product Name</label>
             <Controller
               as={
@@ -140,33 +139,6 @@ function WarehouseMasterDataSKUForm(props) {
               onInput={() => setHasChanged(true)}
             />
             {errors.productName && <FormHelperText error>{errors.productName.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <label className="paper__label">Project Type</label>
-            <Controller
-              as={
-                <Select
-                  variant="outlined"
-                  fullWidth
-                  required
-                  defaultValue=""
-                  displayEmpty={true}
-                  renderValue={
-                    getValues("projectType") !== "" ? undefined : () => <div style={{color: 'grey'}}>Select Project Type</div>
-                  }>
-                  <MenuItem value="Poles">Poles</MenuItem>
-                  <MenuItem value="Tower and Powe">Tower and Power</MenuItem>
-                  <MenuItem value="In-house Globe">In-house Globe</MenuItem>
-                  <MenuItem value="Others">Others</MenuItem>
-                </Select>
-              }
-              name="projectType"
-              control={control}
-              defaultValue=""
-              required
-              rules={{ required: "This field is required" }}
-            />
-            {errors.projectType && <FormHelperText error>{errors.projectType.message}</FormHelperText>}
           </Grid>
         </Grid>
         <Grid container spacing={2}>
