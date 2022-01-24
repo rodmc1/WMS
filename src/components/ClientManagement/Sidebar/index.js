@@ -1,13 +1,13 @@
-import './style.scss';
+// import './style.scss';
 import React from 'react';
 import history from 'config/history';
 import { deleteWarehouseById } from 'actions/index';
 
 import List from '@mui/material/List';
 import Paper from '@mui/material/Paper';
-import ListItem from '@material-ui/core/ListItem';
 import WarehouseDialog from 'components/WarehouseDialog';
 import ListItemText from '@mui/material/ListItemText';
+import ListItem from '@mui/material/ListItem';
 
 function WarehouseSideBar(props) {
   const [openDialog, setOpenDialog] = React.useState({ open: false });
@@ -17,8 +17,8 @@ function WarehouseSideBar(props) {
     deleteWarehouseById(props.deleteId).then(response => {
       if (response.status === 204) {
         history.push({
-          pathname: '/',
-          success: 'Warehouse deleted successfully'
+          pathname: '/client-management',
+          success: 'Client deleted successfully'
         });
       }
     });
@@ -32,22 +32,28 @@ function WarehouseSideBar(props) {
   return (
     <Paper elevation={0} variant="outlined" className="warehouse-sidebar sidebar">
       <List>
-        <ListItem button disabled={props.createMode} className={history.location.pathname.match('overview') ? 'active' : ''} onClick={() => history.push(`/warehouse-list/${props.id}/overview`)}>
-          <ListItemText primary="Warehouse Overview" />
+        <ListItem button disabled={props.createMode} className={history.location.pathname.match('/overview') ? 'active' : ''} onClick={() => history.push(`/client-management/${props.id}/overview`)}>
+          <ListItemText primary="Overview" />
         </ListItem>
-        <ListItem button disabled={props.createMode} className={history.location.pathname.match('warehouse-edit') ? 'active warehouse_edit' : 'warehouse_edit'}  onClick={() => history.push(`/warehouse-list/${props.id}/warehouse-edit`)}>
-          <ListItemText primary="Warehouse Information" />
+        <ListItem button disabled={props.createMode} className={history.location.pathname.match('/edit') ? 'active client_edit' : 'client_edit'}  onClick={() => history.push(`/client-management/${props.id}/edit`)}>
+          <ListItemText primary="Details" />
+        </ListItem>
+        <ListItem button disabled={props.createMode} className={history.location.pathname.match('/sku') ? 'active client_edit' : 'client_edit'}  onClick={() => history.push(`/client-management/${props.id}/sku`)}>
+          <ListItemText primary="SKU" />
+        </ListItem>
+        <ListItem button disabled={props.createMode} className={history.location.pathname.match('/logs') ? 'active client_edit' : 'client_edit'} onClick={() => history.push(`/client-management/${props.id}/logs`)}>
+          <ListItemText primary="Audit Log" />
         </ListItem>
         {
           !props.createMode &&
           <ListItem className="delete_button" button onClick={handleDialog} >
-            <ListItemText primary="Delete Warehouse" style={{ color: 'red' }} />
+            <ListItemText primary="Delete Client" style={{ color: 'red' }} />
           </ListItem>
         }
       </List>
       <WarehouseDialog
         openDialog={openDialog.open}
-        diaglogText="Are you sure you want to delete this Warehouse?"
+        diaglogText="Are you sure you want to delete this Client?"
         dialogTitle="Confirmation"
         buttonConfirmText="Delete"
         buttonCancelText="Cancel"

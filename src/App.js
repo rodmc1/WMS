@@ -28,6 +28,10 @@ import SKUManagementCreate from 'pages/SKUManagement/SKU/CreateSKU';
 import SKUManagementData from 'pages/SKUManagement/SKU/Detail';
 import ClientManagement from 'pages/ClientManagement';
 import ClientManagementCreate from 'pages/ClientManagement/Create';
+import ClientManagementOverview from 'pages/ClientManagement/Overview';
+import ClientManagementEdit from 'pages/ClientManagement/Edit';
+import ClientManagementLogs from 'pages/ClientManagement/Logs';
+import ClientManagementSKU from 'pages/ClientManagement/SKU';
 
 function App() {
   const [isNavigationCollapsed, setIsNavigationCollapsed] = React.useState(false);
@@ -60,6 +64,10 @@ function App() {
                 <Route exact path='/sku-management/:id' component={SKUManagementData} />
                 <Route exact path='/client-management' component={ClientManagement} />
                 <Route exact path='/client-management/create' component={ClientManagementCreate} />
+                <Route exact path='/client-management/:id/overview' component={ClientManagementOverview} />
+                <Route exact path='/client-management/:id/edit' component={ClientManagementEdit} />
+                <Route exact path='/client-management/:id/sku' component={ClientManagementSKU} />
+                <Route exact path='/client-management/:id/logs' component={ClientManagementLogs} />
                 <Route exact path='/delivery-notice/' component={DeliveryNotice} />
                 <Route exact path='/delivery-notice/create' component={DeliveryNoticeCreate} />
                 <Route exact path='/delivery-notice/:id/overview' component={DeliveryNoticeOverview} />

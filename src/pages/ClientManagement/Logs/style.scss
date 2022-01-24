@@ -1,0 +1,65 @@
+@import 'assets/scss/button';
+@import 'assets/scss/variable';
+
+.audit-log-container {
+  .log-list {
+    min-height: 80vh;
+  }
+  .DateInput {
+    max-width: 105px;
+  }
+
+  .DateInput_input {
+    font-size: 1rem;
+  }
+
+  button.btn.btn--emerald {
+    padding: 11px 16px;
+  }
+
+  .MuiOutlinedInput-input {
+    padding: 14px 14px;
+  }
+
+  .MuiCard-root {
+    margin-bottom: 1.5%;
+    border: 1px solid #E0E0E0;
+  }
+
+  .log-action-icon {
+    position: absolute;
+    margin-top: 25px;
+    margin-left: 15px;
+    &.created {
+      color: $emerald;
+    }
+    &.added {
+      color: $emerald;
+    }
+    &.updated {
+      color: #FEB56B;
+    }
+    &.deleted {
+      color: #EB5757;
+    }
+  }
+
+  .MuiCardHeader-root {
+    margin-left: 39px;
+  }
+
+  .nrf {
+    margin-top: 150px;
+    position: relative;
+    float: left;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  @media (min-width: 1500px) {
+    .search_form {
+      width: 100% !important;
+    }
+  }
+}

@@ -3,7 +3,7 @@ import React from 'react';
 import history from 'config/history';
 import _ from 'lodash';
 import { connect, useDispatch } from 'react-redux';
-import { fetchWarehouseByName, fetchWarehouses, fetchAllWarehouse } from 'actions';
+import { fetchWarehouseByName, fetchAllWarehouse, fetchWarehouseClients, fetchAllWarehouseClient } from 'actions';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { CSVLink } from "react-csv";
@@ -22,7 +22,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 function ClientManagement(props) {
   const [searchLoading, setSearchLoading] = React.useState(false);
-  const [warehouseData, setWarehouseData] = React.useState(null)
+  const [clientData, setClientData] = React.useState(null)
   const [open, setOpen] = React.useState(false);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
   const [query, setQuery] = React.useState('');
@@ -49,36 +49,20 @@ function ClientManagement(props) {
   const config = {
     rowsPerPage: 10,
     headers: [
-      { label: 'ID', key: 'client_id' },
-      { label: 'Company', key: 'client' },
-      { label: 'Status', key: 'client_status' },
-      { label: 'Number of SKU', key: 'sku_number' },
+      { label: 'ID', key: 'id' },
+      { label: 'Company', key: 'client_name' },
+      { label: 'Status', key: 'status' },
+      { label: 'Number of SKU', key: 'total_sku' },
       { label: 'Country', key: 'country' }
     ]
   }
 
   // CSV Headers
   const csvHeaders = [  
-    { label: "Warehouse Name", key: "warehouseName" },
-    { label: "Address", key: "address" },
-    { label: "GPS Coordinates", key: "gpsCoordinate" },
+    { label: "Company", key: "companyName" },
+    { label: "Status", key: "status" },
+    { label: "Number of SKU", key: "sku" },
     { label: "Country", key: "country" },
-    { label: "Warehouse Type", key: "warehouseType" },
-    { label: "Building Type", key: "buildingType" },
-    { label: "Warehouse Status", key: "warehouseStatus" },
-    { label: "Nearby Station", key: "nearbyStation" },
-    { label: "Year of TOP", key: "yearTop" },
-    { label: "Min lease terms (months)", key: "minLeaseTerms" },
-    { label: "PSF", key: "psf" },
-    { label: "Floor Area (sqm)", key: "floorArea" },
-    { label: "Covered Area (sqm)", key: "coveredArea" },
-    { label: "Mezzanine Area (sqm)", key: "mezzanineArea" },
-    { label: "Open Area (sqm)", key: "openArea" },
-    { label: "Office Area (sqm)", key: "officeArea" },
-    { label: "Battery Charging Area (sqm)", key: "batteryChargingArea" },
-    { label: "Loading and Unloading Bays", key: "loadingAndUnloadingBays" },
-    { label: "Facilities and amenities", key: "facilitiesAndAmenities" },
-    { label: "Remarks", key: "remarks" }
   ];
 
   // Redirect to create warehouse page
@@ -107,34 +91,30 @@ function ClientManagement(props) {
     if (query) {
       delayedQuery(page, rowCount);
     } else if (!query) {
-      setWarehouseData(props.warehouses.data);
-      setWarehouseCount(props.warehouses.count);
+      setClientData(props.clients.data);
+      setWarehouseCount(props.clients.count);
       setSearchLoading(false);
     }
     return delayedQuery.cancel;
-  }, [query, delayedQuery, page, rowCount, props.warehouses.count, props.warehouses.data]);
+  }, [query, delayedQuery, page, rowCount, props.clients.count, props.clients.data]);
 
   // Fetch new data if search values was erased
   React.useEffect(() => {
     if (!query) {
       setSearchLoading(true);
-      // props.fetchWarehouses({
-      //   count: page || 10,
-      //   after: page * rowCount
-      // });
+      props.fetchWarehouseClients({
+        count: page || 10,
+        after: page * rowCount
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query]);
-  console.log(warehouseData)
 
   React.useEffect(() => { 
-    if (JSON.stringify(warehouseData) === '{}') {
+    if (JSON.stringify(clientData) === '{}') {
       setOpenBackdrop(false);
     }
-    if (warehouseData !== null) {
-      if (!warehouseData.length) setOpenBackdrop(false);
-    }
-  }, [warehouseData]);
+  }, [clientData]);
 
   // Set searched values and warehouse count after search
   React.useEffect(() => {
@@ -148,16 +128,16 @@ function ClientManagement(props) {
   React.useEffect(() => {
     if (searched) {
       setSearchLoading(false);
-      setWarehouseData(searched);
+      setClientData(searched);
     }
   }, [searched]);
 
   // Set warehouses data
   React.useEffect(() => {
-    if (props.warehouses.data) {
-      setWarehouseData(props.warehouses.data);
+    if (props.clients.data) {
+      setClientData(props.clients.data);
     }
-  }, [props.warehouses]);
+  }, [props.clients]);
 
   /*
    * Function for pagination when searching
@@ -167,43 +147,27 @@ function ClientManagement(props) {
     if (query) {
       delayedQuery(page, rowsPerPage);
     } else {
-      // props.fetchWarehouses({
-      //   count: rowsPerPage,
-      //   after: page * rowsPerPage
-      // });
+      props.fetchWarehouseClients({
+        count: rowsPerPage,
+        after: page * rowsPerPage
+      });
     }
   };
 
   // Redirect to selected warehouse
   const handleRowClick = (row) => {
-    history.push(`/warehouse-list/${row.warehouse_client}/overview`);
+    history.push(`/client-management/${row.client_name}/overview`);
   }
 
   // Function for CSV Download  
   const handleDownloadCSV = async () => {
-    await fetchAllWarehouse().then(response => {
-      const newData = response.data.map(warehouse => {
+    await fetchAllWarehouseClient().then(response => {
+      const newData = response.data.map(clientData => {
         return {
-          warehouseName: warehouse.warehouse_client,
-          address: warehouse.address,
-          gpsCoordinate: warehouse.gps_coordinate,
-          country: warehouse.country,
-          warehouseType: warehouse.warehouse_type,
-          buildingType: warehouse.building_type,
-          warehouseStatus: warehouse.warehouse_status,
-          nearbyStation: warehouse.nearby_station,
-          yearTop: warehouse.year_top,
-          minLeaseTerms: warehouse.min_lease_terms,
-          psf: warehouse.psf,
-          floorArea: warehouse.floor_area,
-          coveredArea: warehouse.covered_area,
-          mezzanineArea: warehouse.mezzanine_area,
-          openArea: warehouse.open_area,
-          officeArea: warehouse.office_area,
-          batteryChargingArea: warehouse.battery_charging_area,
-          loadingAndUnloadingBays: warehouse.loading_unloading_bays,
-          remarks: warehouse.remarks,
-          facilitiesAndAmenities: warehouse.facilities_amenities
+          companyName: clientData.client_name,
+          status: clientData.status,
+          sku: clientData.total_sku,
+          country: clientData.country,
         }
       });
       setCsvData(newData);
@@ -216,11 +180,11 @@ function ClientManagement(props) {
 
   // Set warehouse count and remove spinner when data fetch is done
   React.useEffect(() => {
-    if (props.warehouses.count) {
-      setWarehouseCount(props.warehouses.count)
+    if (props.clients.count) {
+      setWarehouseCount(props.clients.count)
       setOpenBackdrop(false);
     }
-  }, [props.warehouses.count]);
+  }, [props.clients.count]);
 
   // Show snackbar alert when new warehouse is created
   React.useEffect(() => {
@@ -235,13 +199,13 @@ function ClientManagement(props) {
         <Breadcrumbs routes={routes} />
         <div className="button-group">
           <Button variant="contained" className="btn btn--emerald" style={{ marginRight: 10 }} onClick={handleCreateClient} disableElevation>Create Client</Button>
-          <CSVLink data={csvData} filename="warehouses.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
+          <CSVLink data={csvData} filename="warehouse_clients.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
           <Button variant="contained" className="btn btn--emerald" disableElevation onClick={handleDownloadCSV}>Download CSV</Button>
         </div>
       </div>
       <Table
         config={config}
-        data={warehouseData}
+        data={clientData}
         total={warehouseCount}
         onInputChange={onInputChange}
         onPaginate={handlePagination}
@@ -262,9 +226,9 @@ function ClientManagement(props) {
 
 const mapStateToProps = state => {
   return {
-    warehouses: state.warehouses,
+    clients: state.client,
     searched: state.warehouses.search
   }
 }
 
-export default connect(mapStateToProps, { fetchWarehouses, fetchWarehouseByName })(ClientManagement);
+export default connect(mapStateToProps, { fetchWarehouseByName, fetchWarehouseClients })(ClientManagement);

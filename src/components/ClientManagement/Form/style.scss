@@ -1,9 +1,9 @@
 @import 'assets/scss/button';
 @import 'assets/scss/variable';
 
-.sku-form {
+.client-form {
   .MuiOutlinedInput-input {
-    padding: 14px !important;
+    padding: 14px;
   }
   .MuiButton-label {
     text-transform: none;
@@ -20,5 +20,41 @@
     float: right;
     margin-right: 35px;
     padding: 0px;
+  }
+  .member-btn {
+    padding: 10px 15px 10px 15px;
+    color: $emerald;
+    text-transform: none;
+    border: 1px solid #CECECE;
+    border-radius: 4px !important;
+  }
+  .member-btn:hover {
+    border-color: $emerald;
+  }
+  .member-field {
+    .MuiOutlinedInput-input {
+      background-color: #DFDFDF;
+      border-radius: 4px !important;
+    }
+    .MuiOutlinedInput-notchedOutline {
+      border: 1px solid #fff;
+    }
+    .Mui-disabled {
+      .MuiOutlinedInput-notchedOutline {
+        border: 1px solid #fff;
+      }
+    }
+  }
+
+  .MuiSelect-select {
+    .MuiChip-root {
+      width: 90%;
+    }
+  }
+  .select-status {
+    .MuiSelect-root {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
   }
 }

@@ -90,6 +90,18 @@ export const fetchReceivedDocumentType = id => dispatch => {
     })
 }
 
+export const fetchCompanyStatus = id => dispatch => {
+  inteluck.get(`/v1/SysObjects/PickLists/company_status`)
+    .then(response => {
+      dispatch({
+        type: FETCH_RECEIVED_DOCUMENT_TYPE,
+        payload: response.data[0]
+      });
+    }).catch(error => {
+      dispatchError(dispatch, THROW_ERROR, error)
+    })
+}
+
 export const fetchAccountDetails = () => {
   return inteluck.get(`v1/Accounts`);
 }

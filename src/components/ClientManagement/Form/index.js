@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-import _ from 'lodash';
 import './style.scss';
+import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
+import validator from 'validator';
 import { connect } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { fetchClients, fetchUOM, fetchStorageType } from 'actions/picklist';
@@ -11,44 +12,39 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
 import FormHelperText from '@mui/material/FormHelperText';
-import ImageIcon from '@mui/icons-material/Image';
-import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
+import GroupIcon from '@mui/icons-material/Group';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import Chip from '@mui/material/Chip';
+import makeStyles from '@mui/styles/makeStyles';
 
-function WarehouseMasterDataSKUForm(props) {
-  const [hasChanged, setHasChanged] = React.useState(false);
+function ClientForm(props) {
+  const [hasChanged, setHasChanged] = useState(false);
   const [hasFilesChange, setHasFilesChange] = React.useState(false);
   const [images, setImages] = React.useState([]);
-  const [batchManagement, setBatchManagement] = React.useState(false);;
-  const [expiryManagement, setExpiryManagement] = React.useState(false);
   const [SKU, setSKU] = React.useState([]);
-  const [isClientFetched, setIsClientFetched] = React.useState(false)
+  const [createOwner, setCreateOwner] = useState(false);
+  const [createContactPerson, setCreateContactPerson] = useState(false);
+  const [isClientFetched, setIsClientFetched] = useState(false);
+  const [existingClientData, setExistingClientData] = useState([]);
 
   const { handleSubmit, errors, control, formState, setValue, getValues } = useForm({
     shouldFocusError: false,
     mode: 'onTouched'
   });
 
-  const formActionModal = document.querySelector('.form__actions-container');
+  console.log(props)
 
   const { isDirty } = formState;
-
-  const handleManagement = (status, id) => {
-    if (id === 'batch-management') setBatchManagement(status);
-    if (id === 'expiry-management') setExpiryManagement(status);
-    setHasChanged(true);
-  }
   
   const __submit = data => {
-    data.batchManagement = batchManagement;
-    data.expiryManagement = expiryManagement;
-    data.images = images;
+    data.owner = createOwner;
+    data.contactPerson = createContactPerson;
 
     if (_.isEmpty(errors)) {
       props.onSubmit(data);
@@ -61,22 +57,17 @@ function WarehouseMasterDataSKUForm(props) {
    * Set initial values if action is Edit Warehouse
    */
   useEffect(() => {
-    if (props.sku) {
+    if (existingClientData) {
       let SKUDetails = [
-        ['productName', props.sku.product_name],
-        ['code', props.sku.item_code],
-        ['externalCode', props.sku.external_code],
-        ['minQuantity', props.sku.min_qty ? props.sku.min_qty : '0'],
-        ['maxQuantity', props.sku.max_qty ? props.sku.max_qty : '0'],
-        ['valuePerHandling', props.sku.value_per_unit ? props.sku.value_per_unit : '0'],
-        ['length', props.sku.length ? props.sku.length : '0'],
-        ['width', props.sku.width ? props.sku.width : '0'],
-        ['height', props.sku.height ? props.sku.height : '0'],
-        ['weight', props.sku.weight ? props.sku.weight : '0'],
-        ['storageType', props.sku.storage_type],
-        ['unitOfMeasurement', props.sku.uom_description],
-        ['unitOfHandling', props.sku.unit_of_handling],
-        ['remarks', props.sku.remarks]
+        ['companyName', existingClientData.client_name],
+        ['address', existingClientData.client_address],
+        ['country', existingClientData.country],
+        ['ownerName', existingClientData.owner_firstname],
+        ['ownerEmail', existingClientData.owner_email],
+        ['ownerMobileNumber', existingClientData.owner_mobile],
+        ['contactPersonName', existingClientData.contactperson_firstname],
+        ['contactPersonEmail', existingClientData.contactperson_email],
+        ['contactPersonMobileNumber', existingClientData.contactperson_mobile],
       ];
 
       setSKU(props.sku);
@@ -85,26 +76,19 @@ function WarehouseMasterDataSKUForm(props) {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.sku]);
-
-  React.useEffect(() => {
-    if (SKU) {
-      setBatchManagement(SKU.batch_management);
-      setExpiryManagement(SKU.expiry_management);
-    }
-  }, [SKU]);
+  }, [existingClientData]);
 
   /*
    * Get addional picklist data
    */
   React.useEffect(() => {
-    if (!props.clients.length) {
-      props.fetchClients();
+    if (props.warehouseClient) {
+      setExistingClientData(props.warehouseClient);
+      if (props.warehouseClient.owner_email) setCreateOwner(true);
+      if (props.warehouseClient.contactperson_email) setCreateContactPerson(true);
     }
-    props.fetchUOM();
-    props.fetchStorageType();
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, []);
+  }, [props.warehouseClient]);
 
   React.useEffect(() => {
     if (props.clients.length) {
@@ -123,236 +107,266 @@ function WarehouseMasterDataSKUForm(props) {
   };
 
   return (
-    <form onSubmit={handleSubmit(__submit)} className="sku-form">
+    <form onSubmit={handleSubmit(__submit)} className="client-form">
       <div className="paper__section">
         <Grid container spacing={2}>
-          <Grid item xs={12} md={1}>
-            <ListItem style={{ paddingLeft: 3}}>
+          <Grid item xs={3} md={1}>
+            <ListItem style={{ paddingLeft: 0}}>
               <ListItemAvatar style={{ position: 'relative' }}>
                 <Avatar style={{height: 64, width: 64}}>
-                  <ImageIcon />
+                  <GroupIcon />
                 </Avatar>
-                <Avatar style={{top: 40, right: 0, height: 15, width: 15, position: 'absolute'}}>
-                  <ImageIcon />
+                <Avatar sx={{boxShadow: 2}} style={{top: 40, right: 0, height: 20, width: 20, position: 'absolute', backgroundColor: 'white'}}>
+                  <CameraAltIcon style={{ height: 15, width: 15, color: 'gray'}} />
                 </Avatar>
               </ListItemAvatar>
             </ListItem>
           </Grid>
-          <Grid item xs={12} md={7}>
+          <Grid item xs={9} md={11}>
             <label className="paper__label">Company Name</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  inputProps: { min: 0, step: .01 },
-                  endAdornment: <InputAdornment position="end">cm</InputAdornment>,
-                }} />
+                <TextField fullWidth variant="outlined" />
               }
-              name="length"
+              name="companyName"
               control={control}
               required
               defaultValue=""
               rules={{ 
                 required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
               }}
               onInput={() => setHasChanged(true)}
             />
-            {errors.length && <FormHelperText error>{errors.length.message}</FormHelperText>}
+            {errors.companyName && <FormHelperText error>{errors.companyName.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Status</label>
+          {
+            // Temporary hidden
+            // <Grid item xs={12} md={4}>
+            // <label className="paper__label">Status</label>
+            // <Controller
+            //   as={
+            //     <Select
+            //       variant="outlined"
+            //       className="select-status"
+            //       fullWidth
+            //       required
+            //       defaultValue=""
+            //       displayEmpty={true}
+            //       renderValue={
+            //         getValues("status") !== "" ? undefined : () => <div style={{color: 'grey', paddingTop: 7, paddingBottom: 6}}>Select Status</div>
+            //       }>
+            //       <MenuItem value="Accredited" className="client-status">
+            //         <Chip label="Accredited" className="status-chip blue" sx={{width: 1, paddingTop: 2, paddingBottom: 2}} />
+            //       </MenuItem>
+            //       <MenuItem value="Suspend" className="client-status">
+            //         <Chip label="Suspend" className="status-chip " sx={{width: 1, paddingTop: 2, paddingBottom: 2}} />
+            //       </MenuItem>
+            //       <MenuItem value="Terminated" className="client-status">
+            //         <Chip label="Terminated" className="status-chip " sx={{width: 1, paddingTop: 2, paddingBottom: 2}} />
+            //       </MenuItem>
+            //       <MenuItem value="Blacklist" className="client-status">
+            //         <Chip label="Blacklist" className="status-chip " sx={{width: 1, paddingTop: 2, paddingBottom: 2}} />
+            //       </MenuItem>
+            //       <MenuItem value="Others" className="client-status">
+            //         <Chip label="Others" className="status-chip " sx={{width: 1, paddingTop: 2, paddingBottom: 2}} />
+            //       </MenuItem>
+            //       <MenuItem value="Potential" className="client-status">
+            //         <Chip label="Potential" className="status-chip green" sx={{width: 1, paddingTop: 2, paddingBottom: 2}} />
+            //       </MenuItem>
+            //       <MenuItem value="On Call" className="client-status">
+            //         <Chip label="On Call" className="status-chip gold" sx={{width: 1, paddingTop: 2, paddingBottom: 2}} />
+            //       </MenuItem>
+            //       <MenuItem value="Lock in" className="client-status">
+            //         <Chip label="Lock in" className="status-chip tangerine" sx={{width: 1, paddingTop: 2, paddingBottom: 2}} />
+            //       </MenuItem>
+            //       <MenuItem value="Regular" className="client-status">
+            //         <Chip label="Regular" className="status-chip emerald" sx={{width: 1, paddingTop: 2, paddingBottom: 2}} />
+            //       </MenuItem>
+            //     </Select>
+            //   }
+            //   name="status"
+            //   control={control}
+            //   defaultValue=""
+            //   required
+            //   rules={{ required: "This field is required" }}
+            // />
+            // {errors.status && <FormHelperText error>{errors.status.message}</FormHelperText>}
+            // </Grid>
+          }
+          <Grid item xs={12} md={8}>
+            <label className="paper__label">Address</label>
             <Controller
               as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  inputProps: { min: 0, step: .01 },
-                  startAdornment: <InputAdornment position="start">&#8369;</InputAdornment>,
-                }} />
+                <TextField fullWidth variant="outlined" />
               }
-              name="valuePerHandling"
               control={control}
+              name="address"
               defaultValue=""
               required
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
-              onInput={() => setHasChanged(true)}
+              rules={{ required: "This field is required" }}
             />
-            {errors.valuePerHandling && <FormHelperText error>{errors.valuePerHandling.message}</FormHelperText>}
+            {errors.address && <FormHelperText error>{errors.address.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={6}>
-            <label className="paper__label">Unit of Measurement</label>
+          <Grid item xs={12} md={4}>
+            <label className="paper__label">Country</label>
             <Controller
               as={
                 <Select
                   variant="outlined"
                   fullWidth
                   required
-                  displayEmpty={true}
-                > 
-                  {
-                    !props.uom ? null :
-                    props.uom.map(type => {
-                      return <MenuItem key={type.Id} value={type.Description}>{type.Description}</MenuItem>
-                    })
-                  } 
+                  defaultValue=""
+                  displayEmpty={true}>
+                  <MenuItem value="Philippines">Philippines</MenuItem>
+                  <MenuItem value="Thailand">Thailand</MenuItem>
+                  <MenuItem value="Singapore">Singapore</MenuItem>
                 </Select>
               }
+              name="country"
               control={control}
-              name="unitOfMeasurement"
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              onInput={() => setHasChanged(true)}
             />
-            {errors.uom && <FormHelperText error>{errors.uom.message}</FormHelperText>}
+            {errors.country && <FormHelperText error>{errors.country.message}</FormHelperText>}
           </Grid>
-          <Grid item xs={12} md={6}>
-            <label className="paper__label">UOH per UOM</label>
+        </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <label className="paper__label">Owner</label>
+            {
+              createOwner ? 
+                <Controller
+                  as={
+                    <TextField fullWidth variant="outlined" />
+                  }
+                  name="ownerName"
+                  control={control}
+                  required
+                  defaultValue=""
+                  rules={{ 
+                    required: "This field is required"
+                  }}
+                  onInput={() => setHasChanged(true)}
+                /> :
+                <Button className="member-btn" sx={{ display: 'block' }} fullWidth onClick={() => setCreateOwner(true)} variant="outlined">Create Owner</Button>
+            }
+            {errors.owner && <FormHelperText error>{errors.owner.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <label className="paper__label">Email Address</label>
+            <Controller
+              as={
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  disabled={!createOwner}
+                  type='email'
+                  className="member-field"
+                />
+              }
+              name="ownerEmail"
+              control={control}
+              defaultValue=""
+              required={createOwner}
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.ownerEmail && <FormHelperText error>{errors.ownerEmail.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <label className="paper__label">Mobile Number</label>
+            <Controller
+              as={
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  disabled={!createOwner}
+                  type="number"
+                  className="input_mobile member-field"
+                  InputProps={{
+                    inputProps: { min: 0, step: .01 },
+                  }}
+                />
+              }
+              name="ownerMobileNumber"
+              required={createOwner}
+              control={control}
+              defaultValue=""
+              rules={{ 
+                validate: value => { return !validator.isMobilePhone(value) && createOwner ? 'Invalid phone number' : true } 
+              }}
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.ownerMobileNumber && <FormHelperText error>{errors.ownerMobileNumber.message}</FormHelperText>}
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+        <Grid item xs={12} md={4}>
+            <label className="paper__label">Contact Person</label>
+            {
+              createContactPerson ? 
+                <Controller
+                  as={
+                    <TextField fullWidth variant="outlined" />
+                  }
+                  name="contactPersonName"
+                  control={control}
+                  required
+                  defaultValue=""
+                  rules={{ 
+                    required: "This field is required"
+                  }}
+                  onInput={() => setHasChanged(true)}
+                /> :
+                <Button className="member-btn" fullWidth onClick={() => setCreateContactPerson(true)} variant="outlined">Create Contact Person</Button>
+            }
+            {errors.contactPerson && <FormHelperText error>{errors.contactPerson.message}</FormHelperText>}
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <label className="paper__label">Email Address</label>
             <Controller
               as={
                 <TextField 
-                disabled
-                fullWidth
-                variant="outlined"
-                type="number"
-                style={{backgroundColor: '#F2F2F2'}}
-                InputProps={{
-                  inputProps: { min: 0, step: .01 },
-                }} />
-              }
-              name="UOHPerUOM"
-              control={control}
-              defaultValue=""
-              onInput={() => setHasChanged(true)}
-            />
-            {errors.UOHPerUOM && <FormHelperText error>{errors.UOHPerUOM.message}</FormHelperText>}
-          </Grid>
-        </Grid>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={3}>
-            <label className="paper__label">Length</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  inputProps: { min: 0, step: .01 },
-                  endAdornment: <InputAdornment position="end">cm</InputAdornment>,
-                }} />
-              }
-              name="length"
-              control={control}
-              required
-              defaultValue=""
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
-              onInput={() => setHasChanged(true)}
-            />
-            {errors.length && <FormHelperText error>{errors.length.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <label className="paper__label">Width</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  inputProps: { min: 0, step: .01 },
-                  endAdornment: <InputAdornment position="end">cm</InputAdornment>,
-                }} />
-              }
-              name="width"
-              control={control}
-              required
-              defaultValue=""
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
-              onInput={() => setHasChanged(true)}
-            />
-            {errors.width && <FormHelperText error>{errors.width.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <label className="paper__label">Height</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  inputProps: { min: 0, step: .01 },
-                  endAdornment: <InputAdornment position="end">cm</InputAdornment>,
-                }} />
-              }
-              name="height"
-              required
-              control={control}
-              defaultValue=""
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
-              onInput={() => setHasChanged(true)}
-            />
-            {errors.height && <FormHelperText error>{errors.height.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <label className="paper__label">Weight</label>
-            <Controller
-              as={
-                <TextField fullWidth variant="outlined" type="number" 
-                InputProps={{
-                  inputProps: { min: 0, step: .01 },
-                  endAdornment: <InputAdornment position="end">kg</InputAdornment>,
-                }} />
-              }
-              name="weight"
-              control={control}
-              required
-              defaultValue=""
-              rules={{ 
-                required: "This field is required",
-                validate: value => { return value < 0 ? 'Invalid value' : true } 
-              }}
-              onInput={() => setHasChanged(true)}
-            />
-            {errors.weight && <FormHelperText error>{errors.weight.message}</FormHelperText>}
-          </Grid>
-        </Grid>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <label className="paper__label">Storage Type</label>
-            <Controller
-              as={
-                <Select
-                  variant="outlined"
+                  className="member-field"
                   fullWidth
-                  required
-                  displayEmpty={true}
-                > 
-                  {
-                    !props.storage_type ? null :
-                    props.storage_type.map(type => {
-                      return <MenuItem key={type.Id} value={type.Description}>{type.Description}</MenuItem>
-                    })
-                  } 
-                </Select>
+                  variant="outlined"
+                  type='email'
+                  disabled={!createContactPerson}
+                  style={{backgroundColor: '#F2F2F2'}}
+                />
               }
+              name="contactPersonEmail"
               control={control}
-              name="storageType"
-              required
+              required={createContactPerson}
               defaultValue=""
-              rules={{ required: "This field is required" }}
+              onInput={() => setHasChanged(true)}
             />
-            {errors.storageType && <FormHelperText error>{errors.storageType.message}</FormHelperText>}
-          </Grid>
-          <Grid item xs={12} md={4} className="btn-group">
-            <label className="paper__label">Batch Management</label>
-            <ButtonGroup id="batch-management" initialStatus={SKU.batch_management} onButtonClick={handleManagement} />
+            {errors.contactPersonEmail && <FormHelperText error>{errors.contactPersonEmail.message}</FormHelperText>}
           </Grid>
           <Grid item xs={12} md={4}>
-            <label className="paper__label">Expiry Management</label>
-            <ButtonGroup id="expiry-management" initialStatus={SKU.expiry_management} onButtonClick={handleManagement} />
+            <label className="paper__label">Mobile Number</label>
+            <Controller
+              as={
+                <TextField
+                  fullWidth
+                  variant="outlined" 
+                  disabled={!createContactPerson}
+                  type="number"
+                  className="input_mobile member-field"
+                  InputProps={{
+                    inputProps: { min: 0, step: .01 },
+                  }}
+                />
+              }
+              name="contactPersonMobileNumber"
+              required={createContactPerson}
+              control={control}
+              defaultValue=""
+              rules={{ 
+                validate: value => { return !validator.isMobilePhone(value) && createContactPerson ? 'Invalid phone number' : true } 
+              }}
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.contactPersonMobileNumber && <FormHelperText error>{errors.contactPersonMobileNumber.message}</FormHelperText>}
           </Grid>
         </Grid>
       </div>
@@ -388,4 +402,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, { fetchClients, fetchUOM, fetchStorageType })(WarehouseMasterDataSKUForm);
+export default connect(mapStateToProps, { fetchClients, fetchUOM, fetchStorageType })(ClientForm);

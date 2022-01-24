@@ -8,6 +8,7 @@ import authReducer from './authReducer';
 import logReducer from './logReducer';
 import deliveryReducer from './deliveryReducer';
 import dashboardReducer from './dashboardReducer';
+import clientReducer from './clientReducer';
 
 export default combineReducers({
   auth: authReducer,
@@ -18,5 +19,6 @@ export default combineReducers({
   notice: noticeReducer,
   logs: logReducer,
   receiving_releasing: deliveryReducer,
-  dashboard: dashboardReducer
+  dashboard: dashboardReducer,
+  client: clientReducer
 });

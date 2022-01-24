@@ -1,0 +1,319 @@
+@import 'assets/scss/variable';
+
+.sku-search-items .MuiInputBase-formControl {
+  width: 90%;
+  margin-top: 5%;
+}
+
+.sku-search-items {
+  text-align: center;
+  align-items: center;
+
+}
+
+.items-popover {
+  z-index: 999;
+
+  .MuiOutlinedInput-input {
+    padding: 14px 11px;
+    font-size: 0.875rem;
+  }
+  .MuiPaper-root {
+    max-height: auto;
+    overflow: auto;
+    min-width: 400px;
+    margin-right: 40px;
+  }
+  .MuiListItem-root {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+  }
+  hr {
+    margin: 0px 0px;
+  }
+  button.btn {
+    margin: 15px 25px;
+    padding: 6px 8px;
+    float: right;
+  }
+  .MuiListItem-root.Mui-selected, .MuiListItem-root.Mui-selected:hover {
+    background-color: white;
+  }
+  #menu-list-grow {
+    min-height: 150px;
+    max-height: 300px;
+    overflow: auto;
+  }
+  .MuiCheckbox-colorSecondary.Mui-checked {
+    color: $emerald;
+  }
+}
+
+.delivery-notice-receiving-container {
+  .search__spinner {
+    margin-left: -50px;
+  }
+  .MuiTablePagination-selectLabel {
+    margin-top: 15px;
+  }
+
+  .MuiTablePagination-displayedRows  {
+    margin-top: 15px;
+  }
+  .search_form {
+    width: 200%;
+    @media (min-width: 1900px) {
+      width: 400% !important;
+    }
+    
+    @media (min-width: 1500px) {
+      width: 225% !important;
+    }
+    
+    @media (max-width: 1499px) {
+      width: 205% !important;
+    }
+    
+    @media (max-width: 1425px) {
+      width: 190% !important;
+    }
+    
+    @media (max-width: 1335px) {
+      width: 170% !important;
+    }
+    
+    @media (max-width: 1280px) {
+      width: 150% !important;
+    }
+    @media (max-width: 1225px) {
+      width: 120% !important;
+    }
+  }
+  .btn.btn-csv {
+    margin-left: 10px;
+  }
+  .no-results-row.MuiTableCell-root.MuiTableCell-body {
+    padding: 25px;
+  }
+  .MuiTableCell-root {
+    max-width: 400px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    .MuiIconButton-colorPrimary {
+      color: $emerald;
+    }
+    .MuiIconButton-colorSecondary {
+      color: $red;
+    }
+  }
+  
+  .hover-button .hover-button--on {
+    visibility: hidden;
+  }
+  .hover-button:hover .hover-button--on {
+    visibility: visible;
+  }
+
+}
+
+.receiving-releasing-table {
+  &:hover {
+    cursor: pointer;
+  }
+  .MuiTableCell-root, .MuiTableCell-root  {
+    padding: 9px 10px 9px 20px !important;
+  }
+  .notes {
+    min-width: 100px !important;
+  }
+  .uom {
+    min-width: 100px;
+  }
+  .product-name {
+    min-width: 200px;
+  }
+  .external-code {
+    min-width: 180px;
+  }
+}
+
+.search_form  {
+  .MuiOutlinedInput-input {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+}
+
+.receiving-releasing-table-addmode {
+  .MuiOutlinedInput-root {
+    min-width: 130px;
+  }
+
+  .MuiOutlinedInput-input {
+    padding: 12px 12px;
+    font-size: 0.92rem;
+  }
+  
+  .MuiTableCell-root {
+    padding: 14px 6px;
+  }
+}
+
+.delivery-overview {
+  margin-bottom: 15px;
+  .MuiPaper-root {
+    padding: 15px 12px;
+  }
+  .MuiTypography-body2 {
+    margin-top: 3px;
+    color: $gray;
+    font-size: 0.85rem;
+  }
+  .MuiTypography-body1 {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.document-upload-dialog {
+  .slide-description {
+    margin-bottom: 25px;
+    margin-top: 8px;
+  }
+  .MuiListItemText-primary {
+    color: black !important;
+    font-size: 0.9rem !important;
+  }
+  .MuiListItemText-secondary {
+    margin-top: 2px;
+    font-size: 0.75rem;
+  }
+  .MuiListItem-root {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+  .MuiButton-root {
+    text-transform: none;
+    font-weight: normal;
+    padding: 5px 6px;
+    border-radius: 3px;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .MuiButton-outlined {
+    color: black;
+    border: 1px solid lightgray;
+    &:hover {
+      border-color:lightgray !important;
+      opacity: 0.6;
+    }
+  }
+  .MuiButton-contained {
+    background-color: #009688;
+    color: #E9E9E9;
+    &:hover {
+      background-color:#009688 !important;
+      opacity: 0.8;
+    }
+  }
+  .MuiDialogActions-root {
+    padding: 20px;
+  }
+  .MuiDialogTitle-root {
+    font-weight: normal;
+    font-size: 1rem;
+  }
+  .MuiTypography-body1 {
+    font-weight: normal;
+    font-size: 1rem;
+    color: rgba(0, 0, 0, 0.87)
+  }
+  .MuiTypography-caption {
+    color: $gray;
+  }
+  .MuiDropzoneArea-root {
+    margin-top: 8px;
+  }
+
+  .viewer-actions {
+    background-color: #333333;
+    color: #E9E9E9 !important;
+    
+    .MuiButtonBase-root.Mui-disabled {
+      color: #E9E9E9 !important;
+    }
+    .MuiButtonBase-root {
+      color: #E9E9E9 !important;
+      padding: 5px 2px !important;
+    }
+    .MuiButtonBase-root:first-child {
+      margin-left: 10px !important;
+    }
+    .MuiButtonBase-root:last-child {
+      margin-right: 10px !important;
+    }
+    .MuiSvgIcon-root {
+      margin: 3px;
+    }
+    .button-group {
+      margin-right: 4px
+    }
+  }
+
+  .with-existing-file {
+    span.MuiTypography-root {
+      font-size: 0.805rem;
+    }
+    margin-left: 12px;
+  }
+
+  .attached-doc-typography {
+    span.MuiTypography-root {
+      font-size: 0.805rem !important;
+    }
+  }
+
+  small {
+    color: $gray
+  }
+
+  .MuiGrid-root.MuiDropzonePreviewList-imageContainer.MuiGrid-item.MuiGrid-grid-xs-4 {
+    max-width: 100%;
+    flex-basis: 100%;
+    text-align: left;
+    margin-bottom: 1%;
+    margin-top: 1%;
+    .doc-img {
+      height: 50px !important;
+      width: 40px !important;
+      margin-right: 15px !important;
+    }
+    .MuiDropzonePreviewList-removeButton {
+      bottom: 1%;
+      color: white;
+      svg.MuiSvgIcon-root {
+        font-size: 1rem;
+      }
+    }
+  }
+  .MuiFab-root {
+    box-shadow: 0px 0px 0px 0px !important;
+  }
+  span.MuiTypography-root {
+    color: #828282;
+    font-size: 0.8rem;
+  }
+  
+  .react-transform-wrapper {
+    margin: 0 auto;
+  }
+
+  .react-transform-wrapper {
+    max-height: 400px !important;
+    max-width: 100%;
+  }
+}

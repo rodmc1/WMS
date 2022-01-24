@@ -6,3 +6,4 @@ export * from './notice';
 export * from './logs';
 export * from './deliveries';
 export * from './dashboard';
+export * from './client';

@@ -1,12 +1,13 @@
 import _ from 'lodash';
-import './style.scss';
+// import './style.scss';
 import history from 'config/history';
 import React, { useEffect } from 'react';
 import WarehouseDialog from 'components/WarehouseDialog';
 import ClientManagementForm from 'components/ClientManagement/Form';
+import WarehouseSideBar from 'components/ClientManagement/Sidebar';
 
 import { THROW_ERROR } from 'actions/types';
-import { createWarehouseSKU } from 'actions';
+import { createWarehouseClient } from 'actions';
 import { dispatchError } from 'helper/error';
 import { uploadSKUFilesById } from 'actions';
 import { connect, useDispatch } from 'react-redux';
@@ -38,42 +39,57 @@ function ClientManagementCreate (props) {
 
   // Form submit handler
   const onSubmit = data => {
-    setAlertConfig({ severity: 'info', message: 'Creating Client...' });
-    setOpenSnackBar(true);
+    // setAlertConfig({ severity: 'info', message: 'Creating Client...' });
+    // setOpenSnackBar(true);
 
-    const SKUData = {
-      warehouse: props.match.params.id,
-      product_name: data.productName,
-      uoh: data.unitOfHandling,
-      uom: data.unitOfMeasurement,
-      external_code: data.externalCode,
-      code: data.code,
-      value_per_unit: Number(data.valuePerHandling),
-      length: Number(data.length),
-      width: Number(data.width),
-      height: Number(data.height),
-      weight: Number(data.weight),
-      storage_type: data.storageType,
-      batch_management: data.batchManagement,
-      expiry_management: data.expiryManagement,
-      remarks: data.remarks,
+    const clientData = {
+      name: data.companyName,
+      address: data.address,
+      country: data.country,
+      client_status: 'OTHERS',
+      warehouse_client: 'Warehouse Client'
     }
 
-    createWarehouseSKU(SKUData)
+    if (data.owner || data.contactPerson) {
+      clientData.users_details = [];
+
+      if (data.owner) {
+        clientData.users_details.push(
+          {
+            last_name: null,
+            first_name: data.ownerName,
+            middle_name: null,
+            mobile_number: data.ownerMobileNumber,
+            password: "default",
+            email_address: data.ownerEmail,
+            role: "Owner",
+            username: data.ownerEmail
+          }
+        )
+      }
+
+      if (data.contactPerson) {
+        clientData.users_details.push(
+          {
+            last_name: null,
+            first_name: data.contactPersonName,
+            middle_name: null,
+            mobile_number: data.contactPersonMobileNumber,
+            password: "default",
+            email_address: data.contactPersonEmail,
+            role: "Contact Person",
+            username: data.contactPersonEmail
+          }
+        )
+      }
+    }
+    
+    createWarehouseClient(clientData)
       .then(res => {
-        if (data.images.length > 1) {
-          handleImageUpload(res.data.id, data);
-        } else {
-          setStatus(prevState => { return {...prevState, images: true }});
-        }
         if (res.status === 201) setStatus(prevState => { return {...prevState, sku: true }});
       })
       .catch(error => {
-        if (error.response.data.type === '23505') {
-          setAlertConfig({ severity: 'error', message: `Product code already exists.` });
-        } else {
-          dispatchError(dispatch, THROW_ERROR, error);
-        }
+        dispatchError(dispatch, THROW_ERROR, error);
       });
   }
 
@@ -139,7 +155,10 @@ function ClientManagementCreate (props) {
         direction="row"
         justify="space-evenly"
         alignItems="stretch">
-        <Grid item xs={12} md={12}>
+        <Grid item xs={12} md={3}>
+          <WarehouseSideBar id={props.match.params.id} createMode />
+        </Grid>
+        <Grid item xs={12} md={9}>
           <Paper className="paper create-sku" elevation={0} variant="outlined">
             <Typography variant="subtitle1" className="paper__heading form_title">Client Information</Typography>
             <div className="paper__divider" />

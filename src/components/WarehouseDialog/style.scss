@@ -1,0 +1,28 @@
+@import 'assets/scss/button';
+@import 'assets/scss/variable';
+
+.sku-form {
+  .MuiOutlinedInput-input {
+    padding: 14px !important;
+  }
+  .MuiButton-label {
+    text-transform: none;
+  }
+  .MuiGrid-container.MuiGrid-spacing-xs-2 {
+    margin-bottom: 2%;
+  }
+  .dropzone-margin {
+    margin-bottom: 100px;
+  }
+  .search__spinner {
+    width: 14px !important;
+    height: 14px !important;
+    float: right;
+    margin-right: 35px;
+    padding: 0px;
+  }
+}
+
+// .MuiButtonBase-root {
+//   background-color: red;
+// }
