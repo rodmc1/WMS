@@ -226,16 +226,6 @@ function DeliveryNoticeSKU(props) {
   const handlePagination = (page, rowsPerPage) => {
     if (query) {
       delayedQuery(page, rowsPerPage);
-    } else {
-      if (deliveryNoticeData) {
-        // let params = {
-        //   delivery_notice_id: deliveryNoticeData.delivery_notice_id,
-        //   count: rowsPerPage,
-        //   after: page * rowsPerPage
-        // }
-        // if (!params.after) params = { delivery_notice_id: deliveryNoticeData.delivery_notice_id }
-        // props.fetchDeliveryNoticeSKU(params);
-      }
     }
   };
 
@@ -243,7 +233,7 @@ function DeliveryNoticeSKU(props) {
   React.useEffect(() => {
     if (!query) {
       setSearchLoading(true);
-      props.fetchClientSKU({client: props.match.params.id})
+      props.fetchClientSKU({client: props.match.params.id});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query]);
@@ -500,7 +490,6 @@ function DeliveryNoticeSKU(props) {
   React.useEffect(() => {
     if (props.client && !SKU.length) {
       if (!itemQuery) {
-        props.fetchClientSKU({client: props.match.params.id})
         fetchAllWarehouseSKUs()
         .then(response => {
           setSKU(response.data);
@@ -515,25 +504,7 @@ function DeliveryNoticeSKU(props) {
   }, [props.client, props.client_sku]);
 
   React.useEffect(() => {
-    if (deliveryNoticeData) {
-      setOpenBackdrop(true)
-      props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [deliveryNoticeData]);
-
-  React.useEffect(() => {
-    if (selectedSKU.length) setDeliveryNoticeSKU([]);
-    if (!selectedSKU.length && deliveryNoticeData) {
-      // props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
-      setOpenBackdrop(true)
-    } 
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [selectedSKU]);
-
-  React.useEffect(() => {
     if (props.sku) {
-      setDeliveryNoticeSKU(props.sku.data);
       setOpenBackdrop(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -551,7 +522,6 @@ function DeliveryNoticeSKU(props) {
   }, [props.client_sku]);
 
   React.useEffect(() => {
-    props.fetchClientSKU({client: props.match.params.id})
     fetchAllWarehouseSKUs()
       .then(response => {
         setSKU(response.data);
@@ -661,7 +631,6 @@ function DeliveryNoticeSKU(props) {
           <Table 
             config={config}
             data={tableData}
-            defaultData={deliveryNoticeSKU}
             handleRowCount={handleRowCount}
             onPaginate={handlePagination}
             query={query}

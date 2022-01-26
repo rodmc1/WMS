@@ -234,8 +234,6 @@ function ReceivingAndReleasing(props) {
       setAlertConfig({ severity: 'error', message: 'Session Expired, please login again...' });
     } else if (props.error.status === 500) {
       setAlertConfig({ severity: 'error', message: 'Internal Server Error' });
-    } else {
-      setAlertConfig({ severity: 'error', message: props.error.data.type +': '+ props.error.data.message });
     }
   }
 
@@ -246,11 +244,7 @@ function ReceivingAndReleasing(props) {
     if (!_.isEmpty(props.error)) {
       setOpenBackdrop(false);
       setOpen(true);
-      if (props.error === 'Network Error') {
-        setAlertConfig({ severity: 'error', message: 'Network Error, please try again...' });
-      } else {
-        handleError();
-      }
+      handleError();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.error]);
