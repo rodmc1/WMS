@@ -1,0 +1,229 @@
+@import 'assets/scss/variable';
+
+.tag-sku .MuiInputBase-formControl {
+  width: 90%;
+  margin-top: 0px !important;
+  text-align: center;
+  align-items: center;
+}
+
+.sku-search-items {
+  text-align: center;
+  align-items: center;
+}
+
+.tag-sku-dialog {
+  .MuiDialog-paperScrollPaper {
+    max-width: 490px;
+  }
+  .MuiListItemText-primary {
+    font-size: 0.9rem !important;
+  }
+  .MuiListItemText-secondary {
+    margin-top: 2px;
+    font-size: 0.75rem;
+  }
+  .MuiListItem-root {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+  .MuiButton-root {
+    text-transform: none;
+    font-weight: normal;
+    padding: 5px 6px;
+    border-radius: 3px;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .MuiButton-outlined {
+    color: black;
+    border: 1px solid lightgray;
+    &:hover {
+      border-color:lightgray !important;
+      opacity: 0.6;
+    }
+  }
+  .MuiButton-contained {
+    background-color: #009688;
+    color: #E9E9E9;
+    &:hover {
+      background-color:#009688 !important;
+      opacity: 0.8;
+    }
+  }
+  .MuiDialogActions-root {
+    padding: 20px;
+  }
+  .MuiDialogTitle-root {
+    font-weight: normal;
+    font-size: 1rem;
+  }
+
+  small {
+    color: $gray
+  }
+ 
+  .MuiMenuItem-root {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  .MuiList-root {
+    max-height: 230px;
+  }
+  .MuiListItem-gutters {
+    padding-left: 4px;
+  }
+}
+
+.items-popover {
+  z-index: 999;
+
+  .MuiOutlinedInput-input {
+    padding: 14px 11px;
+    font-size: 0.875rem;
+  }
+  .MuiPaper-root {
+    max-height: auto;
+    overflow: auto;
+    min-width: 400px;
+    margin-right: 40px;
+  }
+  .MuiListItem-root {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+  }
+  hr {
+    margin: 0px 0px;
+  }
+  button.btn {
+    margin: 15px 25px;
+    padding: 6px 8px;
+    float: right;
+  }
+  .MuiListItem-root.Mui-selected, .MuiListItem-root.Mui-selected:hover {
+    background-color: white;
+  }
+  #menu-list-grow {
+    min-height: 150px;
+    max-height: 300px;
+    overflow: auto;
+  }
+  .MuiCheckbox-colorSecondary.Mui-checked {
+    color: $emerald;
+  }
+}
+
+.sku-table {
+  &:hover {
+    cursor: auto;
+  }
+  
+  .MuiTableCell-body {
+    padding: 10px 9px
+  }
+  .MuiOutlinedInput-input {
+    padding: 13px 11px;
+    font-size: 0.85rem;
+  }
+  .notes {
+    min-width: 100px !important;
+  }
+  .uom {
+    min-width: 100px;
+  }
+  .product-name {
+    min-width: 200px;
+  }
+  .external-code {
+    min-width: 180px;
+  }
+}
+
+.tag-sku-table {
+  .hover-button .hover-button--on {
+    visibility: hidden;
+  }
+  .hover-button:hover .hover-button--on {
+    visibility: visible;
+  }
+}
+
+.drawer:not(.drawer--collapsed) + main {
+  .dn-sku {
+    .search_form {
+      width: 360px;
+    }
+    @media (min-width: 1400px) {
+      .search_form {
+        width: 300px;
+      }
+    }
+    @media (min-width: 1500px) {
+      .search_form {
+        width: 330px;
+      }
+    }
+    @media (min-width: 1900px) {
+      .search_form {
+        width: 600px;
+      }
+    }
+  }
+}
+
+.drawer + main {
+  .dn-sku {
+    @media (min-width: 800px) {
+      .search_form {
+        width: 400px;
+      }
+    }
+    @media (min-width: 1000px) {
+      .search_form {
+        width: 450px;
+      }
+    }
+    @media (min-width: 1200px) {
+      .search_form {
+        width: 600px;
+      }
+    }
+  }
+}
+
+
+.remove-sku-tag-dialog {
+  .MuiDialogActions-root {
+    padding: 16px 26px;
+  }
+  .MuiButton-root {
+    padding: 5px 7px;
+    text-transform: none;
+    font-size: 0.875rem;
+  }
+  .MuiDialogContentText-root {
+    padding-top: 8px !important;
+    color: #333333;
+  }
+  .MuiButton-contained {
+    background-color: #EB5757;
+    color: white;
+    border-radius: 3px;
+    box-shadow: none;
+    &:hover {
+      background-color:#EB5757 !important;
+      opacity: 0.8;
+    }
+  }
+  .MuiButton-outlined {
+    border: 1px solid #E9E9E9;
+    border-radius: 3px;
+    &:hover {
+      background-color:#E9E9E9 !important;
+      opacity: 0.8;
+      border-color: #E9E9E9;
+    }
+  }
+}

@@ -1,34 +1,51 @@
 import './style.scss';
+import _ from 'lodash';
 import React from 'react';
-import moment from 'moment';
 import PropTypes from 'prop-types';
+import { useTheme } from '@mui/material/styles';
+import { Controller, useForm } from 'react-hook-form';
+
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
-import Search from '@mui/icons-material/Search';
 import TableRow from '@mui/material/TableRow';
+import Search from '@material-ui/icons/Search';
 import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
-import IconButton from '@mui/material/IconButton';
-import LastPageIcon from '@mui/icons-material/LastPage';
 import FormControl from '@mui/material/FormControl';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import InputAdornment from '@material-ui/core/InputAdornment';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import WarehouseDialog from 'components/WarehouseDialog';
+
+import Tooltip from '@mui/material/Tooltip';
+import TextField from '@mui/material/TextField';
+import makeStyles from '@mui/styles/makeStyles';
+import IconButton from '@mui/material/IconButton';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import LastPageIcon from '@mui/icons-material/LastPage';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
 import CircularProgress from '@mui/material/CircularProgress';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import Chip from '@mui/material/Chip';
+import LinkOffIcon from '@mui/icons-material/LinkOff';
+import Typography from '@mui/material/Typography';
+
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 const useStyles1 = makeStyles({
   root: {
     flexShrink: 0,
+    marginLeft: 8
   },
 });
-
 
 /*
  * Handler for warehouse list pagination actions
@@ -37,26 +54,26 @@ const useStyles1 = makeStyles({
 function TablePaginationActions(props) {
   const classes = useStyles1();
   const theme = useTheme();
-  const { count, page, rowsPerPage, onPageChange } = props;
+  const { count, page, rowsPerPage, onChangePage } = props;
 
   // Pagination
   const handleFirstPageButtonClick = (event) => {
-    onPageChange(event, 0);
+    onChangePage(event, 0);
   };
 
   // Pagination
   const handleBackButtonClick = (event) => {
-    onPageChange(event, page - 1);
+    onChangePage(event, page - 1);
   };
 
   // Pagination
   const handleNextButtonClick = (event) => {
-    onPageChange(event, page + 1);
+    onChangePage(event, page + 1);
   };
 
   // Pagination
   const handleLastPageButtonClick = (event) => {
-    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
 
   return (
@@ -92,7 +109,7 @@ function TablePaginationActions(props) {
 // Table pagination prototypes
 TablePaginationActions.propTypes = {
   count: PropTypes.number.isRequired,
-  onPageChange: PropTypes.func.isRequired,
+  onChangePage: PropTypes.func.isRequired,
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
 };
@@ -124,13 +141,22 @@ const useStyles2 = makeStyles({
   },
 });
 
-export default function Table_({ filterSize, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
+export default function Table_({ onSubmit, onError, defaultData, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, handleRemoveSKU, onRowClick, handleCancel }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
-  const keys = config.headers.map(h => h.key);
   const [tableData, setTableData] = React.useState([]);
+  const [addMode, setAddMode] = React.useState(false);
+  const [openDialog, setOpenDialog] = React.useState({open: false});
+  const [removeSKU, setRemoveSKU] = React.useState(null);
+  const [openRemoveDialog, setOpenRemoveDialog] = React.useState(false);
+
+  // Hook Form
+  const { errors, control, getValues } = useForm({
+    shouldFocusError: false,
+    mode: 'onChange'
+  });
 
   // Handles page updates
   const handleChangePage = (event, newPage) => {
@@ -149,10 +175,10 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     setPage(0);
   }
 
-  /*
-  * @args str url
-  * @return formatted image src
-  */
+  /**
+   * @args str url
+   * @return formatted image src
+   */
   const extractImageUrl = (str) => {
     return str && str.replace(/\\/g,"/").replace("/files",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
   }
@@ -169,48 +195,36 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     return <img src={defaultImage} onError={handleImageError} className="table-img-preview" alt="" />
   }
 
-  const renderTableCell = (data, type) => {
-    let cellData = data;
-    if (type === 'item_document_file_type') cellData = renderPreview(data);
-    if (type === 'booking_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
-    if (type === 'appointment_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
-    if (type === 'status') cellData = renderStatus(data);
-    if (type === 'physical_count') cellData = data ? data : 0;
-
-    return cellData;
+  const toggleRemoveSKU = (data) => {
+    setRemoveSKU(data)
+    setOpenRemoveDialog(true);
   }
 
-  const renderTableWidth = (data, type) => {
-    let width = '400px';
-    if (type === 'item_code') width = '300px';
-
-    return width;
+  const handleRemove = () => {
+    handleRemoveSKU(removeSKU);
+    setOpenRemoveDialog(false);
   }
 
-  const renderStatus = data => {
-    let jsx = <Chip label={data} className="status-chip" />
-    if (data === 'Completed') jsx = <Chip label="Completed" className="status-chip emerald" />
-    if (data === 'In-Progress') jsx = <Chip label="In-Progress" className="status-chip tangerine" />;
-    if (data === 'ACCREDITED') jsx = <Chip label="Accredited" className="status-chip blue" />;
-    if (data === 'POTENTIAL') jsx = <Chip label="Potential" className="status-chip green" />;
-    if (data === 'ON CAll') jsx = <Chip label="On Call" className="status-chip gold" />;
-    if (data === 'LOCK IN') jsx = <Chip label="Lock In" className="status-chip tangerine" />;
-    if (data === 'REGULAR') jsx = <Chip label="Regular" className="status-chip emerald" />;
-    if (data === 'OTHERS') jsx = <Chip label="Others" className="status-chip" />;
-    return jsx
+  const handleClose = () => {
+    setOpenRemoveDialog(false);
   }
 
   // Setter for table data
   React.useEffect(() => {
-    if (data) {
-      setTableData(data);
+    if (defaultData) {
+      setTableData(defaultData);
+      setAddMode(false);
     }
-  }, [data, config.headers, config.rowsPerPage])
+    if (data.length) {
+      setTableData(data);
+      setAddMode(true);
+    }
+  }, [data, defaultData]);
 
   // Set the page number and item count for searched items
   React.useEffect(() => {
-      handleRowCount(page, rowsPerPage);
-      onPaginate(page, rowsPerPage);
+    handleRowCount(page, rowsPerPage);
+    onPaginate(page, rowsPerPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [page, rowsPerPage]);
   
@@ -240,11 +254,10 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
             />
           </FormControl>
         </div>
-        {/* <div className={classes.pagination}> */}
+        <div className={classes.pagination}>
           <TablePagination
-          className={classes.pagination}
             rowsPerPageOptions={[5, 10, 25]}
-            count={total ? Number(total) : 0}
+            count={Number(total)}
             rowsPerPage={rowsPerPage}
             page={page}
             component="div"
@@ -252,15 +265,15 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
               inputProps: { 'aria-label': 'rows per page' },
               native: true,
             }}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
             ActionsComponent={TablePaginationActions}
             />
-        {/* </div> */}
+        </div>
       </div>
-      <Paper className={classes.root} className="main-table-root">
+      <Paper className={classes.root} className="">
         <TableContainer>
-          <Table aria-label="custom pagination table" className="warehouse_table">  
+          <Table aria-label="custom pagination table" className="tag-sku-table">  
             <TableHead>
               <TableRow>
                 {headers.map((header, index) => (
@@ -273,47 +286,58 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
               {
                 ((!tableData.length && Array.isArray(tableData)) || JSON.stringify(tableData) === '{}') && 
                 <TableRow className="table__row">
-                  <TableCell 
-                    colSpan={12}
-                    style={{
-                      whiteSpace: 'nowrap',
-                      overFlow: 'hidden',
-                      textOverFlow: 'ellipsis'
-                    }} 
-                    align="center">
-                      No results found
-                  </TableCell>
+                  <TableCell colSpan={12} align="center" className="no-results-row">No Data Found</TableCell>
                 </TableRow>
               }
-              {Object.values(tableData).map((d, i) => {
-                return (
-                  <TableRow key={i} onClick={() => onRowClick(d)} className="table__row">
-                    {
-                      keys.map((k, index) => {
-                        return (
-                          index !== 0 &&
-                          <TableCell 
-                            title={d[k]}
-                            style={{
-                              maxWidth: renderTableWidth(d[k], k),
-                              overflowX: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }} 
-                            align={config.headers[index] ? config.headers[index].align : 'left'}
-                            key={index}>
-                              {renderTableCell(d[k], k)}
-                          </TableCell>
-                        )
-                      })
-                    }
-                  </TableRow>
-                )
-              })}
+              {Object.values(tableData).map((data, i) => 
+                <TableRow key={data.item_id} className="table__row sku-table hover-button">
+                  <TableCell key={i}>{renderPreview(data.item_document_file_type ? data.item_document_file_type : data.item_document_file)}</TableCell>
+                  <TableCell style={{maxWidth: 200}} title={data.product_name} key={i+'product_name'}>{data.product_name}</TableCell>
+                  <TableCell key={i+'uom'}>{data.uom_description ? data.uom_description : data.uom} </TableCell>
+                  <TableCell style={{maxWidth: 200}} title={data.item_code}>{data.item_code}</TableCell>
+                  <TableCell>{data.external_code}</TableCell>
+                  <TableCell>
+                    <Tooltip title="Remove">
+                      <IconButton aria-label="remove" component="span" onClick={() => toggleRemoveSKU(data)}>
+                        <LinkOffIcon className="hover-button--on" />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>
       </Paper>
+      <Dialog
+        className="remove-sku-tag-dialog"
+        open={openRemoveDialog}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+        keepMounted
+      >
+        <DialogTitle id="alert-dialog-title">
+          <div className="flex justify-space-between align-center">
+            <Typography>Confirmation</Typography>
+            <Tooltip title="Close">
+              <IconButton aria-label="close" component="span" onClick={handleClose} >
+                <ClearIcon style={{fontSize: 18}} />
+              </IconButton>
+            </Tooltip>
+          </div>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to remove this SKU?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={handleClose}>Cancel</Button>
+          <Button variant="contained" onClick={handleRemove}>Remove</Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   );
 }

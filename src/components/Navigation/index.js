@@ -9,6 +9,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import SvgIcon from '@mui/material/SvgIcon';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AllInboxIcon from '@mui/icons-material/AllInbox';
+import GroupIcon from '@mui/icons-material/Group';
 
 function InventoryIcon(props) {
   return (
@@ -38,6 +39,11 @@ function Navigation(props) {
           label:'SKU Management',
           path: '/sku-management',
           icon: AllInboxIcon
+        },
+        {
+          label:'Client Management',
+          path: '/client-management',
+          icon: GroupIcon
         },
       ]
     },

@@ -172,7 +172,7 @@ function WarehouseMasterDataSKUForm(props) {
             {errors.projectType && <FormHelperText error>{errors.projectType.message}</FormHelperText>}
           </Grid>
         </Grid>
-        <Grid container spacing={2} style={{ marginTop: !isClientFetched ? -6 : 0}}>
+        <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <label className="paper__label">External Code</label>
             <Controller
