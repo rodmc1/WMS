@@ -17,6 +17,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
+import WarehouseDialog from 'components/WarehouseDialog';
 
 import Tooltip from '@mui/material/Tooltip';
 import TextField from '@mui/material/TextField';
@@ -29,6 +30,15 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import CircularProgress from '@mui/material/CircularProgress';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import LinkOffIcon from '@mui/icons-material/LinkOff';
+import Typography from '@mui/material/Typography';
+
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 const useStyles1 = makeStyles({
   root: {
@@ -131,13 +141,16 @@ const useStyles2 = makeStyles({
   },
 });
 
-export default function Table_({ onSubmit, onError, defaultData, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick, handleCancel }) {
+export default function Table_({ onSubmit, onError, defaultData, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, handleRemoveSKU, onRowClick, handleCancel }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
   const headers = config.headers.map(h => h.label);
   const [tableData, setTableData] = React.useState([]);
   const [addMode, setAddMode] = React.useState(false);
+  const [openDialog, setOpenDialog] = React.useState({open: false});
+  const [removeSKU, setRemoveSKU] = React.useState(null);
+  const [openRemoveDialog, setOpenRemoveDialog] = React.useState(false);
 
   // Hook Form
   const { errors, control, getValues } = useForm({
@@ -182,22 +195,18 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
     return <img src={defaultImage} onError={handleImageError} className="table-img-preview" alt="" />
   }
 
-  const handleSave = (data, i) => {
-    const values = getValues([`externalCode${data.item_id}`, `productName${data.item_id}`, `uom${data.item_id}`, `expectedQty${data.item_id}`, `notes${data.item_id}`]);
-    const rowData = {
-      externalCode: values[`externalCode${data.item_id}`],
-      productName: values[`productName${data.item_id}`],
-      expectedQty: values[`expectedQty${data.item_id}`],
-      notes: values[`notes${data.item_id}`],
-      code: data.item_code,
-      id: data.item_id
-    }
+  const toggleRemoveSKU = (data) => {
+    setRemoveSKU(data)
+    setOpenRemoveDialog(true);
+  }
 
-    if (_.isEmpty(errors)) {
-      onSubmit(rowData);
-    } else {
-      onError(errors)
-    }
+  const handleRemove = () => {
+    handleRemoveSKU(removeSKU);
+    setOpenRemoveDialog(false);
+  }
+
+  const handleClose = () => {
+    setOpenRemoveDialog(false);
   }
 
   // Setter for table data
@@ -262,9 +271,9 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
             />
         </div>
       </div>
-      <Paper className={classes.root}>
+      <Paper className={classes.root} className="">
         <TableContainer>
-          <Table aria-label="custom pagination table" className="warehouse_table">  
+          <Table aria-label="custom pagination table" className="tag-sku-table">  
             <TableHead>
               <TableRow>
                 {headers.map((header, index) => (
@@ -281,66 +290,18 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
                 </TableRow>
               }
               {Object.values(tableData).map((data, i) => 
-                <TableRow key={data.item_id} className="table__row sku-table">
+                <TableRow key={data.item_id} className="table__row sku-table hover-button">
                   <TableCell key={i}>{renderPreview(data.item_document_file_type ? data.item_document_file_type : data.item_document_file)}</TableCell>
-                  <TableCell key={i+'item_code'}>{data.item_code}</TableCell>
-                  <TableCell key={i+'external_code'}>
-                    {addMode ? 
-                      <Controller name={`externalCode${data.item_id}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.external_code}
-                        as={<TextField variant="outlined" type="text" className="external-code" required fullWidth/>}
-                      /> :
-                      data.external_material_coding
-                    }
-                    </TableCell>
+                  <TableCell style={{maxWidth: 200}} title={data.product_name} key={i+'product_name'}>{data.product_name}</TableCell>
+                  <TableCell key={i+'uom'}>{data.uom_description ? data.uom_description : data.uom} </TableCell>
+                  <TableCell style={{maxWidth: 200}} title={data.item_code}>{data.item_code}</TableCell>
+                  <TableCell>{data.external_code}</TableCell>
                   <TableCell>
-                    {addMode ? 
-                      <Controller name={`productName${data.item_id}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.product_name}
-                        as={<TextField variant="outlined" type="text" className="product-name" required fullWidth/>}
-                      />:
-                      data.external_material_description
-                    }
-                  </TableCell>
-                  <TableCell>
-                    {data.uom_description ? data.uom_description : data.uom}
-                  </TableCell>
-                  <TableCell>
-                    {addMode ? 
-                      <Controller 
-                        name={`expectedQty${data.item_id}`}
-                        control={control}
-                        rules={{ 
-                          required: "This field is required",
-                          validate: value => { return value < 0 ? 'Invalid value' : true } 
-                        }}
-                        defaultValue={data.expected_qty ? data.expected_qty : 0}
-                        as={<TextField variant="outlined" type="number" className="expected-quantity" required fullWidth/>}
-                      /> :
-                      data.expected_qty
-                    }
-                  </TableCell>
-                  <TableCell>
-                    {addMode ? 
-                      <Controller name={`notes${data.item_id}`} control={control} rules={{ required: "This field is required" }} defaultValue={data.notes ? data.notes : "None"}
-                        as={<TextField variant="outlined" type="text" className="notes" required fullWidth/>}
-                      /> :
-                      data.notes
-                    }
-                  </TableCell>
-                  <TableCell>
-                    {addMode &&
-                      <>
-                        <Tooltip title="Save">
-                          <IconButton color="primary" aria-label="save" component="span" onClick={() => handleSave(data, i)}>
-                            <CheckIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Cancel">
-                          <IconButton color="secondary" aria-label="cancel" component="span" onClick={() => handleCancel(data)}>
-                            <ClearIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </>
-                    }
+                    <Tooltip title="Remove">
+                      <IconButton aria-label="remove" component="span" onClick={() => toggleRemoveSKU(data)}>
+                        <LinkOffIcon className="hover-button--on" />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               )}
@@ -348,6 +309,35 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
           </Table>
         </TableContainer>
       </Paper>
+      <Dialog
+        className="remove-sku-tag-dialog"
+        open={openRemoveDialog}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+        keepMounted
+      >
+        <DialogTitle id="alert-dialog-title">
+          <div className="flex justify-space-between align-center">
+            <Typography>Confirmation</Typography>
+            <Tooltip title="Close">
+              <IconButton aria-label="close" component="span" onClick={handleClose} >
+                <ClearIcon style={{fontSize: 18}} />
+              </IconButton>
+            </Tooltip>
+          </div>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to remove this SKU?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={handleClose}>Cancel</Button>
+          <Button variant="contained" onClick={handleRemove}>Remove</Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   );
 }

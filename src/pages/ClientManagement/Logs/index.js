@@ -8,7 +8,7 @@ import React, { useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { connect } from 'react-redux';
 import { SingleDatePicker } from "react-dates";
-import { fetchAuditLogs, fetchfilteredAuditLog } from 'actions';
+import { fetchClientLogs, fetchfilteredClientAuditLog } from 'actions';
 import Breadcrumbs from 'components/Breadcrumbs';
 import ClientSideBar from 'components/ClientManagement/Sidebar';
 
@@ -48,7 +48,21 @@ function AuditLog(props) {
   const [searched, setSearched] = React.useState('');
   const [date, setDate] = React.useState(null);
   const [ready, setReady] = React.useState(false);
-  const routes = [{ label: 'Audit Log', path: `/client-management/${props.id}/logs` }];
+
+  const routes = [
+    {
+      label: 'Client Management',
+      path: '/client-management'
+    },
+    {
+      label: props.match.params.id,
+      path: `/client-management/${props.match.params.id}/overview`
+    },
+    {
+      label: `Logs`,
+      path: `/client-management/${props.match.params.id}/logs`
+    }
+  ];
 
   // Handle Search input
   const handleInputChange = event => {
@@ -58,7 +72,7 @@ function AuditLog(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const delayedQuery = React.useCallback(_.debounce(date => {
     setSearchLoading(true);
-    props.fetchfilteredAuditLog(query, date);
+    props.fetchfilteredClientAuditLog(query, date);
   }, 510), [query]);
 
   // Function for CSV Download  
@@ -80,12 +94,14 @@ function AuditLog(props) {
     if (query) {
       delayedQuery();
     } else if (!query) {
-      setAuditLog(props.logs.data);
+      setAuditLog(props.logs);
       setSearchLoading(false);
     }
     return delayedQuery.cancel;
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query]);
+
+  console.log(auditLog)
 
   React.useEffect(() => {
     if (date) {
@@ -95,16 +111,16 @@ function AuditLog(props) {
   }, [date]);
 
   React.useEffect(() => {
-    props.fetchAuditLogs();
+    props.fetchClientLogs();
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
   React.useEffect(() => {
-    if (props.logs.data) {
-      setAuditLog(props.logs.data);
+    if (props.logs) {
+      setAuditLog(props.logs);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.logs.data]);
+  }, [props.logs]);
 
   React.useEffect(() => {
     if (auditLog) {
@@ -218,9 +234,9 @@ function AuditLog(props) {
                   </FormControl>
                 </div>
               </Grid>
-              <Grid item xs={2} md={2}>
-                <CSVLink data={csvData} filename="audit-log.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
-                <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginLeft: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
+              <Grid item xs={2} md={2} className='log-csv-btn'>
+                <CSVLink data={csvData} filename="client-audit-log.csv" headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
+                <Button variant="contained" className="btn btn--emerald client-log-download" disableElevation style={{ marginLeft: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
               </Grid>
             </Grid>
             <div className="paper__divider" />
@@ -252,9 +268,9 @@ function AuditLog(props) {
  const mapStateToProps = state => {
   return { 
     error: state.error,
-    logs: state.logs,
-    searched: state.logs.search
+    logs: state.client.logs,
+    searched: state.client.search_audit_log
   }
 };
 
-export default connect(mapStateToProps, { fetchAuditLogs, fetchfilteredAuditLog })(AuditLog);
+export default connect(mapStateToProps, { fetchClientLogs, fetchfilteredClientAuditLog })(AuditLog);

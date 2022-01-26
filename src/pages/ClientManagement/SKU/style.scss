@@ -64,24 +64,7 @@
   small {
     color: $gray
   }
-  // .MuiFab-root {
-  //   box-shadow: 0px 0px 0px 0px !important;
-  // }
-  // span.MuiTypography-root {
-  //   color: #828282;
-  //   font-size: 0.8rem;
-  // }
-  
-  // .react-transform-wrapper {
-  //   margin: 0 auto;
-  // }
-
-  // .react-transform-wrapper {
-  //   max-height: 400px !important;
-  //   max-width: 100%;
-  // }
-
-  
+ 
   .MuiMenuItem-root {
     padding-top: 2px;
     padding-bottom: 2px;
@@ -132,41 +115,6 @@
   }
 }
 
-
-.delivery-notice-container {
-  .MuiCheckbox-root {
-    padding: 8px 6px !important;
-
-    &.MuiButtonBase-root {
-      color: '';
-    }
-  }
-  .btn.btn-csv {
-    margin-left: 10px;
-  }
-  .MuiIconButton-root {
-    padding: 10px;
-  }
-  .no-results-row.MuiTableCell-root.MuiTableCell-body {
-    padding: 25px;
-  }
-  .MuiTableCell-root {
-    max-width: 400px;
-    overflow-x: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    &.MuiTableCell-head {
-      padding: 16px 9px;
-    }
-    .MuiIconButton-colorPrimary {
-      color: $emerald;
-    }
-    .MuiIconButton-colorSecondary {
-      color: $red;
-    }
-  }
-}
-
 .sku-table {
   &:hover {
     cursor: auto;
@@ -193,7 +141,14 @@
   }
 }
 
-
+.tag-sku-table {
+  .hover-button .hover-button--on {
+    visibility: hidden;
+  }
+  .hover-button:hover .hover-button--on {
+    visibility: visible;
+  }
+}
 
 .drawer:not(.drawer--collapsed) + main {
   .dn-sku {
@@ -234,6 +189,41 @@
       .search_form {
         width: 600px;
       }
+    }
+  }
+}
+
+
+.remove-sku-tag-dialog {
+  .MuiDialogActions-root {
+    padding: 16px 26px;
+  }
+  .MuiButton-root {
+    padding: 5px 7px;
+    text-transform: none;
+    font-size: 0.875rem;
+  }
+  .MuiDialogContentText-root {
+    padding-top: 8px !important;
+    color: #333333;
+  }
+  .MuiButton-contained {
+    background-color: #EB5757;
+    color: white;
+    border-radius: 3px;
+    box-shadow: none;
+    &:hover {
+      background-color:#EB5757 !important;
+      opacity: 0.8;
+    }
+  }
+  .MuiButton-outlined {
+    border: 1px solid #E9E9E9;
+    border-radius: 3px;
+    &:hover {
+      background-color:#E9E9E9 !important;
+      opacity: 0.8;
+      border-color: #E9E9E9;
     }
   }
 }

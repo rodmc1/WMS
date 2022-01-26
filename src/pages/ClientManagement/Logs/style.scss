@@ -63,3 +63,14 @@
     }
   }
 }
+
+.client-log-download {
+  white-space: nowrap;
+}
+
+@media (max-width: 1600px) {
+  .log-csv-btn {
+    padding-left: 1px !important;
+  }
+}
+    

@@ -3,7 +3,7 @@ import React from 'react';
 import history from 'config/history';
 import _ from 'lodash';
 import { connect, useDispatch } from 'react-redux';
-import { fetchWarehouseByName, fetchAllWarehouse, fetchWarehouseClients, fetchAllWarehouseClient } from 'actions';
+import { fetchWarehouseByName, searchClient, fetchWarehouseClients, fetchAllWarehouseClient } from 'actions';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { CSVLink } from "react-csv";
@@ -79,11 +79,11 @@ function ClientManagement(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const delayedQuery = React.useCallback(_.debounce((page, rowCount) => {
     setSearchLoading(true);
-    // props.fetchWarehouseByName({
-    //   filter: query,
-    //   count: rowCount,
-    //   after: page * rowCount
-    // })
+    props.searchClient({
+      filter: query,
+      count: rowCount,
+      after: page * rowCount
+    })
   }, 510), [query]);
 
   // Call delayedQuery function when user search and set new warehouse data
@@ -227,8 +227,8 @@ function ClientManagement(props) {
 const mapStateToProps = state => {
   return {
     clients: state.client,
-    searched: state.warehouses.search
+    searched: state.client.search
   }
 }
 
-export default connect(mapStateToProps, { fetchWarehouseByName, fetchWarehouseClients })(ClientManagement);
+export default connect(mapStateToProps, { fetchWarehouseByName, fetchWarehouseClients, searchClient })(ClientManagement);

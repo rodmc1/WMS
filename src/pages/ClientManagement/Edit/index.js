@@ -30,8 +30,8 @@ function WarehouseEdit(props) {
   const [newWarehouseId, setNewWarehouseId] = React.useState(null);
   const [openDialog, setOpenDialog] = React.useState({open: false});
   const [existingWarehouseClient, setExistingWarehouseClient] = React.useState('');
-  const [routes, setRoutes] = React.useState([{label: 'Client Management', path: '/client-management'}]);
   const [alertConfig, setAlertConfig] = React.useState({severity: 'info', message: 'Loading...'});
+  const [routes, setRoutes] = React.useState([{label: 'Client Management', path: '/client-management'}]);
 
   // State for api responses
   const [status, setStatus] = React.useState({
@@ -102,133 +102,6 @@ function WarehouseEdit(props) {
           dispatchError(dispatch, THROW_ERROR, error);
         }
       });
-
-    return;
-
-    const warehouse = {
-      id: existingWarehouseClient.warehouse_id,
-      name: data.warehouseName,
-      warehouse_type: data.warehouseType,
-      building_type: data.buildingType,
-      gps_coordinate: data.gpsCoordinates,
-      address: data.address,
-      country: data.country,
-      year_top: Number(data.yearOfTop),
-      min_lease_terms: Number(data.minLeaseTerms),
-      psf: Number(data.psf),
-      floor_area: Number(data.floorArea),
-      covered_area: Number(data.coveredArea),
-      mezzanine_area: Number(data.mezzanineArea),
-      open_area: Number(data.openArea),
-      office_area: Number(data.officeArea),
-      battery_charging_area: Number(data.batteryChargingArea),
-      loading_unloading_bays: Number(data.loadingUnloadingBays),
-      remarks: data.remarks,
-      facilities_amenities: data.selectedAmenities,
-      nearby_station: data.nearbyStation,
-      warehouse_status: data.warehouseStatus,
-      users_details: []
-    }
-
-    //Handle warehouse update
-    // updateWarehouseById(existingWarehouseClient.client_id, warehouse)
-    //   .then(response => {
-    //     if (response.status === 201) {
-    //       setNewWarehouseId(warehouse.name);
-    //       setStatus(prevState => { return {...prevState, warehouse: true }});
-    //     }
-    //   })
-    //   .catch(error => {
-    //     const regex = new RegExp('existing');
-    //     if ((error.response.data.code === 500 && regex.test(error.response.data.message)) || error.response.data.type === "23505") {
-    //       setAlertConfig({ severity: 'error', message: `Warehouse name is already in use or deleted` });
-    //     } else {
-    //       dispatchError(dispatch, THROW_ERROR, error);
-    //     }
-    //   });
-
-    //Handle users update
-    // handleUsersUpdate(data);
-  }
-
-  // Function for user info updates
-  const handleUsersUpdate = (data) => {
-    let existingUserBroker = { data: null };
-    let existingUserContactPerson = { data: null };
-
-    const newBroker = {
-      last_name: data.companyBrokerLastName,
-      first_name: data.companyBrokerFirstName,
-      middle_name: data.companyBrokerMiddleName,
-      mobile_number: data.companyBrokerMobileNumber,
-      email_address: data.companyBrokerEmailAddress,
-      role: 'Broker',
-    }
-
-    const newContactPerson = {
-      last_name: data.contactPersonLastName,
-      first_name: data.contactPersonFirstName,
-      middle_name: data.contactPersonMiddleName,
-      mobile_number: data.contactPersonMobileNumber,
-      email_address: data.contactPersonEmailAddress,
-      role: 'Contact Person',
-    }
-
-    existingWarehouseClient.warehouse_users_details.forEach(user => {
-      if (user.role === 'Broker') existingUserBroker.data = user; 
-      if (user.role === 'Contact Person') existingUserContactPerson.data = user;
-    });
-    
-    existingUserBroker.id = existingUserBroker.data.user_id;
-    existingUserBroker.data = {
-      last_name: existingUserBroker.data.last_name,
-      first_name: existingUserBroker.data.first_name,
-      middle_name: existingUserBroker.data.middle_name,
-      mobile_number: existingUserBroker.data.mobile_number,
-      email_address: existingUserBroker.data.email_address,
-      role: 'Broker',
-    }
-
-    existingUserContactPerson.id = existingUserContactPerson.data.user_id;
-    existingUserContactPerson.data = {
-      last_name: existingUserContactPerson.data.last_name,
-      first_name: existingUserContactPerson.data.first_name,
-      middle_name: existingUserContactPerson.data.middle_name,
-      mobile_number: existingUserContactPerson.data.mobile_number,
-      email_address: existingUserContactPerson.data.email_address,
-      role: 'Contact Person',
-    }
-
-    const hasBrokerChange = JSON.stringify(existingUserBroker.data) !== JSON.stringify(newBroker);
-    const hasContactChange = JSON.stringify(existingUserContactPerson.data) !== JSON.stringify(newContactPerson);
-    
-    if (hasBrokerChange) {
-      handleUpdateUserById(existingUserBroker.id, newBroker);
-    } else {
-      setStatus(prevState => { return {...prevState, userBroker: true }});
-    }
-
-    if (hasContactChange) {
-      handleUpdateUserById(existingUserContactPerson.id, newContactPerson);
-    } else {
-      setStatus(prevState => { return {...prevState, userContact: true }});
-    }
-  }
-
-  // Invoke PATCH request for new user details
-  const handleUpdateUserById = (id, newUserData) => {
-    updateUserById(id, newUserData)
-      .then(response => {
-        if (response.status === 201) {
-          if (newUserData.role === 'Broker') setStatus(prevState => { return {...prevState, userBroker: true }});
-          if (newUserData.role === 'Contact Person') setStatus(prevState => { return {...prevState, userContact: true }});
-        }
-      })
-      .catch(error => {
-        if (error.response.data.type === '23505') {
-          setAlertConfig({ severity: 'error', message: `${newUserData.email_address} is already in use` });
-        }
-      })
   }
 
   const handleError = error => {
@@ -257,8 +130,6 @@ function WarehouseEdit(props) {
       setEdited(true);
     }
   }, [status]);
-  
-  console.log(newWarehouseId)
 
   // Set new routes and path based on the selected warehouse
   React.useEffect(() => {
@@ -272,13 +143,19 @@ function WarehouseEdit(props) {
 
   // Set new routes and path based on the selected warehouse
   React.useEffect(() => {
-    if (props.warehouse && routes.length === 1) {
-      setRoutes(routes => [...routes, {
-        label: props.warehouse.warehouse_client,
+    if (props.client && routes.length === 1) {
+      setRoutes(routes => [...routes, 
+      {
+        label: props.match.params.id,
         path: `/client-management/${props.match.params.id}/overview`
-      }]);
+      },
+      {
+        label: 'edit',
+        path: `/client-management/${props.match.params.id}/edit`
+      }
+    ]);
     }
-  }, [props.warehouse, props.match.params.id, routes.length]);
+  }, [props.client, props.match.params.id, routes.length]);
 
   // Fetch request for selected warehouse
   React.useEffect(() => {

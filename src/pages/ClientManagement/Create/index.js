@@ -7,9 +7,8 @@ import ClientManagementForm from 'components/ClientManagement/Form';
 import WarehouseSideBar from 'components/ClientManagement/Sidebar';
 
 import { THROW_ERROR } from 'actions/types';
-import { createWarehouseClient } from 'actions';
+import { createWarehouseClient, fetchAllWarehouseSKUs, searchWarehouseSKUByName, tagSKU } from 'actions';
 import { dispatchError } from 'helper/error';
-import { uploadSKUFilesById } from 'actions';
 import { connect, useDispatch } from 'react-redux';
 
 import Grid from '@mui/material/Grid';
@@ -18,6 +17,17 @@ import MuiAlert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import MenuItem from '@material-ui/core/MenuItem';
+import ListItemText from '@mui/material/ListItemText';
+import Checkbox from '@mui/material/Checkbox';
+import MenuList from "@mui/material/MenuList";
+import TextField from '@mui/material/TextField';
+
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
 
 // Alerts
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -27,10 +37,18 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 function ClientManagementCreate (props) {
   const dispatch = useDispatch();
   const [created, setCreated] = React.useState(false);
+  const [itemQuery, setItemQuery] = React.useState('');
+  const [SKU, setSKU] = React.useState([]);
   const [alertConfig, setAlertConfig] = React.useState({severity: 'info', message: 'Loading...'});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState({ open: false });
-  const [status, setStatus] = React.useState({ images: false, sku: false });
+  const [status, setStatus] = React.useState({ client: false });
+  const [openSKUTag, setOpenSKUTag] = React.useState(false);
+  const [isChecked, setIsChecked] = React.useState([]);
+  const [items, setItems] = React.useState([]);
+  const [searchedItem, setSearchedItem] = React.useState(null);
+  const [createdClientData, setCreatedClientData] = React.useState(null);
+  const isAllSelected = items.length > 0 && items.length === SKU.length;
 
   const routes = [
     { label: 'Client Management', path: '/client-management' },
@@ -39,8 +57,7 @@ function ClientManagementCreate (props) {
 
   // Form submit handler
   const onSubmit = data => {
-    // setAlertConfig({ severity: 'info', message: 'Creating Client...' });
-    // setOpenSnackBar(true);
+    setOpenSKUTag(true);
 
     const clientData = {
       name: data.companyName,
@@ -86,24 +103,86 @@ function ClientManagementCreate (props) {
     
     createWarehouseClient(clientData)
       .then(res => {
-        if (res.status === 201) setStatus(prevState => { return {...prevState, sku: true }});
+        if (res.status === 201) {
+          console.log(res.data)
+          clientData.id = res.data;
+          console.log(clientData)
+          setCreatedClientData(clientData)
+        }
       })
       .catch(error => {
         dispatchError(dispatch, THROW_ERROR, error);
       });
   }
 
-  // Function for image upload
-  const handleImageUpload = (warehouseId, data) => {
-    uploadSKUFilesById(warehouseId, null, data.images[data.images.length - 1])
-      .then(res => {
-        if (res.status === 201) {
-          setStatus(prevState => { return {...prevState, images: true }});
-        };
-      })
-      .catch(error => {
-        dispatchError(dispatch, THROW_ERROR, error);
-      });
+  const handleTagSKU = () => {
+    setOpenSnackBar(true);
+    setAlertConfig({ severity: 'info', message: 'Creating Client...' });
+
+    tagSKU(createdClientData.id, isChecked, []);
+    var delayInMilliseconds = 1000;
+
+    setTimeout(function() {
+      setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+      setStatus(prevState => { return {...prevState, client: true }});
+      setOpenSKUTag(false);
+    }, delayInMilliseconds);
+  }
+
+  const handleClose = () => {
+    setOpenSKUTag(false);
+  }
+
+  const handleSkip = () => {
+    setOpenSnackBar(true);
+    setAlertConfig({ severity: 'info', message: 'Creating Client...' });
+    var delayInMilliseconds = 400;
+
+    setTimeout(function() {
+      setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+      setStatus(prevState => { return {...prevState, client: true }});
+      setOpenSKUTag(false);
+    }, delayInMilliseconds);
+    
+    setOpenSKUTag(false);
+  }
+
+  const checkAll = () => {
+    if (isAllSelected) {
+      setItems([]);
+      setIsChecked([]);
+    } else {
+      setIsChecked(SKU.map(sku => sku.item_id));
+    }
+  }
+
+  const toggleCheckboxValue = (item, bool) => {
+    if (!isChecked.includes(item.item_id)) {
+      setIsChecked(oldArray => [...oldArray, item.item_id]);
+    } else {
+      setIsChecked(isChecked.filter(check => check !== item.item_id));
+    }
+
+    if (bool) {
+      setItems(items.filter(sku => sku.item_id !== item.item_id));
+    } else {
+      setItems(oldArray => [...oldArray, item]);
+    }
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  const handleSearchItems = React.useCallback(_.debounce(() => {
+    searchWarehouseSKUByName({
+      product: itemQuery,
+    }).then(response => {
+      setSearchedItem(response.data);
+    })
+  }, 510), [itemQuery]);
+
+  // Set query state on input change
+  const handleItemSearch = (e) => {
+    setSearchedItem(null);
+    setItemQuery(e.target.value);
   }
 
   // Set created status to true if all api response is success
@@ -112,6 +191,17 @@ function ClientManagementCreate (props) {
       setCreated(true);
     }
   }, [status]);
+
+  React.useEffect(() => {
+    fetchAllWarehouseSKUs()
+      .then(response => {
+        setSKU(response.data);
+      })
+      .catch(error => {
+        dispatchError(dispatch, THROW_ERROR, error);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, []);
 
   // Set created status to true if all api response is success
   useEffect(() => {
@@ -176,6 +266,57 @@ function ClientManagementCreate (props) {
           buttonCancelText="No"
           dialogAction={() => history.push(`/client-management`)}
         />
+        
+        <Dialog
+          open={openSKUTag}
+          fullWidth
+          keepMounted
+          m={2}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+          className="tag-sku-dialog"
+        >
+          <DialogTitle>
+            <div className="flex justify-space-between align-center receiving-title">
+              <Typography sx={{paddingLeft: 0.5}}>Tag SKU to {createdClientData && createdClientData.name}</Typography>
+            </div>
+          </DialogTitle>
+          <TextField
+            className="sku-search-items tag-sku"
+            variant="outlined"
+            type="text" 
+            value={itemQuery}
+            required
+            fullWidth
+            placeholder="Search"
+            onChange={handleItemSearch}
+          />
+          
+          <DialogContent>
+            <MenuList id="menu-list-grow">
+              {SKU.length ?
+                <MenuItem value="all" onClick={checkAll}>
+                  <Checkbox 
+                    checked={isAllSelected}
+                  />
+                  <ListItemText primary="Select All"/>
+                </MenuItem> : null
+              }
+              {SKU.map((item) => (
+                <MenuItem key={item.item_id} value={item.product_name} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.item_id))} >
+                  <Checkbox checked={isChecked.includes(item.item_id)} />
+                  <ListItemText primary={item.product_name} />
+                </MenuItem>
+              ))}
+            </MenuList>
+          </DialogContent>
+          <hr />
+          <DialogActions>
+            <Button onClick={handleSkip} variant="outlined">Skip for now</Button>
+            <Button variant="contained" onClick={handleTagSKU}>Save</Button>
+          </DialogActions>
+        </Dialog>
       </Grid>
     </div>
   )
@@ -183,7 +324,7 @@ function ClientManagementCreate (props) {
 
 const mapStateToProps = (state, ownProps) => {
   return { 
-    error: state.error
+    error: state.error,
   }
 }
 
