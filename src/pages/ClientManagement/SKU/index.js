@@ -512,7 +512,7 @@ function DeliveryNoticeSKU(props) {
     }
     if (props.client_sku) setSKUCount(initialSKUs.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.sku, props.client_sku]);
+  }, [props.client, props.client_sku]);
 
   React.useEffect(() => {
     if (deliveryNoticeData) {
@@ -577,6 +577,8 @@ function DeliveryNoticeSKU(props) {
         clientSKU.push(sku)
       }
     });
+    
+    setSKUCount(clientSKU.length)
     setTableData(clientSKU);
     setIsChecked(checked);
     setInitialSKUs(checked);
