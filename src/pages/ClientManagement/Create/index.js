@@ -48,7 +48,8 @@ function ClientManagementCreate (props) {
   const [items, setItems] = React.useState([]);
   const [searchedItem, setSearchedItem] = React.useState(null);
   const [createdClientData, setCreatedClientData] = React.useState(null);
-  const isAllSelected = items.length > 0 && items.length === SKU.length;
+  const [clientSKUs, setClientSKUs] = React.useState([]);
+  const isAllSelected = isChecked.length > 0 && isChecked.length === SKU.length;
 
   const routes = [
     { label: 'Client Management', path: '/client-management' },
@@ -104,9 +105,7 @@ function ClientManagementCreate (props) {
     createWarehouseClient(clientData)
       .then(res => {
         if (res.status === 201) {
-          console.log(res.data)
           clientData.id = res.data;
-          console.log(clientData)
           setCreatedClientData(clientData)
         }
       })
@@ -173,17 +172,51 @@ function ClientManagementCreate (props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const handleSearchItems = React.useCallback(_.debounce(() => {
     searchWarehouseSKUByName({
-      product: itemQuery,
+      filter: itemQuery,
     }).then(response => {
       setSearchedItem(response.data);
     })
   }, 510), [itemQuery]);
+
+  // Call delayedQuery function when user search and set new warehouse data
+  React.useEffect(() => {
+    if (itemQuery) {
+      handleSearchItems()
+    } else if (!itemQuery) {
+      setSKU(clientSKUs)
+    }
+    return handleSearchItems.cancel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [itemQuery]);
+
+  // Set new warehouse data with searched items
+  React.useEffect(() => {
+    if (searchedItem) {
+      setSKU(searchedItem);
+    }
+  }, [searchedItem]);
 
   // Set query state on input change
   const handleItemSearch = (e) => {
     setSearchedItem(null);
     setItemQuery(e.target.value);
   }
+
+  React.useEffect(() => {
+    if (!SKU.length) {
+      if (!itemQuery) {
+        fetchAllWarehouseSKUs()
+        .then(response => {
+          setSKU(response.data);
+          setClientSKUs(response.data)
+        })
+        .catch(error => {
+          dispatchError(dispatch, THROW_ERROR, error);
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [searchedItem]);
 
   // Set created status to true if all api response is success
   useEffect(() => {
