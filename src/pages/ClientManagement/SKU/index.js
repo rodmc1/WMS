@@ -6,18 +6,15 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { removeTaggedSKU, createDeliveryNoticeSKU, tagSKU, fetchWarehouseClient, fetchDeliveryNoticeById, fetchDeliveryNoticeByName, searchDeliveryNoticeSKU, searchWarehouseSKUByName, fetchClientSKU, fetchAllWarehouseSKUs } from 'actions';
+import { removeTaggedSKU, tagSKU, fetchWarehouseClient, fetchDeliveryNoticeById, fetchDeliveryNoticeByName, searchWarehouseSKUByName, fetchClientSKU, fetchAllWarehouseSKUs } from 'actions';
 import ClientSideBar from 'components/ClientManagement/Sidebar';
 import Breadcrumbs from 'components/Breadcrumbs';
 
 import Table from './table';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import MuiAlert from '@mui/material/Alert';
 
-import Grow from "@mui/material/Grow";
-import Popper from "@mui/material/Popper";
 import Spinner from '@mui/material/Backdrop';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from "@mui/material/MenuList";
@@ -25,19 +22,12 @@ import Checkbox from '@mui/material/Checkbox';
 import Snackbar from '@mui/material/Snackbar';
 import TextField from '@mui/material/TextField';
 import ListItemText from '@mui/material/ListItemText';
-import InputAdornment from '@mui/material/InputAdornment';
 import CircularProgress from '@mui/material/CircularProgress';
-import Badge from '@mui/material/Badge';
-import Collapse from '@mui/material/Collapse';
-import { DropzoneArea } from 'material-ui-dropzone';
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import Search from '@mui/icons-material/Search';
-import { csv } from 'd3';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -46,7 +36,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 function DeliveryNoticeSKU(props) {
   const csvLink = useRef();
   const [SKU, setSKU] = useState([]);
-  const [deliveryNoticeSKU, setDeliveryNoticeSKU] = useState([]);
   const anchorRef = React.useRef(null);
   const dispatch = useDispatch();
   const [openAddItems, setOpenAddItems] = React.useState(false);
@@ -57,22 +46,21 @@ function DeliveryNoticeSKU(props) {
   const [searched, setSearched] = useState(null);
   const [openBackdrop, setOpenBackdrop] = useState(true);
   const [skuCount, setSKUCount] = useState(0);
-  const [deliveryNoticeData, setDeliveryNoticeData] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [itemQuery, setItemQuery] = useState('');
   const [searchedItem, setSearchedItem] = useState(null);
-  const [selectedSKU, setSelectedSKU] = React.useState([]);
   const [isChecked, setIsChecked] = React.useState([]);
   const [items, setItems] = useState([]);
   const [clientSKUs, setClientSKUs] = useState([]);
   const [alertConfig, setAlertConfig] = React.useState({ severity: 'info', message: 'loading...' });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
-  const isAllSelected = items.length > 0 && items.length === SKU.length;
   const [openSKUTag, setOpenSKUTag] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [clientData, setClientData] = useState([]);
   const [initialSKUs, setInitialSKUs] = useState([]);
   const [removedSKUs, setRemovedSKUs] = useState([]);
+  const [SKUOptions, setSKUOptions] = useState([]);
+  const isAllSelected = isChecked.length > 0 && isChecked.length === SKU.length;
 
   const routes = [
     {
@@ -103,11 +91,11 @@ function DeliveryNoticeSKU(props) {
       setIsChecked(isChecked.filter(check => check !== item.item_id));
     }
 
-    // if (bool) {
-    //   setItems(items.filter(sku => sku.item_id !== item.item_id));
-    // } else {
-    //   setItems(oldArray => [...oldArray, item]);
-    // }
+    if (bool) {
+      setItems(items.filter(sku => sku.item_id !== item.item_id));
+    } else {
+      setItems(oldArray => [...oldArray, item]);
+    }
   }
 
   React.useEffect(() => {
@@ -145,13 +133,12 @@ function DeliveryNoticeSKU(props) {
     const filteredCheck = isChecked.filter(check => check !== data.item_id);
     const filteredItem = items.filter(sku => sku.item_id !== data.item_id);
     setIsChecked(filteredCheck);
-    setSelectedSKU(filteredItem);
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const handleSearchItems = React.useCallback(_.debounce(() => {
     searchWarehouseSKUByName({
-      product: itemQuery,
+      filter: itemQuery,
     }).then(response => {
       setSearchedItem(response.data);
     })
@@ -162,23 +149,18 @@ function DeliveryNoticeSKU(props) {
     if (itemQuery) {
       handleSearchItems()
     } else if (!itemQuery) {
-      setSearchedItem(clientSKUs)
+      setSKU(SKUOptions)
     }
     return handleSearchItems.cancel;
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [itemQuery]);
 
   // Set new warehouse data with searched items
-  // React.useEffect(() => {
-  //   if (searchedItem) {
-  //     setSKU(searchedItem);
-  //   }
-  // }, [searchedItem]);
-
-  const handleAddItems = () => {
-    setOpenAddItems(false);
-    setSelectedSKU(items);
-  }
+  React.useEffect(() => {
+    if (searchedItem) {
+      setSKU(searchedItem);
+    }
+  }, [searchedItem]);
 
   const prevOpen = React.useRef(openAddItems);
 
@@ -256,13 +238,6 @@ function DeliveryNoticeSKU(props) {
     }
   }
 
-    // Set new warehouse data with searched items
-    // React.useEffect(() => {
-    //   if (searched) {
-    //     setSearchLoading(false);
-    //     setClientData(searched);
-    //   }
-    // }, [searched]);
   /**
    * Function for CSV Download
    */ 
@@ -331,6 +306,7 @@ function DeliveryNoticeSKU(props) {
   
   const handleClose = () => {
     setOpenSKUTag(false);
+    setIsChecked(initialSKUs);
   }
 
   const tagSKUDialog = () => {
@@ -389,40 +365,6 @@ function DeliveryNoticeSKU(props) {
   }
 
   /**
-   * Submit function for creating delivery notice
-   * 
-   * @param {object} data Set of new delivery notice data
-   */
-  const handleSubmit = data => {
-    setOpenSnackBar(false);
-    setAlertConfig({ severity: 'info', message: 'Adding SKU...' });
-    setOpenSnackBar(true);
-
-    const SKUData = {
-      delivery_notice_id: Number(deliveryNoticeData.delivery_notice_id),
-      code: data.code,
-      expected_qty: Number(data.expectedQty),
-      external_material_coding: data.externalCode,
-      external_material_description: data.productName,
-      notes: data.notes,
-      item_id: data.id
-    }
-    
-    //Invoke action for adding delivery notice SKU
-    createDeliveryNoticeSKU(SKUData)
-      .then(response => {
-        if (response.status === 201) {
-          setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
-          setIsChecked(isChecked.filter(check => check !== data.id));
-          setSelectedSKU(items.filter(sku => sku.item_id !== data.id));
-        }
-      })
-      .catch(error => {
-        dispatchError(dispatch, THROW_ERROR, error);
-      });
-  }
-
-  /**
    * Invoke alert with error message
    */
   const handleErrors = () => {
@@ -437,30 +379,12 @@ function DeliveryNoticeSKU(props) {
     if (query) {
       delayedQuery(page, rowCount);
     } else if (!query) {
-      setDeliveryNoticeData(props.notice);
       setSearchLoading(false);
     }
     return delayedQuery.cancel;
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query, delayedQuery, page, rowCount]);
 
-  /**
-   * Set delivery notice data
-   */
-  React.useEffect(() => {
-    if (props.notice) {
-      setDeliveryNoticeData(props.notice);
-    } else {
-      props.fetchDeliveryNoticeById(props.match.params.id)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.notice]);
-
-  React.useEffect(() => { 
-    if (JSON.stringify(deliveryNoticeData) === '{}') {
-      setOpenBackdrop(false);
-    }
-  }, [deliveryNoticeData]);
 
   // Set searched values and warehouse count after search
   React.useEffect(() => {
@@ -491,12 +415,12 @@ function DeliveryNoticeSKU(props) {
     if (props.client && !SKU.length) {
       if (!itemQuery) {
         fetchAllWarehouseSKUs()
-        .then(response => {
-          setSKU(response.data);
-        })
-        .catch(error => {
-          dispatchError(dispatch, THROW_ERROR, error);
-        });
+          .then(response => {
+            setSKU(response.data);
+          })
+          .catch(error => {
+            dispatchError(dispatch, THROW_ERROR, error);
+          });
       }
     }
     if (props.client_sku) setSKUCount(initialSKUs.length);
@@ -510,7 +434,6 @@ function DeliveryNoticeSKU(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.sku]);
   
-
   React.useEffect(() => {
     if (props.client_sku) {
       setClientSKUs(props.client_sku);
@@ -525,6 +448,7 @@ function DeliveryNoticeSKU(props) {
     fetchAllWarehouseSKUs()
       .then(response => {
         setSKU(response.data);
+        setSKUOptions(response.data);
       })
       .catch(error => {
         dispatchError(dispatch, THROW_ERROR, error);
@@ -556,7 +480,6 @@ function DeliveryNoticeSKU(props) {
 
   React.useEffect(() => {
     if (SKU.length) {
-      setSelectedSKU(SKU.filter(sku => sku.isadded === true));
       setOpenSnackBar(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -625,7 +548,7 @@ function DeliveryNoticeSKU(props) {
       </div>
       <Grid container spacing={2} direction="row" justify="space-evenly" alignItems="stretch">
         <Grid item xs={12} md={3}>
-          <ClientSideBar id={props.match.params.id} deleteId={deliveryNoticeData && deliveryNoticeData.delivery_notice_id} />
+          <ClientSideBar id={props.match.params.id} deleteId={clientData && clientData.id} />
         </Grid>
         <Grid item xs={12} md={9}>
           <Table 
@@ -637,7 +560,6 @@ function DeliveryNoticeSKU(props) {
             searchLoading={searchLoading}
             onInputChange={onInputChange}
             handleCancel={handleCancel}
-            onSubmit={handleSubmit}
             onError={handleErrors}
             total={skuCount || 0}
             handleRemoveSKU={handleRemoveSKU}
@@ -669,4 +591,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 };
 
-export default connect(mapStateToProps, {fetchDeliveryNoticeByName, searchDeliveryNoticeSKU, fetchDeliveryNoticeById, fetchClientSKU, fetchWarehouseClient })(DeliveryNoticeSKU);
+export default connect(mapStateToProps, {fetchDeliveryNoticeByName, fetchClientSKU, fetchWarehouseClient })(DeliveryNoticeSKU);

@@ -77,22 +77,23 @@ function WarehouseOverview(props) {
             <Paper elevation={0} className="paper" variant="outlined">
               <Typography variant="subtitle1" className="paper__heading">Client Information</Typography>
               <Grid container spacing={2}>
-              <Grid item xs={12} md={3}>
+              <Grid item xs={12} md={4}>
                   <label className="paper__label">Company Name</label>
                   <p className="paper__text">{clientData.client_name}</p>
                 </Grid>
-                <Grid item xs={12} md={3}>
+                <Grid item xs={12} md={4}>
                   <label className="paper__label">Address</label>
                   <p className="paper__text">{clientData.client_address}</p>
                 </Grid>
-                <Grid item xs={12} md={3}>
+                <Grid item xs={12} md={4}>
                   <label className="paper__label">Number of SKU</label>
                   <p className="paper__text">{clientData.total_sku}</p>
                 </Grid>
-                <Grid item xs={12} md={3}>
+                {/* temporary remove */}
+                {/* <Grid item xs={12} md={3}>
                   <label className="paper__label">Status</label>
                   <p className="paper__text">{renderStatus(clientData.status)}</p>                  
-                </Grid>
+                </Grid> */}
               </Grid>
             </Paper>
           </Grid>

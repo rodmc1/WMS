@@ -51,7 +51,6 @@ function ClientManagement(props) {
     headers: [
       { label: 'ID', key: 'id' },
       { label: 'Company', key: 'client_name' },
-      { label: 'Status', key: 'status' },
       { label: 'Number of SKU', key: 'total_sku' },
       { label: 'Country', key: 'country' }
     ]
@@ -60,7 +59,6 @@ function ClientManagement(props) {
   // CSV Headers
   const csvHeaders = [  
     { label: "Company", key: "companyName" },
-    { label: "Status", key: "status" },
     { label: "Number of SKU", key: "sku" },
     { label: "Country", key: "country" },
   ];
@@ -165,7 +163,6 @@ function ClientManagement(props) {
       const newData = response.data.map(clientData => {
         return {
           companyName: clientData.client_name,
-          status: clientData.status,
           sku: clientData.total_sku,
           country: clientData.country,
         }
