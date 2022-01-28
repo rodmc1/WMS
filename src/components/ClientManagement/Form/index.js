@@ -38,8 +38,6 @@ function ClientForm(props) {
     mode: 'onTouched'
   });
 
-  console.log(props)
-
   const { isDirty } = formState;
   
   const __submit = data => {
@@ -261,7 +259,7 @@ function ClientForm(props) {
                   variant="outlined"
                   disabled={!createOwner}
                   type='email'
-                  className="member-field"
+                  className={!createOwner ? 'member-field' : ''}
                 />
               }
               name="ownerEmail"
@@ -281,7 +279,7 @@ function ClientForm(props) {
                   variant="outlined"
                   disabled={!createOwner}
                   type="number"
-                  className="input_mobile member-field"
+                  className={!createOwner ? 'member-field input_mobile' : 'input_mobile'}
                   InputProps={{
                     inputProps: { min: 0, step: .01 },
                   }}
@@ -331,7 +329,7 @@ function ClientForm(props) {
                   variant="outlined"
                   type='email'
                   disabled={!createContactPerson}
-                  style={{backgroundColor: '#F2F2F2'}}
+                  className={!createContactPerson ? 'member-field' : ''}
                 />
               }
               name="contactPersonEmail"
@@ -351,7 +349,7 @@ function ClientForm(props) {
                   variant="outlined" 
                   disabled={!createContactPerson}
                   type="number"
-                  className="input_mobile member-field"
+                  className={!createContactPerson ? 'member-field input_mobile' : 'input_mobile'}
                   InputProps={{
                     inputProps: { min: 0, step: .01 },
                   }}

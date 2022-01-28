@@ -33,7 +33,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function DeliveryNoticeSKU(props) {
+function ClientManagementSKU(props) {
   const csvLink = useRef();
   const [SKU, setSKU] = useState([]);
   const anchorRef = React.useRef(null);
@@ -428,17 +428,17 @@ function DeliveryNoticeSKU(props) {
   }, [props.client, props.client_sku]);
 
   React.useEffect(() => {
-    if (props.sku) {
+    if (props.client_sku) {
       setOpenBackdrop(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.sku]);
+  }, [props.client_sku]);
   
   React.useEffect(() => {
     if (props.client_sku) {
       setClientSKUs(props.client_sku);
     }
-    if (!props.client) {
+    if (!props.client || props.client_sku) {
       props.fetchClientSKU({client: props.match.params.id})
     }
   //   // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -585,10 +585,9 @@ const mapStateToProps = (state, ownProps) => {
     error: state.error,
     searched: state.notice.searchedSKU,
     notice: state.notice.data[ownProps.match.params.id],
-    sku: state.notice.sku,
     client_sku: state.client.sku,
     client: state.client.data[ownProps.match.params.id]
   }
 };
 
-export default connect(mapStateToProps, {fetchDeliveryNoticeByName, fetchClientSKU, fetchWarehouseClient })(DeliveryNoticeSKU);
+export default connect(mapStateToProps, {fetchDeliveryNoticeByName, fetchClientSKU, fetchWarehouseClient })(ClientManagementSKU);
