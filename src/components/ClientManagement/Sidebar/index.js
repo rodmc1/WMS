@@ -47,7 +47,7 @@ function WarehouseSideBar(props) {
         {
           !props.createMode &&
           <ListItem className="delete_button" button onClick={handleDialog} >
-            <ListItemText primary="Delete Client" style={{ color: 'red' }} />
+            <ListItemText primary="Delete Company" style={{ color: 'red' }} />
           </ListItem>
         }
       </List>

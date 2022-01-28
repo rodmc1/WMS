@@ -192,7 +192,7 @@ function WarehouseEdit(props) {
         </Grid>
         <Grid item xs={12} md={9}>
           <Paper className="paper" elevation={0} variant="outlined" style={{position:'relative'}}>
-            <Typography variant="subtitle1" className="paper__heading">Edit Warehouse</Typography>
+            <Typography variant="subtitle1" className="paper__heading">Client Information</Typography>
             <div className="paper__divider"></div>
             <ClientForm handleDialog={handleDialog} onSubmit={handleSubmit} onError={handleError} warehouseClient={existingWarehouseClient} resetWarehouse={resetWarehouse} />
           </Paper>
