@@ -9,7 +9,7 @@ import ClientSideBar from 'components/ClientManagement/Sidebar';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { fetchWarehouseById, updateUserById, fetchWarehouseClient, updateClientById } from 'actions/index';
+import { fetchWarehouseById, updateUserById, fetchWarehouseClient, updateClientById, uploadClientImageById } from 'actions/index';
 
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper';
@@ -35,7 +35,8 @@ function WarehouseEdit(props) {
 
   // State for api responses
   const [status, setStatus] = React.useState({
-    client: false
+    client: false,
+    images: false
   });
 
   // Submit function for warehouse changes
@@ -86,6 +87,12 @@ function WarehouseEdit(props) {
       }
     }
 
+    if (data.images.length > 0) {
+      handleImageUpload(existingWarehouseClient.id, data.images);
+    } else {
+      setStatus(prevState => { return {...prevState, images: true }});
+    }
+
     //Handle client update
     updateClientById(existingWarehouseClient.id, clientData)
       .then(response => {
@@ -104,6 +111,19 @@ function WarehouseEdit(props) {
       });
   }
 
+  // Function for image upload
+  const handleImageUpload = (clientId, images) => {
+    uploadClientImageById(clientId, [images[0].file])
+      .then(res => {
+        if (res.status === 201) {
+          setStatus(prevState => { return {...prevState, images: true }});
+        };
+      })
+      .catch(error => {
+        dispatchError(dispatch, THROW_ERROR, error);
+      });
+  }
+  
   const handleError = error => {
     console.log(error)
   }
@@ -158,21 +178,21 @@ function WarehouseEdit(props) {
   }, [props.client, props.match.params.id, routes.length]);
 
   // Fetch request for selected warehouse
-  React.useEffect(() => {
-    const id = props.match.params.id;    
-    if (id) props.fetchWarehouseClient({filter: id});
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.match.params.id]);
-
-  
+  // React.useEffect(() => {
+  //   const id = props.match.params.id;    
+  //   if (id) props.fetchWarehouseClient({filter: id});
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps 
+  // }, [props.match.params.id]);
 
   // Set initial warehouse data
   React.useEffect(() => {
-    if (props.client) setOpenSnackBar(false);
-    if (!existingWarehouseClient && props.client) {
+    const id = props.match.params.id;    
+    if (props.client) {
       setExistingWarehouseClient(props.client);
+      setOpenSnackBar(false);
     }
-  }, [props.client, existingWarehouseClient]);
+    if (!props.client) props.fetchWarehouseClient({filter: id});
+  }, [props.client]);
 
   // Show dialog confirmation if user click cancel in warehouse form
   const handleDialog = (hasFilesChange) => {

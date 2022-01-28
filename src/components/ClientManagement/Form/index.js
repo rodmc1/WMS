@@ -5,6 +5,8 @@ import validator from 'validator';
 import { connect } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { fetchClients, fetchUOM, fetchStorageType } from 'actions/picklist';
+import ImageUploading from 'react-images-uploading';
+
 import Dropzone from 'components/Dropzone';
 import ButtonGroup from 'components/_ButtonGroup';
 import Typography from '@mui/material/Typography';
@@ -26,12 +28,14 @@ import makeStyles from '@mui/styles/makeStyles';
 function ClientForm(props) {
   const [hasChanged, setHasChanged] = useState(false);
   const [hasFilesChange, setHasFilesChange] = React.useState(false);
-  const [images, setImages] = React.useState([]);
   const [SKU, setSKU] = React.useState([]);
   const [createOwner, setCreateOwner] = useState(false);
   const [createContactPerson, setCreateContactPerson] = useState(false);
   const [isClientFetched, setIsClientFetched] = useState(false);
   const [existingClientData, setExistingClientData] = useState([]);
+  const [images, setImages] = React.useState([]);
+  const [clientImage, setClientImage] = React.useState(null);
+  const maxNumber = 1;
 
   const { handleSubmit, errors, control, formState, setValue, getValues } = useForm({
     shouldFocusError: false,
@@ -43,6 +47,7 @@ function ClientForm(props) {
   const __submit = data => {
     data.owner = createOwner;
     data.contactPerson = createContactPerson;
+    data.images = images;
 
     if (_.isEmpty(errors)) {
       props.onSubmit(data);
@@ -67,6 +72,13 @@ function ClientForm(props) {
         ['contactPersonEmail', existingClientData.contactperson_email],
         ['contactPersonMobileNumber', existingClientData.contactperson_mobile],
       ];
+
+      if (existingClientData.warehouse_client_img_type) {
+        if (existingClientData.warehouse_client_img_type.file_path && !clientImage) {
+          const extractedImage = existingClientData.warehouse_client_img_type.file_path.replace(/\\/g,"/").replace("/files",process.env.REACT_APP_INTELUCK_API_ENDPOINT);
+          setClientImage(extractedImage);
+        }
+      }
 
       setSKU(props.sku);
       SKUDetails.forEach(w => {
@@ -104,20 +116,47 @@ function ClientForm(props) {
     setInterval(function(){ setCode(getValues('productName') + '-' + getValues('externalCode'))  }, 1000);
   };
 
+  const onImageChange = (imageList) => {
+    setHasChanged(true);
+    setImages(imageList);
+  }
+
   return (
     <form onSubmit={handleSubmit(__submit)} className="client-form">
       <div className="paper__section">
         <Grid container spacing={2}>
           <Grid item xs={3} md={1}>
             <ListItem style={{ paddingLeft: 0}}>
-              <ListItemAvatar style={{ position: 'relative' }}>
+              <ImageUploading
+                value={images}
+                onChange={onImageChange}
+                maxNumber={maxNumber}
+                dataURLKey="data_url"
+              >
+                {({
+                  imageList,
+                  onImageUpdate
+                }) => (
+                  <div className="upload__image-wrapper">
+                    <ListItemAvatar style={{ position: 'relative' }}>
+                      <Avatar style={{height: 64, width: 64}}>
+                        {(!images.length && !clientImage) ? <GroupIcon /> : <img src={images.length ? imageList[0].data_url : clientImage} alt="" style={{height: '160%', width: '160%', objectFit: 'contain'}}/>}
+                      </Avatar>
+                      <Avatar onClick={onImageUpdate} sx={{boxShadow: 2, cursor: 'pointer'}} style={{top: 40, right: 0, height: 20, width: 20, position: 'absolute', backgroundColor: 'white'}}>
+                        <CameraAltIcon style={{ height: 15, width: 15, color: 'gray'}} />
+                      </Avatar>
+                    </ListItemAvatar>
+                  </div>
+                )}
+              </ImageUploading>
+              {/* <ListItemAvatar style={{ position: 'relative' }}>
                 <Avatar style={{height: 64, width: 64}}>
                   <GroupIcon />
                 </Avatar>
                 <Avatar sx={{boxShadow: 2}} style={{top: 40, right: 0, height: 20, width: 20, position: 'absolute', backgroundColor: 'white'}}>
                   <CameraAltIcon style={{ height: 15, width: 15, color: 'gray'}} />
                 </Avatar>
-              </ListItemAvatar>
+              </ListItemAvatar> */}
             </ListItem>
           </Grid>
           <Grid item xs={9} md={11}>

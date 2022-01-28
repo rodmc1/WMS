@@ -144,3 +144,18 @@ export const removeTaggedSKU = (id, itemID) => {
 export const createWarehouseClient = params => {
   return inteluck.post(`/v1/wms/Warehouse/Client`, params);
 }
+
+// Client Image upload
+export const uploadClientImageById = (id, files) => {
+  const formData = new FormData();
+  files.map(file => formData.append('Docs', file));
+
+  return inteluck.post(`/v1/wms/Warehouse/Client/Image`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    params: {
+      id: id
+    }
+  });
+}

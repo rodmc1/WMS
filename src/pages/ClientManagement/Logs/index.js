@@ -101,8 +101,6 @@ function AuditLog(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [query]);
 
-  console.log(auditLog)
-
   React.useEffect(() => {
     if (date) {
       delayedQuery(date.format("MM/DD/YYYY"))

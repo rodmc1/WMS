@@ -33,15 +33,6 @@ function WarehouseOverview(props) {
     return jsx
   }
 
-  // Open success alert if edit warehouse pass a success props
-  React.useEffect(() => {
-    if (props.location.success) {
-      console.log('success edit')
-      setOpen(true);
-      // fetchWarehouseById(props.match.params.id);
-    }
-  }, [props.location.success, props.match.params.id]);
-
   // Fetch warehouse by selected warehouse id and set warehouse data
   React.useEffect(() => {
     const id = props.match.params.id;
@@ -50,7 +41,17 @@ function WarehouseOverview(props) {
     } else {
       setClientData(props.client);
     }
-  }, [props.client, props.match.params.id]);
+    
+  }, [props.client]);
+
+  // Fetch warehouse by selected warehouse id and set warehouse data
+  React.useEffect(() => {
+    const id = props.match.params.id;
+    if (props.location.success) {
+      setOpen(true);
+      props.fetchWarehouseClient({filter: id});
+    }
+  }, [props.location.success]);
 
   // Set new route for selected warehouse
   React.useEffect(() => {

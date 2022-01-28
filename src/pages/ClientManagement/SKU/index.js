@@ -438,7 +438,7 @@ function ClientManagementSKU(props) {
     if (props.client_sku) {
       setClientSKUs(props.client_sku);
     }
-    if (!props.client || props.client_sku) {
+    if (!props.client || !props.client_sku) {
       props.fetchClientSKU({client: props.match.params.id})
     }
   //   // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -474,8 +474,8 @@ function ClientManagementSKU(props) {
     
     setSKUCount(clientSKU.length)
     setTableData(clientSKU);
-    setIsChecked(checked);
     setInitialSKUs(checked);
+    setIsChecked(checked);
   }
 
   React.useEffect(() => {

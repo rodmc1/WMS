@@ -7,7 +7,7 @@ import ClientManagementForm from 'components/ClientManagement/Form';
 import WarehouseSideBar from 'components/ClientManagement/Sidebar';
 
 import { THROW_ERROR } from 'actions/types';
-import { createWarehouseClient, fetchAllWarehouseSKUs, searchWarehouseSKUByName, tagSKU } from 'actions';
+import { createWarehouseClient, fetchAllWarehouseSKUs, searchWarehouseSKUByName, tagSKU, uploadClientImageById } from 'actions';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 
@@ -42,7 +42,7 @@ function ClientManagementCreate (props) {
   const [alertConfig, setAlertConfig] = React.useState({severity: 'info', message: 'Loading...'});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState({ open: false });
-  const [status, setStatus] = React.useState({ client: false });
+  const [status, setStatus] = React.useState({ client: false, images: false });
   const [openSKUTag, setOpenSKUTag] = React.useState(false);
   const [isChecked, setIsChecked] = React.useState([]);
   const [items, setItems] = React.useState([]);
@@ -106,8 +106,26 @@ function ClientManagementCreate (props) {
       .then(res => {
         if (res.status === 201) {
           clientData.id = res.data;
-          setCreatedClientData(clientData)
+          if (data.images.length > 0) {
+            handleImageUpload(clientData.id, data.images);
+          } else {
+            setStatus(prevState => { return {...prevState, images: true }});
+          }
+          setCreatedClientData(clientData);
         }
+      })
+      .catch(error => {
+        dispatchError(dispatch, THROW_ERROR, error);
+      });
+  }
+
+  // Function for image upload
+  const handleImageUpload = (clientId, images) => {
+    uploadClientImageById(clientId, [images[0].file])
+      .then(res => {
+        if (res.status === 201) {
+          setStatus(prevState => { return {...prevState, images: true }});
+        };
       })
       .catch(error => {
         dispatchError(dispatch, THROW_ERROR, error);
