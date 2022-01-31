@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import './style.scss';
-import _ from 'lodash';
+import _, { initial } from 'lodash';
 import React, {  useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
@@ -205,11 +205,69 @@ function ClientManagementSKU(props) {
   }
 
   // Function for pagination and search
-  const handlePagination = (page, rowsPerPage) => {
-    if (query) {
-      delayedQuery(page, rowsPerPage);
+  // const handlePagination = (page, rowsPerPage) => {
+  //   if (query) {
+  //     delayedQuery(page, rowsPerPage);
+  //   }
+    
+  //   console.log(query)
+  // };
+
+    /*
+   * Function for pagination when searching
+   * @args Page num, rowsPerPage num
+   */
+    const handlePagination = (page, rowsPerPage) => {
+
+      if (query) {
+        delayedQuery(page, rowsPerPage);
+      } else {
+        props.fetchWarehouseClient({filter: props.match.params.id});
+      }
+
+      // SKU.forEach(sku => {
+      //   if (initialSKUs.includes(sku.item_id)) {
+      //     if (newTableData.length < rowsPerPage) {
+      //       newTableData.push(sku)
+      //     }
+      //   }
+      // });
+      // setTableData(newTableData);
+    };
+
+      // Fetch new data if search values was erased
+  // React.useEffect(() => {
+  //   let newTableData = [];
+  //   if (initialSKUs) {
+  //     SKU.forEach(sku => {
+  //       if (initialSKUs.includes(sku.item_id)) {
+  //         if (newTableData.length < rowCount) {
+  //           newTableData.push(sku)
+  //         }
+  //       }
+  //     });
+  //     setTableData(newTableData);
+  //     setSKUCount(initialSKUs.length);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps 
+  // }, [rowCount, initialSKUs]);
+
+  React.useEffect(() => {
+    let newTableData = [];
+    
+    if (initialSKUs) {
+      SKU.forEach(sku => {
+        if (initialSKUs.includes(sku.item_id)) {
+          newTableData.push(sku)
+        }
+      });
+      newTableData.slice(0, skuCount - rowCount);
+      const newArr = newTableData.slice(page * rowCount, page * rowCount + rowCount);
+      setTableData(newArr);
+      setSKUCount(initialSKUs.length);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [page, initialSKUs, rowCount]);
 
   // Fetch new data if search values was erased
   React.useEffect(() => {
@@ -423,26 +481,30 @@ function ClientManagementSKU(props) {
           });
       }
     }
-    if (props.client_sku) setSKUCount(initialSKUs.length);
+    if (props.client_sku) {
+      setSKUCount(initialSKUs.length);
+      setClientSKUs(props.client_sku);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.client, props.client_sku]);
 
   React.useEffect(() => {
     if (props.client_sku) {
-      setOpenBackdrop(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.client_sku]);
-  
-  React.useEffect(() => {
-    if (props.client_sku) {
       setClientSKUs(props.client_sku);
-    }
-    if (!props.client || !props.client_sku) {
+      setOpenBackdrop(false);
+    } else {
       props.fetchClientSKU({client: props.match.params.id})
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.client_sku, props.client, initialSKUs]);
+
+  console.log(tableData)
+  
+  // React.useEffect(() => {
+  //   props.fetchClientSKU({client: props.match.params.id})
   //   // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.client_sku]);
+  // }, []);
+  // console.log(SKU)
 
   React.useEffect(() => {
     fetchAllWarehouseSKUs()
@@ -468,14 +530,16 @@ function ClientManagementSKU(props) {
 
     SKU.forEach(sku => {
       if (checked.includes(sku.item_id)) {
-        clientSKU.push(sku)
+        if (clientSKU.length < rowCount) {
+          clientSKU.push(sku)
+        }
       }
     });
     
-    setSKUCount(clientSKU.length)
     setTableData(clientSKU);
     setInitialSKUs(checked);
     setIsChecked(checked);
+    setSKUCount(clientSKU.length);
   }
 
   React.useEffect(() => {
@@ -486,11 +550,11 @@ function ClientManagementSKU(props) {
   }, [SKU]);
 
   React.useEffect(() => {
-    if (clientSKUs.length) {
+    if (clientSKUs) {
       getTaggedSKU();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [clientSKUs]);
+  }, [clientSKUs, SKU]);
 
   // Fetch warehouse by selected warehouse id and set warehouse data
   React.useEffect(() => {

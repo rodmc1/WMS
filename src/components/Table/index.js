@@ -209,8 +209,8 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
 
   // Set the page number and item count for searched items
   React.useEffect(() => {
-      handleRowCount(page, rowsPerPage);
-      onPaginate(page, rowsPerPage);
+    handleRowCount(page, rowsPerPage);
+    onPaginate(page, rowsPerPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [page, rowsPerPage]);
   
@@ -244,7 +244,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
           <TablePagination
           className={classes.pagination}
             rowsPerPageOptions={[5, 10, 25]}
-            count={total ? Number(total) : 0}
+            count={Number(total)}
             rowsPerPage={rowsPerPage}
             page={page}
             component="div"
