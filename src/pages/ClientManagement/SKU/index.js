@@ -204,53 +204,17 @@ function ClientManagementSKU(props) {
     setQuery(e.target.value);
   }
 
-  // Function for pagination and search
-  // const handlePagination = (page, rowsPerPage) => {
-  //   if (query) {
-  //     delayedQuery(page, rowsPerPage);
-  //   }
-    
-  //   console.log(query)
-  // };
-
     /*
    * Function for pagination when searching
    * @args Page num, rowsPerPage num
    */
-    const handlePagination = (page, rowsPerPage) => {
-
-      if (query) {
-        delayedQuery(page, rowsPerPage);
-      } else {
-        props.fetchWarehouseClient({filter: props.match.params.id});
-      }
-
-      // SKU.forEach(sku => {
-      //   if (initialSKUs.includes(sku.item_id)) {
-      //     if (newTableData.length < rowsPerPage) {
-      //       newTableData.push(sku)
-      //     }
-      //   }
-      // });
-      // setTableData(newTableData);
-    };
-
-      // Fetch new data if search values was erased
-  // React.useEffect(() => {
-  //   let newTableData = [];
-  //   if (initialSKUs) {
-  //     SKU.forEach(sku => {
-  //       if (initialSKUs.includes(sku.item_id)) {
-  //         if (newTableData.length < rowCount) {
-  //           newTableData.push(sku)
-  //         }
-  //       }
-  //     });
-  //     setTableData(newTableData);
-  //     setSKUCount(initialSKUs.length);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps 
-  // }, [rowCount, initialSKUs]);
+  const handlePagination = (page, rowsPerPage) => {
+    if (query) {
+      delayedQuery(page, rowsPerPage);
+    } else {
+      props.fetchWarehouseClient({filter: props.match.params.id});
+    }
+  };
 
   React.useEffect(() => {
     let newTableData = [];
@@ -300,7 +264,22 @@ function ClientManagementSKU(props) {
    * Function for CSV Download
    */ 
   const handleDownloadCSV = () => {
-    const newData = tableData.map(skuData => {
+    let checked = [];
+    let clientSKU = [];
+
+    clientSKUs.forEach(sku => {
+      if (sku.isactive) {
+        checked.push(sku.item_id)
+      }
+    });
+
+    SKU.forEach(sku => {
+      if (checked.includes(sku.item_id)) {
+        clientSKU.push(sku)
+      }
+    });
+
+    const newData = clientSKU.map(skuData => {
       return {
         product_name: skuData.product_name,
         uom: skuData.uom_description,
@@ -497,14 +476,6 @@ function ClientManagementSKU(props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.client_sku, props.client, initialSKUs]);
-
-  console.log(tableData)
-  
-  // React.useEffect(() => {
-  //   props.fetchClientSKU({client: props.match.params.id})
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps 
-  // }, []);
-  // console.log(SKU)
 
   React.useEffect(() => {
     fetchAllWarehouseSKUs()

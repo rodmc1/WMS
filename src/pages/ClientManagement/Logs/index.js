@@ -48,6 +48,7 @@ function AuditLog(props) {
   const [searched, setSearched] = React.useState('');
   const [date, setDate] = React.useState(null);
   const [ready, setReady] = React.useState(false);
+  const [resultTxt, setResultTxt] = React.useState('');
 
   const routes = [
     {
@@ -148,12 +149,21 @@ function AuditLog(props) {
     if (props.searched) {
       setSearched(props.searched);
       if (!props.searched.length && (query || date)) {
-        setInterval(() => {setReady(true)}, 300);
+        // setInterval(() => {setReady(true); setResultTxt('No Results Found')}, 300);
+        setResultTxt('No Results Found');
       } else {
         setReady(false)
       }
     }
   }, [props.searched]);
+
+  // remove not results found
+  React.useEffect(() => {
+    if (auditLog) {
+      if (auditLog.length) setResultTxt('');
+    }
+  }, [auditLog]);
+  
 
   const handleDate = date => {
     setDate(date);
@@ -252,7 +262,7 @@ function AuditLog(props) {
                 </React.Fragment>
               )
             })}
-            {ready ? <Typography className="nrf">No Results Found</Typography> : ''}
+            <Typography className="nrf">{resultTxt}</Typography>
           </Paper>
         </Grid>
       </Grid>
