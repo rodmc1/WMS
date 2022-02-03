@@ -55,6 +55,7 @@ function WarehouseMasterDataSKU (props) {
       { label: 'UOM', key: 'uom_description' },
       { label: 'Code', key: 'item_code' },
       { label: 'External Code', key: 'external_code' },
+      { label: 'No. of Clients', key: 'no_clients' },
     ]
   }
 

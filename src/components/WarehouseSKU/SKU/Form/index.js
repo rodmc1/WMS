@@ -3,7 +3,7 @@ import _ from 'lodash';
 import './style.scss';
 import { connect } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
-import { fetchClients, fetchUOM, fetchStorageType, fetchProjectType } from 'actions/picklist';
+import { fetchUOM, fetchStorageType, fetchProjectType, fetchWarehouseClients } from 'actions';
 import Dropzone from 'components/Dropzone';
 import ButtonGroup from 'components/_ButtonGroup';
 import Typography from '@mui/material/Typography';
@@ -21,8 +21,8 @@ function WarehouseMasterDataSKUForm(props) {
   const [images, setImages] = React.useState([]);
   const [batchManagement, setBatchManagement] = React.useState(false);;
   const [expiryManagement, setExpiryManagement] = React.useState(false);
+  const [code, setCode] = React.useState('')
   const [SKU, setSKU] = React.useState([]);
-  const [isClientFetched, setIsClientFetched] = React.useState(false)
 
   const { handleSubmit, errors, control, formState, setValue, getValues } = useForm({
     shouldFocusError: false,
@@ -93,27 +93,18 @@ function WarehouseMasterDataSKUForm(props) {
    * Get addional picklist data
    */
   React.useEffect(() => {
-    if (!props.clients.length) {
-      props.fetchClients();
-    }
     props.fetchUOM();
     props.fetchStorageType();
     props.fetchProjectType();
+    props.fetchWarehouseClients();
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
-
-  React.useEffect(() => {
-    if (props.clients.length) {
-      setIsClientFetched(true)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.clients]);
 
   React.useEffect(() => {
     onChangeHandler()
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
-  const [code, setCode] = React.useState('')
+
   const onChangeHandler = event => {
     setInterval(function(){ setCode(getValues('productName') + '-' + getValues('externalCode'))  }, 1000);
   };
@@ -122,6 +113,37 @@ function WarehouseMasterDataSKUForm(props) {
     <form onSubmit={handleSubmit(__submit)} className="sku-form">
       <div className="paper__section">
         <Typography variant="subtitle1" className="paper__heading">General Information</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={12}>
+            <label className="paper__label">Client</label>
+            <Controller
+              as={
+                <Select
+                  variant="outlined"
+                  fullWidth
+                  required
+                  defaultValue=""
+                  displayEmpty={true}
+                  renderValue={
+                    getValues("client") !== "" ? undefined : () => <div style={{color: 'grey'}}>Select Client</div>
+                  }>
+                  {
+                    !props.project_type ? null :
+                    props.project_type.map(type => {
+                      return <MenuItem key={type.Id} value={type.Description}>{type.Description}</MenuItem>
+                    })
+                  }
+                </Select>
+              }
+              name="client"
+              control={control}
+              rules={{ required: "This field is required" }}
+              defaultValue=""
+              onInput={() => setHasChanged(true)}
+            />
+            {errors.client && <FormHelperText error>{errors.client.message}</FormHelperText>}
+          </Grid>
+        </Grid>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <label className="paper__label">Product Name</label>
@@ -498,11 +520,11 @@ function WarehouseMasterDataSKUForm(props) {
 
 const mapStateToProps = state => {
   return {
-    clients: state.picklist.clients,
+    clients: state.client.data,
     uom: state.picklist.uom,
     storage_type: state.picklist.storage_type,
     project_type: state.picklist.project_type
   }
 }
 
-export default connect(mapStateToProps, { fetchClients, fetchUOM, fetchStorageType, fetchProjectType })(WarehouseMasterDataSKUForm);
+export default connect(mapStateToProps, { fetchUOM, fetchStorageType, fetchProjectType, fetchWarehouseClients })(WarehouseMasterDataSKUForm);

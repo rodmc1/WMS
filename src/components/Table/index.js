@@ -169,6 +169,10 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     return <img src={defaultImage} onError={handleImageError} className="table-img-preview" alt="" />
   }
 
+  const handleTagClient = () => {
+    console.log('test')
+  }
+
   const renderTableCell = (data, type) => {
     let cellData = data;
     if (type === 'item_document_file_type') cellData = renderPreview(data);
@@ -176,6 +180,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     if (type === 'appointment_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
     if (type === 'status') cellData = renderStatus(data);
     if (type === 'physical_count') cellData = data ? data : 0;
+    if (type === 'no_clients') cellData = <div onClick={handleTagClient}>0</div>;
 
     return cellData;
   }

@@ -1,7 +1,7 @@
 import _ from 'lodash';
-// import './style.scss';
+import './style.scss';
 import history from 'config/history';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import WarehouseDialog from 'components/WarehouseDialog';
 import ClientManagementForm from 'components/ClientManagement/Form';
 import WarehouseSideBar from 'components/ClientManagement/Sidebar';
@@ -23,6 +23,8 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import MenuList from "@mui/material/MenuList";
 import TextField from '@mui/material/TextField';
+import Spinner from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -49,6 +51,7 @@ function ClientManagementCreate (props) {
   const [searchedItem, setSearchedItem] = React.useState(null);
   const [createdClientData, setCreatedClientData] = React.useState(null);
   const [clientSKUs, setClientSKUs] = React.useState([]);
+  const [openBackdrop, setOpenBackdrop] = useState(false);
   const isAllSelected = isChecked.length > 0 && isChecked.length === SKU.length;
 
   const routes = [
@@ -135,15 +138,26 @@ function ClientManagementCreate (props) {
   const handleTagSKU = () => {
     setOpenSnackBar(true);
     setAlertConfig({ severity: 'info', message: 'Creating Client...' });
+    setOpenBackdrop(true);
+    tagSKU(createdClientData.id, isChecked, [])
+      .then(res => {
+        let delayInMilliseconds = 500;
+        setTimeout(function() {
+          setOpenSnackBar(true);
+          setOpenSKUTag(false);
+          setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+          setStatus(prevState => { return {...prevState, client: true }});
+          setOpenBackdrop(false);
+        }, delayInMilliseconds);
+      });
+    // var delayInMilliseconds = 1000;
+    
 
-    tagSKU(createdClientData.id, isChecked, []);
-    var delayInMilliseconds = 1000;
-
-    setTimeout(function() {
-      setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
-      setStatus(prevState => { return {...prevState, client: true }});
-      setOpenSKUTag(false);
-    }, delayInMilliseconds);
+    // setTimeout(function() {
+    //   setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+    //   setStatus(prevState => { return {...prevState, client: true }});
+    //   setOpenSKUTag(false);
+    // }, delayInMilliseconds);
   }
 
   const handleClose = () => {
@@ -153,7 +167,7 @@ function ClientManagementCreate (props) {
   const handleSkip = () => {
     setOpenSnackBar(true);
     setAlertConfig({ severity: 'info', message: 'Creating Client...' });
-    var delayInMilliseconds = 400;
+    let delayInMilliseconds = 400;
 
     setTimeout(function() {
       setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
@@ -306,7 +320,10 @@ function ClientManagementCreate (props) {
             <ClientManagementForm handleDialog={handleDialog} onSubmit={onSubmit} onError={handleError} />
           </Paper>
         </Grid>
-        <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
+        <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 999 }} open={openBackdrop}>
+          <CircularProgress color="inherit" />
+        </Spinner>
+        <Snackbar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1000 }} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
         <WarehouseDialog
@@ -317,7 +334,6 @@ function ClientManagementCreate (props) {
           buttonCancelText="No"
           dialogAction={() => history.push(`/client-management`)}
         />
-        
         <Dialog
           open={openSKUTag}
           fullWidth

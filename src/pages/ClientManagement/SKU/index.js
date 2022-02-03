@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import './style.scss';
-import _, { initial } from 'lodash';
+import _, { initial, stubTrue } from 'lodash';
 import React, {  useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
@@ -60,6 +60,7 @@ function ClientManagementSKU(props) {
   const [initialSKUs, setInitialSKUs] = useState([]);
   const [removedSKUs, setRemovedSKUs] = useState([]);
   const [SKUOptions, setSKUOptions] = useState([]);
+  const [hideDuration, setHideDuration] = useState(5000);
   const isAllSelected = isChecked.length > 0 && isChecked.length === SKU.length;
 
   const routes = [
@@ -305,19 +306,57 @@ function ClientManagementSKU(props) {
     { label: "Storage Type", key: "storage_type" }
   ];
 
+/**
+ * Call delayedQuery function when user search and set new sku data
+ */
+  React.useEffect(() => {
+    if (items > 100 || removedSKUs > 100) {
+      setHideDuration(8000);
+    }
+    if (items > 200 || removedSKUs > 200) {
+      setHideDuration(12000);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [items, removedSKUs]);
+
+
+
   const handleTagSKU = () => {
     setOpenSnackBar(false);
     setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
+    setOpenBackdrop(true);
+    tagSKU(clientData.id, items, removedSKUs).then(res => {
+      let delayInMilliseconds = 500;
+      setTimeout(function() {
+        props.fetchClientSKU({client: props.match.params.id});
+        setOpenSKUTag(false);
+        setOpenSnackBar(true);
+        setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+        setOpenBackdrop(false);
+      }, delayInMilliseconds);
+    });
+    // if (taggingStatus) {
+    //   props.fetchClientSKU({client: props.match.params.id})
+    //   setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+    //   setOpenSKUTag(false);
+    // }
+    // let delayInMilliseconds = 1200;
+    // if (items.length > 70 || removedSKUs.length > 100) {
+    //   delayInMilliseconds = 3000;
+    //   setHideDuration(5000)
+    // }
 
-    tagSKU(clientData.id, items, removedSKUs);
-    var delayInMilliseconds = 1200;
+    // if (items.length > 100 || removedSKUs.length > 100) {
+    //   delayInMilliseconds = 4000;
+    //   setHideDuration(6000)
+    // }
 
-    setTimeout(function() {
-      props.fetchClientSKU({client: props.match.params.id})
-      setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
-      setOpenSKUTag(false);
-    }, delayInMilliseconds);
+    // setTimeout(function() {
+    //   props.fetchClientSKU({client: props.match.params.id})
+    //   setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+    //   setOpenSKUTag(false);
+    // }, delayInMilliseconds);
   }
 
   const handleRemoveSKU = (data) => {
@@ -506,7 +545,7 @@ function ClientManagementSKU(props) {
         }
       }
     });
-    
+
     setTableData(clientSKU);
     setInitialSKUs(checked);
     setIsChecked(checked);
@@ -573,6 +612,9 @@ function ClientManagementSKU(props) {
 
   return (
     <div className="container delivery-notice-container dn-sku">
+      <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 999 }} open={openBackdrop}>
+        <CircularProgress color="inherit" />
+      </Spinner>
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         <div className="button-group">
@@ -599,10 +641,7 @@ function ClientManagementSKU(props) {
             total={skuCount || 0}
             handleRemoveSKU={handleRemoveSKU}
           />
-          <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop}>
-            <CircularProgress color="inherit" />
-          </Spinner>
-          <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} autoHideDuration={3000} onClose={() => setOpenSnackBar(false)}>
+          <Snackbar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1000 }} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} autoHideDuration={hideDuration} onClose={() => setOpenSnackBar(false)}>
             <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
           </Snackbar>
         </Grid>
