@@ -78,25 +78,35 @@ export const updateClientById = (id, params) => {
 }
 
 // For SKU tagging
-export const tagSKU = (id, addedItems, removedItems) => {
-  let params = {}
-  let status = false;
+export const tagSKU = (client, addedItems, removedItems) => {
+  let params = {};
   let arrayOfRequest = [];
-  addedItems.forEach(itemID => {
-    params = {
-      client_id: id,
-      item_id: itemID
-    }
-    arrayOfRequest.push(inteluck.post(`/v1/wms/Warehouse/Client-SKU?client_id=${params.client_id}&item_id=${params.item_id}&isactive=${true}`))
-  });
-
-  removedItems.forEach(itemID => {
-    params = {
-      client_id: id,
-      item_id: itemID
-    }
-    arrayOfRequest.push(inteluck.post(`/v1/wms/Warehouse/Client-SKU?client_id=${params.client_id}&item_id=${params.item_id}&isactive=${false}`))
-  })
+  
+  if (Array.isArray(client)) {
+    client.forEach(clientId => {
+      params = {
+        client_id: clientId,
+        item_id: addedItems
+      }
+      arrayOfRequest.push(inteluck.post(`/v1/wms/Warehouse/Client-SKU?client_id=${params.client_id}&item_id=${params.item_id}&isactive=${true}`))
+    });
+  } else {
+    addedItems.forEach(itemID => {
+      params = {
+        client_id: client,
+        item_id: itemID
+      }
+      arrayOfRequest.push(inteluck.post(`/v1/wms/Warehouse/Client-SKU?client_id=${params.client_id}&item_id=${params.item_id}&isactive=${true}`))
+    });
+  
+    removedItems.forEach(itemID => {
+      params = {
+        client_id: client,
+        item_id: itemID
+      }
+      arrayOfRequest.push(inteluck.post(`/v1/wms/Warehouse/Client-SKU?client_id=${params.client_id}&item_id=${params.item_id}&isactive=${false}`))
+    })
+  }
 
   return Promise.all(arrayOfRequest);
 }

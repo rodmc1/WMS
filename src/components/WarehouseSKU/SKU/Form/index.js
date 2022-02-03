@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import './style.scss';
 import { connect } from 'react-redux';
@@ -14,15 +14,24 @@ import MenuItem from '@material-ui/core/MenuItem';
 import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
 import FormHelperText from '@mui/material/FormHelperText';
+import ListItemText from '@mui/material/ListItemText';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemIcon from '@mui/material/ListItemIcon';
 
 function WarehouseMasterDataSKUForm(props) {
   const [hasChanged, setHasChanged] = React.useState(false);
   const [hasFilesChange, setHasFilesChange] = React.useState(false);
   const [images, setImages] = React.useState([]);
-  const [batchManagement, setBatchManagement] = React.useState(false);;
+  const [batchManagement, setBatchManagement] = React.useState(false);
   const [expiryManagement, setExpiryManagement] = React.useState(false);
+  const [isChecked, setIsChecked] = React.useState([]);
   const [code, setCode] = React.useState('')
   const [SKU, setSKU] = React.useState([]);
+  const [selected, setSelected] = useState([]);
+  const [selectedClients, setSelectedClients] = useState([]);
+  const isAllSelected = props.clients.length > 0 && selected.length === props.clients.length;
+
+  console.log(isAllSelected)
 
   const { handleSubmit, errors, control, formState, setValue, getValues } = useForm({
     shouldFocusError: false,
@@ -109,6 +118,44 @@ function WarehouseMasterDataSKUForm(props) {
     setInterval(function(){ setCode(getValues('productName') + '-' + getValues('externalCode'))  }, 1000);
   };
 
+  const handleChange = (event) => {
+    const value = event.target.value;
+    let selectedData = [];
+
+    props.clients.forEach(client => {
+      if(value.includes(client.id)) {
+        selectedData.push(client)
+      }
+    });
+
+    if (value[value.length - 1] === "all") {
+      selectedData = selected.length === props.clients.length ? [] : props.clients;
+      setSelected(selected.length === props.clients.length ? [] : props.clients.map(client => client.id));
+    } else {
+      setSelected(value);
+      setSelectedClients([])
+    }
+    setSelectedClients(selectedData);
+    setValue('client', value);
+  };
+
+  console.log(selectedClients)
+
+  const MenuProps = {
+    variant: "menu",
+    anchorOrigin: {
+      vertical: "bottom",
+      horizontal: "left"
+    },
+    transformOrigin: {
+      vertical: "top",
+      horizontal: "left"
+    },
+    getContentAnchorEl: null
+  };
+
+  console.log(selected)
+
   return (
     <form onSubmit={handleSubmit(__submit)} className="sku-form">
       <div className="paper__section">
@@ -117,24 +164,48 @@ function WarehouseMasterDataSKUForm(props) {
           <Grid item xs={12} md={12}>
             <label className="paper__label">Client</label>
             <Controller
-              as={
-                <Select
-                  variant="outlined"
-                  fullWidth
-                  required
-                  defaultValue=""
-                  displayEmpty={true}
-                  renderValue={
-                    getValues("client") !== "" ? undefined : () => <div style={{color: 'grey'}}>Select Client</div>
-                  }>
-                  {
-                    !props.project_type ? null :
-                    props.project_type.map(type => {
-                      return <MenuItem key={type.Id} value={type.Description}>{type.Description}</MenuItem>
-                    })
-                  }
-                </Select>
-              }
+              render={({value}) => {
+                return (
+                  <Select
+                    labelId="mutiple-select-label"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    value={selected}
+                    multiple
+                    onChange={handleChange}
+                    MenuProps={MenuProps}
+                    renderValue={() => {
+                      return (
+                        selectedClients.map((client) => client.client_name).join(", ")
+                      );
+                    }}
+                    >
+                      <MenuItem
+                        value="all"
+                        classes={{
+                          root: ""
+                        }}
+                      >
+                        <Checkbox
+                          checked={isAllSelected}
+                          indeterminate={
+                            selected.length > 0 && selected.length < props.clients.length
+                          }
+                        />
+                        <ListItemText
+                          primary="Select All"
+                        />
+                      </MenuItem>
+                    {props.clients.map((client) => (
+                      <MenuItem key={client.id} value={client.id}>
+                        <Checkbox checked={selected.includes(client.id)} />
+                        <ListItemText primary={client.client_name} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )
+              }}
               name="client"
               control={control}
               rules={{ required: "This field is required" }}
@@ -520,7 +591,7 @@ function WarehouseMasterDataSKUForm(props) {
 
 const mapStateToProps = state => {
   return {
-    clients: state.client.data,
+    clients: Object.values(state.client.data),
     uom: state.picklist.uom,
     storage_type: state.picklist.storage_type,
     project_type: state.picklist.project_type

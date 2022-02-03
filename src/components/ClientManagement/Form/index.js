@@ -149,14 +149,6 @@ function ClientForm(props) {
                   </div>
                 )}
               </ImageUploading>
-              {/* <ListItemAvatar style={{ position: 'relative' }}>
-                <Avatar style={{height: 64, width: 64}}>
-                  <GroupIcon />
-                </Avatar>
-                <Avatar sx={{boxShadow: 2}} style={{top: 40, right: 0, height: 20, width: 20, position: 'absolute', backgroundColor: 'white'}}>
-                  <CameraAltIcon style={{ height: 15, width: 15, color: 'gray'}} />
-                </Avatar>
-              </ListItemAvatar> */}
             </ListItem>
           </Grid>
           <Grid item xs={9} md={11}>

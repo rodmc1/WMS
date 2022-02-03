@@ -1,11 +1,11 @@
 import _ from 'lodash';
 import history from 'config/history';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import WarehouseDialog from 'components/WarehouseDialog';
 import WarehouseMasterDataSKUForm from 'components/WarehouseSKU/SKU/Form';
 
 import { THROW_ERROR } from 'actions/types';
-import { createWarehouseSKU } from 'actions';
+import { createWarehouseSKU, tagSKU } from 'actions';
 import { dispatchError } from 'helper/error';
 import { uploadSKUFilesById } from 'actions';
 import { connect, useDispatch } from 'react-redux';
@@ -16,6 +16,8 @@ import MuiAlert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Typography from '@mui/material/Typography';
+import Spinner from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // Alerts
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -28,6 +30,7 @@ function WarehouseMasterDataSKUCreate (props) {
   const [alertConfig, setAlertConfig] = React.useState({severity: 'info', message: 'Loading...'});
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState({ open: false });
+  const [openBackdrop, setOpenBackdrop] = useState(false);
   const [status, setStatus] = React.useState({ images: false, sku: false });
 
   const routes = [
@@ -61,12 +64,23 @@ function WarehouseMasterDataSKUCreate (props) {
 
     createWarehouseSKU(SKUData)
       .then(res => {
+        const skuId = res.data.id;
+        tagSKU(data.client, [skuId], [])
+        .then(res => {
+          let delayInMilliseconds = 500;
+          setTimeout(function() {
+            setOpenSnackBar(true);
+            setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+            setStatus(prevState => { return {...prevState, sku: true }});
+            setOpenBackdrop(false);
+          }, delayInMilliseconds);
+        });
         if (data.images.length > 1) {
           handleImageUpload(res.data.id, data);
         } else {
           setStatus(prevState => { return {...prevState, images: true }});
         }
-        if (res.status === 201) setStatus(prevState => { return {...prevState, sku: true }});
+        // if (res.status === 201) setStatus(prevState => { return {...prevState, sku: true }});
       })
       .catch(error => {
         if (error.response.data.type === '23505') {
@@ -146,9 +160,12 @@ function WarehouseMasterDataSKUCreate (props) {
             <WarehouseMasterDataSKUForm handleDialog={handleDialog} onSubmit={onSubmit} onError={handleError} />
           </Paper>
         </Grid>
-        <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
+        <Snackbar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1000 }}  anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
           <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
+        <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 999 }} open={openBackdrop}>
+          <CircularProgress color="inherit" />
+        </Spinner>
         <WarehouseDialog
           openDialog={openDialog.open}
           diaglogText="Changes won't be save, continue?"

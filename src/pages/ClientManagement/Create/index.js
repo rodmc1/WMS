@@ -139,6 +139,7 @@ function ClientManagementCreate (props) {
     setOpenSnackBar(true);
     setAlertConfig({ severity: 'info', message: 'Creating Client...' });
     setOpenBackdrop(true);
+    
     tagSKU(createdClientData.id, isChecked, [])
       .then(res => {
         let delayInMilliseconds = 500;
@@ -150,14 +151,6 @@ function ClientManagementCreate (props) {
           setOpenBackdrop(false);
         }, delayInMilliseconds);
       });
-    // var delayInMilliseconds = 1000;
-    
-
-    // setTimeout(function() {
-    //   setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
-    //   setStatus(prevState => { return {...prevState, client: true }});
-    //   setOpenSKUTag(false);
-    // }, delayInMilliseconds);
   }
 
   const handleClose = () => {
