@@ -13,11 +13,6 @@ import WarehouseList from 'pages/WarehouseList';
 import WarehouseOverview from 'pages/WarehouseList/WarehouseOverview';
 import WarehouseCreate from 'pages/WarehouseList/WarehouseCreate';
 import WarehouseEdit from 'pages/WarehouseList/WarehouseEdit';
-import WarehouseMasterData from 'pages/WarehouseMasterData';
-import WarehouseMasterDataOverview from 'pages/WarehouseMasterData/Overview';
-import WarehouseMasterDataSKU from 'pages/WarehouseMasterData/SKU';
-import WarehouseMasterDataSKUCreate from 'pages/WarehouseMasterData/SKU/CreateSKU';
-import WarehouseMasterDataSKUDetail from 'pages/WarehouseMasterData/SKU/Detail';
 import DeliveryNotice from 'pages/DeliveryNotice';
 import DeliveryNoticeCreate from 'pages/DeliveryNotice/Create';
 import DeliveryNoticeOverview from 'pages/DeliveryNotice/Overview';
@@ -28,6 +23,15 @@ import ReceivingAndReleasing from 'pages/ReceivingAndReleasing';
 import DeliveryList from 'pages/ReceivingAndReleasing/Delivery';
 import ReceivingItems from 'pages/ReceivingAndReleasing/Delivery/Receiving';
 import AuditLog from 'pages/AuditLog';
+import SKUManagement from 'pages/SKUManagement';
+import SKUManagementCreate from 'pages/SKUManagement/SKU/CreateSKU';
+import SKUManagementData from 'pages/SKUManagement/SKU/Detail';
+import ClientManagement from 'pages/ClientManagement';
+import ClientManagementCreate from 'pages/ClientManagement/Create';
+import ClientManagementOverview from 'pages/ClientManagement/Overview';
+import ClientManagementEdit from 'pages/ClientManagement/Edit';
+import ClientManagementLogs from 'pages/ClientManagement/Logs';
+import ClientManagementSKU from 'pages/ClientManagement/SKU';
 
 function App() {
   const [isNavigationCollapsed, setIsNavigationCollapsed] = React.useState(false);
@@ -55,11 +59,15 @@ function App() {
                 <Route exact path='/warehouse-list/:id/overview/' component={WarehouseOverview} />
                 <Route exact path='/warehouse-list/warehouse-create' component={WarehouseCreate} />
                 <Route exact path='/warehouse-list/:id/warehouse-edit' component={WarehouseEdit} />
-                <Route exact path='/warehouse-master-data' component={WarehouseMasterData} />
-                <Route exact path='/warehouse-master-data/:id/overview' component={WarehouseMasterDataOverview} />
-                <Route exact path='/warehouse-master-data/:id/sku' component={WarehouseMasterDataSKU} />
-                <Route exact path='/warehouse-master-data/:id/sku/create' component={WarehouseMasterDataSKUCreate} />
-                <Route exact path='/warehouse-master-data/:id/sku/:item_id' component={WarehouseMasterDataSKUDetail} />
+                <Route exact path='/sku-management' component={SKUManagement} />
+                <Route exact path='/sku-management/create' component={SKUManagementCreate} />
+                <Route exact path='/sku-management/:id' component={SKUManagementData} />
+                <Route exact path='/client-management' component={ClientManagement} />
+                <Route exact path='/client-management/create' component={ClientManagementCreate} />
+                <Route exact path='/client-management/:id/overview' component={ClientManagementOverview} />
+                <Route exact path='/client-management/:id/edit' component={ClientManagementEdit} />
+                <Route exact path='/client-management/:id/sku' component={ClientManagementSKU} />
+                <Route exact path='/client-management/:id/logs' component={ClientManagementLogs} />
                 <Route exact path='/delivery-notice/' component={DeliveryNotice} />
                 <Route exact path='/delivery-notice/create' component={DeliveryNoticeCreate} />
                 <Route exact path='/delivery-notice/:id/overview' component={DeliveryNoticeOverview} />

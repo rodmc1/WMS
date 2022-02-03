@@ -171,7 +171,11 @@ function DeliveryList(props) {
     fetchAllDocument(id)
     .then(res => {
       if (res.data[0]) {
+<<<<<<< HEAD
         setUploadedDocuments(res.data[0].received_document_file_type)
+=======
+        setUploadedDocuments(res.data[0].received_document_file_type);
+>>>>>>> stage
       }
     }).catch(error => {
       dispatchError(dispatch, THROW_ERROR, error);

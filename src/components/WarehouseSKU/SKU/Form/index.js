@@ -3,7 +3,7 @@ import _ from 'lodash';
 import './style.scss';
 import { connect } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
-import { fetchClients, fetchUOM, fetchStorageType } from 'actions/picklist';
+import { fetchClients, fetchUOM, fetchStorageType, fetchProjectType } from 'actions/picklist';
 import Dropzone from 'components/Dropzone';
 import ButtonGroup from 'components/_ButtonGroup';
 import Typography from '@mui/material/Typography';
@@ -58,6 +58,7 @@ function WarehouseMasterDataSKUForm(props) {
     if (props.sku) {
       let SKUDetails = [
         ['productName', props.sku.product_name],
+        ['projectType', props.sku.project_type],
         ['code', props.sku.item_code],
         ['externalCode', props.sku.external_code],
         ['minQuantity', props.sku.min_qty ? props.sku.min_qty : '0'],
@@ -97,6 +98,7 @@ function WarehouseMasterDataSKUForm(props) {
     }
     props.fetchUOM();
     props.fetchStorageType();
+    props.fetchProjectType();
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
 
@@ -108,13 +110,10 @@ function WarehouseMasterDataSKUForm(props) {
   }, [props.clients]);
 
   React.useEffect(() => {
-    console.log(getValues('externalCode'))
     onChangeHandler()
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
-  // console.log(getValues('productName'))
-  // console.log(hasChanged)
-  const [code, setCode] = React.useState(null)
+  const [code, setCode] = React.useState('')
   const onChangeHandler = event => {
     setInterval(function(){ setCode(getValues('productName') + '-' + getValues('externalCode'))  }, 1000);
   };
@@ -124,7 +123,7 @@ function WarehouseMasterDataSKUForm(props) {
       <div className="paper__section">
         <Typography variant="subtitle1" className="paper__heading">General Information</Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={12}>
+          <Grid item xs={12} md={6}>
             <label className="paper__label">Product Name</label>
             <Controller
               as={
@@ -143,8 +142,37 @@ function WarehouseMasterDataSKUForm(props) {
             />
             {errors.productName && <FormHelperText error>{errors.productName.message}</FormHelperText>}
           </Grid>
+          <Grid item xs={12} md={6}>
+            <label className="paper__label">Project Type</label>
+            <Controller
+              as={
+                <Select
+                  variant="outlined"
+                  fullWidth
+                  required
+                  defaultValue=""
+                  displayEmpty={true}
+                  renderValue={
+                    getValues("projectType") !== "" ? undefined : () => <div style={{color: 'grey'}}>Select Project Type</div>
+                  }>
+                  {
+                    !props.project_type ? null :
+                    props.project_type.map(type => {
+                      return <MenuItem key={type.Id} value={type.Description}>{type.Description}</MenuItem>
+                    })
+                  }
+                </Select>
+              }
+              name="projectType"
+              control={control}
+              defaultValue=""
+              required
+              rules={{ required: "This field is required" }}
+            />
+            {errors.projectType && <FormHelperText error>{errors.projectType.message}</FormHelperText>}
+          </Grid>
         </Grid>
-        <Grid container spacing={2} style={{ marginTop: !isClientFetched ? -6 : 0}}>
+        <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <label className="paper__label">External Code</label>
             <Controller
@@ -154,7 +182,6 @@ function WarehouseMasterDataSKUForm(props) {
                   type="text"
                   required
                   fullWidth
-                  onChange={console.log('wew')}
                 />
               }
               name="externalCode"
@@ -473,8 +500,9 @@ const mapStateToProps = state => {
   return {
     clients: state.picklist.clients,
     uom: state.picklist.uom,
-    storage_type: state.picklist.storage_type
+    storage_type: state.picklist.storage_type,
+    project_type: state.picklist.project_type
   }
 }
 
-export default connect(mapStateToProps, { fetchClients, fetchUOM, fetchStorageType })(WarehouseMasterDataSKUForm);
+export default connect(mapStateToProps, { fetchClients, fetchUOM, fetchStorageType, fetchProjectType })(WarehouseMasterDataSKUForm);

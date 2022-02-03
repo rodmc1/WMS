@@ -121,8 +121,7 @@ function DeliveryNoticeSKU(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   const handleSearchItems = React.useCallback(_.debounce(() => {
     searchWarehouseSKUByName({
-      warehouse_name: deliveryNoticeData.warehouse_name,
-      filter: itemQuery,
+      product: itemQuery,
     }).then(response => {
       setSearchedItem(response.data);
     })
@@ -285,7 +284,8 @@ function DeliveryNoticeSKU(props) {
       expected_qty: Number(data.expectedQty),
       external_material_coding: data.externalCode,
       external_material_description: data.productName,
-      notes: data.notes
+      notes: data.notes,
+      item_id: data.id
     }
     
     //Invoke action for adding delivery notice SKU
@@ -407,7 +407,7 @@ function DeliveryNoticeSKU(props) {
       setDeliveryNoticeSKU(props.sku.data);
       setOpenBackdrop(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.sku]);
 
   React.useEffect(() => {
@@ -444,7 +444,7 @@ function DeliveryNoticeSKU(props) {
   }, [props.error]);
 
   return (
-    <div className="container delivery-notice-container sku">
+    <div className="container delivery-notice-container dn-sku">
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
         <div className="button-group">

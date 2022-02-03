@@ -3,8 +3,7 @@ import history from 'config/history';
 import React, { useEffect } from 'react';
 
 import WarehouseDialog from 'components/WarehouseDialog';
-import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
-import WarehouseMasterDataSKUForm from 'components/WarehouseMasterData/SKU/Form';
+import WarehouseMasterDataSKUForm from 'components/WarehouseSKU/SKU/Form';
 
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
@@ -34,8 +33,7 @@ function WarehouseMasterDataSKUDetail (props) {
   const [status, setStatus] = React.useState({ images: false, sku: false });
 
   const routes = [
-    { label: 'Warehouse Master Data', path: '/warehouse-master-data' },
-    { label: props.match.params.id, path: `/warehouse-master-data/${props.match.params.id}/overview` }
+    { label: 'SKU Management', path: '/sku-management' }
   ];
 
   // Form submit handler
@@ -44,8 +42,8 @@ function WarehouseMasterDataSKUDetail (props) {
     setOpenSnackBar(true);
 
     const SKUData = {
-      warehouse: props.match.params.id,
       product_name: data.productName,
+      project_type: data.projectType,
       uoh: data.unitOfHandling,
       uom: data.unitOfMeasurement,
       external_code: data.externalCode,
@@ -59,7 +57,7 @@ function WarehouseMasterDataSKUDetail (props) {
       batch_management: data.batchManagement,
       expiry_management: data.expiryManagement,
       remarks: data.remarks,
-      id: Number(props.match.params.item_id)
+      id: Number(props.match.params.id)
     }
     
     //Images upload and delete
@@ -69,7 +67,7 @@ function WarehouseMasterDataSKUDetail (props) {
       setStatus(prevState => { return {...prevState, images: true }});
     }
 
-    updateWarehouseSKU(props.match.params.item_id, SKUData)
+    updateWarehouseSKU(SKUData.id, SKUData)
       .then(response => {
         if (response.status === 201) {
           setStatus(prevState => { return {...prevState, sku: true }});
@@ -120,8 +118,8 @@ function WarehouseMasterDataSKUDetail (props) {
   useEffect(() => {
     if (edited) {
       history.push({
-        pathname: `/warehouse-master-data/${props.match.params.id}/sku`,
-        success: 'Successfuly saved'
+        pathname: `/sku-management`,
+        success: 'Changes saved successfully'
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
@@ -133,7 +131,7 @@ function WarehouseMasterDataSKUDetail (props) {
       setSKU(props.location.data);
       if (!existingSKU) setExistingSKU(props.location.data);
     } else {
-      window.location.href = `/warehouse-master-data/${props.match.params.id}/sku`
+      window.location.href = `/sku-management`
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
@@ -162,12 +160,9 @@ function WarehouseMasterDataSKUDetail (props) {
         direction="row"
         justify="space-evenly"
         alignItems="stretch">
-        <Grid item xs={12} md={3}>
-          <WarehouseMasterDataSidebar id={props.match.params.id} />
-        </Grid>
-        <Grid item xs={12} md={9}>
+        <Grid item xs={12} md={12}>
           <Paper className="paper edit-sku" elevation={0} variant="outlined">
-            <Typography variant="subtitle1" className="paper__heading">SKU</Typography>
+            <Typography variant="subtitle1" className="paper__heading">Editing SKU</Typography>
             <div className="paper__divider"></div>
             <WarehouseMasterDataSKUForm sku={sku} handleDialog={handleDialog} onSubmit={onSubmit} onError={handleError} />
           </Paper>
@@ -181,7 +176,7 @@ function WarehouseMasterDataSKUDetail (props) {
           dialogTitle="Confirmation"
           buttonConfirmText="Yes"
           buttonCancelText="No"
-          dialogAction={() => history.push(`/warehouse-master-data/${props.match.params.id}/sku`)}
+          dialogAction={() => history.push(`/sku-management`)}
         />
       </Grid>
     </div>

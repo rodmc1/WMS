@@ -8,6 +8,11 @@
       background-color: rgba(0, 0, 0, 0.04);
     }
   }
+
+}
+
+.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows {
+  margin-top: 15px !important;
 }
 
 .table-img-preview {
@@ -38,6 +43,18 @@
   &.tangerine {
     color: $tangerine;
     background-color: #F7F2E2;
+  }
+  &.gold {
+    color: #E5B802;
+    background-color: #FBF7E0;
+  }
+  &.green {
+    color: #159E49;
+    background-color: #DAF7E5;
+  }
+  &.blue {
+    color: #2A9FC3;
+    background-color: #D9F7FF;
   }
 }
 
@@ -98,4 +115,16 @@
       width: 600px;
     }
   }
+}
+
+.MuiTablePagination-menuItem {
+  border-radius: 1px !important;
+}
+
+.MuiTablePagination-select {
+  border-radius: 1px !important;
+}
+
+.MuiTablePagination-displayedRows {
+  margin-right: 10px;
 }

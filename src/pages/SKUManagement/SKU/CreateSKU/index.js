@@ -2,8 +2,7 @@ import _ from 'lodash';
 import history from 'config/history';
 import React, { useEffect } from 'react';
 import WarehouseDialog from 'components/WarehouseDialog';
-import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
-import WarehouseMasterDataSKUForm from 'components/WarehouseMasterData/SKU/Form';
+import WarehouseMasterDataSKUForm from 'components/WarehouseSKU/SKU/Form';
 
 import { THROW_ERROR } from 'actions/types';
 import { createWarehouseSKU } from 'actions';
@@ -32,9 +31,8 @@ function WarehouseMasterDataSKUCreate (props) {
   const [status, setStatus] = React.useState({ images: false, sku: false });
 
   const routes = [
-    { label: 'Warehouse Master Data', path: '/warehouse-master-data' },
-    { label: props.match.params.id, path: `/warehouse-master-data/${props.match.params.id}/overview` },
-    { label: 'Creating SKU', path: `/warehouse-master-data/${props.match.params.id}/sku/create` }
+    { label: 'SKU Management', path: '/sku-management' },
+    { label: 'Creating SKU', path: `/sku-management/sku/create` }
   ];
 
   // Form submit handler
@@ -45,6 +43,7 @@ function WarehouseMasterDataSKUCreate (props) {
     const SKUData = {
       warehouse: props.match.params.id,
       product_name: data.productName,
+      project_type: data.projectType,
       uoh: data.unitOfHandling,
       uom: data.unitOfMeasurement,
       external_code: data.externalCode,
@@ -117,7 +116,7 @@ function WarehouseMasterDataSKUCreate (props) {
   useEffect(() => {
     if (created) {
       history.push({
-        pathname: `/warehouse-master-data/${props.match.params.id}/sku`,
+        pathname: `/sku-management`,
         success: 'Successfuly saved'
       });
     }
@@ -140,10 +139,7 @@ function WarehouseMasterDataSKUCreate (props) {
         direction="row"
         justify="space-evenly"
         alignItems="stretch">
-        <Grid item xs={12} md={3}>
-          <WarehouseMasterDataSidebar id={props.match.params.id} />
-        </Grid>
-        <Grid item xs={12} md={9}>
+        <Grid item xs={12} md={12}>
           <Paper className="paper create-sku" elevation={0} variant="outlined">
             <Typography variant="subtitle1" className="paper__heading">Creating SKU</Typography>
             <div className="paper__divider" />
@@ -159,7 +155,7 @@ function WarehouseMasterDataSKUCreate (props) {
           dialogTitle="Confirmation"
           buttonConfirmText="Yes"
           buttonCancelText="No"
-          dialogAction={() => history.push(`/warehouse-master-data/${props.match.params.id}/sku`)}
+          dialogAction={() => history.push(`/sku-management`)}
         />
       </Grid>
     </div>

@@ -1,4 +1,4 @@
-import { FETCH_FACILITIES_AND_AMENITIES, FETCH_RECEIVED_DOCUMENT_TYPE, FETCH_BUILDING_TYPES, FETCH_TRUCK_TYPES, FETCH_CLIENTS, FETCH_UOM, FETCH_STORAGE_TYPE } from '../actions/types';
+import { FETCH_FACILITIES_AND_AMENITIES, FETCH_RECEIVED_DOCUMENT_TYPE, FETCH_BUILDING_TYPES, FETCH_TRUCK_TYPES, FETCH_PROJECT_TYPE, FETCH_CLIENTS, FETCH_UOM, FETCH_STORAGE_TYPE } from '../actions/types';
 
 const initialState = {
   facilities_and_amenities: [],
@@ -8,6 +8,7 @@ const initialState = {
   clients: [],
   storage_type: [],
   received_document_type: [],
+  project_type: [],
 }
 
 const picklistReducer = (state = initialState, action) => {
@@ -26,6 +27,8 @@ const picklistReducer = (state = initialState, action) => {
       return { ...state, storage_type: action.payload };
     case FETCH_RECEIVED_DOCUMENT_TYPE:
       return { ...state, received_document_type: action.payload };
+    case FETCH_PROJECT_TYPE:
+      return { ...state, project_type: action.payload };
     default:
       return state;
   }

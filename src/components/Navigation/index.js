@@ -8,6 +8,8 @@ import { HomeWork, KeyboardArrowUp, ChevronLeft, ChevronRight, TableChart } from
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import SvgIcon from '@mui/material/SvgIcon';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import AllInboxIcon from '@mui/icons-material/AllInbox';
+import GroupIcon from '@mui/icons-material/Group';
 
 function InventoryIcon(props) {
   return (
@@ -33,16 +35,21 @@ function Navigation(props) {
           path: '/warehouse-list',
           icon: HomeWork
         },
+        {
+          label:'SKU Management',
+          path: '/sku-management',
+          icon: AllInboxIcon
+        },
+        {
+          label:'Client Management',
+          path: '/client-management',
+          icon: GroupIcon
+        },
       ]
     },
     {
       group: 'Operation',
       list: [
-        {
-          label:'Warehouse Master Data',
-          path: '/warehouse-master-data',
-          icon: TableChart
-        },
         {
           label:'Delivery Notice',
           path: '/delivery-notice',

@@ -7,11 +7,9 @@ import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
 import { fetchSKUByName, fetchAllWarehouseSKUs, fetchWarehouseSKUs } from 'actions';
-import WarehouseMasterDataSidebar from 'components/WarehouseMasterData/Sidebar';
 
 import Table from 'components/Table';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import MuiAlert from '@mui/material/Alert';
 import Spinner from '@mui/material/Backdrop';
@@ -42,16 +40,8 @@ function WarehouseMasterDataSKU (props) {
   // Routes for breadcrumbs
   const routes = [
     {
-      label: 'Warehouse Master Data',
-      path: '/warehouse-master-data'
-    },
-    {
-      label: props.match.params.id,
-      path: `/warehouse-master-data/${props.match.params.id}/overview`
-    },
-    {
-      label: 'SKU',
-      path: `/warehouse-master-data/${props.match.params.id}/sku`
+      label: 'SKU Management',
+      path: '/sku-management'
     }
   ];
 
@@ -80,7 +70,6 @@ function WarehouseMasterDataSKU (props) {
       delayedQuery(page, rowsPerPage);
     } else {
       props.fetchWarehouseSKUs({
-        warehouse_name: props.match.params.id,
         count: rowsPerPage,
         after: page * rowsPerPage
       });
@@ -90,14 +79,14 @@ function WarehouseMasterDataSKU (props) {
   // Redirect to selected warehouse
   const handleRowClick = row => {
     history.push({
-      pathname: `/warehouse-master-data/${props.match.params.id}/sku/${row.item_id}`,
+      pathname: `/sku-management/${row.item_id}`,
       data: row
     });
   }
 
   // Redirect to sku create
   const handleCreateSKU = () => {
-    history.push(`/warehouse-master-data/${props.match.params.id}/sku/create`);
+    history.push(`/sku-management/create`);
   }
 
   // Set query state on input change
@@ -122,7 +111,6 @@ function WarehouseMasterDataSKU (props) {
     await fetchAllWarehouseSKUs({ warehouse_name: props.match.params.id }).then(response => {
       const newData = response.data.map(sku => {
         return {
-          warehouseName: sku.warehouse_name,
           productName: sku.product_name,
           UOMDescription: sku.uom_description,
           itemCode: sku.item_code,
@@ -148,7 +136,6 @@ function WarehouseMasterDataSKU (props) {
 
   // CSV Headers
   const csvHeaders = [  
-    { label: "Warehouse Name", key: "warehouseName" },
     { label: "Product Name", key: "productName" },
     { label: "UOM", key: "UOMDescription" },
     { label: "Code", key: "itemCode" },
@@ -208,7 +195,7 @@ function WarehouseMasterDataSKU (props) {
       setSKUCount(props.sku.count);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.sku]);
+  }, [props.sku.count, props.sku.data]);
 
   // Close spinner if api request for SKU is complete
   useEffect(() => { 
@@ -228,7 +215,6 @@ function WarehouseMasterDataSKU (props) {
   // Fetch warehouse sku on component mount
   useEffect(() => {
     props.fetchWarehouseSKUs({
-      warehouse_name: props.match.params.id,
       count: page || 10,
       after: page * rowCount
     });
@@ -253,13 +239,11 @@ function WarehouseMasterDataSKU (props) {
   const renderTable = () => {
     return !ready ? <React.Fragment><div style={{height: '67vh'}} /></React.Fragment> :
       <React.Fragment>
-        <Typography variant="subtitle1" className="paper__heading">SKU</Typography>
-        <div className="paper__divider" />
         <Table 
           filterSize={1}
           config={config}
           data={SKUData}
-          total={SKUCount || 0}
+          total={SKUCount}
           handleRowCount={handleRowCount}
           onPaginate={handlePagination}
           onRowClick={handleRowClick}
@@ -274,26 +258,18 @@ function WarehouseMasterDataSKU (props) {
     <div className="container sku">
       <div className="flex justify-space-between align-center">
         <Breadcrumbs routes={routes} />
-        { 
-          !_.isEmpty(SKUData) && 
-          <div className="button-group">
-            <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>
-            <CSVLink data={csvData} filename={`${props.match.params.id}-sku.csv`} headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
-            <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginLeft: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
-          </div>
-        }
+        <div className="button-group">
+          <Button variant="contained" className="btn btn--emerald" onClick={handleCreateSKU} disableElevation>Create SKU</Button>
+          <CSVLink data={csvData} filename={`wms-sku.csv`} headers={csvHeaders} ref={csvLink} className="hidden_csv" target='_blank' />
+          <Button variant="contained" className="btn btn--emerald" disableElevation style={{ marginLeft: 10 }} onClick={handleDownloadCSV}>Download CSV</Button>
+        </div>
       </div>
       <Grid container spacing={2}
         direction="row"
         justify="space-evenly"
         alignItems="stretch">
-        <Grid item xs={12} md={3}>
-          <WarehouseMasterDataSidebar id={props.match.params.id} />
-        </Grid>
-        <Grid item xs={12} md={9}>
-          <Paper className="paper" elevation={0} variant="outlined">
-            { _.isEmpty(SKUData) && !props.searched ? renderEmptySKU() : renderTable() }
-          </Paper>
+        <Grid item xs={12} md={12}>
+          { _.isEmpty(SKUData) && !props.searched ? renderEmptySKU() : renderTable() }
         </Grid>
         <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
           <CircularProgress color="inherit" />
