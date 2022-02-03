@@ -215,6 +215,8 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
     }
     if (data.length) {
       setTableData(data);
+    } else {
+      setTableData([]);
     }
   }, [data, defaultData]);
 
