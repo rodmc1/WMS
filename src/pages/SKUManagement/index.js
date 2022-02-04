@@ -2,11 +2,11 @@ import './style.scss';
 import _ from 'lodash';
 import { CSVLink } from "react-csv";
 import history from 'config/history';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { fetchSKUByName, fetchAllWarehouseSKUs, fetchWarehouseSKUs } from 'actions';
+import { fetchSKUByName, fetchAllWarehouseSKUs, fetchWarehouseSKUs, tagSKU, fetchWarehouseClients, fetchClientSKU } from 'actions';
 
 import Table from 'components/Table';
 import Grid from '@mui/material/Grid';
@@ -17,6 +17,15 @@ import Snackbar from '@mui/material/Snackbar';
 import Breadcrumbs from 'components/Breadcrumbs';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@material-ui/core/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+import MenuList from "@mui/material/MenuList";
+import TextField from '@mui/material/TextField';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -36,7 +45,19 @@ function WarehouseMasterDataSKU (props) {
   const [searched, setSearched] = React.useState(null);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
   const [searchLoading, setSearchLoading] = React.useState(false);
-  
+  const [searchedItem, setSearchedItem] = useState(null);
+  const [isChecked, setIsChecked] = React.useState([]);
+  const [hideDuration, setHideDuration] = useState(5000);
+  const [openClientTagging, setOpenClientTagging] = React.useState(false);
+  const [SKUTagId, setSKUTagId] = React.useState(null);
+  const [clients, setClients] = useState([]);
+  const [itemQuery, setItemQuery] = useState('');
+  const [openSnackBar, setOpenSnackBar] = React.useState(false);
+  const [items, setItems] = useState([]);
+  const [initialSKUs, setInitialSKUs] = useState([]);
+  const [alertConfig, setAlertConfig] = React.useState({ severity: 'info', message: 'loading...' });
+  const isAllSelected = isChecked.length > 0 && isChecked.length === clients.length;
+
   // Routes for breadcrumbs
   const routes = [
     {
@@ -55,6 +76,7 @@ function WarehouseMasterDataSKU (props) {
       { label: 'UOM', key: 'uom_description' },
       { label: 'Code', key: 'item_code' },
       { label: 'External Code', key: 'external_code' },
+      { label: '', key: 'item_id' },
     ]
   }
 
@@ -69,10 +91,15 @@ function WarehouseMasterDataSKU (props) {
     if (query) {
       delayedQuery(page, rowsPerPage);
     } else {
+      setOpenBackdrop(true);
       props.fetchWarehouseSKUs({
         count: rowsPerPage,
         after: page * rowsPerPage
       });
+      setTimeout(function() {
+        props.fetchWarehouseClients();
+        setOpenBackdrop(false);
+      }, 300);
     }
   };
 
@@ -156,8 +183,8 @@ function WarehouseMasterDataSKU (props) {
     if (query) {
       delayedQuery(page, rowCount);
     } else if (!query) {
-      setSKUData(props.sku.data);
-      setSKUCount(props.sku.count);
+      setSKUData(initialSKUs);
+      if (props.sku.count !== undefined) setSKUCount(props.sku.count);
       setSearchLoading(false);
     }
     return delayedQuery.cancel;
@@ -168,7 +195,7 @@ function WarehouseMasterDataSKU (props) {
   useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
-      setSKUCount(props.searched.count);
+      if (props.searched.count !== undefined) setSKUCount(props.searched.count);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.searched]);
@@ -182,17 +209,12 @@ function WarehouseMasterDataSKU (props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
-  // Close Spinner if sku data is empty after 300ms
-  useEffect(() => {
-    if(ready) setOpenBackdrop(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [ready])
-
   // Set data for sku and count on mount
   useEffect(() => {
     if (props.sku.count) {
       setSKUData(props.sku.data);
-      setSKUCount(props.sku.count);
+      setInitialSKUs(props.sku.data);
+      if (props.sku.count !== undefined) setSKUCount(props.sku.count);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku.count, props.sku.data]);
@@ -207,10 +229,21 @@ function WarehouseMasterDataSKU (props) {
   // Show snackbar alert when new warehouse is created
   useEffect(() => {
     if (props.location.success) {
-      setOpen(true);
+      setOpenSnackBar(true);
+      setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.location.success]);
+
+  // Show snackbar alert when new warehouse is created
+  useEffect(() => {
+    if (props.clients) {
+      if (!clients.length) {
+        setClients(Object.values(props.clients.data));
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.clients]);
 
   // Fetch warehouse sku on component mount
   useEffect(() => {
@@ -220,6 +253,73 @@ function WarehouseMasterDataSKU (props) {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
+
+  // Set query state on input change
+  const handleItemSearch = (e) => {
+    setSearchedItem(null);
+    setItemQuery(e.target.value);
+  }
+
+  const checkAll = () => {
+    if (isAllSelected) {
+      setItems([]);
+      setIsChecked([]);
+    } else {
+      setIsChecked(clients.map(client => client.id));
+    }
+  }
+
+  function handleListKeyDown(event) {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      setOpenClientTagging(false);
+    }
+  }
+
+  const toggleCheckboxValue = (item, bool) => {
+    if (!isChecked.includes(item.id)) {
+      setIsChecked(oldArray => [...oldArray, item.id]);
+    } else {
+      setIsChecked(isChecked.filter(check => check !== item.id));
+    }
+
+    if (bool) {
+      setItems(items.filter(sku => sku.id !== item.id));
+    } else {
+      setItems(oldArray => [...oldArray, item]);
+    }
+  }
+
+  const handleTagSKU = () => {
+    setOpenSnackBar(false);
+    setAlertConfig({ severity: 'info', message: 'Saving changes...' });
+    setOpenSnackBar(true);
+    setOpenBackdrop(true);
+    
+    tagSKU(isChecked, [SKUTagId], []).then(res => {
+      let delayInMilliseconds = 500;
+      setTimeout(function() {
+        props.fetchClientSKU();
+        setOpenClientTagging(false);
+        setOpenSnackBar(true);
+        setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+        setOpenBackdrop(false);
+      }, delayInMilliseconds);
+    });
+  }
+
+  const handleTagClient = (data) => {
+    setSKUTagId(data);
+  }
+
+  const handleOpenClientTagging = (bool) => {
+    setOpenClientTagging(bool)
+  }
+
+  const handleClose = () => {
+    setIsChecked([]);
+    setOpenClientTagging(false);
+  }
 
   // Render empty sku container
   const renderEmptySKU = () => {
@@ -236,6 +336,58 @@ function WarehouseMasterDataSKU (props) {
       </React.Fragment>
   }
 
+  const tagSKUDialog = () => {
+    return (
+      <Dialog
+        open={openClientTagging}
+        fullWidth
+        keepMounted
+        m={2}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-slide-title"
+        aria-describedby="alert-dialog-slide-description"
+        className="tag-sku-dialog tag-client-dialog"
+      >
+        <DialogTitle>
+          <div className="flex justify-space-between align-center receiving-title">
+            <Typography sx={{paddingLeft: 0.5}}>Tag SKU to {'test'}</Typography>
+          </div>
+        </DialogTitle>
+        <TextField
+          className="sku-search-items tag-sku"
+          variant="outlined"
+          type="text" 
+          value={itemQuery}
+          required
+          fullWidth
+          placeholder="Search"
+          onChange={handleItemSearch}
+        />
+        <DialogContent>
+          <MenuList id="menu-list-grow" onKeyDown={handleListKeyDown}>
+            {clients.length ?
+              <MenuItem value="all" onClick={checkAll}>
+                <Checkbox checked={isAllSelected}/>
+                <ListItemText primary="Select All"/>
+              </MenuItem> : null
+            }
+            {clients.map((client) => (
+              <MenuItem key={client.id} value={client.client_name} onClick={() => toggleCheckboxValue(client, isChecked.includes(client.id))} >
+                <Checkbox checked={isChecked.includes(client.id)} />
+                <ListItemText primary={client.client_name} />
+              </MenuItem>
+            ))}
+          </MenuList>
+        </DialogContent>
+        <hr />
+        <DialogActions>
+          <Button onClick={handleClose} variant="outlined">Cancel</Button>
+          <Button variant="contained" onClick={handleTagSKU}>Save</Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+
   const renderTable = () => {
     return !ready ? <React.Fragment><div style={{height: '67vh'}} /></React.Fragment> :
       <React.Fragment>
@@ -250,6 +402,9 @@ function WarehouseMasterDataSKU (props) {
           onInputChange={onInputChange}
           query={query}
           searchLoading={searchLoading}
+          handleTagClient={handleTagClient}
+          handleOpenClientTagging={handleOpenClientTagging}
+          handleClose={handleClose}
         />
       </React.Fragment>
   }
@@ -271,13 +426,14 @@ function WarehouseMasterDataSKU (props) {
         <Grid item xs={12} md={12}>
           { _.isEmpty(SKUData) && !props.searched ? renderEmptySKU() : renderTable() }
         </Grid>
-        <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
+        <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 999 }} open={openBackdrop} >
           <CircularProgress color="inherit" />
         </Spinner>
-        <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
-          <Alert severity="success">{props.location.success}</Alert>
+        <Snackbar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1000 }} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} autoHideDuration={hideDuration} onClose={() => setOpenSnackBar(false)}>
+          <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
       </Grid>
+      {tagSKUDialog()}
     </div>
   )
 }
@@ -285,8 +441,9 @@ function WarehouseMasterDataSKU (props) {
 const mapStateToProps = state => {
   return {
     sku: state.sku,
-    searched: state.sku.search
+    searched: state.sku.search,
+    clients: state.client
   }
 }
 
-export default connect(mapStateToProps, { fetchWarehouseSKUs, fetchSKUByName })(WarehouseMasterDataSKU);
+export default connect(mapStateToProps, { fetchWarehouseSKUs, fetchSKUByName, fetchWarehouseClients, fetchClientSKU })(WarehouseMasterDataSKU);

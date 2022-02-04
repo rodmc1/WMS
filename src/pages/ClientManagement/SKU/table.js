@@ -150,7 +150,7 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
   const [openDialog, setOpenDialog] = React.useState({open: false});
   const [removeSKU, setRemoveSKU] = React.useState(null);
   const [openRemoveDialog, setOpenRemoveDialog] = React.useState(false);
-
+  // console.log(tableData)
   // Hook Form
   const { errors, control, getValues } = useForm({
     shouldFocusError: false,

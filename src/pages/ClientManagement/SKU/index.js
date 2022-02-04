@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import './style.scss';
-import _, { initial } from 'lodash';
+import _, { initial, stubTrue } from 'lodash';
 import React, {  useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
@@ -306,9 +306,9 @@ function ClientManagementSKU(props) {
     { label: "Storage Type", key: "storage_type" }
   ];
 
-  /**
-   * Call delayedQuery function when user search and set new sku data
-   */
+/**
+ * Call delayedQuery function when user search and set new sku data
+ */
   React.useEffect(() => {
     if (items > 100 || removedSKUs > 100) {
       setHideDuration(8000);
@@ -316,15 +316,16 @@ function ClientManagementSKU(props) {
     if (items > 200 || removedSKUs > 200) {
       setHideDuration(12000);
     }
-     // eslint-disable-next-line react-hooks/exhaustive-deps 
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [items, removedSKUs]);
+
+
 
   const handleTagSKU = () => {
     setOpenSnackBar(false);
     setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
     setOpenBackdrop(true);
-
     tagSKU(clientData.id, items, removedSKUs).then(res => {
       let delayInMilliseconds = 500;
       setTimeout(function() {
@@ -523,7 +524,7 @@ function ClientManagementSKU(props) {
         }
       }
     });
-    
+
     setTableData(clientSKU);
     setInitialSKUs(checked);
     setIsChecked(checked);
@@ -614,7 +615,7 @@ function ClientManagementSKU(props) {
             total={skuCount || 0}
             handleRemoveSKU={handleRemoveSKU}
           />
-          <Snackbar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1000 }} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} autoHideDuration={3000} onClose={() => setOpenSnackBar(false)}>
+          <Snackbar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1000 }} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} autoHideDuration={hideDuration} onClose={() => setOpenSnackBar(false)}>
             <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
           </Snackbar>
         </Grid>
