@@ -336,27 +336,6 @@ function ClientManagementSKU(props) {
         setOpenBackdrop(false);
       }, delayInMilliseconds);
     });
-    // if (taggingStatus) {
-    //   props.fetchClientSKU({client: props.match.params.id})
-    //   setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
-    //   setOpenSKUTag(false);
-    // }
-    // let delayInMilliseconds = 1200;
-    // if (items.length > 70 || removedSKUs.length > 100) {
-    //   delayInMilliseconds = 3000;
-    //   setHideDuration(5000)
-    // }
-
-    // if (items.length > 100 || removedSKUs.length > 100) {
-    //   delayInMilliseconds = 4000;
-    //   setHideDuration(6000)
-    // }
-
-    // setTimeout(function() {
-    //   props.fetchClientSKU({client: props.match.params.id})
-    //   setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
-    //   setOpenSKUTag(false);
-    // }, delayInMilliseconds);
   }
 
   const handleRemoveSKU = (data) => {

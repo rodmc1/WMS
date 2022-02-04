@@ -22,6 +22,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import Chip from '@mui/material/Chip';
+import AddLinkIcon from '@mui/icons-material/AddLink';
+import Tooltip from '@mui/material/Tooltip';
 
 const useStyles1 = makeStyles({
   root: {
@@ -124,7 +126,7 @@ const useStyles2 = makeStyles({
   },
 });
 
-export default function Table_({ filterSize, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick }) {
+export default function Table_({ filterSize, searchLoading, handleRowCount, query, data, total, config, onInputChange, onPaginate, onRowClick, handleTagClient, handleOpenClientTagging }) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(config.rowsPerPage);
@@ -169,18 +171,29 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     return <img src={defaultImage} onError={handleImageError} className="table-img-preview" alt="" />
   }
 
-  const handleTagClient = () => {
-    console.log('test')
+  const openTagClient = (event, data) => {
+    event.stopPropagation();
+    handleOpenClientTagging(true);
+    handleTagClient(data)
   }
 
   const renderTableCell = (data, type) => {
     let cellData = data;
+
     if (type === 'item_document_file_type') cellData = renderPreview(data);
     if (type === 'booking_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
     if (type === 'appointment_datetime') cellData = moment(data).format('MM/DD/YYYY h:mm a');
     if (type === 'status') cellData = renderStatus(data);
     if (type === 'physical_count') cellData = data ? data : 0;
-    if (type === 'no_clients') cellData = <div onClick={handleTagClient}>0</div>;
+    if (type === 'item_id') {
+      cellData = (
+        <Tooltip title="Tag Client" onClick={(e) => openTagClient(e, data)} >
+          <IconButton sx={{color: '#009688'}} aria-label="Tag Client">
+            <AddLinkIcon className="hover-button--on" />
+          </IconButton>
+        </Tooltip>
+      )
+    } 
 
     return cellData;
   }
@@ -245,23 +258,21 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
             />
           </FormControl>
         </div>
-        {/* <div className={classes.pagination}> */}
-          <TablePagination
+        <TablePagination
           className={classes.pagination}
-            rowsPerPageOptions={[5, 10, 25]}
-            count={Number(total)}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            component="div"
-            SelectProps={{
-              inputProps: { 'aria-label': 'rows per page' },
-              native: true,
-            }}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            ActionsComponent={TablePaginationActions}
-            />
-        {/* </div> */}
+          rowsPerPageOptions={[5, 10, 25]}
+          count={Number(total)}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          component="div"
+          SelectProps={{
+            inputProps: { 'aria-label': 'rows per page' },
+            native: true,
+          }}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          ActionsComponent={TablePaginationActions}
+        />
       </div>
       <Paper className={classes.root} className="main-table-root">
         <TableContainer>
@@ -292,7 +303,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
               }
               {Object.values(tableData).map((d, i) => {
                 return (
-                  <TableRow key={i} onClick={() => onRowClick(d)} className="table__row">
+                  <TableRow key={i} onClick={() => onRowClick(d)} className="table__row hover-button">
                     {
                       keys.map((k, index) => {
                         return (

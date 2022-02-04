@@ -128,3 +128,11 @@
 .MuiTablePagination-displayedRows {
   margin-right: 10px;
 }
+.main-table-root {
+  .hover-button .hover-button--on {
+    visibility: hidden;
+  }
+  .hover-button:hover .hover-button--on {
+    visibility: visible;
+  }
+}
