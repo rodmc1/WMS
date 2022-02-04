@@ -16,7 +16,8 @@ import Button from '@mui/material/Button';
 import FormHelperText from '@mui/material/FormHelperText';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import ListItemIcon from '@mui/material/ListItemIcon';
+import Spinner from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 function WarehouseMasterDataSKUForm(props) {
   const [hasChanged, setHasChanged] = React.useState(false);
@@ -24,11 +25,11 @@ function WarehouseMasterDataSKUForm(props) {
   const [images, setImages] = React.useState([]);
   const [batchManagement, setBatchManagement] = React.useState(false);
   const [expiryManagement, setExpiryManagement] = React.useState(false);
-  const [isChecked, setIsChecked] = React.useState([]);
   const [code, setCode] = React.useState('')
   const [SKU, setSKU] = React.useState([]);
   const [selected, setSelected] = useState([]);
   const [selectedClients, setSelectedClients] = useState([]);
+  const [openBackdrop, setOpenBackdrop] = React.useState(true);
   const isAllSelected = props.clients.length > 0 && selected.length === props.clients.length;
 
   console.log(isAllSelected)
@@ -105,9 +106,21 @@ function WarehouseMasterDataSKUForm(props) {
     props.fetchUOM();
     props.fetchStorageType();
     props.fetchProjectType();
-    props.fetchWarehouseClients();
+    setTimeout(function() {
+      props.fetchWarehouseClients();
+    }, 300);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
+
+  /*
+   * Get addional picklist data
+   */
+    React.useEffect(() => {
+      if (props.clients) {
+        setOpenBackdrop(false)
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps 
+    }, [props.clients]);
 
   React.useEffect(() => {
     onChangeHandler()
@@ -158,7 +171,10 @@ function WarehouseMasterDataSKUForm(props) {
 
   return (
     <form onSubmit={handleSubmit(__submit)} className="sku-form">
-      <div className="paper__section">
+      <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
+        <CircularProgress color="inherit" />
+      </Spinner>
+      <div className="paper__section sku-create-form">
         <Typography variant="subtitle1" className="paper__heading">General Information</Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} md={12}>
@@ -188,6 +204,7 @@ function WarehouseMasterDataSKUForm(props) {
                         }}
                       >
                         <Checkbox
+                          className="sku-form-checkbox"
                           checked={isAllSelected}
                           indeterminate={
                             selected.length > 0 && selected.length < props.clients.length
@@ -199,7 +216,7 @@ function WarehouseMasterDataSKUForm(props) {
                       </MenuItem>
                     {props.clients.map((client) => (
                       <MenuItem key={client.id} value={client.id}>
-                        <Checkbox checked={selected.includes(client.id)} />
+                        <Checkbox checked={selected.includes(client.id)} className="sku-form-checkbox" />
                         <ListItemText primary={client.client_name} />
                       </MenuItem>
                     ))}

@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { fetchSKUByName, fetchAllWarehouseSKUs, fetchWarehouseSKUs, tagSKU, fetchWarehouseClients } from 'actions';
+import { fetchSKUByName, fetchAllWarehouseSKUs, fetchWarehouseSKUs, tagSKU, fetchWarehouseClients, fetchClientSKU } from 'actions';
 
 import Table from 'components/Table';
 import Grid from '@mui/material/Grid';
@@ -54,6 +54,7 @@ function WarehouseMasterDataSKU (props) {
   const [itemQuery, setItemQuery] = useState('');
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [items, setItems] = useState([]);
+  const [initialSKUs, setInitialSKUs] = useState([]);
   const [alertConfig, setAlertConfig] = React.useState({ severity: 'info', message: 'loading...' });
   const isAllSelected = isChecked.length > 0 && isChecked.length === clients.length;
 
@@ -90,11 +91,15 @@ function WarehouseMasterDataSKU (props) {
     if (query) {
       delayedQuery(page, rowsPerPage);
     } else {
+      setOpenBackdrop(true);
       props.fetchWarehouseSKUs({
         count: rowsPerPage,
         after: page * rowsPerPage
       });
-      props.fetchWarehouseClients();
+      setTimeout(function() {
+        props.fetchWarehouseClients();
+        setOpenBackdrop(false);
+      }, 300);
     }
   };
 
@@ -178,8 +183,8 @@ function WarehouseMasterDataSKU (props) {
     if (query) {
       delayedQuery(page, rowCount);
     } else if (!query) {
-      setSKUData(props.sku.data);
-      setSKUCount(props.sku.count);
+      setSKUData(initialSKUs);
+      if (props.sku.count !== undefined) setSKUCount(props.sku.count);
       setSearchLoading(false);
     }
     return delayedQuery.cancel;
@@ -190,7 +195,7 @@ function WarehouseMasterDataSKU (props) {
   useEffect(() => {
     if (props.searched) {
       setSearched(props.searched.data);
-      setSKUCount(props.searched.count);
+      if (props.searched.count !== undefined) setSKUCount(props.searched.count);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.searched]);
@@ -204,17 +209,12 @@ function WarehouseMasterDataSKU (props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [searched]);
 
-  // Close Spinner if sku data is empty after 300ms
-  useEffect(() => {
-    if(ready) setOpenBackdrop(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [ready])
-
   // Set data for sku and count on mount
   useEffect(() => {
     if (props.sku.count) {
       setSKUData(props.sku.data);
-      setSKUCount(props.sku.count);
+      setInitialSKUs(props.sku.data);
+      if (props.sku.count !== undefined) setSKUCount(props.sku.count);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku.count, props.sku.data]);
@@ -229,7 +229,8 @@ function WarehouseMasterDataSKU (props) {
   // Show snackbar alert when new warehouse is created
   useEffect(() => {
     if (props.location.success) {
-      setOpen(true);
+      setOpenSnackBar(true);
+      setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.location.success]);
@@ -237,9 +238,11 @@ function WarehouseMasterDataSKU (props) {
   // Show snackbar alert when new warehouse is created
   useEffect(() => {
     if (props.clients) {
-      setClients(props.clients.data)
+      if (!clients.length) {
+        setClients(Object.values(props.clients.data));
+      }
     }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps 
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.clients]);
 
   // Fetch warehouse sku on component mount
@@ -250,9 +253,6 @@ function WarehouseMasterDataSKU (props) {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []);
-
-  console.log(SKUData);
-  console.log(clients)
 
   // Set query state on input change
   const handleItemSearch = (e) => {
@@ -277,31 +277,29 @@ function WarehouseMasterDataSKU (props) {
   }
 
   const toggleCheckboxValue = (item, bool) => {
-    if (!isChecked.includes(item.item_id)) {
-      setIsChecked(oldArray => [...oldArray, item.item_id]);
+    if (!isChecked.includes(item.id)) {
+      setIsChecked(oldArray => [...oldArray, item.id]);
     } else {
-      setIsChecked(isChecked.filter(check => check !== item.item_id));
+      setIsChecked(isChecked.filter(check => check !== item.id));
     }
 
     if (bool) {
-      setItems(items.filter(sku => sku.item_id !== item.item_id));
+      setItems(items.filter(sku => sku.id !== item.id));
     } else {
       setItems(oldArray => [...oldArray, item]);
     }
   }
 
   const handleTagSKU = () => {
-    console.log(items, SKUTagId)
-    return;
     setOpenSnackBar(false);
     setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
     setOpenBackdrop(true);
     
-    tagSKU(1, [SKUTagId], []).then(res => {
+    tagSKU(isChecked, [SKUTagId], []).then(res => {
       let delayInMilliseconds = 500;
       setTimeout(function() {
-        props.fetchClientSKU({client: props.match.params.id});
+        props.fetchClientSKU();
         setOpenClientTagging(false);
         setOpenSnackBar(true);
         setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
@@ -319,6 +317,7 @@ function WarehouseMasterDataSKU (props) {
   }
 
   const handleClose = () => {
+    setIsChecked([]);
     setOpenClientTagging(false);
   }
 
@@ -347,7 +346,7 @@ function WarehouseMasterDataSKU (props) {
         onClose={handleClose}
         aria-labelledby="alert-dialog-slide-title"
         aria-describedby="alert-dialog-slide-description"
-        className="tag-sku-dialog"
+        className="tag-sku-dialog tag-client-dialog"
       >
         <DialogTitle>
           <div className="flex justify-space-between align-center receiving-title">
@@ -368,9 +367,7 @@ function WarehouseMasterDataSKU (props) {
           <MenuList id="menu-list-grow" onKeyDown={handleListKeyDown}>
             {clients.length ?
               <MenuItem value="all" onClick={checkAll}>
-                <Checkbox 
-                  checked={isAllSelected}
-                />
+                <Checkbox checked={isAllSelected}/>
                 <ListItemText primary="Select All"/>
               </MenuItem> : null
             }
@@ -429,11 +426,11 @@ function WarehouseMasterDataSKU (props) {
         <Grid item xs={12} md={12}>
           { _.isEmpty(SKUData) && !props.searched ? renderEmptySKU() : renderTable() }
         </Grid>
-        <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
+        <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 999 }} open={openBackdrop} >
           <CircularProgress color="inherit" />
         </Spinner>
-        <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
-          <Alert severity="success">{props.location.success}</Alert>
+        <Snackbar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1000 }} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} autoHideDuration={hideDuration} onClose={() => setOpenSnackBar(false)}>
+          <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
         </Snackbar>
       </Grid>
       {tagSKUDialog()}
@@ -449,4 +446,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, { fetchWarehouseSKUs, fetchSKUByName, fetchWarehouseClients })(WarehouseMasterDataSKU);
+export default connect(mapStateToProps, { fetchWarehouseSKUs, fetchSKUByName, fetchWarehouseClients, fetchClientSKU })(WarehouseMasterDataSKU);

@@ -188,7 +188,7 @@ export default function Table_({ filterSize, searchLoading, handleRowCount, quer
     if (type === 'item_id') {
       cellData = (
         <Tooltip title="Tag Client" onClick={(e) => openTagClient(e, data)} >
-          <IconButton sx={{color: '#009688'}} aria-label="Tag Client">
+          <IconButton style={{color: '#009688'}} aria-label="Tag Client">
             <AddLinkIcon className="hover-button--on" />
           </IconButton>
         </Tooltip>
