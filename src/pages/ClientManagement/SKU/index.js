@@ -61,8 +61,10 @@ function ClientManagementSKU(props) {
   const [removedSKUs, setRemovedSKUs] = useState([]);
   const [SKUOptions, setSKUOptions] = useState([]);
   const [hideDuration, setHideDuration] = useState(5000);
-  const isAllSelected = isChecked.length > 0 && isChecked.length === SKU.length;
+  const [initialTableData, setInitialTableData] = useState([]);
 
+  const isAllSelected = isChecked.length > 0 && isChecked.length === SKU.length;
+  console.log(initialTableData)
   const routes = [
     {
       label: 'Client Management',
@@ -226,6 +228,8 @@ function ClientManagementSKU(props) {
           newTableData.push(sku)
         }
       });
+      
+      setInitialTableData(newTableData);
       newTableData.slice(0, skuCount - rowCount);
       const newArr = newTableData.slice(page * rowCount, page * rowCount + rowCount);
       setTableData(newArr);
@@ -251,7 +255,7 @@ function ClientManagementSKU(props) {
 
   const searchActiveSKU = (query) => {
     let searchedItems = [];
-    tableData.forEach(data => {
+    initialTableData.forEach(data => {
       if (data.product_name.includes(query)) {
         searchedItems.push(data);
       }
