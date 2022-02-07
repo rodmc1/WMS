@@ -66,15 +66,15 @@ function WarehouseMasterDataSKUCreate (props) {
       .then(res => {
         const skuId = res.data.id;
         tagSKU(data.client, [skuId], [])
-        .then(res => {
-          let delayInMilliseconds = 500;
-          setTimeout(function() {
-            setOpenSnackBar(true);
-            setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
-            setStatus(prevState => { return {...prevState, sku: true }});
-            setOpenBackdrop(false);
-          }, delayInMilliseconds);
-        });
+          .then(res => {
+            let delayInMilliseconds = 500;
+            setTimeout(function() {
+              setOpenSnackBar(true);
+              setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+              setStatus(prevState => { return {...prevState, sku: true }});
+              setOpenBackdrop(false);
+            }, delayInMilliseconds);
+          });
         if (data.images.length > 1) {
           handleImageUpload(res.data.id, data);
         } else {

@@ -6,7 +6,7 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { removeTaggedSKU, tagSKU, fetchWarehouseClient, fetchDeliveryNoticeById, fetchDeliveryNoticeByName, searchWarehouseSKUByName, fetchClientSKU, fetchAllWarehouseSKUs } from 'actions';
+import { removeTaggedSKU, tagSKU, fetchWarehouseClient, fetchDeliveryNoticeByName, searchWarehouseSKUByName, fetchClientSKU, fetchAllWarehouseSKUs } from 'actions';
 import ClientSideBar from 'components/ClientManagement/Sidebar';
 import Breadcrumbs from 'components/Breadcrumbs';
 
@@ -204,6 +204,8 @@ function ClientManagementSKU(props) {
     setSearched(null);
     setQuery(e.target.value);
   }
+
+  console.log(query)
 
     /*
    * Function for pagination when searching
@@ -467,17 +469,17 @@ function ClientManagementSKU(props) {
   }, [searched]);
 
   React.useEffect(() => {
-    if (props.client && !SKU.length) {
-      if (!itemQuery) {
-        fetchAllWarehouseSKUs()
-          .then(response => {
-            setSKU(response.data);
-          })
-          .catch(error => {
-            dispatchError(dispatch, THROW_ERROR, error);
-          });
-      }
-    }
+    // if (props.client && !SKU.length) {
+    //   if (!itemQuery) {
+    //     fetchAllWarehouseSKUs()
+    //       .then(response => {
+    //         setSKU(response.data);
+    //       })
+    //       .catch(error => {
+    //         dispatchError(dispatch, THROW_ERROR, error);
+    //       });
+    //   }
+    // }
     if (props.client_sku) {
       setSKUCount(initialSKUs.length);
       setClientSKUs(props.client_sku);
