@@ -158,8 +158,6 @@ function ReceivingAndReleasing(props) {
     }, 500);
   }
 
-  console.log(csvData)
-
   // CSV Headers
   const csvHeaders = [  
     { label: "Delivery Notice No.", key: "unique_code" },
