@@ -21,6 +21,15 @@ export const fetchAllDeliveryNotice = () => {
 }
 
 /**
+ * For Search Delivery Notice Download
+ * 
+ * @param {object} params Query data
+ */
+ export const fetchDeliveryNoticesByName = params => {
+  return inteluck.get(`/v1/wms/Warehouse/Delivery_Notice`, { params })
+}
+
+/**
  * Fetch single delivery notice
  */
 export const fetchDeliveryNoticeById = id => dispatch => {
