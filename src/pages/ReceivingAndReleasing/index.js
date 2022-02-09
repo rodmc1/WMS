@@ -110,7 +110,8 @@ function ReceivingAndReleasing(props) {
   // Function for CSV Download  
   const handleDownloadCSV = async () => {
     await fetchAllDeliveryNotice().then(response => {
-      const newData = response.data.map(notice => {
+      const data = searched ? searched : response.data;
+      let newData = data.map(notice => {
         return {
           warehouse_name: notice.warehouse_name,
           warehouse_client: notice.warehouse_client,
@@ -131,7 +132,9 @@ function ReceivingAndReleasing(props) {
       dispatchError(dispatch, THROW_ERROR, error);
     });
 
-    csvLink.current.link.click();
+    setTimeout(function() {
+      csvLink.current.link.click();
+    }, 500);
   }
 
   // CSV Headers
