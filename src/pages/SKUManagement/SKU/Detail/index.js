@@ -71,7 +71,7 @@ function WarehouseMasterDataSKUDetail (props) {
       .then(response => {
         if (response.status === 201) {
           const skuId = response.data.id;
-          tagSKU(data.client, [skuId], [])
+          tagSKU(data.client, [existingSKU.item_id], [], data.removedClients)
             .then(response => {
               let delayInMilliseconds = 500;
               setTimeout(function() {

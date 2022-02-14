@@ -30,9 +30,10 @@ function WarehouseMasterDataSKUForm(props) {
   const [selected, setSelected] = useState([]);
   const [selectedClients, setSelectedClients] = useState([]);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
+  const [initialClients, setInitialClients] = React.useState([]);
+  const [removedClients, setRemovedClients] = useState([]);
   const isAllSelected = props.clients.length > 0 && selected.length === props.clients.length;
 
-  
   const { handleSubmit, errors, control, formState, setValue, getValues } = useForm({
     shouldFocusError: false,
     mode: 'onTouched'
@@ -52,6 +53,7 @@ function WarehouseMasterDataSKUForm(props) {
     data.batchManagement = batchManagement;
     data.expiryManagement = expiryManagement;
     data.images = images;
+    data.removedClients = removedClients;
 
     if (_.isEmpty(errors)) {
       props.onSubmit(data);
@@ -89,14 +91,11 @@ function WarehouseMasterDataSKUForm(props) {
       });
     }
 
-    
-
     if (props.skuClients.length) {
-      // SKUDetails.push(['client', props.skuClients]);
-      setSelectedClients(props.skuClients);
-      const testaa = props.skuClients.map(client => client.client_id);
-      console.log(props.skuClients)
-      // setSelected(props.skuClients.map(client => client.client_id))
+      const taggedClients = props.skuClients.filter(client => client.isactive);
+      setSelectedClients(props.skuClients.filter(client => client.isactive));
+      setSelected(taggedClients.map(client => client.client_id));
+      setInitialClients(taggedClients.map(client => client.client_id));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.sku, props.skuClients]);
@@ -107,6 +106,19 @@ function WarehouseMasterDataSKUForm(props) {
       setExpiryManagement(SKU.expiry_management);
     }
   }, [SKU]);
+
+  React.useEffect(() => {
+    if (selected) {
+      let removedItems = [];
+      initialClients.forEach(id => {
+        if (!selected.includes(id)) {
+          removedItems.push(id)
+        }
+      });
+
+      setRemovedClients(removedItems)
+    }
+  }, [selected]);
 
   /*
    * Get addional picklist data
@@ -161,8 +173,6 @@ function WarehouseMasterDataSKUForm(props) {
     setSelectedClients(selectedData);
     setValue('client', value);
   };
-
-  console.log(selected)
 
   const MenuProps = {
     variant: "menu",

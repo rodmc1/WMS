@@ -65,7 +65,7 @@ function WarehouseMasterDataSKUCreate (props) {
     createWarehouseSKU(SKUData)
       .then(res => {
         const skuId = res.data.id;
-        tagSKU(data.client, [skuId], [])
+        tagSKU(data.client, [skuId], [], [])
           .then(res => {
             let delayInMilliseconds = 500;
             setTimeout(function() {

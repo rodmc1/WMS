@@ -78,7 +78,7 @@ export const updateClientById = (id, params) => {
 }
 
 // For SKU tagging
-export const tagSKU = (client, addedItems, removedItems) => {
+export const tagSKU = (client, addedItems, removedItems, removedClients) => {
   let params = {};
   let arrayOfRequest = [];
   
@@ -90,6 +90,17 @@ export const tagSKU = (client, addedItems, removedItems) => {
       }
       arrayOfRequest.push(inteluck.post(`/v1/wms/Warehouse/Client-SKU?client_id=${params.client_id}&item_id=${params.item_id}&isactive=${true}`))
     });
+
+    if (removedClients.length) {
+      removedClients.forEach(removedId => {
+        params = {
+          client_id: removedId,
+          item_id: addedItems
+        }
+        arrayOfRequest.push(inteluck.post(`/v1/wms/Warehouse/Client-SKU?client_id=${params.client_id}&item_id=${params.item_id}&isactive=${false}`))
+      });
+    }
+
   } else {
     addedItems.forEach(itemID => {
       params = {

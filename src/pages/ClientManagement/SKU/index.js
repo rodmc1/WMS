@@ -205,9 +205,7 @@ function ClientManagementSKU(props) {
     setQuery(e.target.value);
   }
 
-  console.log(query)
-
-    /*
+  /*
    * Function for pagination when searching
    * @args Page num, rowsPerPage num
    */
@@ -328,7 +326,7 @@ function ClientManagementSKU(props) {
     setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
     setOpenBackdrop(true);
-    tagSKU(clientData.id, items, removedSKUs).then(res => {
+    tagSKU(clientData.id, items, removedSKUs, []).then(res => {
       let delayInMilliseconds = 500;
       setTimeout(function() {
         props.fetchClientSKU({client: props.match.params.id});
