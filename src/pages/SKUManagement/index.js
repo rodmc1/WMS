@@ -49,12 +49,14 @@ function WarehouseMasterDataSKU (props) {
   const [isChecked, setIsChecked] = React.useState([]);
   const [hideDuration, setHideDuration] = useState(5000);
   const [openClientTagging, setOpenClientTagging] = React.useState(false);
-  const [SKUTagId, setSKUTagId] = React.useState(null);
+  const [taggedSKU, setTaggedSKU] = React.useState(null);
   const [clients, setClients] = useState([]);
   const [itemQuery, setItemQuery] = useState('');
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [items, setItems] = useState([]);
   const [initialSKUs, setInitialSKUs] = useState([]);
+  const [initialSKUClients, setInitialSKUClients] = useState([]);
+  const [removedClients, setRemovedClients] = useState([]);
   const [alertConfig, setAlertConfig] = React.useState({ severity: 'info', message: 'loading...' });
   const isAllSelected = isChecked.length > 0 && isChecked.length === clients.length;
 
@@ -290,14 +292,27 @@ function WarehouseMasterDataSKU (props) {
     }
   }
 
+  React.useEffect(() => {
+    if (isChecked) {
+      let removedItems = [];
+      initialSKUClients.forEach(id => {
+        if (!isChecked.includes(id)) {
+          removedItems.push(id)
+        }
+      });
+
+      setRemovedClients(removedItems)
+    }
+  }, [isChecked]);
+
   const handleTagSKU = () => {
     setOpenSnackBar(false);
     setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
     setOpenBackdrop(true);
     
-    tagSKU(isChecked, [SKUTagId], []).then(res => {
-      let delayInMilliseconds = 500;
+    tagSKU(isChecked, [taggedSKU.item_id], [], removedClients).then(res => {
+      let delayInMilliseconds = 800;
       setTimeout(function() {
         props.fetchClientSKU();
         setOpenClientTagging(false);
@@ -308,8 +323,28 @@ function WarehouseMasterDataSKU (props) {
     });
   }
 
+  useEffect(() => {
+    if (props.skuClients) {
+      getSKUClients();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.skuClients]);
+
+  const getSKUClients = () => {
+    let checked = [];
+
+    props.skuClients.forEach(client => {
+      if (client.isactive) {
+        checked.push(client.client_id)
+      }
+    });
+    if (!initialSKUClients.length) setInitialSKUClients(checked)
+    setIsChecked(checked);
+  }
+
   const handleTagClient = (data) => {
-    setSKUTagId(data);
+    setTaggedSKU(SKUData[data]);
+    props.fetchClientSKU({sku_id: data});
   }
 
   const handleOpenClientTagging = (bool) => {
@@ -318,6 +353,7 @@ function WarehouseMasterDataSKU (props) {
 
   const handleClose = () => {
     setIsChecked([]);
+    setInitialSKUClients([]);
     setOpenClientTagging(false);
   }
 
@@ -442,7 +478,8 @@ const mapStateToProps = state => {
   return {
     sku: state.sku,
     searched: state.sku.search,
-    clients: state.client
+    clients: state.client,
+    skuClients: state.client.sku
   }
 }
 

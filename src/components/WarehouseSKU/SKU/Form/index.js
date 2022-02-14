@@ -30,9 +30,9 @@ function WarehouseMasterDataSKUForm(props) {
   const [selected, setSelected] = useState([]);
   const [selectedClients, setSelectedClients] = useState([]);
   const [openBackdrop, setOpenBackdrop] = React.useState(true);
+  const [initialClients, setInitialClients] = React.useState([]);
+  const [removedClients, setRemovedClients] = useState([]);
   const isAllSelected = props.clients.length > 0 && selected.length === props.clients.length;
-
-  console.log(isAllSelected)
 
   const { handleSubmit, errors, control, formState, setValue, getValues } = useForm({
     shouldFocusError: false,
@@ -53,6 +53,7 @@ function WarehouseMasterDataSKUForm(props) {
     data.batchManagement = batchManagement;
     data.expiryManagement = expiryManagement;
     data.images = images;
+    data.removedClients = removedClients;
 
     if (_.isEmpty(errors)) {
       props.onSubmit(data);
@@ -89,8 +90,15 @@ function WarehouseMasterDataSKUForm(props) {
         if (w[1]) setValue(w[0], w[1]);
       });
     }
+
+    if (props.skuClients.length) {
+      const taggedClients = props.skuClients.filter(client => client.isactive);
+      setSelectedClients(props.skuClients.filter(client => client.isactive));
+      setSelected(taggedClients.map(client => client.client_id));
+      setInitialClients(taggedClients.map(client => client.client_id));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.sku]);
+  }, [props.sku, props.skuClients]);
 
   React.useEffect(() => {
     if (SKU) {
@@ -98,6 +106,19 @@ function WarehouseMasterDataSKUForm(props) {
       setExpiryManagement(SKU.expiry_management);
     }
   }, [SKU]);
+
+  React.useEffect(() => {
+    if (selected) {
+      let removedItems = [];
+      initialClients.forEach(id => {
+        if (!selected.includes(id)) {
+          removedItems.push(id)
+        }
+      });
+
+      setRemovedClients(removedItems)
+    }
+  }, [selected]);
 
   /*
    * Get addional picklist data
@@ -115,12 +136,12 @@ function WarehouseMasterDataSKUForm(props) {
   /*
    * Get addional picklist data
    */
-    React.useEffect(() => {
-      if (props.clients) {
-        setOpenBackdrop(false)
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps 
-    }, [props.clients]);
+  React.useEffect(() => {
+    if (props.clients) {
+      setOpenBackdrop(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.clients]);
 
   React.useEffect(() => {
     onChangeHandler()
@@ -148,11 +169,10 @@ function WarehouseMasterDataSKUForm(props) {
       setSelected(value);
       setSelectedClients([])
     }
+
     setSelectedClients(selectedData);
     setValue('client', value);
   };
-
-  console.log(selectedClients)
 
   const MenuProps = {
     variant: "menu",
@@ -167,8 +187,6 @@ function WarehouseMasterDataSKUForm(props) {
     getContentAnchorEl: null
   };
 
-  console.log(selected)
-
   return (
     <form onSubmit={handleSubmit(__submit)} className="sku-form">
       <Spinner sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} >
@@ -179,7 +197,7 @@ function WarehouseMasterDataSKUForm(props) {
         <Grid container spacing={2}>
           <Grid item xs={12} md={12}>
             <label className="paper__label">Client</label>
-            <Controller
+              <Controller
               render={({value}) => {
                 return (
                   <Select
@@ -611,7 +629,8 @@ const mapStateToProps = state => {
     clients: Object.values(state.client.data),
     uom: state.picklist.uom,
     storage_type: state.picklist.storage_type,
-    project_type: state.picklist.project_type
+    project_type: state.picklist.project_type,
+    skuClients: state.client.sku
   }
 }
 
