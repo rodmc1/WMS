@@ -454,11 +454,6 @@ function DeliveryNoticeSKU(props) {
       }
     });
     
-
-  console.log(clientSKUs);
-  console.log(SKU)
-  console.log(checked)
-  console.log(clientSKU)
     setSKUItems(clientSKU)
   }
 
