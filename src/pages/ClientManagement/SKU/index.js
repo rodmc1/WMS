@@ -6,7 +6,7 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { removeTaggedSKU, tagSKU, fetchWarehouseClient, fetchDeliveryNoticeById, fetchDeliveryNoticeByName, searchWarehouseSKUByName, fetchClientSKU, fetchAllWarehouseSKUs } from 'actions';
+import { removeTaggedSKU, tagSKU, fetchWarehouseClient, fetchDeliveryNoticeByName, searchWarehouseSKUByName, fetchClientSKU, fetchAllWarehouseSKUs } from 'actions';
 import ClientSideBar from 'components/ClientManagement/Sidebar';
 import Breadcrumbs from 'components/Breadcrumbs';
 
@@ -206,7 +206,7 @@ function ClientManagementSKU(props) {
     setQuery(e.target.value);
   }
 
-    /*
+  /*
    * Function for pagination when searching
    * @args Page num, rowsPerPage num
    */
@@ -329,7 +329,7 @@ function ClientManagementSKU(props) {
     setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
     setOpenBackdrop(true);
-    tagSKU(clientData.id, items, removedSKUs).then(res => {
+    tagSKU(clientData.id, items, removedSKUs, []).then(res => {
       let delayInMilliseconds = 500;
       setTimeout(function() {
         props.fetchClientSKU({client: props.match.params.id});
@@ -470,17 +470,17 @@ function ClientManagementSKU(props) {
   }, [searched]);
 
   React.useEffect(() => {
-    if (props.client && !SKU.length) {
-      if (!itemQuery) {
-        fetchAllWarehouseSKUs()
-          .then(response => {
-            setSKU(response.data);
-          })
-          .catch(error => {
-            dispatchError(dispatch, THROW_ERROR, error);
-          });
-      }
-    }
+    // if (props.client && !SKU.length) {
+    //   if (!itemQuery) {
+    //     fetchAllWarehouseSKUs()
+    //       .then(response => {
+    //         setSKU(response.data);
+    //       })
+    //       .catch(error => {
+    //         dispatchError(dispatch, THROW_ERROR, error);
+    //       });
+    //   }
+    // }
     if (props.client_sku) {
       setSKUCount(initialSKUs.length);
       setClientSKUs(props.client_sku);

@@ -8,7 +8,7 @@ import WarehouseMasterDataSKUForm from 'components/WarehouseSKU/SKU/Form';
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { fetchSKUByName, fetchWarehouseSKUs, updateWarehouseSKU, uploadSKUFilesById, deleteSKUPhotosById } from 'actions';
+import { fetchSKUByName, fetchWarehouseSKUs, updateWarehouseSKU, uploadSKUFilesById, deleteSKUPhotosById, fetchClientSKU, tagSKU } from 'actions';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
@@ -70,6 +70,16 @@ function WarehouseMasterDataSKUDetail (props) {
     updateWarehouseSKU(SKUData.id, SKUData)
       .then(response => {
         if (response.status === 201) {
+          const skuId = response.data.id;
+          tagSKU(data.client, [existingSKU.item_id], [], data.removedClients)
+            .then(response => {
+              let delayInMilliseconds = 500;
+              setTimeout(function() {
+                setOpenSnackBar(true);
+                setAlertConfig({ severity: 'success', message: 'Successfuly saved' });
+                setStatus(prevState => { return {...prevState, sku: true }});
+              }, delayInMilliseconds);
+            });
           setStatus(prevState => { return {...prevState, sku: true }});
         }
       })
@@ -114,6 +124,11 @@ function WarehouseMasterDataSKUDetail (props) {
     }
   }, [status]);
 
+  // Set edit state to true if all api response is success
+  useEffect(() => {
+    props.fetchClientSKU({sku_id: props.location.data.item_id});
+  }, []);
+
   // Set new routes and path based on the selected warehouse
   useEffect(() => {
     if (edited) {
@@ -129,7 +144,9 @@ function WarehouseMasterDataSKUDetail (props) {
   useEffect(() => {
     if (props.location.data) {
       setSKU(props.location.data);
-      if (!existingSKU) setExistingSKU(props.location.data);
+      if (!existingSKU) {
+        setExistingSKU(props.location.data);
+      }
     } else {
       window.location.href = `/sku-management`
     }
@@ -164,7 +181,7 @@ function WarehouseMasterDataSKUDetail (props) {
           <Paper className="paper edit-sku" elevation={0} variant="outlined">
             <Typography variant="subtitle1" className="paper__heading">Editing SKU</Typography>
             <div className="paper__divider"></div>
-            <WarehouseMasterDataSKUForm sku={sku} handleDialog={handleDialog} onSubmit={onSubmit} onError={handleError} />
+            <WarehouseMasterDataSKUForm sku={sku} skuClients={props.skuClients} handleDialog={handleDialog} onSubmit={onSubmit} onError={handleError} />
           </Paper>
         </Grid>
         <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} onClose={() => setOpenSnackBar(false)}>
@@ -186,8 +203,9 @@ function WarehouseMasterDataSKUDetail (props) {
 const mapStateToProps = state => {
   return {
     sku: state.sku,
-    error: state.error
+    error: state.error,
+    skuClients: state.client.sku
   }
 }
 
-export default connect(mapStateToProps, { fetchWarehouseSKUs, fetchSKUByName })(WarehouseMasterDataSKUDetail);
+export default connect(mapStateToProps, { fetchWarehouseSKUs, fetchSKUByName, fetchClientSKU })(WarehouseMasterDataSKUDetail);
