@@ -62,9 +62,8 @@ function ClientManagementSKU(props) {
   const [SKUOptions, setSKUOptions] = useState([]);
   const [hideDuration, setHideDuration] = useState(5000);
   const [initialTableData, setInitialTableData] = useState([]);
-
   const isAllSelected = isChecked.length > 0 && isChecked.length === SKU.length;
-  console.log(initialTableData)
+  
   const routes = [
     {
       label: 'Client Management',
@@ -492,9 +491,11 @@ function ClientManagementSKU(props) {
   React.useEffect(() => {
     if (props.client_sku) {
       setClientSKUs(props.client_sku);
-      setOpenBackdrop(false);
+      setTimeout(function() {
+        setOpenBackdrop(false)
+      }, 800);
     } else {
-      props.fetchClientSKU({client: props.match.params.id})
+      props.fetchClientSKU({client: props.match.params.id});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.client_sku, props.client, initialSKUs]);
