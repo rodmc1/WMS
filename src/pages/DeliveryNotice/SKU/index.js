@@ -59,6 +59,7 @@ function DeliveryNoticeSKU(props) {
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [clientSKUs, setClientSKUs] = useState([]);
   const [warehouseClient, setWarehouseClient] = useState(null);
+  const [SKUItems, setSKUItems] = useState([]);
   const isAllSelected = items.length > 0 && items.length === SKU.length;
 
   const routes = [
@@ -345,6 +346,10 @@ function DeliveryNoticeSKU(props) {
     if (JSON.stringify(deliveryNoticeData) === '{}') {
       setOpenBackdrop(false);
     }
+    
+    if (deliveryNoticeData && !warehouseClient) {
+      setWarehouseClient(deliveryNoticeData.warehouse_client)
+    }
   }, [deliveryNoticeData]);
 
   // Set searched values and warehouse count after search
@@ -352,13 +357,8 @@ function DeliveryNoticeSKU(props) {
     if (props.searched) {
       setSearched(props.searched.data);
     }
-    if (deliveryNoticeData && !warehouseClient) {
-      setWarehouseClient(deliveryNoticeData.warehouse_client)
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.searched]);
-
-  console.log(warehouseClient)
 
   // Set delivery notice count and remove spinner when data fetch is done
   React.useEffect(() => {
@@ -378,7 +378,7 @@ function DeliveryNoticeSKU(props) {
   }, [searched]);
 
   React.useEffect(() => {
-    if (props.notice && !SKU.length) {
+    if (props.notice && !props.sku) {
       if (!itemQuery) {
         fetchAllWarehouseSKUs()
         .then(response => {
@@ -412,8 +412,8 @@ function DeliveryNoticeSKU(props) {
   }, [props.client]);
 
   React.useEffect(() => {
-    if (props.client) getTaggedSKU()
-  }, [clientSKUs]);
+    if (clientSKUs && SKU) getTaggedSKU();
+  }, [clientSKUs, SKU]);
   
 
   React.useEffect(() => {
@@ -433,10 +433,10 @@ function DeliveryNoticeSKU(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.sku]);
 
-  React.useEffect(() => {
-    if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.warehouse]);
+  // React.useEffect(() => {
+  //   if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps 
+  // }, [props.warehouse]);
 
   const getTaggedSKU = () => {
     let checked = [];
@@ -453,11 +453,14 @@ function DeliveryNoticeSKU(props) {
         clientSKU.push(sku)
       }
     });
-    setSKU(clientSKU)
-    console.log(checked);
-  }
+    
 
-  console.log(SKU);
+  console.log(clientSKUs);
+  console.log(SKU)
+  console.log(checked)
+  console.log(clientSKU)
+    setSKUItems(clientSKU)
+  }
 
   /**
    * Handler api errors
@@ -523,7 +526,7 @@ function DeliveryNoticeSKU(props) {
                     }
                   />
                   <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                    {SKU.length ?
+                    {SKUItems.length ?
                       <MenuItem value="all" onClick={checkAll}>
                         <Checkbox 
                           checked={isAllSelected} 
@@ -537,7 +540,7 @@ function DeliveryNoticeSKU(props) {
                         <ListItemText primary="Select All"/>
                       </MenuItem> : null
                     }
-                    {SKU.map((item) => (
+                    {SKUItems.map((item) => (
                       <MenuItem key={item.item_id} value={item.product_name} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.item_id))} >
                         <Checkbox 
                           checked={isChecked.includes(item.item_id)}
