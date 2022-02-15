@@ -153,7 +153,7 @@ function WarehouseMasterDataSKUForm(props) {
   };
 
   const handleChange = (event) => {
-    const value = event.target.value;
+    let value = event.target.value;
     let selectedData = [];
 
     props.clients.forEach(client => {
@@ -165,6 +165,7 @@ function WarehouseMasterDataSKUForm(props) {
     if (value[value.length - 1] === "all") {
       selectedData = selected.length === props.clients.length ? [] : props.clients;
       setSelected(selected.length === props.clients.length ? [] : props.clients.map(client => client.id));
+      value = selected.length === props.clients.length ? [] : props.clients.map(client => client.id);
     } else {
       setSelected(value);
       setSelectedClients([])
