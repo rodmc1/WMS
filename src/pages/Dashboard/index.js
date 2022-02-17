@@ -43,6 +43,16 @@ const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+const Inventory = ({data, options}) => {
+  return (
+    <Doughnut
+      style={{maxHeight: 300, maxWidth: 300}}
+      data={data}
+      options={options}
+    />
+  )
+}
+
 function Dashboard(props) {
   const csvLink = React.useRef();
   const dispatch = useDispatch();
@@ -252,32 +262,34 @@ function Dashboard(props) {
 
   // Show snackbar alert when new warehouse is created
   React.useEffect(() => {
-    props.fetchDashboard({
-      from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59'
-    });
-
-    props.fetchDashboardDeliveryNotice({
-      from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59'
-    });
-
-    props.fetchDashboardPhysicalItem({
-      from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
-      count: page || 10,
-      after: page * rowCount
-    });
-
-    props.fetchCBMMonitoring({
-      from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
-    });
-
-    props.fetchPalletMonitoring({
-      from_date: startDate.format("MM/DD/YYYY"),
-      to_date: endDate.format("MM/DD/YYYY") + ' 23:59:59',
-    });
+    if (startDate && endDate) {
+      props.fetchDashboard({
+        from_date: startDate && startDate.format("MM/DD/YYYY"),
+        to_date: endDate && endDate.format("MM/DD/YYYY") + ' 23:59:59'
+      });
+  
+      props.fetchDashboardDeliveryNotice({
+        from_date: startDate && startDate.format("MM/DD/YYYY"),
+        to_date: endDate && endDate.format("MM/DD/YYYY") + ' 23:59:59'
+      });
+  
+      props.fetchDashboardPhysicalItem({
+        from_date: startDate && startDate.format("MM/DD/YYYY"),
+        to_date: endDate && endDate.format("MM/DD/YYYY") + ' 23:59:59',
+        count: page || 10,
+        after: page * rowCount
+      });
+  
+      props.fetchCBMMonitoring({
+        from_date: startDate && startDate.format("MM/DD/YYYY"),
+        to_date: endDate && endDate.format("MM/DD/YYYY") + ' 23:59:59',
+      });
+  
+      props.fetchPalletMonitoring({
+        from_date: startDate && startDate.format("MM/DD/YYYY"),
+        to_date: endDate && endDate.format("MM/DD/YYYY") + ' 23:59:59',
+      });
+    }
   }, [startDate, endDate]);
 
   // Set Dashboard data
@@ -335,23 +347,6 @@ function Dashboard(props) {
     if (data === 'Outbound') jsx = <Chip label="Outbound" className="status-chip tangerine" />;
     return jsx
   }
-
-  const plugins = [{
-    beforeDraw: function(chart) {
-     var width = chart.width,
-         height = chart.height,
-         ctx = chart.ctx;
-         ctx.restore();
-         var fontSize = (height / 80).toFixed(2);
-         ctx.font = fontSize + "em sans-serif";
-         ctx.textBaseline = "middle";
-         var text = getInventoryPercentage() + '%',
-         textX = Math.round((width - ctx.measureText(text).width) / 2),
-         textY = height / 2;
-         ctx.fillText(text, textX, textY);
-         ctx.save();
-    } 
-  }];
 
   const getInventoryPercentage = () => {
     let percentage = 0;
@@ -487,13 +482,13 @@ function Dashboard(props) {
                   <Paper elevation={1}>
                     <Typography>Inventory</Typography>
                     <Typography variant="body2" style={{marginBottom: 25}}>Percentage</Typography>
-                    {totalInventory &&
-                      <Doughnut
-                        style={{maxHeight: 300, maxWidth: 300}}
-                        data={doughnutData}
-                        options={options}
-                        plugins={plugins}
-                      />
+                    {totalInventory && 
+                      <div className="inventory-data" class="relative">
+                        <Inventory options={options} data={doughnutData} />  
+                        <div className="absolute-center text-center">
+                          <Typography className="percentage-text">{getInventoryPercentage() + '%'}</Typography>
+                        </div>
+                      </div>
                     }
                   </Paper>
                 </Grid>
@@ -517,7 +512,7 @@ function Dashboard(props) {
                     <div className="flex justify-space-between align-center">
                       <Typography variant="body2">Difference</Typography>
                     </div>
-                     {receivedAndRelease && <ReceivedAndReleased data={receivedAndRelease} />}
+                    {receivedAndRelease && <ReceivedAndReleased data={receivedAndRelease} />}
                   </Paper>
                 </Grid>
                 <Grid item xs={4} className="number-of-items">
@@ -538,7 +533,7 @@ function Dashboard(props) {
                       <BarChartIcon onClick={() => setActiveCbmMonitoring('difference')} className={activeCbmMonitoring === 'difference' ? 'active' : ''} />
                     </div>
                   </div>
-                  <CBMMonitoring data={CBM} type={activeCbmMonitoring} date={{start: startDate.format("MM/DD/YYYY"), end: endDate.format("MM/DD/YYYY")}} />
+                  <CBMMonitoring data={CBM} type={activeCbmMonitoring} date={{start: startDate && startDate.format("MM/DD/YYYY"), end: endDate && endDate.format("MM/DD/YYYY")}} />
                 </Paper>
               </Grid>
               <Grid item xs={12} className="monitoring">
@@ -551,7 +546,7 @@ function Dashboard(props) {
                       <BarChartIcon onClick={() => setActivePalletMonitoring('difference')} className={activePalletMonitoring === 'difference' ? 'active' : ''} />
                     </div>
                   </div>
-                  <PalletMonitoring data={pallet} type={activePalletMonitoring} date={{start: startDate.format("MM/DD/YYYY"), end: endDate.format("MM/DD/YYYY")}}/>
+                  <PalletMonitoring data={pallet} type={activePalletMonitoring} date={{start: startDate && startDate.format("MM/DD/YYYY"), end: endDate && endDate.format("MM/DD/YYYY")}}/>
                 </Paper>
               </Grid>
             </Paper>
