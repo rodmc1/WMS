@@ -153,6 +153,7 @@ function WarehouseMasterDataSKUForm(props) {
   };
 
   const handleChange = (event) => {
+    setHasChanged(true)
     let value = event.target.value;
     let selectedData = [];
 
@@ -246,7 +247,6 @@ function WarehouseMasterDataSKUForm(props) {
               control={control}
               rules={{ required: "This field is required" }}
               defaultValue=""
-              onInput={() => setHasChanged(true)}
             />
             {errors.client && <FormHelperText error>{errors.client.message}</FormHelperText>}
           </Grid>
