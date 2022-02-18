@@ -351,7 +351,7 @@ function Dashboard(props) {
   const getInventoryPercentage = () => {
     let percentage = 0;
     if (totalItemsReceived && totalInventory)  {
-      percentage = totalItemsReleased / (totalItemsReceived + totalItemsReleased) * 100;
+      percentage = (totalItemsReceived - totalItemsReleased) / totalItemsReceived * 100
     }
 
     return Math.round(percentage * 10) / 10;
