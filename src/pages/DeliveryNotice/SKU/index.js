@@ -107,8 +107,8 @@ function DeliveryNoticeSKU(props) {
       setItems([]);
       setIsChecked([]);
     } else {
-      setIsChecked(SKU.map(sku => sku.item_id));
-      setItems(SKU.map(sku => sku));
+      setIsChecked(SKUItems.map(sku => sku.item_id));
+      setItems(SKUItems.map(sku => sku));
     }
   }
 
