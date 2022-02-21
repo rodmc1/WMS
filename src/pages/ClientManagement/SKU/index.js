@@ -255,7 +255,7 @@ function ClientManagementSKU(props) {
   const searchActiveSKU = (query) => {
     let searchedItems = [];
     initialTableData.forEach(data => {
-      if (data.product_name.includes(query)) {
+      if (data.product_name.includes(query) || data.external_code.includes(query) ) {
         searchedItems.push(data);
       }
     });
