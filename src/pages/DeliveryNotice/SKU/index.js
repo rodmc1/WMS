@@ -6,7 +6,7 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { createDeliveryNoticeSKU, fetchDeliveryNotices, fetchAllDeliveryNoticeSKU, fetchDeliveryNoticeById, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
+import { createDeliveryNoticeSKU, fetchDeliveryNotices, fetchClientSKU, fetchAllDeliveryNoticeSKU, fetchDeliveryNoticeById, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchAllWarehouseSKUs, searchWarehouseSKUByName } from 'actions';
 import WarehouseSideBar from 'components/WarehouseDeliveryNotice/SideBar';
 import Breadcrumbs from 'components/Breadcrumbs';
 
@@ -57,6 +57,9 @@ function DeliveryNoticeSKU(props) {
   const [warehouseSKUs, setwarehouseSKUs] = useState([]);
   const [alertConfig, setAlertConfig] = React.useState({ severity: 'info', message: 'loading...' });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
+  const [clientSKUs, setClientSKUs] = useState([]);
+  const [warehouseClient, setWarehouseClient] = useState(null);
+  const [SKUItems, setSKUItems] = useState([]);
   const isAllSelected = items.length > 0 && items.length === SKU.length;
 
   const routes = [
@@ -104,8 +107,8 @@ function DeliveryNoticeSKU(props) {
       setItems([]);
       setIsChecked([]);
     } else {
-      setIsChecked(SKU.map(sku => sku.item_id));
-      setItems(SKU.map(sku => sku));
+      setIsChecked(SKUItems.map(sku => sku.item_id));
+      setItems(SKUItems.map(sku => sku));
     }
   }
 
@@ -318,6 +321,7 @@ function DeliveryNoticeSKU(props) {
     if (query) {
       delayedQuery(page, rowCount);
     } else if (!query) {
+      // if (props.notice.warehouse_client && !warehouseClient) setWarehouseClient(props.notice.warehouse_client);
       setDeliveryNoticeData(props.notice);
       setSearchLoading(false);
     }
@@ -331,8 +335,9 @@ function DeliveryNoticeSKU(props) {
   React.useEffect(() => {
     if (props.notice) {
       setDeliveryNoticeData(props.notice);
-    } else {
-      props.fetchDeliveryNoticeById(props.match.params.id)
+    } 
+    if (!deliveryNoticeData) {
+      props.fetchDeliveryNoticeById(props.match.params.id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [props.notice]);
@@ -340,6 +345,10 @@ function DeliveryNoticeSKU(props) {
   React.useEffect(() => { 
     if (JSON.stringify(deliveryNoticeData) === '{}') {
       setOpenBackdrop(false);
+    }
+    
+    if (deliveryNoticeData && !warehouseClient) {
+      setWarehouseClient(deliveryNoticeData.warehouse_client)
     }
   }, [deliveryNoticeData]);
 
@@ -369,9 +378,9 @@ function DeliveryNoticeSKU(props) {
   }, [searched]);
 
   React.useEffect(() => {
-    if (props.notice && !SKU.length) {
+    if (props.notice && !props.sku) {
       if (!itemQuery) {
-        fetchAllWarehouseSKUs({ warehouse_name: props.notice.warehouse_name })
+        fetchAllWarehouseSKUs()
         .then(response => {
           setSKU(response.data);
           setwarehouseSKUs(response.data);
@@ -387,11 +396,25 @@ function DeliveryNoticeSKU(props) {
 
   React.useEffect(() => {
     if (deliveryNoticeData) {
-      setOpenBackdrop(true)
+      setOpenBackdrop(true);
       props.fetchDeliveryNoticeSKU({delivery_notice_id: deliveryNoticeData.delivery_notice_id});
     }
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [deliveryNoticeData]);
+
+  React.useEffect(() => {
+    if (warehouseClient) props.fetchClientSKU({client: warehouseClient});
+  }, [warehouseClient]);
+
+  React.useEffect(() => {
+    if (props.client && !clientSKUs.length) setClientSKUs(props.client);
+  }, [props.client]);
+
+  React.useEffect(() => {
+    if (clientSKUs && SKU) getTaggedSKU();
+  }, [clientSKUs, SKU]);
+  
 
   React.useEffect(() => {
     if (selectedSKU.length) setDeliveryNoticeSKU([]);
@@ -410,10 +433,29 @@ function DeliveryNoticeSKU(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.sku]);
 
-  React.useEffect(() => {
-    if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.warehouse]);
+  // React.useEffect(() => {
+  //   if (props.warehouse) fetchAllWarehouseSKUs({ warehouse_name: props.warehouse.warehouse_name })
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps 
+  // }, [props.warehouse]);
+
+  const getTaggedSKU = () => {
+    let checked = [];
+    let clientSKU = [];
+
+    clientSKUs.forEach(sku => {
+      if (sku.isactive) {
+        checked.push(sku.item_id)
+      }
+    });
+
+    SKU.forEach(sku => {
+      if (checked.includes(sku.item_id)) {
+        clientSKU.push(sku)
+      }
+    });
+    
+    setSKUItems(clientSKU)
+  }
 
   /**
    * Handler api errors
@@ -479,7 +521,7 @@ function DeliveryNoticeSKU(props) {
                     }
                   />
                   <MenuList autoFocusItem={openAddItems} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                    {SKU.length ?
+                    {SKUItems.length ?
                       <MenuItem value="all" onClick={checkAll}>
                         <Checkbox 
                           checked={isAllSelected} 
@@ -493,7 +535,7 @@ function DeliveryNoticeSKU(props) {
                         <ListItemText primary="Select All"/>
                       </MenuItem> : null
                     }
-                    {SKU.map((item) => (
+                    {SKUItems.map((item) => (
                       <MenuItem key={item.item_id} value={item.product_name} onClick={() => toggleCheckboxValue(item, isChecked.includes(item.item_id))} >
                         <Checkbox 
                           checked={isChecked.includes(item.item_id)}
@@ -556,8 +598,9 @@ const mapStateToProps = (state, ownProps) => {
     error: state.error,
     searched: state.notice.searchedSKU,
     notice: state.notice.data[ownProps.match.params.id],
-    sku: state.notice.sku
+    sku: state.notice.sku,
+    client: state.client.sku
   }
 };
 
-export default connect(mapStateToProps, { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchDeliveryNoticeById })(DeliveryNoticeSKU);
+export default connect(mapStateToProps, { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchDeliveryNoticeSKU, searchDeliveryNoticeSKU, fetchDeliveryNoticeById, fetchClientSKU })(DeliveryNoticeSKU);

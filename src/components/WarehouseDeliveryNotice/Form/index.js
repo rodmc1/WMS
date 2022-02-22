@@ -3,7 +3,7 @@ import './style.scss';
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
-import { fetchTruckTypes, fetchClients } from 'actions/picklist';
+import { fetchTruckTypes, fetchClients, fetchWarehouseClients } from 'actions';
 import { fetchWarehouses } from 'actions/index';
 import { truckTypes } from 'assets/static/index';
 
@@ -35,6 +35,8 @@ function DeliveryNoticeForm(props) {
   const [hasFilesChange, setHasFilesChange] = React.useState(false);
   const [hasDefaultValue, setHasDefaultValue] = React.useState(false);
   const [deliveryNotice, setDeliveryNotice] = React.useState([]);
+  const [clients, setClients] = React.useState('');
+  const [warehouses, setWarehouses] = React.useState('');
   
   // Hook Form
   const { handleSubmit, errors, control, formState, setValue, reset, getValues } = useForm({
@@ -85,32 +87,40 @@ function DeliveryNoticeForm(props) {
    * Get addional picklist data
    */
   React.useEffect(() => {
-    if (props.clients.length) {
-      setOpenBackdrop(false)
-    }
-    if (!props.clients.length) {
-      props.fetchClients();
-    } else if (!props.editMode) {
-      props.fetchWarehouses();
-    }
-
-    if (props.deliveryNotice && props.editMode && props.clients.length)  {
-      setTimeout(() => { props.fetchWarehouses() }, 500);
-    }
+    props.fetchWarehouses();
+    props.fetchWarehouseClients();
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.clients, props.deliveryNotice]);
+  }, [props.deliveryNotice]);
 
   // Set warehouse count and remove spinner when data fetch is done
   React.useEffect(() => {
-    if (props.warehouses instanceof Object && props.warehouses.constructor === Object) {
-      setOpenBackdrop(false);
-      
-      if (props.editMode && getValues("warehouse").constructor === String) {
+    if (props.clients.length) setClients(props.clients);
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.clients]);
+
+  // Set warehouse count and remove spinner when data fetch is done
+  React.useEffect(() => {
+    if (clients) setOpenBackdrop(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [clients]);
+
+  // Set warehouse count and remove spinner when data fetch is done
+  React.useEffect(() => {
+    if (props.warehouses) {
+      if (!warehouses || !warehouses.length) setWarehouses(props.warehouses);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, [props.warehouses]);
+
+  React.useEffect(() => {
+    if (Array.isArray(warehouses) && Array.isArray(clients)) {
+      if (props.editMode) {
+        setValue('warehouseClient', props.deliveryNotice.warehouse_client);
         setValue('warehouse', props.deliveryNotice.warehouse_name);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [props.warehouses]);
+  }, [warehouses, clients]);
   
   /*
    * Submit form data if values are valid
@@ -123,7 +133,6 @@ function DeliveryNoticeForm(props) {
         appointmentDocs
       }
       props.onSubmit(newData);
-      console.log(newData)
     } else {
       props.onError(data);
     }
@@ -144,9 +153,9 @@ function DeliveryNoticeForm(props) {
                   defaultValue=""
                   displayEmpty={true}>
                   {
-                    !props.clients ? null :
-                    props.clients.map(client => {
-                      return <MenuItem key={client.Id} value={client.name}>{client.name}</MenuItem>
+                    !clients ? null :
+                    clients.map(client => {
+                      return <MenuItem key={client.id} value={client.client_name}>{client.client_name}</MenuItem>
                     })
                   } 
                 </Select>
@@ -168,8 +177,8 @@ function DeliveryNoticeForm(props) {
                   defaultValue=""
                   displayEmpty={true}>
                   {
-                    !props.warehouses ? null :
-                    Object.values(props.warehouses).map(warehouse => {
+                    !warehouses ? null :
+                    warehouses.map(warehouse => {
                       return <MenuItem key={warehouse.warehouse_id} value={warehouse.warehouse_client}>{warehouse.warehouse_client}</MenuItem>
                     })
                   } 
@@ -575,9 +584,9 @@ function DeliveryNoticeForm(props) {
 
 const mapStateToProps = state => {
   return {
-    clients: state.picklist.clients,
-    warehouses: state.warehouses.data
+    clients: Object.values(state.client.data),
+    warehouses: Object.values(state.warehouses.data)
   }
 }
 
-export default connect(mapStateToProps, { fetchWarehouses, fetchTruckTypes, fetchClients })(DeliveryNoticeForm);
+export default connect(mapStateToProps, { fetchWarehouses, fetchTruckTypes, fetchClients, fetchWarehouseClients })(DeliveryNoticeForm);

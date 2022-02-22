@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
 import './style.scss';
-import _, { initial } from 'lodash';
+import _, { initial, stubTrue } from 'lodash';
 import React, {  useState, useRef } from 'react';
 import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { removeTaggedSKU, tagSKU, fetchWarehouseClient, fetchDeliveryNoticeById, fetchDeliveryNoticeByName, searchWarehouseSKUByName, fetchClientSKU, fetchAllWarehouseSKUs } from 'actions';
+import { removeTaggedSKU, tagSKU, fetchWarehouseClient, fetchDeliveryNoticeByName, searchWarehouseSKUByName, fetchClientSKU, fetchAllWarehouseSKUs } from 'actions';
 import ClientSideBar from 'components/ClientManagement/Sidebar';
 import Breadcrumbs from 'components/Breadcrumbs';
 
@@ -61,8 +61,9 @@ function ClientManagementSKU(props) {
   const [removedSKUs, setRemovedSKUs] = useState([]);
   const [SKUOptions, setSKUOptions] = useState([]);
   const [hideDuration, setHideDuration] = useState(5000);
+  const [initialTableData, setInitialTableData] = useState([]);
   const isAllSelected = isChecked.length > 0 && isChecked.length === SKU.length;
-
+  
   const routes = [
     {
       label: 'Client Management',
@@ -205,7 +206,7 @@ function ClientManagementSKU(props) {
     setQuery(e.target.value);
   }
 
-    /*
+  /*
    * Function for pagination when searching
    * @args Page num, rowsPerPage num
    */
@@ -226,6 +227,8 @@ function ClientManagementSKU(props) {
           newTableData.push(sku)
         }
       });
+      
+      setInitialTableData(newTableData);
       newTableData.slice(0, skuCount - rowCount);
       const newArr = newTableData.slice(page * rowCount, page * rowCount + rowCount);
       setTableData(newArr);
@@ -251,8 +254,8 @@ function ClientManagementSKU(props) {
 
   const searchActiveSKU = (query) => {
     let searchedItems = [];
-    tableData.forEach(data => {
-      if (data.product_name.includes(query)) {
+    initialTableData.forEach(data => {
+      if (data.product_name.includes(query) || data.external_code.includes(query) ) {
         searchedItems.push(data);
       }
     });
@@ -306,9 +309,9 @@ function ClientManagementSKU(props) {
     { label: "Storage Type", key: "storage_type" }
   ];
 
-  /**
-   * Call delayedQuery function when user search and set new sku data
-   */
+/**
+ * Call delayedQuery function when user search and set new sku data
+ */
   React.useEffect(() => {
     if (items > 100 || removedSKUs > 100) {
       setHideDuration(8000);
@@ -316,16 +319,17 @@ function ClientManagementSKU(props) {
     if (items > 200 || removedSKUs > 200) {
       setHideDuration(12000);
     }
-     // eslint-disable-next-line react-hooks/exhaustive-deps 
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [items, removedSKUs]);
+
+
 
   const handleTagSKU = () => {
     setOpenSnackBar(false);
     setAlertConfig({ severity: 'info', message: 'Saving changes...' });
     setOpenSnackBar(true);
     setOpenBackdrop(true);
-
-    tagSKU(clientData.id, items, removedSKUs).then(res => {
+    tagSKU(clientData.id, items, removedSKUs, []).then(res => {
       let delayInMilliseconds = 500;
       setTimeout(function() {
         props.fetchClientSKU({client: props.match.params.id});
@@ -466,17 +470,17 @@ function ClientManagementSKU(props) {
   }, [searched]);
 
   React.useEffect(() => {
-    if (props.client && !SKU.length) {
-      if (!itemQuery) {
-        fetchAllWarehouseSKUs()
-          .then(response => {
-            setSKU(response.data);
-          })
-          .catch(error => {
-            dispatchError(dispatch, THROW_ERROR, error);
-          });
-      }
-    }
+    // if (props.client && !SKU.length) {
+    //   if (!itemQuery) {
+    //     fetchAllWarehouseSKUs()
+    //       .then(response => {
+    //         setSKU(response.data);
+    //       })
+    //       .catch(error => {
+    //         dispatchError(dispatch, THROW_ERROR, error);
+    //       });
+    //   }
+    // }
     if (props.client_sku) {
       setSKUCount(initialSKUs.length);
       setClientSKUs(props.client_sku);
@@ -487,9 +491,11 @@ function ClientManagementSKU(props) {
   React.useEffect(() => {
     if (props.client_sku) {
       setClientSKUs(props.client_sku);
-      setOpenBackdrop(false);
+      setTimeout(function() {
+        setOpenBackdrop(false)
+      }, 800);
     } else {
-      props.fetchClientSKU({client: props.match.params.id})
+      props.fetchClientSKU({client: props.match.params.id});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.client_sku, props.client, initialSKUs]);
@@ -523,7 +529,7 @@ function ClientManagementSKU(props) {
         }
       }
     });
-    
+
     setTableData(clientSKU);
     setInitialSKUs(checked);
     setIsChecked(checked);
@@ -614,7 +620,7 @@ function ClientManagementSKU(props) {
             total={skuCount || 0}
             handleRemoveSKU={handleRemoveSKU}
           />
-          <Snackbar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1000 }} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} autoHideDuration={3000} onClose={() => setOpenSnackBar(false)}>
+          <Snackbar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1000 }} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} open={openSnackBar} autoHideDuration={hideDuration} onClose={() => setOpenSnackBar(false)}>
             <Alert severity={alertConfig.severity}>{alertConfig.message}</Alert>
           </Snackbar>
         </Grid>

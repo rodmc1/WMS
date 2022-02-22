@@ -297,7 +297,7 @@ export default function Table_({ onSubmit, onError, defaultData, searchLoading, 
                   <TableCell>{data.external_code}</TableCell>
                   <TableCell>
                     <Tooltip title="Remove">
-                      <IconButton aria-label="remove" component="span" onClick={() => toggleRemoveSKU(data)}>
+                      <IconButton aria-label="remove" style={{color: '#009688'}} component="span" onClick={() => toggleRemoveSKU(data)}>
                         <LinkOffIcon className="hover-button--on" />
                       </IconButton>
                     </Tooltip>

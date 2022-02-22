@@ -7,7 +7,7 @@ import { CSVLink } from "react-csv";
 import { THROW_ERROR } from 'actions/types';
 import { dispatchError } from 'helper/error';
 import { connect, useDispatch } from 'react-redux';
-import { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchAllDeliveryNotice } from 'actions';
+import { fetchDeliveryNotices, fetchDeliveryNoticeByName, fetchAllDeliveryNotice, fetchDeliveryNoticesByName } from 'actions';
 
 import Table from 'components/Table';
 import Button from '@mui/material/Button';
@@ -116,29 +116,78 @@ function DeliveryNotice(props) {
 
   // Function for CSV Download  
   const handleDownloadCSV = async () => {
-    await fetchAllDeliveryNotice().then(response => {
-      const newData = response.data.map(notice => {
-        return {
-          warehouse_name: notice.warehouse_name,
-          warehouse_client: notice.warehouse_client,
-          transaction_type: notice.transaction_type,
-          unique_code: notice.unique_code,
-          booking_datetime: notice.booking_datetime.slice(0, 10),
-          appointment_datetime: notice.appointment_datetime.slice(0, 10),
-          delivery_mode: notice.delivery_mode,
-          asset_type: notice.asset_type,
-          qty_of_trucks: notice.qty_of_trucks,
-          external_reference_number: notice.external_reference_number,
-        }
+    let newData;
+    if (searched) {
+      await fetchDeliveryNoticesByName({filter: query}).then(response => {
+        newData = response.data.map(notice => {
+          return {
+            warehouse_name: notice.warehouse_name,
+            warehouse_client: notice.warehouse_client,
+            transaction_type: notice.transaction_type,
+            unique_code: notice.unique_code,
+            booking_datetime: notice.booking_datetime.slice(0, 10),
+            appointment_datetime: notice.appointment_datetime.slice(0, 10),
+            delivery_mode: notice.delivery_mode,
+            asset_type: notice.asset_type,
+            qty_of_trucks: notice.qty_of_trucks,
+            external_reference_number: notice.external_reference_number,
+          }
+        })
+      }).catch(error => {
+        dispatchError(dispatch, THROW_ERROR, error);
       });
-
-      setCsvData(newData);
-    }).catch(error => {
-      dispatchError(dispatch, THROW_ERROR, error);
-    });
-
-    csvLink.current.link.click();
+    } else {
+      await fetchAllDeliveryNotice().then(response => {
+        newData = response.data.map(notice => {
+          return {
+            warehouse_name: notice.warehouse_name,
+            warehouse_client: notice.warehouse_client,
+            transaction_type: notice.transaction_type,
+            unique_code: notice.unique_code,
+            booking_datetime: notice.booking_datetime.slice(0, 10),
+            appointment_datetime: notice.appointment_datetime.slice(0, 10),
+            delivery_mode: notice.delivery_mode,
+            asset_type: notice.asset_type,
+            qty_of_trucks: notice.qty_of_trucks,
+            external_reference_number: notice.external_reference_number,
+          }
+        });
+      }).catch(error => {
+        dispatchError(dispatch, THROW_ERROR, error);
+      });
+    }
+  
+    setCsvData(newData);
+    setTimeout(function() {
+      csvLink.current.link.click();
+    }, 500);
   }
+
+  // Function for CSV Download  
+  // const handleDownloadCSV = async () => {
+  //   await fetchAllDeliveryNotice().then(response => {
+  //     const newData = response.data.map(notice => {
+  //       return {
+  //         warehouse_name: notice.warehouse_name,
+  //         warehouse_client: notice.warehouse_client,
+  //         transaction_type: notice.transaction_type,
+  //         unique_code: notice.unique_code,
+  //         booking_datetime: notice.booking_datetime.slice(0, 10),
+  //         appointment_datetime: notice.appointment_datetime.slice(0, 10),
+  //         delivery_mode: notice.delivery_mode,
+  //         asset_type: notice.asset_type,
+  //         qty_of_trucks: notice.qty_of_trucks,
+  //         external_reference_number: notice.external_reference_number,
+  //       }
+  //     });
+
+  //     setCsvData(newData);
+  //   }).catch(error => {
+  //     dispatchError(dispatch, THROW_ERROR, error);
+  //   });
+
+  //   csvLink.current.link.click();
+  // }
 
   // CSV Headers
   const csvHeaders = [  

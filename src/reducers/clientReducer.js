@@ -13,7 +13,7 @@ const initialState = {
 const clientReducer = (state = initialState, action) => {
   switch(action.type) {
     case FETCH_WAREHOUSE_CLIENTS:
-      return { ...action.payload };
+      return { ...state, ...action.payload };
     case FETCH_WAREHOUSE_CLIENT:
       return { ...state, data: { ...state.data, [action.payload.client_name]: action.payload }};
     case FETCH_CLIENT_SKU:

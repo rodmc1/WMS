@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import './style.scss';
 import history from 'config/history';
-import React, { useEffect, useState  } from 'react';
+import React, { useEffect, useState } from 'react';
 import WarehouseDialog from 'components/WarehouseDialog';
 import ClientManagementForm from 'components/ClientManagement/Form';
 import WarehouseSideBar from 'components/ClientManagement/Sidebar';
@@ -139,6 +139,7 @@ function ClientManagementCreate (props) {
     setOpenSnackBar(true);
     setAlertConfig({ severity: 'info', message: 'Creating Client...' });
     setOpenBackdrop(true);
+    
     tagSKU(createdClientData.id, isChecked, [])
       .then(res => {
         let delayInMilliseconds = 500;
